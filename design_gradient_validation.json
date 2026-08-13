@@ -1,0 +1,172 @@
+{
+  "status": "historical_baseline_passed_current_field_extension_not_rerun",
+  "current_validation_note": "The current script also checks complete-D6 NVM/matched-ASR internal-field objectives. Those added cases were not rerun here because torch and torcwa are unavailable; the cases below are the prior seven-case baseline.",
+  "torch_version": "2.13.0+cpu",
+  "torcwa_version": "0.1.4.2",
+  "grid": 64,
+  "order": 1,
+  "central_difference_step": 1e-05,
+  "scaled_error_tolerance": 3e-06,
+  "cases": [
+    {
+      "name": "standard homogeneous thickness",
+      "method": "standard",
+      "lattice": "square",
+      "polarization": null,
+      "objective": 25.289114086210503,
+      "parameters": {
+        "thickness": {
+          "autograd": 973.7209495379352,
+          "finite_difference": 973.7210639720216,
+          "scaled_error": 1.1752245139504609e-07,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "square NVM",
+      "method": "nvm",
+      "lattice": "square",
+      "polarization": null,
+      "objective": 0.5294751487110673,
+      "parameters": {
+        "radius": {
+          "autograd": 7.38950889561847,
+          "finite_difference": 7.3895089033271235,
+          "scaled_error": 1.0431888467980271e-09,
+          "passed": true
+        },
+        "thickness": {
+          "autograd": 2.1260139877877546,
+          "finite_difference": 2.126013988851261,
+          "scaled_error": 5.002347950641655e-10,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "triangular NVM",
+      "method": "nvm",
+      "lattice": "triangular",
+      "polarization": null,
+      "objective": 0.5862267671365302,
+      "parameters": {
+        "radius": {
+          "autograd": 7.696232315631522,
+          "finite_difference": 7.696232358628262,
+          "scaled_error": 5.586725866211437e-09,
+          "passed": true
+        },
+        "thickness": {
+          "autograd": 1.9045751597866176,
+          "finite_difference": 1.9045751615764936,
+          "scaled_error": 9.397770491186909e-10,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "square matched-ASR",
+      "method": "matched-asr",
+      "lattice": "square",
+      "polarization": null,
+      "objective": 0.38632751496662626,
+      "parameters": {
+        "radius": {
+          "autograd": 2.4691569538349984,
+          "finite_difference": 2.4691569519202927,
+          "scaled_error": 7.754491768244353e-10,
+          "passed": true
+        },
+        "thickness": {
+          "autograd": 1.5123146748765894,
+          "finite_difference": 1.5123146758833081,
+          "scaled_error": 6.656807108006087e-10,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "triangular matched-ASR",
+      "method": "matched-asr",
+      "lattice": "triangular",
+      "polarization": null,
+      "objective": 0.7118121842962674,
+      "parameters": {
+        "radius": {
+          "autograd": 5.804723136631304,
+          "finite_difference": 5.804723431523938,
+          "scaled_error": 5.080218519183852e-08,
+          "passed": true
+        },
+        "thickness": {
+          "autograd": 2.3354160911802886,
+          "finite_difference": 2.335416093318665,
+          "scaled_error": 9.156298070527181e-10,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "square matched-ASR x sector",
+      "method": "matched-asr",
+      "lattice": "square",
+      "polarization": "x",
+      "objective": 0.13880410903127183,
+      "parameters": {
+        "radius": {
+          "autograd": 1.4269636210178154,
+          "finite_difference": 1.426963618419985,
+          "scaled_error": 1.8205302202397238e-09,
+          "passed": true
+        },
+        "thickness": {
+          "autograd": 0.38933534700492334,
+          "finite_difference": 0.38933534761143024,
+          "scaled_error": 6.065069002580969e-10,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "triangular matched-ASR y sector",
+      "method": "matched-asr",
+      "lattice": "triangular",
+      "polarization": "y",
+      "objective": 0.07753200372252358,
+      "parameters": {
+        "radius": {
+          "autograd": -0.4778707124221185,
+          "finite_difference": -0.4778706182255454,
+          "scaled_error": 9.419657309717167e-08,
+          "passed": true
+        },
+        "thickness": {
+          "autograd": 0.35459187210119747,
+          "finite_difference": 0.3545918721842289,
+          "scaled_error": 8.303141507681744e-11,
+          "passed": true
+        }
+      },
+      "passed": true
+    }
+  ],
+  "jinc": {
+    "argument": 1.2,
+    "autograd": -0.2655816972461058,
+    "finite_difference": -0.26558169724522074,
+    "scaled_error": 8.850697952311748e-13,
+    "passed": true
+  },
+  "geometry_contract": {
+    "circle_retains_tensor_identity": true,
+    "hard_raster_rejected_for_trainable_radius": true,
+    "passed": true
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "orientation-preserving Jacobian",
+      "error": 0.0,
+      "limit": 0.0,
+      "detail": "min(detJ)=5.028056e-06",
+      "passed": true
+    },
+    {
+      "name": "det(detJ J^-1 J^-T)=1",
+      "error": 8.731149137020111e-11,
+      "limit": 2e-09,
+      "detail": "",
+      "passed": true
+    },
+    {
+      "name": "matched coordinate lines lie on circle",
+      "error": 1.1102230246251565e-16,
+      "limit": 2e-15,
+      "detail": "",
+      "passed": true
+    },
+    {
+      "name": "FFT T equals direct quadrature",
+      "error": 4.12994874327198e-16,
+      "limit": 2e-12,
+      "detail": "",
+      "passed": true
+    },
+    {
+      "name": "FFT Tz equals direct quadrature",
+      "error": 4.3064120818133316e-16,
+      "limit": 2e-12,
+      "detail": "",
+      "passed": true
+    },
+    {
+      "name": "T identity-map limit",
+      "error": 3.7387127088528684e-16,
+      "limit": 2e-12,
+      "detail": "",
+      "passed": true
+    },
+    {
+      "name": "Tz identity-map limit",
+      "error": 3.7387127088528684e-16,
+      "limit": 2e-12,
+      "detail": "",
+      "passed": true
+    },
+    {
+      "name": "Eqs.29-36 constant-tensor limit",
+      "error": 4.440892098500626e-16,
+      "limit": 2e-12,
+      "detail": "",
+      "passed": true
+    }
+  ],
+  "diagnostics": {}
+}
