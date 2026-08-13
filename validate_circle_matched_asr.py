@@ -396,7 +396,7 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             verify_cascade=False,
             compute_condition_numbers=True,
             dtype=torch.complex128,
-            device="cpu",
+            device="cuda",
         )
         sim.add_input_layer(eps=1.0)
         sim.add_output_layer(eps=1.0)

@@ -93,7 +93,7 @@ def objective(
         ),
         verify_cascade=False,
         dtype=torch.complex128,
-        device="cpu",
+        device="cuda",
     )
     sim.add_input_layer(eps=1.0)
     sim.add_output_layer(eps=1.0)
@@ -148,7 +148,7 @@ def internal_field_objective(
         ),
         verify_cascade=True,
         dtype=torch.complex128,
-        device="cpu",
+        device="cuda",
     )
     sim.add_input_layer(eps=1.0)
     sim.add_output_layer(eps=1.0)
@@ -167,7 +167,7 @@ def internal_field_objective(
     zero_y = int(torch.nonzero(sim.order_y == 0)[0])
     harmonic = zero_x * len(sim.order_y) + zero_y
     source = torch.zeros(
-        (2 * sim.order_N, 1), dtype=torch.complex128
+        (2 * sim.order_N, 1), dtype=torch.complex128, device="cuda"
     )
     source[harmonic, 0] = 1.0
     sim.E_i = source
@@ -339,7 +339,7 @@ def check_geometry_contract(grid: int, order: int) -> dict[str, object]:
         asr=ASROptions(grid=(grid, grid)),
         verify_cascade=False,
         dtype=torch.complex128,
-        device="cpu",
+        device="cuda",
     )
     sim.add_input_layer()
     sim.add_output_layer()

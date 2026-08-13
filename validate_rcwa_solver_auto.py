@@ -106,7 +106,7 @@ def _make_circle_simulation(
             geometry=geometry,
             background=Material(1.0),
             inclusion=Material(4.0),
-            method="auto",
+            method="nvm",
             label="circle-validation",
         )
     )
@@ -141,7 +141,7 @@ def _make_asr_smoke_simulation(
             geometry=Rectangle((0.45, 0.55)),
             background=Material(1.0),
             inclusion=Material(3.2),
-            method="auto",
+            method="asr-fr",
             label="asr-regression",
         )
     )
@@ -606,7 +606,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--order", type=int, default=1)
     parser.add_argument("--grid", type=int, default=48)
-    parser.add_argument("--device", default="cpu")
+    parser.add_argument("--device", default="cuda")
     parser.add_argument("--atol", type=float, default=2.0e-8)
     parser.add_argument("--rtol", type=float, default=2.0e-7)
     parser.add_argument("--json", type=Path)

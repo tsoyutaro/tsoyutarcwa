@@ -282,6 +282,20 @@ python validate_design_gradients.py --json design_gradient_validation.json
 について autograd と中心差分を比較します。数式と最適化例は
 `design_gradient_report_ja.md` にあります。
 
+## 金モスアイ／金基板の収束計算
+
+高さ方向に半径が変化する金モスアイを円柱matched-ASR層へ分割し、スライス数、Fourier次数、
+ASR sampling gridを交互に収束させるコードを追加しました。
+
+```bash
+python converge_gold_motheye.py --device cuda
+```
+
+金はRakić Lorentz–Drude分散を既定で使用し、測定 `n,k` CSVにも切り替えられます。半無限
+金基板では遠方透過率を0とし、モスアイ内吸収と基板へ流入して最終的に吸収されるpowerを
+分けて出力します。仮定、数式、収束判定、必要な追加形状条件は
+`gold_motheye_convergence_ja.md` を参照してください。
+
 ## モジュール構成
 
 実装は `rcwa_ext/` パッケージへ分割しました。旧 `rcwa_solver_auto.py` は互換 import

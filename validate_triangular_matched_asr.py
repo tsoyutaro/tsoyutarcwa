@@ -614,7 +614,7 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             verify_cascade=fields != "none",
             compute_condition_numbers=True,
             dtype=torch.complex128,
-            device="cpu",
+            device="cuda",
         )
         sim.add_input_layer(eps=1.0)
         sim.add_output_layer(eps=1.0)
@@ -1191,7 +1191,7 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
                 strict=pol is not None,
                 polarization=pol,
             ),
-            verify_cascade=fields != "none", dtype=torch.complex128, device="cpu",
+            verify_cascade=fields != "none", dtype=torch.complex128, device="cuda",
         )
         sim.add_input_layer(); sim.add_output_layer(); sim.set_incident_angle(0.0, 0.0)
         sim.add_structured_layer(LayerSpec(thickness=.18, geometry=Circle(.24), background=Material(1.0), inclusion=Material(4.0), method=method))

@@ -47,3 +47,7 @@ from rcwa_solver_auto import AutoRCWA, Circle, LayerSpec, Material
 `../rcwa_modular_math_guide_ja.md` にまとめています。三角NVMのD6-star/Cs偏光短縮は
 `../triangular_nvm_polarization_report_ja.md`、native-star完全D6の全指標射影と計算量は
 `../complete_d6_native_star_report_ja.md` を参照してください。
+
+応用例として、金円錐モスアイのmatched-ASRスライス数・Fourier次数・sampling gridを
+収束させる `../converge_gold_motheye.py`、金分散の `../gold_dispersion.py`、導出と実行手順の
+`../gold_motheye_convergence_ja.md` があります。
