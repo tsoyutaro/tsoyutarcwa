@@ -332,6 +332,9 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         *,
         mu_bg=1.0,
         mu_cyl=1.0,
+        core_radius=None,
+        eps_core=None,
+        mu_core=1.0,
         nx: int = 256,
         ny: int = 256,
         factorization_rules: bool = True,
@@ -350,15 +353,27 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             device=self._device,
             allow_zero=True,
         )
+        core_shell = core_radius is not None or eps_core is not None
+        if (core_radius is None) != (eps_core is None):
+            raise ValueError(
+                "core_radius and eps_core must be supplied together for a "
+                "core-shell circle."
+            )
+        raw_materials = [eps_bg, eps_cyl, mu_bg, mu_cyl]
+        if core_shell:
+            raw_materials.extend((eps_core, mu_core))
         material_values = [
             torch.as_tensor(value, dtype=self._dtype, device=self._device)
-            for value in (eps_bg, eps_cyl, mu_bg, mu_cyl)
+            for value in raw_materials
         ]
         if not all(bool(torch.all(torch.isfinite(v))) for v in material_values):
             raise ValueError("matched-ASR materials must be finite.")
         if any(bool(torch.any(torch.abs(v) == 0.0)) for v in material_values):
             raise ValueError("matched-ASR epsilon and mu values must be nonzero.")
-        eps_bg_t, eps_cyl_t, mu_bg_t, mu_cyl_t = material_values
+        eps_bg_t, eps_cyl_t, mu_bg_t, mu_cyl_t = material_values[:4]
+        eps_core_t = mu_core_t = None
+        if core_shell:
+            eps_core_t, mu_core_t = material_values[4:]
         radius, radius_value = _real_parameter_tensor(
             "radius",
             radius,
@@ -366,6 +381,26 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             device=self._device,
             allow_zero=False,
         )
+        core_radius_value = None
+        if core_shell:
+            if torch.is_tensor(core_radius) and core_radius.requires_grad:
+                raise UnsupportedCombinationError(
+                    "The inner core/shell boundary is sampled rather than "
+                    "coordinate-matched, so core_radius does not have a "
+                    "reliable shape derivative. Keep core_radius fixed or use "
+                    "a separately matched single-circle parameterization."
+                )
+            core_radius, core_radius_value = _real_parameter_tensor(
+                "core_radius",
+                core_radius,
+                dtype=torch.float64,
+                device=self._device,
+                allow_zero=False,
+            )
+            if core_radius_value >= radius_value:
+                raise ValueError(
+                    "core_radius must be smaller than the outer matched radius."
+                )
         triangular = getattr(self, "lattice_kind", "rectangular") == "triangular"
         if getattr(self, "group_theory_symmetry", "auto") == "d6" and not triangular:
             raise UnsupportedCombinationError(
@@ -383,6 +418,12 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         inside = self._periodic_circle_mask(mapping.x, mapping.y, radius)
         eps_uv = torch.where(inside, eps_cyl_t, eps_bg_t)
         mu_uv = torch.where(inside, mu_cyl_t, mu_bg_t)
+        if core_shell:
+            core_inside = self._periodic_circle_mask(
+                mapping.x, mapping.y, core_radius
+            )
+            eps_uv = torch.where(core_inside, eps_core_t, eps_uv)
+            mu_uv = torch.where(core_inside, mu_core_t, mu_uv)
 
         h = mapping.det_j.to(self._dtype)
         x_u, x_v = mapping.x_u.to(self._dtype), mapping.x_v.to(self._dtype)
@@ -588,19 +629,32 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         physical_inside = self._periodic_circle_mask(
             physical_x, physical_y, radius
         )
+        physical_eps = torch.where(physical_inside, eps_cyl_t, eps_bg_t)
+        physical_mu = torch.where(physical_inside, mu_cyl_t, mu_bg_t)
+        if core_shell:
+            physical_core = self._periodic_circle_mask(
+                physical_x, physical_y, core_radius
+            )
+            physical_eps = torch.where(physical_core, eps_core_t, physical_eps)
+            physical_mu = torch.where(physical_core, mu_core_t, physical_mu)
         self._physical_material_by_layer[layer_index] = (
-            torch.where(physical_inside, eps_cyl_t, eps_bg_t),
-            torch.where(physical_inside, mu_cyl_t, mu_bg_t),
+            physical_eps,
+            physical_mu,
         )
         self.layer_records.append(
             LayerRecord(
                 index=layer_index,
                 method="matched-asr",
-                shape="circle",
+                shape="core-shell-circle" if core_shell else "circle",
                 lattice=getattr(self, "lattice_kind", "rectangular"),
-                reason="MATCHED_CIRCLE_COORDINATES",
+                reason=(
+                    "OUTER_MATCHED_CORE_SHELL_COORDINATES"
+                    if core_shell
+                    else "MATCHED_CIRCLE_COORDINATES"
+                ),
                 options={
                     "radius": radius_value,
+                    "core_radius": core_radius_value,
                     "grid": (nx, ny),
                     "asr_G": self.matched_asr_G,
                     "factorization_rules": factorization_rules,
@@ -624,6 +678,46 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             and not complete_d6
         ):
             self._append_smatrix_from_cartesian_modes(w_cartesian, v_cartesian)
+
+    def add_layer_circle_shell_asr(
+        self,
+        thickness,
+        core_radius,
+        outer_radius,
+        eps_bg,
+        eps_shell,
+        eps_core,
+        *,
+        mu_bg=1.0,
+        mu_shell=1.0,
+        mu_core=1.0,
+        nx: int = 256,
+        ny: int = 256,
+        factorization_rules: bool = True,
+    ) -> None:
+        """Add a concentric core-shell circle with an outer matched map.
+
+        The coordinate map exactly matches the shell/background boundary.
+        The concentric core/shell boundary is evaluated in the same transformed
+        coordinates, but is not independently matched; convergence with both
+        Fourier order and quadrature grid therefore remains mandatory.  A
+        trainable ``core_radius`` is rejected instead of returning the zero or
+        misleading gradient of a sampled occupancy mask.
+        """
+        self.add_layer_circle_asr(
+            thickness,
+            outer_radius,
+            eps_bg,
+            eps_shell,
+            mu_bg=mu_bg,
+            mu_cyl=mu_shell,
+            core_radius=core_radius,
+            eps_core=eps_core,
+            mu_core=mu_core,
+            nx=nx,
+            ny=ny,
+            factorization_rules=factorization_rules,
+        )
 
     def _factorized_bttb(
         self,

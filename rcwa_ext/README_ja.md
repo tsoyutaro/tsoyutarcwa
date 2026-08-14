@@ -51,3 +51,8 @@ from rcwa_solver_auto import AutoRCWA, Circle, LayerSpec, Material
 応用例として、金円錐モスアイのmatched-ASRスライス数・Fourier次数・sampling gridを
 収束させる `../converge_gold_motheye.py`、金分散の `../gold_dispersion.py`、導出と実行手順の
 `../gold_motheye_convergence_ja.md` があります。
+
+PMMAコアへ金薄膜を被覆する同心三材料層は
+`AutoRCWA.add_layer_circle_shell_asr(...)` で追加できます。写像は外側の金–背景境界へ
+厳密に整合し、内側の金–PMMA境界は変換座標上で求積します。独立した回折次数／層数収束
+スクリプトと導出は `../pmma_gold_motheye_convergence_ja.md` を参照してください。

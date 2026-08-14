@@ -50,6 +50,7 @@ class AutoRCWA(CustomRCWA_NVM):
     )
     _build_circle_asr_pq = CustomRCWA_ASR_FR._build_circle_asr_pq
     add_layer_circle_asr = CustomRCWA_ASR_FR.add_layer_circle_asr
+    add_layer_circle_shell_asr = CustomRCWA_ASR_FR.add_layer_circle_shell_asr
     _factorized_bttb = CustomRCWA_ASR_FR._factorized_bttb
     _build_conversion_matrix_T = CustomRCWA_ASR_FR._build_conversion_matrix_T
     _build_conversion_matrix_Tz = CustomRCWA_ASR_FR._build_conversion_matrix_Tz

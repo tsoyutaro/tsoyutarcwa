@@ -308,3 +308,19 @@ from rcwa_ext import AutoRCWA, Circle, LayerSpec, Material
 を推奨します。ファイル別の責務、支配方程式、ASR/NVM/群論/S 行列の導出は
 `rcwa_modular_math_guide_ja.md`、native-star完全D6の導出と計算量は
 `complete_d6_native_star_report_ja.md` を参照してください。
+
+## PMMAモスアイへの金薄膜被覆
+
+PMMAコア、同心金シェル、空気からなる三材料断面を扱う
+`add_layer_circle_shell_asr` を追加しました。外側の金–空気境界をmatched-coordinate写像へ
+整合し、内側の金–PMMA境界は同じ変換座標上で評価します。回折次数と高さ方向の層数を
+別々に収束させる実行ファイルは次です。
+
+```bash
+python converge_pmma_gold_order.py
+python converge_pmma_gold_layers.py
+```
+
+モデル、数式、判定規則、出力、実行順序は
+`pmma_gold_motheye_convergence_ja.md`、検証は
+`validate_pmma_gold_motheye.py` を参照してください。
