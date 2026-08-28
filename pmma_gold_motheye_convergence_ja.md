@@ -97,6 +97,21 @@ R=-P_r/P_i,\qquad T=P_t/P_i,\qquad A=1-R-T
 を出力します。出力媒質は半無限PMMAなので、(T) はPMMA基板へ進む全伝搬powerです。
 PMMAを実数屈折率とした既定モデルでは、(A) は金膜による吸収です。
 
+### 完全D6＋特定偏光の既定短縮
+
+三角格子、同心円、垂直x偏光という現在条件では、ゼロ次sourceはD6の (E_1) 表現に
+属します。既定の `--symmetry-reduction d6-source` は12個のD6作用で演算子をReynolds平均し、
+x偏光なら (E_1) matrix-unit row 0だけを固有値分解とS行列cascadeへ渡します。
+
+\[
+D_{E_1,x}=M(M+1)+1
+\]
+
+従来のCs鏡映sectorは (D_{Cs}=3M(M+1)+1) なので、次元は約3分の1、密行列主要項は
+理論上約27分の1、二乗メモリは約9分の1です。比較検証用に旧経路へ戻す場合は
+`--symmetry-reduction cs-source`、群論を完全に無効化する場合は `--no-symmetry` を指定します。
+出力CSVの `symmetry_reduction` は既定で `D6-E1-source-row`、`symmetry_irrep` は `E1` です。
+
 ## 4. 独立した収束実行
 
 以下は `outputs` ディレクトリ内で実行します。
@@ -105,7 +120,7 @@ PMMAを実数屈折率とした既定モデルでは、(A) は金膜による吸
 
 ```bash
 python converge_pmma_gold_order.py \
-  --orders 2,3,4,5,6 --fixed-slices 32 --grid 192 \
+  --orders 10,12,14,16,18,20,22 --fixed-slices 32 --grid 256 \
   --output-prefix results/pmma_au_order
 ```
 

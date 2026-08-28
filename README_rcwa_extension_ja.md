@@ -10,7 +10,7 @@
 - `OutputSpec.smatrix_size` を `"full"`、`"half"`、`"quarter"` から選択できます。
 - NVM円形層で `GroupTheoryOptions(enabled=True)` を指定すると、直交格子では C2v、三角・斜交格子では C2 の全モードブロック固有値分解を試みます。
 - 直交格子・正入射・単一円では、`polarization="x"` または `"y"` により、入射偏光が到達するC2vセクターだけを解けます。
-- 三角格子の円形NVMおよびmatched-ASRでは、D6-closed reciprocal starとCs鏡映部分群を使い、正入射のx/y単一偏光セクターだけを解けます。
+- 三角格子の円形NVMおよびmatched-ASRでは、`symmetry="auto"` ならD6-closed star/Cs、`symmetry="d6"` なら完全D6のE1 matrix-unit rowを使い、正入射x/y単一偏光だけを解けます。
 - 一般斜交格子の円形NVMでは、正入射x/yが共有するC2 source sectorだけを解き、交差偏光を保持したまま固有値問題を短縮できます。
 
 ここでいう六方最密配置は、1個の円を三角 Bravais 格子の各格子点へ置く「2次元の円充填」です。3次元結晶の ABAB 型 HCP 積層ではありません。
@@ -121,7 +121,7 @@ sim = AutoRCWA(
 )
 ```
 
-直交格子では、全 `2N` 次元の固有値問題を作らず、x偏光ならC2vの第3セクター、y偏光なら第4セクターだけを解きます。三角格子ではD6-star/Csの対応sectorだけを解きます。これらでは未選択偏光sectorの列は計算されません。一般斜交格子ではxとyが同じC2 source sectorに入るため、どちらを指定しても同じsectorを解き、そのsector内のx/y交差偏光応答は両方とも有効です。結果の `sim.S` はいずれも元の `2N × 2N` 配列へ埋め戻すため、既存の `S_parameters` 呼び出しと互換です。
+直交格子では、全 `2N` 次元の固有値問題を作らず、x偏光ならC2vの第3セクター、y偏光なら第4セクターだけを解きます。三角格子では `symmetry="auto"` がD6-star/Cs、`symmetry="d6"` が完全D6 E1 source-rowを選びます。後者では未選択既約表現も未選択E1 rowも計算しません。一般斜交格子ではxとyが同じC2 source sectorに入るため、どちらを指定しても同じsectorを解き、そのsector内のx/y交差偏光応答は両方とも有効です。結果の `sim.S` はいずれも元の `2N × 2N` 配列へ埋め戻すため、既存の `S_parameters` 呼び出しと互換です。
 
 ## S行列サイズ
 
@@ -151,14 +151,14 @@ couplingを非公開で保存します。そのため `quarter` でも出力側�
 群論による分解は、正入射かつセル中心の単一円を持つNVM層またはmatched-ASR層で使用します。適用される分解はbackendと格子で異なります。
 
 - 直交NVM: C2v。x/y source-specific短縮にも対応
-- 三角NVM: 全モード計算はC2ブロック分解、x/y source-specific計算はD6-closed star上のCs短縮
+- 三角NVM: 全モード計算はC2または完全D6、x/y source-specific計算はCsまたは完全D6 E1-row短縮
 - 一般斜交NVM: C2ブロック分解。x/yは同じC2 source sectorに属するため、どちらの指定でも同じ共通sectorだけを解く短縮に対応し、sector内の交差偏光結合も保持
 - 直交matched-ASR: C2vのx/y source-specific短縮
-- 三角matched-ASR: D6-closed star上のCs鏡映によるx/y source-specific短縮
+- 三角matched-ASR: D6-closed star上のCs、または完全D6 E1-rowによるx/y source-specific短縮
 - 対称条件を満たさない場合: 通常の固有値分解へフォールバック
 - `GroupTheoryOptions(strict=True)` の場合: フォールバックせず例外を送出
 
-各ブロックへの射影後に `P`、`Q` 演算子の不変性残差を検査します。三角NVMの全モード群論経路はC2分解ですが、x/y単一偏光経路では、matched-ASRと同じD6-closed starとCs鏡映セクターを使用します。NVMの誘電率・逆誘電率・法線射影行列をstarへ制限してから逆行列と `P_star,Q_star` を直接組み立てるため、矩形打切りの隅調和波は逆行列を介して混入しません。不要と推定したモードをダミー固有値へ置換する方法は使用していません。
+各ブロックへの射影後に `P`、`Q` 演算子の不変性残差を検査します。`symmetry="auto", polarization="x"|"y"` は従来のCs鏡映sector、`symmetry="d6", polarization="x"|"y"` は12作用でReynolds平均した後のE1 matrix-unit rowだけを使用します。NVMの誘電率・逆誘電率・法線射影行列をstarへ制限してから逆行列と `P_star,Q_star` を直接組み立てるため、矩形打切りの隅調和波は逆行列を介して混入しません。
 
 ### D6の完全分解
 
@@ -174,14 +174,15 @@ torcwa 型の矩形打切り `m,n = -M,...,M` 全体は、60度回転で一般�
 
 `max(|m|,|n|,|m-n|) <= M`
 
-という六角形star、またはD6 orbitの完全な和をnative Fourier基底として採用します。その基底上なら全D6既約表現への完全分解が可能です。本実装はこのnative star上に12個のD6作用を構成し、`A1, A2, B1, B2, E1, E2` の全指標射影を列挙します。E1/E2はmatrix-unitの1行だけを固有値分解し、二重縮退する相方を群作用から再構成します。x/y source-specific計算では、同じstarのCs部分群による単一sector短縮を使用します。
+という六角形star、またはD6 orbitの完全な和をnative Fourier基底として採用します。その基底上なら全D6既約表現への完全分解が可能です。本実装はこのnative star上に12個のD6作用を構成し、`A1, A2, B1, B2, E1, E2` の全指標射影を列挙します。E1/E2はmatrix-unitの1行だけを固有値分解し、二重縮退する相方を群作用から再構成します。x/y source-specific計算は、Cs sectorに加えて、sourceが属するE1のx/y rowだけを解く完全D6経路にも対応します。
 
-実装済みの三角NVM／matched-ASR偏光短縮では、矩形打切りの内部からD6 orbitが完全に閉じる harmonic だけを選んで `D6-closed star` を構成し、そのstar上でCs鏡映の偶・奇セクターへ分けます。正入射x/y sourceに必要なセクターだけを解くための厳密な部分空間短縮です。一方 `symmetry="d6", polarization=None` はnative star全体を6種類の既約表現のisotypic blockへ完全分解します。どちらも、D6で閉じない元の矩形 `2N` 基底全体の完全分解とは区別します。
+実装済みの三角NVM／matched-ASR偏光短縮では、矩形打切り内部からD6で閉じるharmonicだけを選びます。`symmetry="auto"` はCs鏡映の偶・奇sector、`symmetry="d6"` とx/yの組合せはE1の対応matrix-unit rowだけを解きます。後者の次元は `M*(M+1)+1` で、Csの `3*M*(M+1)+1` よりさらに約3分の1です。一方 `symmetry="d6", polarization=None` は6種類の全isotypic blockを解きます。
 
 さらに、`GroupTheoryOptions(enabled=True, symmetry="d6", polarization=None)` を指定すると、同じnative star上で12個のD6作用を作り、指標射影により `A1, A2, B1, B2, E1, E2` の全isotypic blockを列挙します。E1/E2はmatrix-unit rowへさらに縮約します。NVMとmatched-ASRの両方、RedhefferとLi-2a、`full`／`half`／`quarter` S行列、内部・外部電磁場再構成に対応します。公開S行列と場のFourier係数はtorcwa互換の矩形サイズへ埋め戻され、native starに含まれないcorner harmonicはゼロです。三角starの縦場は `epsilon_zz`／`mu_zz` の逆則をstar内で解いてから埋め戻します。
 
-- 三角NVM: D6-closed star上のx/y source-specific Cs短縮に対応。
-- 三角matched-ASR: D6-closed star上のx/y source-specific Cs短縮に対応。
+- 三角NVM: `symmetry="auto"` のCs短縮と、`symmetry="d6"` の完全D6 E1 source-row短縮に対応。
+- 三角matched-ASR: `symmetry="auto"` のCs短縮と、`symmetry="d6"` の完全D6 E1 source-row短縮に対応。
+- 完全D6 E1 x/y source-row: 三角NVM／matched-ASRで対応。固有値・cascadeともrow次元で実行。
 - 全矩形基底のD6完全分解: 集合がD6で閉じないため数学的に不可能。
 - native D6-star基底全体の完全既約分解: 三角NVM／matched-ASRで実装済み。
 
@@ -200,8 +201,19 @@ sim = AutoRCWA(
 )
 ```
 
+特定のx偏光だけを完全D6で解く場合:
+
+```python
+group_theory=GroupTheoryOptions(
+    enabled=True,
+    symmetry="d6",
+    strict=True,
+    polarization="x",
+)
+```
+
 通常どおりsourceを設定して `solve_global_smatrix()` を実行した後、`field_xy`、`field_xz`、
-`field_yz` を呼び出せます。`polarization="x"|"y"` のCs短縮でも同じAPIを使用します。
+`field_yz` を呼び出せます。Cs短縮と完全D6 E1-row短縮でも同じAPIを使用します。
 偏光／群論短縮時に選択sector外のFourier sourceを渡した場合は、その成分を黙って捨てず
 明示的に例外にします。任意sourceには群論短縮を無効化するか、D6/Csに適合するorbit和を
 使用してください。
@@ -244,6 +256,7 @@ python validate_rcwa_solver_auto.py
 - x/y両セクターの和と独立full-star source responseの一致
 - native-star完全D6の6既約表現、次元和、projector完全性
 - 完全D6 NVM／matched-ASRと独立full-star S行列の一致
+- 完全D6 E1 x/y rowと全既約表現解／Cs解のsource response、次元式の一致
 - 完全D6版Redheffer／Li-2aおよびfull／half／quarterの一致
 - 完全D6／Csの内部場、両方向modal coupling、partial/full field一致
 - 層界面での接線 `Ex,Ey,Hx,Hy` 連続性とstar内 `Ez,Hz` 再構成
@@ -278,8 +291,8 @@ radius を渡した場合は明示的に例外になります。
 python validate_design_gradients.py --json design_gradient_validation.json
 ```
 
-この検証は standard thickness、直方・三角 NVM、直方・三角 matched-ASR、x/y 偏光短縮
-について autograd と中心差分を比較します。数式と最適化例は
+この検証は standard thickness、直方・三角 NVM、直方・三角 matched-ASR、Csおよび
+完全D6 E1-rowのx/y偏光短縮について autograd と中心差分を比較します。数式と最適化例は
 `design_gradient_report_ja.md` にあります。
 
 ## 金モスアイ／金基板の収束計算
@@ -293,7 +306,9 @@ python converge_gold_motheye.py --device cuda
 
 金はRakić Lorentz–Drude分散を既定で使用し、測定 `n,k` CSVにも切り替えられます。半無限
 金基板では遠方透過率を0とし、モスアイ内吸収と基板へ流入して最終的に吸収されるpowerを
-分けて出力します。仮定、数式、収束判定、必要な追加形状条件は
+分けて出力します。三角格子の既定は完全D6 E1 x-source rowで、比較用の
+`--symmetry-reduction cs-source` と群論無効化 `--no-symmetry` も選択できます。
+仮定、数式、収束判定、必要な追加形状条件は
 `gold_motheye_convergence_ja.md` を参照してください。
 
 ## モジュール構成
@@ -321,6 +336,25 @@ python converge_pmma_gold_order.py
 python converge_pmma_gold_layers.py
 ```
 
+両者とも三角格子では完全D6 E1 x-source rowが既定です。
 モデル、数式、判定規則、出力、実行順序は
 `pmma_gold_motheye_convergence_ja.md`、検証は
 `validate_pmma_gold_motheye.py` を参照してください。
+
+## Wang et al. (2022) 図8の正方形金属パッチ
+
+論文 *2D rigorous coupled wave analysis with adaptive spatial resolution for a multilayer
+periodic structure* の図8(a)(b)を、既存の分離ASR写像・Fourier因数分解・層間変換
+`T` を用いて再現する専用コードを追加しました。
+
+```bash
+python reproduce_asr_fig8.py --study smoke --device cpu --no-plot
+python validate_asr_fig8.py
+python reproduce_asr_fig8.py --study fig8 --device cuda
+```
+
+論文条件はperiod 30 mm、15 mm角patch、厚さ0.01 mm、2–18 GHz、`G=0.001`、
+ASR-FR `N=M=8`、ASR `N=M=20`です。図8(b)のtotal-minus-zero-order power、
+10 GHz付近のRayleigh cutoff、passivity、再開可能CSVも扱います。論文のHFSS元データは
+公開されていないため、外部CSVがある場合だけ重ねます。数式、符号規約、実行順序、
+検証範囲は `asr_fig8_reproduction_ja.md` を参照してください。

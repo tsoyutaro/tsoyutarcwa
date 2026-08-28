@@ -838,34 +838,26 @@ class _SymmetryReductionMixin:
             )
         return basis
 
-    def _complete_d6_eigendecomposition(
+    def _d6_symmetrized_cartesian_pq(
         self,
         p_star: torch.Tensor,
         q_star: torch.Tensor,
         transform_star: torch.Tensor,
-        *,
-        layer_index: int,
-        backend: str,
-    ) -> tuple[
-        torch.Tensor,
-        torch.Tensor,
-        torch.Tensor,
-        torch.Tensor,
-        torch.Tensor,
-    ]:
-        """Solve all D6 irreps, using matrix-unit rows for E1/E2."""
+    ):
+        """Return fully Reynolds-averaged Cartesian operators on the D6 star."""
         if getattr(self, "lattice_kind", "rectangular") != "triangular":
             raise UnsupportedCombinationError(
-                "Complete D6 decomposition requires a 60-degree equal-length triangular cell."
+                "D6 decomposition requires a 60-degree equal-length triangular cell."
             )
         if abs(_as_float(self.inc_ang)) > 1.0e-8:
             raise UnsupportedCombinationError(
-                "Complete D6 decomposition requires normal incidence."
+                "D6 decomposition requires normal incidence."
             )
         vector_embedding, group = self._triangular_star_group_operators()
         star_dimension = vector_embedding.shape[1]
-        identity = self._eye(star_dimension)
-        transform_inverse = self._solve(transform_star, identity)
+        transform_inverse = self._solve(
+            transform_star, self._eye(star_dimension)
+        )
         p_cart = transform_star @ p_star @ transform_inverse
         q_cart = transform_star @ q_star @ transform_inverse
 
@@ -891,23 +883,64 @@ class _SymmetryReductionMixin:
             torch.linalg.vector_norm(q_symmetric - q_cart)
             / torch.maximum(torch.linalg.vector_norm(q_cart), tiny),
         ).real
-
-        electric_projector_sum = torch.zeros_like(p_cart)
-        magnetic_projector_sum = torch.zeros_like(q_cart)
-        kz_parts: list[torch.Tensor] = []
-        electric_parts: list[torch.Tensor] = []
-        magnetic_parts: list[torch.Tensor] = []
-        block_diagnostics: list[dict[str, object]] = []
         tolerance = max(
             self.group_theory_tolerance,
             5.0e-5 if self._dtype == torch.complex64 else 5.0e-9,
         )
+        return (
+            vector_embedding,
+            group,
+            transform_inverse,
+            p_symmetric,
+            q_symmetric,
+            symmetry_correction,
+            tiny,
+            tolerance,
+        )
+
+    def _complete_d6_eigendecomposition(
+        self,
+        p_star: torch.Tensor,
+        q_star: torch.Tensor,
+        transform_star: torch.Tensor,
+        *,
+        layer_index: int,
+        backend: str,
+    ) -> tuple[
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+    ]:
+        """Solve all D6 irreps, using matrix-unit rows for E1/E2."""
+        (
+            vector_embedding,
+            group,
+            transform_inverse,
+            p_symmetric,
+            q_symmetric,
+            symmetry_correction,
+            tiny,
+            tolerance,
+        ) = self._d6_symmetrized_cartesian_pq(
+            p_star, q_star, transform_star
+        )
+        star_dimension = vector_embedding.shape[1]
+        identity = self._eye(star_dimension)
+
+        electric_projector_sum = torch.zeros_like(p_symmetric)
+        magnetic_projector_sum = torch.zeros_like(q_symmetric)
+        kz_parts: list[torch.Tensor] = []
+        electric_parts: list[torch.Tensor] = []
+        magnetic_parts: list[torch.Tensor] = []
+        block_diagnostics: list[dict[str, object]] = []
         character_table = self._d6_character_table()
         matrix_table = self._d6_irrep_matrices()
         for label in ("A1", "A2", "B1", "B2", "E1", "E2"):
             irrep_dimension, characters = character_table[label]
-            electric_projector = torch.zeros_like(p_cart)
-            magnetic_projector = torch.zeros_like(q_cart)
+            electric_projector = torch.zeros_like(p_symmetric)
+            magnetic_projector = torch.zeros_like(q_symmetric)
             for character, entry in zip(characters, group):
                 electric = entry["electric"]
                 magnetic = entry["magnetic"]
@@ -1031,7 +1064,7 @@ class _SymmetryReductionMixin:
                     f"D6 {label} magnetic modes left their matrix-unit row."
                 )
             partner_residual = torch.zeros(
-                (), dtype=p_cart.real.dtype, device=self._device
+                (), dtype=p_symmetric.real.dtype, device=self._device
             )
             if irrep_dimension == 2:
                 assert electric_transfer is not None
@@ -1121,6 +1154,189 @@ class _SymmetryReductionMixin:
             kz,
             electric_modes,
             magnetic_modes,
+            vector_embedding,
+            transform_inverse,
+        )
+
+    def _d6_source_eigendecomposition(
+        self,
+        p_star: torch.Tensor,
+        q_star: torch.Tensor,
+        transform_star: torch.Tensor,
+        *,
+        layer_index: int,
+        backend: str,
+    ) -> tuple[
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+    ]:
+        """Solve only the E1 matrix-unit row reached by a normal x/y source."""
+        polarization = self.polarization_reduction
+        if polarization not in {"x", "y"}:
+            raise UnsupportedCombinationError(
+                "D6 source-row reduction requires polarization='x' or 'y'."
+            )
+        (
+            vector_embedding,
+            group,
+            transform_inverse,
+            p_symmetric,
+            q_symmetric,
+            symmetry_correction,
+            tiny,
+            tolerance,
+        ) = self._d6_symmetrized_cartesian_pq(
+            p_star, q_star, transform_star
+        )
+        star_dimension = vector_embedding.shape[1]
+        row = 0 if polarization == "x" else 1
+        e1_matrices = self._d6_irrep_matrices()["E1"]
+        electric_projector = self._d6_matrix_unit(
+            group,
+            e1_matrices,
+            representation="electric",
+            row=row,
+            column=row,
+        )
+        magnetic_projector = self._d6_matrix_unit(
+            group,
+            e1_matrices,
+            representation="magnetic",
+            row=row,
+            column=row,
+        )
+        electric_projector = 0.5 * (
+            electric_projector + electric_projector.mH
+        )
+        magnetic_projector = 0.5 * (
+            magnetic_projector + magnetic_projector.mH
+        )
+        electric_basis_star = self._projector_range(electric_projector)
+        magnetic_basis_star = self._projector_range(magnetic_projector)
+        if electric_basis_star.shape[1] != magnetic_basis_star.shape[1]:
+            raise UnsupportedCombinationError(
+                "D6 E1 electric/magnetic source-row multiplicities disagree."
+            )
+        reduced_dimension = electric_basis_star.shape[1]
+        if reduced_dimension == 0:
+            raise UnsupportedCombinationError("The selected D6 E1 source row is empty.")
+
+        p_image = p_symmetric @ magnetic_basis_star
+        q_image = q_symmetric @ electric_basis_star
+        p_sub = electric_basis_star.mH @ p_image
+        q_sub = magnetic_basis_star.mH @ q_image
+        p_residual = torch.linalg.vector_norm(
+            p_image - electric_basis_star @ p_sub
+        ) / torch.maximum(torch.linalg.vector_norm(p_image), tiny)
+        q_residual = torch.linalg.vector_norm(
+            q_image - magnetic_basis_star @ q_sub
+        ) / torch.maximum(torch.linalg.vector_norm(q_image), tiny)
+        invariance_residual = torch.maximum(p_residual.real, q_residual.real)
+        if _as_float(invariance_residual) > tolerance:
+            raise UnsupportedCombinationError(
+                "D6 E1 source row is not invariant: relative residual "
+                f"{_as_float(invariance_residual):.3e}."
+            )
+
+        kz_squared, electric_sub = self._eig(p_sub @ q_sub)
+        kz = self._positive_kz(kz_squared)
+        electric_modes_star = electric_basis_star @ electric_sub
+        magnetic_modes_star = self._magnetic_eigenvectors(
+            p_symmetric,
+            q_symmetric,
+            electric_modes_star,
+            kz,
+        )
+        magnetic_sub = magnetic_basis_star.mH @ magnetic_modes_star
+        magnetic_residual = torch.linalg.vector_norm(
+            magnetic_modes_star - magnetic_basis_star @ magnetic_sub
+        ) / torch.maximum(torch.linalg.vector_norm(magnetic_modes_star), tiny)
+        if _as_float(magnetic_residual) > tolerance:
+            raise UnsupportedCombinationError(
+                "D6 E1 magnetic modes left the selected source row."
+            )
+
+        order = torch.argsort(kz.real - 1.0e-6 * kz.imag, descending=True)
+        kz = kz[order]
+        electric_modes_star = electric_modes_star[:, order]
+        magnetic_modes_star = magnetic_modes_star[:, order]
+        electric_basis = vector_embedding @ electric_basis_star
+        magnetic_basis = vector_embedding @ magnetic_basis_star
+
+        zero_x = int(torch.nonzero(self.order_x == 0, as_tuple=False)[0, 0])
+        zero_y = int(torch.nonzero(self.order_y == 0, as_tuple=False)[0, 0])
+        harmonic = zero_x * len(self.order_y) + zero_y
+        source = torch.zeros(
+            2 * self.order_N, dtype=self._dtype, device=self._device
+        )
+        source[harmonic if polarization == "x" else self.order_N + harmonic] = 1.0
+        source_residual = torch.linalg.vector_norm(
+            source - electric_basis @ (electric_basis.mH @ source)
+        ) / torch.maximum(torch.linalg.vector_norm(source), tiny)
+        if _as_float(source_residual) > tolerance:
+            raise UnsupportedCombinationError(
+                "The requested zero-order source is outside its D6 E1 matrix-unit row."
+            )
+
+        order_x = [int(value) for value in self.order_x.detach().cpu().tolist()]
+        order_y = [int(value) for value in self.order_y.detach().cpu().tolist()]
+        order_bound = min(
+            max(abs(value) for value in order_x),
+            max(abs(value) for value in order_y),
+        )
+        expected_dimension = order_bound * (order_bound + 1) + 1
+        if reduced_dimension != expected_dimension:
+            raise UnsupportedCombinationError(
+                "Unexpected D6 E1 source-row dimension: "
+                f"{reduced_dimension}, expected {expected_dimension}."
+            )
+        # Mutate the cascade state only after every source-row invariant has
+        # passed.  This keeps a rejected layer from leaving partial state.
+        self._install_polarization_basis(
+            electric_basis, magnetic_basis, tolerance
+        )
+        self._polarized_layers.append(
+            {
+                "electric": electric_basis_star.mH @ electric_modes_star,
+                "magnetic": magnetic_basis_star.mH @ magnetic_modes_star,
+                "kz": kz,
+            }
+        )
+        full_dimension = 2 * self.order_N
+        self.group_theory_diagnostics.append(
+            {
+                "layer": layer_index,
+                "requested": True,
+                "applied": True,
+                "symmetry": "D6-E1-source-row",
+                "backend": backend,
+                "polarization": polarization,
+                "irrep": "E1",
+                "matrix_unit_row": row,
+                "reduced_dimension": reduced_dimension,
+                "expected_dimension": expected_dimension,
+                "star_vector_dimension": star_dimension,
+                "full_dimension": full_dimension,
+                "max_invariance_residual": _as_float(invariance_residual),
+                "magnetic_residual": _as_float(magnetic_residual),
+                "source_projection_residual": _as_float(source_residual),
+                "operator_symmetrization": _as_float(symmetry_correction),
+                "dense_eigen_cubic_work_ratio_vs_star": (
+                    reduced_dimension / star_dimension
+                ) ** 3,
+                "dense_eigen_cubic_work_ratio_vs_rectangular": (
+                    reduced_dimension / full_dimension
+                ) ** 3,
+                "tolerance": tolerance,
+            }
+        )
+        return (
+            kz,
+            electric_modes_star,
+            magnetic_modes_star,
             vector_embedding,
             transform_inverse,
         )

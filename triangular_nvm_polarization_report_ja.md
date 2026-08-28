@@ -155,9 +155,11 @@ E1/E2は2次元既約表現なので、character projector全体を対角化す�
 再構成する。これにより固有値problemをさらに半分にし、重複固有値に対するautogradの
 不安定性を避ける。
 
-`polarization="x"` または `"y"` では、同じD6-closed starとCs部分群を用いてsourceに必要な
-一方のsectorだけを解く。全6 isotypic blockを求める完全D6経路と、単一sourceだけを求める
-Cs経路は用途の異なる二つの厳密な短縮である。
+`symmetry="auto", polarization="x"|"y"` では同じD6-closed starとCs部分群を使う。
+`symmetry="d6", polarization="x"|"y"` では12作用のReynolds平均後、sourceが属する
+(E_1) matrix-unit rowだけを解く。その次元は (M(M+1)+1) で、Csの
+(3M(M+1)+1) より漸近3分の1である。`polarization=None` の全6 isotypic block経路と
+合わせ、用途の異なる三つの厳密なD6-star短縮を選べる。
 
 ## 8. 検証
 
@@ -172,7 +174,9 @@ Cs経路は用途の異なる二つの厳密な短縮である。
 - signed-permutationによる \(O(D^2)\) Reynolds作用とdense作用の一致
 - ランダムなD6-equivariant \(P:H\to E,Q:E\to H\) の全122 mode再構成残差
 - NVM／matched-ASRの完全D6結果と独立full-star結果の一致
-- complete D6／Csの内部6成分場、前後入射、partial/full出力の一致
+- NVM／matched-ASRの完全D6 E1 x/y rowと全既約表現解／Cs解のsource response一致
+- E1-row次元 (M(M+1)+1)、source射影残差、12作用不変性
+- complete D6／E1-row／Csの内部6成分場、前後入射、partial/full出力の一致
 - 入出力界面における接線場の連続性
 - 直交C2v NVM／matched-ASRの内部・外部場とLi-2a quarter/full一致
 - fields-only出力と通常field出力の一致

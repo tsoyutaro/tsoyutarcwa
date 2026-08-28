@@ -33,8 +33,10 @@ r(u)=r_{\rm tip}+(r_{\rm base}-r_{\rm tip})u^p,
 
 各スライスは「空気背景中のセル中心金円柱」とし、`method="matched-asr"` を用いる。
 円境界に座標線を一致させ、各スライスをCartesian S行列へ変換してRedhefferまたはLi-2aで
-接続する。三角格子・正入射・中心円なので、既定ではD6-closed reciprocal star上のx偏光
-Cs sectorだけを解く。
+接続する。三角格子・正入射・中心円なので、既定ではnative D6-star上でx偏光sourceが属する
+完全D6のE1 matrix-unit rowだけを解く。固有値問題とS行列cascadeの次元は
+\(M(M+1)+1\) であり、従来のCs経路 \(3M(M+1)+1\) の約3分の1である。
+比較のため `--symmetry-reduction cs-source` を指定すれば従来のCs経路へ戻せる。
 
 高さ方向の階段近似誤差、Fourier打切り誤差、ASR material tensorの数値Fourier積分誤差は
 独立でない。このため次の3軸を交互に更新する。
@@ -124,6 +126,12 @@ wavelength_nm,epsilon_real,epsilon_imag
 python converge_gold_motheye.py --device cuda
 ```
 
+従来のCs短縮と比較する例:
+
+```bash
+python converge_gold_motheye.py --symmetry-reduction cs-source --device cuda
+```
+
 測定CSVを使う例:
 
 ```bash
@@ -156,6 +164,9 @@ python converge_gold_motheye.py \
 python validate_gold_motheye_setup.py
 python validate_gold_motheye_setup.py --integration --device cuda
 ```
+
+統合検証は同じ最小構造を完全D6 E1-rowとCsで解き、`M=1` における縮約次元が
+それぞれ3と7であること、およびR・吸収分配の一致も検査する。
 
 ## 6. 決定が必要な条件
 

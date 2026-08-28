@@ -12,7 +12,9 @@ Default physical assumptions
 * Radius increases from 5 nm at the air-side tip to 95 nm at the Au substrate.
 * Semi-infinite Au substrate.  Far-side T=0; power entering the substrate is
   reported separately from absorption in the patterned moth-eye region.
-* Normal-incidence x polarization.  Cs source-sector reduction is used.
+* Normal-incidence x polarization.  Complete-D6 E1 source-row reduction is
+  used by default; ``--symmetry-reduction cs-source`` retains the older Cs
+  comparison path.
 * Rakić Lorentz-Drude bulk-Au dispersion.
 
 Use measured n,k data for a final fabricated sample with
@@ -175,6 +177,7 @@ def simulate_case(
     *,
     cascade: str,
     use_symmetry: bool,
+    symmetry_reduction: str = "d6-source",
     device: torch.device,
 ) -> dict[str, object]:
     """Run one wavelength/configuration and return flux-normalized observables."""
@@ -184,6 +187,17 @@ def simulate_case(
     frequency = period / wavelength_nm
     semi_infinite = geometry.substrate_mode == "semi-infinite"
     symmetry_allowed = use_symmetry and semi_infinite
+    if symmetry_reduction not in {"d6-source", "cs-source"}:
+        raise ValueError("symmetry_reduction must be d6-source or cs-source.")
+    if (
+        symmetry_allowed
+        and symmetry_reduction == "d6-source"
+        and geometry.lattice != "triangular"
+    ):
+        raise ValueError(
+            "d6-source requires the 60-degree triangular lattice; use "
+            "--symmetry-reduction cs-source for a square lattice."
+        )
     simulation = AutoRCWA(
         freq=frequency,
         order=[numerical.order, numerical.order],
@@ -197,7 +211,7 @@ def simulate_case(
         ),
         group_theory=GroupTheoryOptions(
             enabled=symmetry_allowed,
-            symmetry="auto",
+            symmetry="d6" if symmetry_reduction == "d6-source" else "auto",
             strict=symmetry_allowed,
             polarization="x" if symmetry_allowed else None,
         ),
@@ -271,6 +285,11 @@ def simulate_case(
         }
 
     diagnostics = simulation.cascade_diagnostics
+    symmetry_diagnostic = (
+        simulation.group_theory_diagnostics[-1]
+        if simulation.group_theory_diagnostics
+        else {}
+    )
     return {
         "wavelength_nm": wavelength_nm,
         "order": numerical.order,
@@ -299,6 +318,8 @@ def simulate_case(
         ),
         "reduced_dimension": diagnostics.get("reduced_dimension"),
         "full_dimension": diagnostics.get("full_dimension", 2 * simulation.order_N),
+        "symmetry_reduction": symmetry_diagnostic.get("symmetry"),
+        "symmetry_irrep": symmetry_diagnostic.get("irrep"),
         "runtime_seconds": time.perf_counter() - started,
     }
 
@@ -362,6 +383,7 @@ class Study:
         wavelengths: Sequence[float],
         cascade: str,
         use_symmetry: bool,
+        symmetry_reduction: str,
         device: torch.device,
         checkpoint: Path,
         signature: str,
@@ -371,6 +393,7 @@ class Study:
         self.wavelengths = tuple(wavelengths)
         self.cascade = cascade
         self.use_symmetry = use_symmetry
+        self.symmetry_reduction = symmetry_reduction
         self.device = device
         self.checkpoint = checkpoint
         self.signature = signature
@@ -419,6 +442,7 @@ class Study:
                 self.gold_epsilon,
                 cascade=self.cascade,
                 use_symmetry=self.use_symmetry,
+                symmetry_reduction=self.symmetry_reduction,
                 device=self.device,
             )
             self._write_checkpoint()
@@ -474,6 +498,8 @@ def _write_csv(path: Path, cases: Iterable[dict[str, object]]) -> None:
         "passivity_warning",
         "reduced_dimension",
         "full_dimension",
+        "symmetry_reduction",
+        "symmetry_irrep",
         "runtime_seconds",
     )
     with path.open("w", encoding="utf-8", newline="") as handle:
@@ -516,6 +542,12 @@ def main() -> int:
     parser.add_argument("--max-cycles", type=int, default=3)
     parser.add_argument("--cascade", choices=("redheffer", "algo2a"), default="redheffer")
     parser.add_argument("--no-symmetry", action="store_true")
+    parser.add_argument(
+        "--symmetry-reduction",
+        choices=("d6-source", "cs-source"),
+        default="d6-source",
+        help="Normal-incidence triangular reduction (default: complete-D6 E1 row).",
+    )
     parser.add_argument("--device", default="auto")
     parser.add_argument("--output-prefix", type=Path, default=Path("gold_motheye"))
     parser.add_argument("--run-final-spectrum", action="store_true")
@@ -552,6 +584,15 @@ def main() -> int:
             flush=True,
         )
     use_symmetry = not args.no_symmetry and geometry.substrate_mode == "semi-infinite"
+    if (
+        use_symmetry
+        and args.symmetry_reduction == "d6-source"
+        and geometry.lattice != "triangular"
+    ):
+        raise ValueError(
+            "--symmetry-reduction d6-source requires --lattice triangular; "
+            "select cs-source for a square lattice."
+        )
     if args.device == "auto":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     else:
@@ -568,6 +609,7 @@ def main() -> int:
         "anchor_wavelengths": wavelengths,
         "cascade": args.cascade,
         "use_symmetry": use_symmetry,
+        "symmetry_reduction": args.symmetry_reduction,
         "dtype": "complex128",
     }
     signature = _configuration_signature(signature_payload)
@@ -580,6 +622,7 @@ def main() -> int:
         wavelengths=wavelengths,
         cascade=args.cascade,
         use_symmetry=use_symmetry,
+        symmetry_reduction=args.symmetry_reduction,
         device=device,
         checkpoint=checkpoint,
         signature=signature,

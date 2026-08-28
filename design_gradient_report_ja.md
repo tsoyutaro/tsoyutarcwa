@@ -205,10 +205,12 @@ trainable radius を硬い standard raster へ渡すと明示的に拒否され�
 
 上表は三角NVM偏光短縮追加前のbaseline結果です。現在の
 `validate_design_gradients.py` には `triangular NVM y sector`、x/y共通C2 sectorを使う
-`oblique NVM x source sector`、NVM／matched-ASRの `complete D6` も追加しており、同じ
+`oblique NVM x source sector`、NVM／matched-ASRの `complete D6` と
+`complete-D6 E1 x row` も追加しており、同じ
 autograd／中心差分比較を実行します。complete D6のE1/E2はmatrix-unit rowだけを対角化し、
 群強制の重複固有値をeig backwardへ直接渡さない構成です。
-さらに、完全D6 NVM／matched-ASRについて `fields="all"` と `smatrix_size="quarter"` を
+さらに、完全D6全既約表現とE1 x-rowのNVM／matched-ASRについて `fields="all"` と
+`smatrix_size="quarter"` を
 組み合わせ、層中央の6成分Fourier場ノルムを目的関数とするradius／thickness勾配も
 autogradと中心差分で照合します。内部場のmodal coupling、star内縦場inverse、空間合成まで
 計算グラフを保持します。

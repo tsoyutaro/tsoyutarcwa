@@ -29,6 +29,16 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
 
     def __init__(self, freq, order, L, **kwargs):
         self.asr_G = float(kwargs.pop("asr_G", 1.0e-3))
+        quadrature_grid = kwargs.pop("asr_quadrature_grid", None)
+        if quadrature_grid is not None:
+            if (
+                isinstance(quadrature_grid, bool)
+                or int(quadrature_grid) != quadrature_grid
+                or int(quadrature_grid) < 32
+            ):
+                raise ValueError("asr_quadrature_grid must be an integer >= 32.")
+            quadrature_grid = int(quadrature_grid)
+        self.asr_quadrature_grid = quadrature_grid
         self.matched_asr_G = float(kwargs.pop("matched_asr_G", 3.0e-2))
         if not 0.0 < self.asr_G < 1.0:
             raise ValueError("asr_G must be in (0, 1); the paper uses 0.001.")
@@ -46,6 +56,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         self.asr_material_tensors: list[dict[str, torch.Tensor]] = []
         self.E_eigvec_uv: list[torch.Tensor] = []
         self.H_eigvec_uv: list[torch.Tensor] = []
+        self._last_asr_transform_condition: torch.Tensor | None = None
 
     def solve_global_smatrix(self) -> None:
         """Dispatch to Redheffer or Li-2a while preserving field couplings."""
@@ -465,6 +476,11 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             and getattr(self, "group_theory_symmetry", "auto") == "d6"
             and getattr(self, "polarization_reduction", None) is None
         )
+        d6_source = (
+            bool(getattr(self, "use_group_theory", False))
+            and getattr(self, "group_theory_symmetry", "auto") == "d6"
+            and getattr(self, "polarization_reduction", None) is not None
+        )
         if complete_d6:
             triangular_star_pq = self._build_triangular_star_pq(
                 eps11,
@@ -507,6 +523,42 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 v_cartesian_star,
                 kz,
             )
+        elif d6_source:
+            triangular_star_pq = self._build_triangular_star_pq(
+                eps11,
+                eps12,
+                eps21,
+                eps22,
+                eps33,
+                mu11,
+                mu12,
+                mu21,
+                mu22,
+                mu33,
+                factorization_rules=factorization_rules,
+            )
+            vector_embedding, _, _, _, _ = self._triangular_star_operators()
+            transform_star = vector_embedding.mH @ transform @ vector_embedding
+            (
+                kz,
+                w_cartesian_star,
+                v_cartesian_star,
+                vector_embedding,
+                transform_inverse_star,
+            ) = self._d6_source_eigendecomposition(
+                *triangular_star_pq,
+                transform_star,
+                layer_index=layer_index,
+                backend="matched-ASR",
+            )
+            w_uv = vector_embedding @ (
+                transform_inverse_star @ w_cartesian_star
+            )
+            v_uv = vector_embedding @ (
+                transform_inverse_star @ v_cartesian_star
+            )
+            w_cartesian = vector_embedding @ w_cartesian_star
+            v_cartesian = vector_embedding @ v_cartesian_star
         elif getattr(self, "polarization_reduction", None) is not None:
             triangular_star_pq = (
                 self._build_triangular_star_pq(
@@ -667,7 +719,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     "polarization": getattr(self, "polarization_reduction", None),
                     "group_theory": (
                         dict(self.group_theory_diagnostics[-1])
-                        if complete_d6
+                        if complete_d6 or d6_source
                         else None
                     ),
                 },
@@ -764,6 +816,78 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             result = self._solve(result, self._eye(mx * my))
         return result
 
+    def _axis_toeplitz_1d(
+        self, samples: torch.Tensor, order: torch.Tensor
+    ) -> torch.Tensor:
+        """Toeplitz matrix of a periodic 1-D function sampled uniformly."""
+        values = samples.to(self._dtype)
+        coefficients = torch.fft.fft(values) / values.numel()
+        delta = order[:, None] - order[None, :]
+        return coefficients[delta]
+
+    def _rect_separable_convolutions(
+        self,
+        mapping: ASRMapping,
+        eps_bg: torch.Tensor,
+        eps_rect: torch.Tensor,
+        mu_bg: torch.Tensor,
+        mu_rect: torch.Tensor,
+    ) -> dict[str, torch.Tensor]:
+        """High-accuracy direct-rule tensors without a huge 2-D raster.
+
+        A centered transformed rectangle is separable.  For example,
+        ``eps11=(eps_bg+Delta*Ix*Iy)*(1/f)*g`` is a sum of two outer
+        products, so its BTTB matrix is the corresponding sum of Kronecker
+        products of 1-D Toeplitz matrices.  This permits thousands of
+        quadrature samples per axis for the ill-conditioned N=20 ASR reference
+        while keeping memory independent of the square of that sample count.
+        """
+        inside_x = (
+            (mapping.x >= mapping.x_breaks[1])
+            & (mapping.x < mapping.x_breaks[2])
+        ).to(self._dtype)
+        inside_y = (
+            (mapping.y >= mapping.y_breaks[1])
+            & (mapping.y < mapping.y_breaks[2])
+        ).to(self._dtype)
+        f = mapping.f.to(self._dtype)
+        g = mapping.g.to(self._dtype)
+
+        def separable(x_values: torch.Tensor, y_values: torch.Tensor) -> torch.Tensor:
+            return torch.kron(
+                self._axis_toeplitz_1d(x_values, self.order_x),
+                self._axis_toeplitz_1d(y_values, self.order_y),
+            )
+
+        def tensor_set(
+            background: torch.Tensor, inclusion: torch.Tensor
+        ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+            contrast = inclusion - background
+            component_11 = (
+                background * separable(1.0 / f, g)
+                + contrast * separable(inside_x / f, inside_y * g)
+            )
+            component_22 = (
+                background * separable(f, 1.0 / g)
+                + contrast * separable(inside_x * f, inside_y / g)
+            )
+            component_33 = (
+                background * separable(f, g)
+                + contrast * separable(inside_x * f, inside_y * g)
+            )
+            return component_11, component_22, component_33
+
+        eps11, eps22, eps33 = tensor_set(eps_bg, eps_rect)
+        mu11, mu22, mu33 = tensor_set(mu_bg, mu_rect)
+        return {
+            "eps11": eps11,
+            "eps22": eps22,
+            "eps33": eps33,
+            "mu11": mu11,
+            "mu22": mu22,
+            "mu33": mu33,
+        }
+
     def _build_conversion_matrix_T(self, mapping: ASRMapping) -> torch.Tensor:
         """
         Discretize Eqs. (21)-(22) in torcwa's +j spatial-phase convention.
@@ -817,6 +941,19 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         tx_v = torch.mean(g[None, None, :] * phase_y, dim=-1)
         ty_u = torch.mean(f[None, None, :] * phase_x, dim=-1)
         ty_v = torch.mean(phase_y, dim=-1)
+        self._last_asr_transform_condition = None
+        if self.compute_condition_numbers:
+            singular_values = [
+                torch.linalg.svdvals(matrix.to(torch.complex128))
+                for matrix in (tx_u, tx_v, ty_u, ty_v)
+            ]
+            tx_max = singular_values[0][0] * singular_values[1][0]
+            tx_min = singular_values[0][-1] * singular_values[1][-1]
+            ty_max = singular_values[2][0] * singular_values[3][0]
+            ty_min = singular_values[2][-1] * singular_values[3][-1]
+            self._last_asr_transform_condition = torch.maximum(
+                tx_max, ty_max
+            ) / torch.minimum(tx_min, ty_min)
         tx = torch.kron(tx_u, tx_v)
         ty = torch.kron(ty_u, ty_v)
 
@@ -872,9 +1009,14 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         mu33: torch.Tensor,
         *,
         factorization_rules: bool,
+        direct_convolutions: dict[str, torch.Tensor] | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        eps33_conv = self._material_conv(eps33)
-        mu33_conv = self._material_conv(mu33)
+        if direct_convolutions is None:
+            eps33_conv = self._material_conv(eps33)
+            mu33_conv = self._material_conv(mu33)
+        else:
+            eps33_conv = direct_convolutions["eps33"]
+            mu33_conv = direct_convolutions["mu33"]
         inv_eps33 = self._solve(eps33_conv, self._eye(self.order_N))
         inv_mu33 = self._solve(mu33_conv, self._eye(self.order_N))
 
@@ -896,10 +1038,16 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 invert_final_bttb=False,
             )
         else:
-            mu22_effective = self._material_conv(mu22)
-            mu11_effective = self._material_conv(mu11)
-            eps22_effective = self._material_conv(eps22)
-            eps11_effective = self._material_conv(eps11)
+            if direct_convolutions is None:
+                mu22_effective = self._material_conv(mu22)
+                mu11_effective = self._material_conv(mu11)
+                eps22_effective = self._material_conv(eps22)
+                eps11_effective = self._material_conv(eps11)
+            else:
+                mu22_effective = direct_convolutions["mu22"]
+                mu11_effective = direct_convolutions["mu11"]
+                eps22_effective = direct_convolutions["eps22"]
+                eps11_effective = direct_convolutions["eps11"]
 
         ku, kv = self.Kx_norm, self.Ky_norm
         p11 = torch.matmul(ku, torch.matmul(inv_eps33, kv))
@@ -995,6 +1143,29 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         mu22 = mu_uv * f / g
         mu33 = mu_uv * f * g
 
+        quadrature_mapping = mapping
+        if self.asr_quadrature_grid is not None:
+            quadrature_nx = max(nx, self.asr_quadrature_grid)
+            quadrature_ny = max(ny, self.asr_quadrature_grid)
+            if quadrature_nx != nx or quadrature_ny != ny:
+                quadrature_mapping = self.build_asr_mapping(
+                    quadrature_nx,
+                    quadrature_ny,
+                    fill_factor_x,
+                    fill_factor_y,
+                )
+        direct_convolutions = (
+            None
+            if factorization_rules
+            else self._rect_separable_convolutions(
+                quadrature_mapping,
+                eps_bg_t,
+                eps_rect_t,
+                mu_bg_t,
+                mu_rect_t,
+            )
+        )
+
         p, q, eps33_conv, mu33_conv = self._build_asr_pq(
             eps11,
             eps22,
@@ -1003,14 +1174,15 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             mu22,
             mu33,
             factorization_rules=factorization_rules,
+            direct_convolutions=direct_convolutions,
         )
         kz_squared, w_uv = self._eig(torch.matmul(p, q))
         kz = self._positive_kz(kz_squared)
         v_uv = self._magnetic_eigenvectors(p, q, w_uv, kz)
 
-        transform = self._build_conversion_matrix_T(mapping)
+        transform = self._build_conversion_matrix_T(quadrature_mapping)
         transform_z = (
-            self._build_conversion_matrix_Tz(mapping)
+            self._build_conversion_matrix_Tz(quadrature_mapping)
             if self.store_mode_couplings
             else None
         )
@@ -1032,9 +1204,8 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         self.asr_T_matrices.append(transform)
         self.asr_Tz_matrices.append(transform_z)
         self.asr_condition_numbers.append(
-            torch.linalg.cond(transform.to(torch.complex128))
-            if self.compute_condition_numbers
-            else None
+            self._last_asr_transform_condition
+            if self.compute_condition_numbers else None
         )
         self.asr_material_tensors.append(
             {
@@ -1088,13 +1259,16 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         self.layer_records.append(
             LayerRecord(
                 index=layer_index,
-                method="asr-fr",
+                method="asr-fr" if factorization_rules else "asr",
                 shape=shape,
                 lattice=getattr(self, "lattice_kind", "rectangular"),
                 reason="RECTILINEAR_SEPARABLE_BOUNDARY",
                 options={
                     "asr_G": self.asr_G,
                     "grid": (nx, ny),
+                    "quadrature_grid": (
+                        len(quadrature_mapping.u), len(quadrature_mapping.v)
+                    ),
                     "factorization_rules": factorization_rules,
                     "fill_factor": (fill_factor_x, fill_factor_y),
                 },

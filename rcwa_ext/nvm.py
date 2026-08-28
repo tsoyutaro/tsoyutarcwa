@@ -68,7 +68,8 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
 
     At normal incidence, a single circular inclusion can optionally use a C2v
     block decomposition in an orthogonal cell, a D6-closed-star/Cs
-    source-specific x/y sector in a triangular cell, or the common x/y
+    source-specific x/y sector in a triangular cell, a complete-D6 E1
+    matrix-unit source row, or the common x/y
     source-accessible C2 sector in a general oblique cell.  Every projected
     block is checked for invariance;
     an ineligible decomposition falls back to the full eigensolve unless strict
@@ -680,6 +681,11 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
             and self.group_theory_symmetry == "d6"
             and self.polarization_reduction is None
         )
+        d6_source = (
+            self.use_group_theory
+            and self.group_theory_symmetry == "d6"
+            and self.polarization_reduction is not None
+        )
         triangular_source_reduction = (
             self.lattice_kind == "triangular"
             and self.polarization_reduction is not None
@@ -738,6 +744,37 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
                 h_cartesian_star,
                 kz,
             )
+            cartesian_modes_ready = True
+        elif d6_source:
+            triangular_star_pq = self._build_triangular_nvm_star_pq(
+                eps_zz, inv_eps, projection
+            )
+            vector_embedding, _, _, _, _ = self._triangular_star_operators()
+            transform_star = (
+                vector_embedding.mH
+                @ covariant_to_cartesian
+                @ vector_embedding
+            )
+            (
+                kz,
+                w_cartesian_star,
+                h_cartesian_star,
+                vector_embedding,
+                transform_inverse_star,
+            ) = self._d6_source_eigendecomposition(
+                *triangular_star_pq,
+                transform_star,
+                layer_index=layer_index,
+                backend="NVM",
+            )
+            w_covariant = vector_embedding @ (
+                transform_inverse_star @ w_cartesian_star
+            )
+            h_covariant = vector_embedding @ (
+                transform_inverse_star @ h_cartesian_star
+            )
+            w_cartesian = vector_embedding @ w_cartesian_star
+            h_cartesian = vector_embedding @ h_cartesian_star
             cartesian_modes_ready = True
         elif self.polarization_reduction is not None:
             if self.lattice_kind == "triangular":

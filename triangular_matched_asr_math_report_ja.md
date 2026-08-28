@@ -580,7 +580,7 @@ matched-ASR と独立な Cartesian NVM の x 入射 source-response 差は
 主張しないもの:
 
 - 本写像が Weiss 論文に掲載された「三角格子専用の同一式」であること。本写像は同論文の共変 matched-coordinate 原理に基づく新しい D6 構成である。
-- x と y が D6 全体の別々の 1D 既約表現であること。両者は (E_1) をなし、単一偏光短縮は (C_s) 部分群による。
+- x と y が D6 全体の別々の 1D 既約表現であること。両者は (E_1) をなす。単一偏光短縮は従来の (C_s) sectorに加え、完全D6の (E_1) matrix-unit x/y rowでも行える。
 - exact touching (R=L/2) の支持。
 - 総実行時間が常に固有値 cubic 比どおり短縮されること。
 
@@ -591,7 +591,7 @@ matched-ASR と独立な Cartesian NVM の x 入射 source-response 差は
 \(\partial_R\partial_v\mathbf F\) が必要である。修正版は写像 Jacobian を生成する
 `torch.autograd.grad` に trainable radius の場合 `create_graph=True` を指定し、
 写像値・Jacobian・行列式の `.detach()` を除去した。これにより full 問題だけでなく、
-D6-closed star から作る Cs の x/y sector 固有値問題にも同じ勾配が通る。
+D6-closed starから作るCs sectorと、完全D6 (E_1) x/y rowにも同じ勾配が通る。
 
 層厚は \(\exp(i\omega k_zd)\) の Tensor 経路を維持する。order 1、64×64 sampling の
 中心差分試験では、三角 matched-ASR full の scaled error は radius 5.08e-8、

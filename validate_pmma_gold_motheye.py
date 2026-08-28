@@ -23,6 +23,7 @@ def _source(path: Path) -> str:
 def core_checks() -> list[dict[str, object]]:
     asr = _source(HERE / "rcwa_ext" / "asr.py")
     auto = _source(HERE / "rcwa_ext" / "auto.py")
+    symmetry = _source(HERE / "rcwa_ext" / "symmetry.py")
     common = _source(HERE / "pmma_gold_motheye_common.py")
     order = _source(HERE / "converge_pmma_gold_order.py")
     layers = _source(HERE / "converge_pmma_gold_layers.py")
@@ -41,6 +42,15 @@ def core_checks() -> list[dict[str, object]]:
                 "simulation.add_layer_circle_shell_asr(" in common
                 and "epsilon_gold" in common
                 and "epsilon_pmma" in common
+            ),
+        },
+        {
+            "name": "complete-D6 E1 source-row reduction wired by default",
+            "passed": (
+                "def _d6_source_eigendecomposition(" in symmetry
+                and '"symmetry": "D6-E1-source-row"' in symmetry
+                and 'default="d6-source"' in common
+                and 'symmetry="d6" if symmetry_reduction == "d6-source"' in common
             ),
         },
         {
@@ -87,22 +97,43 @@ def integration_check(device: str) -> dict[str, object]:
         use_symmetry=True,
         device=torch.device(device),
     )
+    cs_result = simulate_case(
+        550.0,
+        NumericalConfig(order=1, slices=2, grid=32),
+        GeometryConfig(),
+        gold_epsilon_rakic_ld,
+        cascade="redheffer",
+        use_symmetry=True,
+        symmetry_reduction="cs-source",
+        device=torch.device(device),
+    )
     values = tuple(
         float(result[name])
         for name in ("reflectance", "transmittance", "absorptance")
     )
     residual = abs(sum(values) - 1.0)
+    d6_cs_error = max(
+        abs(float(result[name]) - float(cs_result[name]))
+        for name in ("reflectance", "transmittance", "absorptance")
+    )
     passed = (
         all(math.isfinite(value) for value in values)
         and not bool(result["passivity_warning"])
         and residual <= 2.0e-9
+        and int(result["reduced_dimension"]) == 3
+        and int(cs_result["reduced_dimension"]) == 7
+        and d6_cs_error <= 2.0e-4
     )
     return {
         "name": "minimal Au-coated PMMA matched-ASR solve",
         "error": residual,
         "limit": 2.0e-9,
         "passed": passed,
+        "expected_d6_e1_dimension": 3,
+        "expected_cs_dimension": 7,
+        "d6_cs_max_rta_error": d6_cs_error,
         "result": result,
+        "cs_result": cs_result,
     }
 
 

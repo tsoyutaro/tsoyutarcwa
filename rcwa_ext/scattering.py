@@ -342,43 +342,37 @@ class _StableLinearAlgebraMixin(_FieldRecoveryMixin):
         electric_modes: torch.Tensor,
         kz: torch.Tensor,
     ) -> torch.Tensor:
-        """Build H modes, retaining torcwa's optional P-inverse safeguard."""
-        kz_matrix = torch.diag(kz)
-        magnetic_from_p = self._solve(
-            p, torch.matmul(electric_modes, kz_matrix)
-        )
-        if not getattr(self, "avoid_Pinv_instability", False):
-            return magnetic_from_p
+        """Build H modes using the stable Maxwell relation ``V=Q W Γ^-1``.
 
-        identity = self._eye(p.shape[-1])
-        p_inverse = self._solve(p, identity)
-        q_inverse = self._solve(q, identity)
-        p_error = torch.maximum(
-            torch.max(torch.abs(torch.matmul(p.detach(), p_inverse.detach()) - identity)),
-            torch.max(torch.abs(torch.matmul(p_inverse.detach(), p.detach()) - identity)),
+        ``P^-1 W Γ`` is algebraically equivalent because ``P Q W=W Γ²``.
+        It is not numerically equivalent when ``P`` is ill-conditioned, which
+        is precisely the situation of the non-factorized metal-patch ASR
+        problem near order 20.  The paper writes the Q form explicitly.  Only
+        an exactly/nearly zero propagation constant falls back to the P form.
+        """
+        real_dtype = (
+            torch.float32 if self._dtype == torch.complex64 else torch.float64
         )
-        q_error = torch.maximum(
-            torch.max(torch.abs(torch.matmul(q.detach(), q_inverse.detach()) - identity)),
-            torch.max(torch.abs(torch.matmul(q_inverse.detach(), q.detach()) - identity)),
+        epsilon = torch.finfo(real_dtype).eps
+        scale = torch.maximum(
+            torch.max(torch.abs(kz)),
+            torch.ones((), dtype=real_dtype, device=self._device),
         )
-        self.Pinv_instability.append(p_error)
-        self.Qinv_instability.append(q_error)
-        if _as_float(p_error) < float(self.max_Pinv_instability):
-            return magnetic_from_p
-
-        safe_kz = torch.where(
-            torch.abs(kz) < 1.0e-12,
-            kz
-            + torch.as_tensor(
-                1.0e-10 + 1.0e-10j,
-                dtype=self._dtype,
-                device=self._device,
-            ),
-            kz,
-        )
-        return torch.matmul(
+        threshold = 64.0 * epsilon * scale
+        regular = torch.abs(kz) > threshold
+        safe_kz = torch.where(regular, kz, torch.ones_like(kz))
+        magnetic_from_q = torch.matmul(
             q,
-            torch.matmul(electric_modes, torch.diag(1.0 / safe_kz)),
+            electric_modes * (1.0 / safe_kz)[None, :],
+        )
+        if bool(torch.all(regular)):
+            return magnetic_from_q
+
+        magnetic_from_p = self._solve(
+            p, electric_modes * kz[None, :]
+        )
+        return torch.where(
+            regular[None, :], magnetic_from_q, magnetic_from_p
         )
 
     @staticmethod

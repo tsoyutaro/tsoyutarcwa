@@ -395,12 +395,14 @@ class GroupTheoryOptions:
 
     For a full NVM eigensolve, ``auto`` selects C2v in orthogonal cells and C2
     in triangular/oblique cells.  Source-specific ``polarization="x"|"y"``
-    uses C2v sectors in orthogonal cells and a D6-closed reciprocal star with
-    Cs mirror sectors for triangular NVM or matched-ASR layers.  In a general
+    with ``symmetry="auto"`` uses C2v sectors in orthogonal cells and a
+    D6-closed reciprocal star with Cs mirror sectors for triangular NVM or
+    matched-ASR layers.  Explicit ``symmetry="d6"`` together with x/y solves
+    only the corresponding E1 matrix-unit row.  In a general
     oblique NVM cell, Cartesian x/y share one C2 source-accessible sector, so
     either request uses that same reduced sector and retains x/y conversion.
-    Explicit ``symmetry="d6"`` with no polarization selects the native-star
-    A1/A2/B1/B2/E1/E2 decomposition for a triangular centered-circle stack.
+    Explicit ``symmetry="d6"`` with no polarization selects the complete
+    native-star A1/A2/B1/B2/E1/E2 decomposition.
     All source-specific reductions require normal incidence and one centered
     circle per cell.
     In non-strict mode an ineligible or inconsistent case falls back to the

@@ -271,14 +271,16 @@ Tf, Rf = sim.S[0], sim.S[1]
 - 対応：60°・等辺の三角 Bravais 格子（2D六方最密配置）、セル中心の単一円、非接触条件 (2R<L)。
 - 対応：直交格子はWeiss型円matched map、三角格子はD6-equivariantなhex-to-circle周期Hermite map。
 - 対応：誘電・磁性材料（非ゼロの \(\epsilon,\mu\)）、Redheffer／Li-2a、full／half／quarter。
-- 対応：正入射におけるmatched-ASR固有値問題のx/y単一偏光短縮。直交格子ではC2v、三角格子ではD6-closed reciprocal star上のCs鏡映セクターを使う。
-- 対応：正入射における円形NVM固有値問題のx/y単一偏光短縮。直交格子ではC2v、三角格子では誘電率・逆誘電率・法線射影を先にD6-closed starへ制限し、star内で逆則とNVMの \(P_\star,Q_\star\) を直接組み立ててCs鏡映セクターを解く。
+- 対応：正入射におけるmatched-ASR固有値問題のx/y単一偏光短縮。直交格子ではC2v、三角格子では `symmetry='auto'` でCs鏡映セクター、`symmetry='d6'` で完全D6のE1 matrix-unit source-rowを使う。
+- 対応：正入射における円形NVM固有値問題のx/y単一偏光短縮。直交格子ではC2v、三角格子では誘電率・逆誘電率・法線射影を先にD6-closed starへ制限し、star内で逆則とNVMの \(P_\star,Q_\star\) を直接組み立てる。`symmetry='auto'` はCs、`symmetry='d6'` は完全D6 E1 source-rowを解く。
+- 対応：`symmetry='d6', polarization='x'|'y'` による完全D6 E1 matrix-unit source-row短縮。三角NVM／matched-ASRの固有値問題とcascadeを (M(M+1)+1) 次元で実行する。
 - 対応：radiusおよびthicknessのautograd。三角matched-ASR full／y sectorを含め、中心差分と照合済み。
 - 対応：一般斜交NVMではCartesian x/yが同じC2 characterに属するため、両sourceが共有するC2 sectorだけを解く。xとyを別sectorにはしないが、sector内の交差偏光結合を含む厳密なsource-accessible短縮である。
 - 対応：偏光短縮の内部・外部6成分電磁場。`fields='external'|'internal'|'all'` と full／half／quarterを任意に組み合わせられる。
 - 制限：円が接触する真のclose-packed極限 (2R=L) ではJacobianが特異になり得るため、matched-ASRでは扱わず、小さい正のgapを設ける。
 - 対応：D6-closed native star全体を `A1,A2,B1,B2,E1,E2` の6 isotypic blockへ分ける完全D6分解。三角NVM／matched-ASR、Redheffer／Li-2a、full／half／quarter S行列に対応する。元の矩形Fourier集合そのものはD6で閉じないため、そのcorner harmonicを含む集合の完全D6分解は数学的に行わない。
 - 対応：完全D6経路の内部・外部6成分電磁場、前方・後方入射、Redheffer／Li-2a。partial公開Sの場合も場用full Sとmodal couplingを内部保存する。
+- 対応：完全D6 E1 source-row経路の内部・外部場、Redheffer／Li-2a、full／half／quarter公開S。
 - 未実装：既存Cartesian NVM射影行列とmatched-coordinate tensorを二重適用する `matched-nvm`。`nvm` と `matched-asr` は独立した検証済みバックエンドである。
 
 したがって、直交格子と三角格子の円形matched-ASR、一般2次元 \((T,T_z)\) による通常S行列への接続、ならびに直交・三角・一般斜交円形NVMのsource-accessible x/y短縮は達成済みである。三角格子では矩形用分離写像を流用せず、斜交周期境界とD6対称性に適合する別の写像を導入している。詳細な三角写像・群論・検証結果は `triangular_matched_asr_math_report_ja.md`、`triangular_nvm_polarization_report_ja.md`、`rcwa_modular_math_guide_ja.md` を参照すること。

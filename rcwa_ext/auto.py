@@ -434,22 +434,21 @@ class AutoRCWA(CustomRCWA_NVM):
         geometry = spec.geometry
         rectangle = self._geometry_rectangle(geometry)
         if self.use_group_theory and self.group_theory_symmetry == "d6":
-            if self.polarization_reduction is not None:
-                raise UnsupportedCombinationError(
-                    "Complete D6 uses polarization=None. For one x/y source "
-                    "sector, use symmetry='auto' with polarization='x' or 'y'."
-                )
             if not isinstance(geometry, Circle) or selected not in {
                 "nvm",
                 "matched-asr",
             }:
                 raise UnsupportedCombinationError(
-                    "Complete D6 currently requires a centered analytic Circle "
+                    "D6 reduction currently requires a centered analytic Circle "
                     "with method='nvm' or method='matched-asr'."
                 )
             if not self._is_centered(geometry):
                 raise UnsupportedCombinationError(
-                    "Complete D6 requires the circle at the primitive-cell center."
+                    "D6 reduction requires the circle at the primitive-cell center."
+                )
+            if self.lattice_kind != "triangular":
+                raise UnsupportedCombinationError(
+                    "D6 reduction requires a 60-degree equal-length triangular cell."
                 )
         if spec.factorization_rules is not None and selected not in {
             "asr-fr",

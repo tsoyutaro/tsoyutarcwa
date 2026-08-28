@@ -258,6 +258,7 @@ def core_checks() -> list[Check]:
     matrix_unit_error = 0.0
     d6_dimensions = {}
     solved_dimensions = {}
+    matrix_unit_rows = {}
     for label in ("A1", "A2", "B1", "B2", "E1", "E2"):
         irrep_dimension, character = characters[label]
         projector_e = sum(
@@ -306,6 +307,7 @@ def core_checks() -> list[Check]:
                 matrix_unit(d6_magnetic, 1, 0),
             )
             solved_dimensions[label] = np.linalg.matrix_rank(e00, tol=1e-9)
+            matrix_unit_rows[label] = (e00, e11, h00, h11)
             matrix_unit_error = max(
                 matrix_unit_error,
                 float(np.linalg.norm(e00 + e11 - projector_e)),
@@ -338,6 +340,28 @@ def core_checks() -> list[Check]:
             + ",".join(
                 f"{key}:{value}" for key, value in solved_dimensions.items()
             ),
+        )
+    )
+    e1_e00, e1_e11, _, _ = matrix_unit_rows["E1"]
+    zero_harmonic = star_index[(0, 0)]
+    source_x = np.zeros(2 * len(orders))
+    source_y = np.zeros_like(source_x)
+    source_x[zero_harmonic] = 1.0
+    source_y[len(orders) + zero_harmonic] = 1.0
+    expected_e1_row_dimension = 4 * (4 + 1) + 1
+    source_row_error = max(
+        float(abs(solved_dimensions["E1"] - expected_e1_row_dimension)),
+        float(np.linalg.norm(source_x - e1_e00 @ source_x)),
+        float(np.linalg.norm(source_y - e1_e11 @ source_y)),
+        float(np.linalg.norm(e1_e11 @ source_x)),
+        float(np.linalg.norm(e1_e00 @ source_y)),
+    )
+    checks.append(
+        Check(
+            "complete D6 E1 x/y source-row selection",
+            source_row_error,
+            3e-12,
+            f"row dimension={solved_dimensions['E1']}",
         )
     )
 
@@ -1170,6 +1194,179 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             )
         )
 
+    # Source-specific complete D6: solve only the E1 matrix-unit row reached
+    # by the requested zero-order x/y source.  Compare against both the
+    # all-irrep complete-D6 solution and the older Cs mirror sector.
+    d6_source: dict[tuple[str, str, str], AutoRCWA] = {}
+    for method in ("matched-asr", "nvm"):
+        cs_reference = reduced if method == "matched-asr" else nvm_reduced
+        for pol in ("x", "y"):
+            for algorithm in ("redheffer", "algo2a"):
+                d6_source[(method, algorithm, pol)] = make(
+                    method=method,
+                    algorithm=algorithm,
+                    size="half",
+                    pol=pol,
+                    symmetry="d6",
+                )
+            red_source = d6_source[(method, "redheffer", pol)]
+            li_source = d6_source[(method, "algo2a", pol)]
+            diagnostic = red_source.group_theory_diagnostics[-1]
+            expected_dimension = order * (order + 1) + 1
+            checks.append(
+                Check(
+                    f"{method} D6-E1 {pol} source-row label",
+                    0.0
+                    if diagnostic["symmetry"] == "D6-E1-source-row"
+                    and diagnostic["irrep"] == "E1"
+                    else 1.0,
+                    0.0,
+                )
+            )
+            checks.append(
+                Check(
+                    f"{method} D6-E1 {pol} source-row dimension",
+                    float(
+                        abs(
+                            int(diagnostic["reduced_dimension"])
+                            - expected_dimension
+                        )
+                    ),
+                    0.0,
+                )
+            )
+            checks.append(
+                Check(
+                    f"{method} D6-E1 {pol} source projection",
+                    float(diagnostic["source_projection_residual"]),
+                    2e-10,
+                )
+            )
+            checks.append(
+                Check(
+                    f"{method} D6-E1 {pol} operator invariance",
+                    float(diagnostic["max_invariance_residual"]),
+                    2e-10,
+                )
+            )
+            source = torch.zeros(
+                2 * red_source.order_N, dtype=torch.complex128
+            )
+            source[
+                (0 if pol == "x" else red_source.order_N) + harmonic
+            ] = 1.0
+            for block, label in ((0, "Tf"), (1, "Rf")):
+                checks.append(
+                    Check(
+                        f"{method} D6-E1/all-irrep {pol} {label}",
+                        float(
+                            torch.max(
+                                torch.abs(
+                                    (
+                                        red_source.S[block]
+                                        - complete_d6[(method, "redheffer")].S[block]
+                                    )
+                                    @ source
+                                )
+                            )
+                        ),
+                        5e-8,
+                    )
+                )
+                checks.append(
+                    Check(
+                        f"{method} D6-E1/Cs {pol} {label}",
+                        float(
+                            torch.max(
+                                torch.abs(
+                                    (
+                                        red_source.S[block]
+                                        - cs_reference[("redheffer", pol)].S[block]
+                                    )
+                                    @ source
+                                )
+                            )
+                        ),
+                        2e-4,
+                    )
+                )
+                checks.append(
+                    Check(
+                        f"{method} D6-E1 Li2a/Redheffer {pol} {label}",
+                        float(
+                            torch.max(
+                                torch.abs(
+                                    (li_source.S[block] - red_source.S[block])
+                                    @ source
+                                )
+                            )
+                        ),
+                        3e-8,
+                    )
+                )
+
+        quarter_source = make(
+            method=method,
+            algorithm="redheffer",
+            size="quarter",
+            pol="x",
+            symmetry="d6",
+        )
+        source_x = torch.zeros(
+            2 * quarter_source.order_N, dtype=torch.complex128
+        )
+        source_x[harmonic] = 1.0
+        checks.append(
+            Check(
+                f"{method} D6-E1 x quarter/half Rf",
+                float(
+                    torch.max(
+                        torch.abs(
+                            (
+                                quarter_source.S[1]
+                                - d6_source[(method, "redheffer", "x")].S[1]
+                            )
+                            @ source_x
+                        )
+                    )
+                ),
+                3e-8,
+            )
+        )
+
+        complete_field = make(
+            method=method,
+            algorithm="redheffer",
+            size="full",
+            symmetry="d6",
+            fields="all",
+        )
+        source_field = make(
+            method=method,
+            algorithm="algo2a",
+            size="quarter",
+            pol="x",
+            symmetry="d6",
+            fields="all",
+        )
+        source_column = source_x[:, None]
+        for simulation in (complete_field, source_field):
+            simulation.E_i = source_column
+            simulation.source_direction = "forward"
+        for z_value in (0.0, 0.09, 0.18):
+            reference_fields = complete_field._fourier_fields(0, z_value)
+            reduced_fields = source_field._fourier_fields(0, z_value)
+            checks.append(
+                Check(
+                    f"{method} D6-E1 quarter/full internal fields z={z_value:g}",
+                    max(
+                        float(torch.max(torch.abs(a - b)))
+                        for a, b in zip(reference_fields, reduced_fields)
+                    ),
+                    2e-4,
+                )
+            )
+
     # Orthogonal matched-ASR uses the existing C2v blocks and must agree with
     # an unreduced solve for a source in the selected sector.
     def make_square(
@@ -1283,6 +1480,13 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
         "nvm_dimension_ratio": nvm_diagnostic_x["reduced_dimension"] / (2 * nvm_base.order_N),
         "complete_d6": {
             method: complete_d6[(method, "redheffer")].group_theory_diagnostics[-1]
+            for method in ("matched-asr", "nvm")
+        },
+        "d6_e1_source_rows": {
+            method: {
+                pol: d6_source[(method, "redheffer", pol)].group_theory_diagnostics[-1]
+                for pol in ("x", "y")
+            }
             for method in ("matched-asr", "nvm")
         },
     }

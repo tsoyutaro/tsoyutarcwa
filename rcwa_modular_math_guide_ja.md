@@ -661,8 +661,12 @@ Q_\star=E_\star^\dagger Q E_\star
 parity に入るため、必要 sector の固有値問題だけを解く。
 
 このD6-closed star経路は三角格子matched-ASRと三角NVMのsource-specific x/y短縮に
-使う。`symmetry="auto", polarization=None` の三角NVMで全modeを保つ通常分解はC2、
-`symmetry="d6", polarization=None` では後述するnative-star完全D6分解を使う。一方、一般斜交格子の
+使う。`symmetry="auto", polarization="x"|"y"` は上記Cs sector、
+`symmetry="d6", polarization="x"|"y"` は12作用の完全Reynolds平均後にE1の対応
+matrix-unit rowだけを解く。後者の次元は (M(M+1)+1) で、Cs次元
+(3M(M+1)+1) の漸近3分の1である。`symmetry="auto", polarization=None` の三角NVMで
+全modeを保つ通常分解はC2、`symmetry="d6", polarization=None` では後述する
+native-star完全D6分解を使う。一方、一般斜交格子の
 C2回転ではCartesian vectorが (E_x,E_y)\mapsto(-E_x,-E_y) と変換され、xとyが同じ
 characterを持つ。したがってxとyを別sectorには分けられないが、両方のゼロ次sourceは
 同じscalar-even vector sectorに入る。この共通sectorだけを解けば、x/yどちらの指定にも
@@ -683,8 +687,9 @@ characterを持つ。したがってxとyを別sectorには分けられないが
 block不変性、全block次元和を検査する。E1/E2ではmatrix unit
 \(\Pi^\alpha_{ij}=d_\alpha|D_6|^{-1}\sum_g\Gamma^\alpha_{ij}(g)^*D(g)\) を使い、
 \(\Pi_{00}\) のmultiplicity問題だけを解いて \(\Pi_{10}\) から相方を再構成する。
-`symmetry="d6"` でこの経路、
-`polarization="x"|"y"` でCsのsource-specific経路を選ぶ。
+`symmetry="d6", polarization=None` で全既約表現経路、
+`symmetry="auto", polarization="x"|"y"` でCs経路、
+`symmetry="d6", polarization="x"|"y"` でE1 source-row経路を選ぶ。
 
 ### 7.4 適用条件
 

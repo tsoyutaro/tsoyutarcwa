@@ -151,6 +151,7 @@ def simulate_case(
     *,
     cascade: str,
     use_symmetry: bool,
+    symmetry_reduction: str = "d6-source",
     device: torch.device,
 ) -> dict[str, object]:
     """Evaluate R, T and A for one wavelength and discretization."""
@@ -162,6 +163,17 @@ def simulate_case(
     period = geometry.period_nm
     epsilon_gold = gold_epsilon(wavelength_nm)
     epsilon_pmma = geometry.pmma_index**2
+    if symmetry_reduction not in {"d6-source", "cs-source"}:
+        raise ValueError("symmetry_reduction must be d6-source or cs-source.")
+    if (
+        use_symmetry
+        and symmetry_reduction == "d6-source"
+        and geometry.lattice != "triangular"
+    ):
+        raise ValueError(
+            "d6-source requires the triangular lattice; use cs-source for "
+            "the square-lattice C2v source sector."
+        )
     simulation = AutoRCWA(
         freq=period / wavelength_nm,
         order=[numerical.order, numerical.order],
@@ -175,7 +187,7 @@ def simulate_case(
         ),
         group_theory=GroupTheoryOptions(
             enabled=use_symmetry,
-            symmetry="auto",
+            symmetry="d6" if symmetry_reduction == "d6-source" else "auto",
             strict=use_symmetry,
             polarization="x" if use_symmetry else None,
         ),
@@ -229,6 +241,11 @@ def simulate_case(
     transmittance = transmitted_flux / incident_flux
     absorptance = 1.0 - reflectance - transmittance
     diagnostics = simulation.cascade_diagnostics
+    symmetry_diagnostic = (
+        simulation.group_theory_diagnostics[-1]
+        if simulation.group_theory_diagnostics
+        else {}
+    )
     return {
         "wavelength_nm": wavelength_nm,
         "order": numerical.order,
@@ -247,6 +264,8 @@ def simulate_case(
             or absorptance < -1.0e-5
             or reflectance + transmittance > 1.0 + 1.0e-5
         ),
+        "symmetry_reduction": symmetry_diagnostic.get("symmetry"),
+        "symmetry_irrep": symmetry_diagnostic.get("irrep"),
         "reduced_dimension": diagnostics.get("reduced_dimension"),
         "full_dimension": diagnostics.get("full_dimension", 2 * simulation.order_N),
         "runtime_seconds": time.perf_counter() - started,
@@ -311,6 +330,7 @@ class Study:
         wavelengths: Sequence[float],
         cascade: str,
         use_symmetry: bool,
+        symmetry_reduction: str,
         device: torch.device,
         checkpoint: Path,
         signature: str,
@@ -320,6 +340,7 @@ class Study:
         self.wavelengths = tuple(wavelengths)
         self.cascade = cascade
         self.use_symmetry = use_symmetry
+        self.symmetry_reduction = symmetry_reduction
         self.device = device
         self.checkpoint = checkpoint
         self.signature = signature
@@ -370,6 +391,7 @@ class Study:
                 self.gold_epsilon,
                 cascade=self.cascade,
                 use_symmetry=self.use_symmetry,
+                symmetry_reduction=self.symmetry_reduction,
                 device=self.device,
             )
             self._write_checkpoint()
@@ -399,6 +421,8 @@ def write_csv(path: Path, cases: Iterable[dict[str, object]]) -> None:
         "transmittance",
         "absorptance",
         "passivity_warning",
+        "symmetry_reduction",
+        "symmetry_irrep",
         "reduced_dimension",
         "full_dimension",
         "runtime_seconds",
@@ -448,6 +472,15 @@ def add_shared_arguments(parser) -> None:
     )
     parser.add_argument("--cascade", choices=("redheffer", "algo2a"), default="redheffer")
     parser.add_argument("--no-symmetry", action="store_true")
+    parser.add_argument(
+        "--symmetry-reduction",
+        choices=("d6-source", "cs-source"),
+        default="d6-source",
+        help=(
+            "d6-source solves only the E1 matrix-unit row reached by x; "
+            "cs-source retains the older D6-star/mirror-sector reduction."
+        ),
+    )
     parser.add_argument("--device", default="auto")
 
 
@@ -484,6 +517,7 @@ def run_axis_convergence(
         "gold_csv_sha256": csv_digest,
         "cascade": args.cascade,
         "use_source_symmetry": not args.no_symmetry,
+        "symmetry_reduction": args.symmetry_reduction,
         "dtype": "complex128",
         "asr_statement": (
             "outer Au/air boundary matched exactly; concentric Au/PMMA "
@@ -499,6 +533,7 @@ def run_axis_convergence(
         wavelengths=wavelengths,
         cascade=args.cascade,
         use_symmetry=not args.no_symmetry,
+        symmetry_reduction=args.symmetry_reduction,
         device=device,
         checkpoint=prefix.with_name(prefix.name + "_checkpoint.json"),
         signature=signature,
