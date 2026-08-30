@@ -1,0 +1,40 @@
+{
+  "paper": {
+    "title": "2D rigorous coupled wave analysis with adaptive spatial resolution for a multilayer periodic structure",
+    "doi": "10.1364/OE.459110",
+    "figure": 8
+  },
+  "geometry": {
+    "period_mm": [
+      30.0,
+      30.0
+    ],
+    "patch_fill": [
+      0.5,
+      0.5
+    ],
+    "patch_thickness_mm": 0.01,
+    "background_epsilon": 1.0,
+    "metal_epsilon_torcwa_exp_minus_iwt": [
+      1.0,
+      1000000.0
+    ]
+  },
+  "numerics": {
+    "asr_G": 0.001,
+    "asr_fr_order_fig8": 8,
+    "asr_order_fig8": 20,
+    "grid": 256,
+    "quadrature_grid": 4096,
+    "cascade": "algo2a",
+    "dtype": "complex128",
+    "device": "cuda",
+    "smatrix_size": "half",
+    "polarization": "normal-incidence x (torcwa p at azimuth 0)"
+  },
+  "rayleigh_cutoff_GHz": 9.993081933333334,
+  "numerics_revision": "fig8-v2-q-modes-separable-quadrature",
+  "rows": 135,
+  "hfss_reference_data": null,
+  "note": "The article does not distribute the underlying HFSS samples. No HFSS values are synthesized by this script."
+}
