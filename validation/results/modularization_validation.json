@@ -1,0 +1,38 @@
+{
+  "status": "current_static_passed_integration_not_rerun",
+  "implementation": "rcwa_ext modular package",
+  "compatibility_facade": "rcwa_solver_auto.py",
+  "current_validation": {
+    "python_compile": true,
+    "triangular_independent": {"passed": 15, "total": 15},
+    "circle_matched_asr_independent": {"passed": 11, "total": 11},
+    "pmma_gold_static": {"passed": 8, "total": 8},
+    "pytorch_torcwa_integration": "not_rerun_dependencies_unavailable",
+    "torch_available": false,
+    "torcwa_available": false
+  },
+  "current_changes_covered_by_integration_code": [
+    "complete-D6 and Cs bidirectional internal fields",
+    "orthogonal C2v NVM and matched-ASR internal/external fields",
+    "Redheffer and Li-2a with full/half/quarter public S",
+    "fields-only OutputSpec(smatrix=false)",
+    "native-star longitudinal inverse and T/Tz restriction",
+    "radius/thickness gradients of an internal-field objective",
+    "double-matched generalized Li RCWA integration and passivity"
+  ],
+  "historical_baseline": {
+    "status": "passed_before_current_field_reconstruction_changes",
+    "checks": {
+      "design_gradients": {"passed": 7, "total": 7},
+      "triangular_matched_asr": {"passed": 38, "total": 38},
+      "circle_matched_asr": {"passed": 19, "total": 19},
+      "general_regression": {"passed": 51, "total": 51}
+    },
+    "environment": {
+      "torch": "2.13.0+cpu",
+      "torcwa": "0.1.4.2",
+      "order": 1,
+      "grid": 64
+    }
+  }
+}

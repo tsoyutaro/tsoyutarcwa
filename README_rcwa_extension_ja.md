@@ -1,5 +1,7 @@
 # torcwa RCWA 拡張
 
+成果物全体のフォルダ構成と推奨読解順は `README_ja.md` を参照してください。
+
 ## 追加した機能
 
 - `Circle` を NVM（normal-vector method）で扱えます。
@@ -219,7 +221,7 @@ group_theory=GroupTheoryOptions(
 使用してください。
 
 三角NVMのstar内inverse rule、偏光射影、一般斜交格子のx/y共通C2 sectorは
-`triangular_nvm_polarization_report_ja.md` に導出しています。
+`docs/triangular_nvm_polarization_report_ja.md` に導出しています。
 
 ## 円形matched-ASRとNVMの関係
 
@@ -228,18 +230,25 @@ group_theory=GroupTheoryOptions(
 - 直交格子: Weiss型の円境界matched mapとseparable ASR stretchを組み合わせます。
 - 60°三角格子: Wigner–Seitz六角形を円へ写すD6-equivariant周期Hermite mapを使い、斜交基底の計量と周期境界を同時に扱います。
 - 両格子: Jacobianから変換媒質 `epsilon'`, `mu'` を作り、Fourier factorization後の `(P,Q)` を解き、一般変換 `(T,T_z)` で通常のCartesian S行列へ接続します。
+- コアシェル: `add_layer_circle_shell_asr(..., radial_mapping="outer"|"double")` を選べます。`double` は計算空間の固定支持曲線を内外円へ写す半径方向C2 quintic-Hermite写像で、両半径のautogradを保持します。
+- 二重matched写像: level-set法線と計算格子計量から法線projectorを作り、連続な接線E／法線Dに一般化Li因数分解を適用します。`factorization_rules=False`の場合だけ比較用の直接Fourier畳み込みを使います。
 - NVM: 円板の誘電率Toeplitz行列をFourier–Bessel式で解析的に作り、normal-vector projectionを使う独立バックエンドです。
 
-したがって、現在は `nvm` と `matched-asr` の2経路を独立に選択・比較できます。Cartesian NVM射影行列とmatched-coordinate tensorを二重適用する `matched-nvm` は実装していません。この未実装項目は、三角格子matched-ASRが未実装という意味ではありません。
+したがって、現在は `nvm` と `matched-asr` の2経路を独立に選択・比較できます。
+Cartesian NVM射影行列をmatched-coordinate tensorへ後掛けする二重補正は採用しません。
+単一円はWeiss対称因数分解、二重matchedコアシェルは一般化Li因数分解により、
+matched空間内だけで境界条件を処理します。
 
-matched-ASRの適用条件は、セル中心の単一円、非接触条件 `2*radius < period`、固定トポロジーです。真の接触極限では写像Jacobianが特異になり得るため、正のgapを設けてください。
+matched-ASRの適用条件は、セル中心の単一円または同心コアシェル、非接触条件
+`2*outer_radius < period`、固定トポロジーです。真の接触極限や内外半径の一致極限では
+写像Jacobianが特異になり得るため、正のgapとshell厚を設けてください。
 
 ## 検証
 
 PyTorch と torcwa 0.1.4.2 が入った環境で、`rcwa_solver_auto.py`、`rcwa_ext/`、検証スクリプトを同じ成果物ディレクトリ構成のまま実行します。
 
 ```bash
-python validate_rcwa_solver_auto.py
+python validation/validate_rcwa_solver_auto.py
 ```
 
 検証内容は次の通りです。
@@ -262,6 +271,7 @@ python validate_rcwa_solver_auto.py
 - 層界面での接線 `Ex,Ey,Hx,Hy` 連続性とstar内 `Ez,Hz` 再構成
 - matched-ASRの `T/Tz` 適用後も内部6成分場のcorner harmonicがゼロであること
 - 直交C2vのNVM／matched-ASRについて、Li-2a quarterとfullの内部・外部6成分場一致
+- コアシェル二重matched写像の正方／三角両界面一致、Jacobian正値、内外半径autograd、一般化Liのinverse/direct極限・斜交定数極限・D6共変性、受動性、D6 E1 source-row併用
 - `smatrix=False` のfields-only出力と通常field出力の一致、公開Sの無効化
 - 一般斜交NVMで、x/y共通C2 source sectorとfull source responseが一致すること
 - 既存の長方形 ASR-FR の回帰スモークテスト
@@ -269,15 +279,15 @@ python validate_rcwa_solver_auto.py
 追加の検証は次のとおりです。
 
 ```bash
-python validate_circle_matched_asr.py --integration --order 1 --grid 64
-python validate_triangular_matched_asr.py --integration --order 1 --grid 64
-python validate_design_gradients.py --json design_gradient_validation.json
+python validation/validate_circle_matched_asr.py --integration --order 1 --grid 64
+python validation/validate_triangular_matched_asr.py --integration --order 1 --grid 64
+python validation/validate_design_gradients.py --json validation/results/design_gradient_validation.json
 ```
 
 計算量を増やした収束確認例:
 
 ```bash
-python validate_rcwa_solver_auto.py --order 5 --grid 256 --json validation.json
+python validation/validate_rcwa_solver_auto.py --order 5 --grid 256 --json validation/results/modularization_validation.json
 ```
 
 ## 半径・層厚を直接最適化する場合
@@ -288,12 +298,12 @@ Tensor を渡せます。半径最適化には `method="nvm"` または `method=
 radius を渡した場合は明示的に例外になります。
 
 ```bash
-python validate_design_gradients.py --json design_gradient_validation.json
+python validation/validate_design_gradients.py --json validation/results/design_gradient_validation.json
 ```
 
 この検証は standard thickness、直方・三角 NVM、直方・三角 matched-ASR、Csおよび
 完全D6 E1-rowのx/y偏光短縮について autograd と中心差分を比較します。数式と最適化例は
-`design_gradient_report_ja.md` にあります。
+`docs/design_gradient_report_ja.md` にあります。
 
 ## 金モスアイ／金基板の収束計算
 
@@ -301,7 +311,7 @@ python validate_design_gradients.py --json design_gradient_validation.json
 ASR sampling gridを交互に収束させるコードを追加しました。
 
 ```bash
-python converge_gold_motheye.py --device cuda
+python studies/gold_motheye/converge.py --device cuda
 ```
 
 金はRakić Lorentz–Drude分散を既定で使用し、測定 `n,k` CSVにも切り替えられます。半無限
@@ -309,7 +319,7 @@ python converge_gold_motheye.py --device cuda
 分けて出力します。三角格子の既定は完全D6 E1 x-source rowで、比較用の
 `--symmetry-reduction cs-source` と群論無効化 `--no-symmetry` も選択できます。
 仮定、数式、収束判定、必要な追加形状条件は
-`gold_motheye_convergence_ja.md` を参照してください。
+`studies/gold_motheye/README_ja.md` を参照してください。
 
 ## モジュール構成
 
@@ -321,25 +331,28 @@ from rcwa_ext import AutoRCWA, Circle, LayerSpec, Material
 ```
 
 を推奨します。ファイル別の責務、支配方程式、ASR/NVM/群論/S 行列の導出は
-`rcwa_modular_math_guide_ja.md`、native-star完全D6の導出と計算量は
-`complete_d6_native_star_report_ja.md` を参照してください。
+`docs/rcwa_modular_math_guide_ja.md`、native-star完全D6の導出と計算量は
+`docs/complete_d6_native_star_report_ja.md` を参照してください。
 
 ## PMMAモスアイへの金薄膜被覆
 
 PMMAコア、同心金シェル、空気からなる三材料断面を扱う
 `add_layer_circle_shell_asr` を追加しました。外側の金–空気境界をmatched-coordinate写像へ
-整合し、内側の金–PMMA境界は同じ変換座標上で評価します。回折次数と高さ方向の層数を
-別々に収束させる実行ファイルは次です。
+整合する `radial_mapping="outer"` と、内側の金–PMMA境界にも同時に整合する
+`radial_mapping="double"` を選べます。回折次数と高さ方向の層数を別々に収束させる
+実行ファイルは次です。
 
 ```bash
-python converge_pmma_gold_order.py
-python converge_pmma_gold_layers.py
+python studies/pmma_gold_motheye/converge_order.py
+python studies/pmma_gold_motheye/converge_layers.py
 ```
+
+二重matched写像を使う場合は、各コマンドへ `--radial-mapping double` を追加します。
 
 両者とも三角格子では完全D6 E1 x-source rowが既定です。
 モデル、数式、判定規則、出力、実行順序は
-`pmma_gold_motheye_convergence_ja.md`、検証は
-`validate_pmma_gold_motheye.py` を参照してください。
+`studies/pmma_gold_motheye/README_ja.md`、検証は
+`studies/pmma_gold_motheye/validation/validate.py` を参照してください。
 
 ## Wang et al. (2022) 図8の正方形金属パッチ
 
@@ -348,13 +361,34 @@ periodic structure* の図8(a)(b)を、既存の分離ASR写像・Fourier因数�
 `T` を用いて再現する専用コードを追加しました。
 
 ```bash
-python reproduce_asr_fig8.py --study smoke --device cpu --no-plot
-python validate_asr_fig8.py
-python reproduce_asr_fig8.py --study fig8 --device cuda
+python paper_reproductions/wang2022_fig8/reproduce.py --study smoke --device cpu --no-plot
+python paper_reproductions/wang2022_fig8/validation/validate.py
+python paper_reproductions/wang2022_fig8/reproduce.py --study fig8 --device cuda
 ```
 
 論文条件はperiod 30 mm、15 mm角patch、厚さ0.01 mm、2–18 GHz、`G=0.001`、
 ASR-FR `N=M=8`、ASR `N=M=20`です。図8(b)のtotal-minus-zero-order power、
 10 GHz付近のRayleigh cutoff、passivity、再開可能CSVも扱います。論文のHFSS元データは
 公開されていないため、外部CSVがある場合だけ重ねます。数式、符号規約、実行順序、
-検証範囲は `asr_fig8_reproduction_ja.md` を参照してください。
+検証範囲は `paper_reproductions/wang2022_fig8/README_ja.md` を参照してください。
+
+## Peng–Zhang (2025) のAg–air–Ag円形aperture–particle配列
+
+Fig. 2 のMI構造（周期62 µm、外半径30 µm、内半径14 µm、Ag厚1 µm、
+Ag背景／空気環状開口／Ag中心粒子、半無限PI基板 `epsilon=3.5+0.009i`、1–3 THz）を
+扱う正方格子コードと、三角格子primitiveを厳密に等価な直交二サイト・スーパーセルと
+比較するコードを `paper_reproductions/peng2025/` にまとめました。
+
+```bash
+python paper_reproductions/peng2025/reproduce_square.py --study smoke --device cpu
+python paper_reproductions/peng2025/compare_hex_supercell.py --study smoke --device cpu
+python paper_reproductions/peng2025/validation/validate.py --device cpu
+```
+
+論文本文にないAg Drude定数とMI基板厚は再現仮定としてmetadataへ明記します。
+三角格子比較ではmatched-ASR対hard rasterの差を格子差と誤認しないよう、standard-raster
+primitive対standard-raster supercellで同値性を判定し、matched-ASR結果を別系列で示します。
+条件、スーパーセルの導出、本計算コマンド、検証結果は
+`paper_reproductions/peng2025/README_ja.md` を参照してください。通常結果は
+`paper_reproductions/peng2025/results/`、検証結果は
+`paper_reproductions/peng2025/validation/results/` に分離して保存します。

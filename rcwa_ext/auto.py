@@ -34,6 +34,15 @@ class AutoRCWA(CustomRCWA_NVM):
     _matched_circle_axis = staticmethod(CustomRCWA_ASR_FR._matched_circle_axis)
     build_circle_asr_mapping = CustomRCWA_ASR_FR.build_circle_asr_mapping
     _cubic_hermite = staticmethod(CustomRCWA_ASR_FR._cubic_hermite)
+    _quintic_hermite_zero_curvature = staticmethod(
+        CustomRCWA_ASR_FR._quintic_hermite_zero_curvature
+    )
+    _double_matched_radial_profile = (
+        CustomRCWA_ASR_FR._double_matched_radial_profile
+    )
+    build_double_matched_circle_asr_mapping = (
+        CustomRCWA_ASR_FR.build_double_matched_circle_asr_mapping
+    )
     build_triangular_circle_asr_mapping = (
         CustomRCWA_ASR_FR.build_triangular_circle_asr_mapping
     )
@@ -44,6 +53,9 @@ class AutoRCWA(CustomRCWA_NVM):
     )
     _symmetric_factorized_transverse_tensor = (
         CustomRCWA_ASR_FR._symmetric_factorized_transverse_tensor
+    )
+    _generalized_li_factorized_transverse_tensor = (
+        CustomRCWA_ASR_FR._generalized_li_factorized_transverse_tensor
     )
     _build_circle_conversion_matrices = (
         CustomRCWA_ASR_FR._build_circle_conversion_matrices
@@ -201,6 +213,10 @@ class AutoRCWA(CustomRCWA_NVM):
         self.lattice_kind = lattice.kind
         self.asr_G = float(self.asr_options.G)
         self.matched_asr_G = float(self.asr_options.circle_G)
+        # CustomRCWA_ASR_FR initializes this legacy override in its own
+        # constructor, but AutoRCWA composes the ASR methods without calling
+        # that constructor directly.
+        self.asr_quadrature_grid = None
         self.asr_mappings: list[ASRMapping | CircleASRMapping] = []
         self.asr_T_matrices: list[torch.Tensor] = []
         self.asr_Tz_matrices: list[torch.Tensor | None] = []

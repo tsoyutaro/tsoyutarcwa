@@ -1379,6 +1379,7 @@ class _SymmetryReductionMixin:
         mu33: torch.Tensor,
         *,
         factorization_rules: bool,
+        factorization_normals: tuple[torch.Tensor, torch.Tensor] | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Assemble P,Q directly on a D6-closed reciprocal-lattice star.
 
@@ -1408,6 +1409,16 @@ class _SymmetryReductionMixin:
                 return tuple(
                     convolution(value)
                     for value in (value11, value12, value21, value22)
+                )
+            if factorization_normals is not None:
+                return self._generalized_li_factorized_transverse_tensor(
+                    value11,
+                    value12,
+                    value21,
+                    value22,
+                    *factorization_normals,
+                    convolution=convolution,
+                    harmonic_count=star_count,
                 )
             determinant = value11 * value22 - value12 * value21
             inverse11 = value22 / determinant

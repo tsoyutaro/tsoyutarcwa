@@ -35,6 +35,9 @@ class CircleASRMapping:
     the D6-equivariant two-dimensional map itself supplies the adaptation.
     ``x,y`` are physical Cartesian coordinates and the remaining arrays are
     the entries and determinant of J = d(x,y)/d(u,v).
+    A double-matched core-shell map also stores the covector normal
+    ``d(rho)`` of its two fixed computational support curves for generalized
+    Li normal-D/tangential-E factorization.
     """
 
     u: torch.Tensor
@@ -52,6 +55,10 @@ class CircleASRMapping:
     tv_breaks: torch.Tensor
     u_breaks: torch.Tensor
     v_breaks: torch.Tensor
+    matched_outer_mask: torch.Tensor | None = None
+    matched_core_mask: torch.Tensor | None = None
+    interface_normal_u: torch.Tensor | None = None
+    interface_normal_v: torch.Tensor | None = None
 
 class _ASRMappingMixin:
     """Construct coordinate maps and their sampled Jacobians."""
@@ -374,6 +381,364 @@ class _ASRMappingMixin:
         h01 = -2.0 * t**3 + 3.0 * t**2
         h11 = t**3 - t**2
         return h00 * y0 + h10 * span * slope0 + h01 * y1 + h11 * span * slope1
+
+    @staticmethod
+    def _quintic_hermite_zero_curvature(
+        t: torch.Tensor,
+        y0: torch.Tensor | float,
+        slope0: torch.Tensor | float,
+        y1: torch.Tensor | float,
+        slope1: torch.Tensor | float,
+        span: torch.Tensor | float,
+    ) -> torch.Tensor:
+        """C2 Hermite segment with zero curvature at both endpoints.
+
+        ``slope0`` and ``slope1`` are derivatives with respect to the
+        unnormalised radial coordinate.  Setting the endpoint curvatures to
+        zero lets adjacent segments share value, slope, and curvature without
+        introducing additional user parameters.
+        """
+
+        h00 = 1.0 - 10.0 * t**3 + 15.0 * t**4 - 6.0 * t**5
+        h10 = t - 6.0 * t**3 + 8.0 * t**4 - 3.0 * t**5
+        h01 = 10.0 * t**3 - 15.0 * t**4 + 6.0 * t**5
+        h11 = -4.0 * t**3 + 7.0 * t**4 - 3.0 * t**5
+        return h00 * y0 + h10 * span * slope0 + h01 * y1 + h11 * span * slope1
+
+    def _double_matched_radial_profile(
+        self,
+        rho: torch.Tensor,
+        *,
+        core_ratio: torch.Tensor,
+        core_target: torch.Tensor,
+        circle_scale: torch.Tensor,
+        rho_outer: torch.Tensor,
+    ) -> torch.Tensor:
+        """C2 radial profile matching the core and shell interfaces.
+
+        The computational interfaces are ``rho=core_ratio`` and ``rho=1``.
+        They are mapped to concentric physical circles through the target
+        values ``core_target`` and ``circle_scale``.  The profile returns to
+        the identity value at the periodic cell boundary, with the same
+        positive matched slope on both sides of every periodic seam.
+        """
+
+        zero = torch.zeros_like(circle_scale)
+        matched_slope = torch.as_tensor(
+            self.matched_asr_G, dtype=torch.float64, device=self._device
+        )
+        one = torch.ones_like(circle_scale)
+
+        t_core = torch.clamp(rho / core_ratio, 0.0, 1.0)
+        radial_core = self._quintic_hermite_zero_curvature(
+            t_core,
+            zero,
+            one,
+            core_target,
+            matched_slope,
+            core_ratio,
+        )
+
+        shell_span = 1.0 - core_ratio
+        t_shell = torch.clamp((rho - core_ratio) / shell_span, 0.0, 1.0)
+        radial_shell = self._quintic_hermite_zero_curvature(
+            t_shell,
+            core_target,
+            matched_slope,
+            circle_scale,
+            matched_slope,
+            shell_span,
+        )
+
+        exterior_span = rho_outer - 1.0
+        t_exterior = torch.clamp((rho - 1.0) / exterior_span, 0.0, 1.0)
+        radial_exterior = self._quintic_hermite_zero_curvature(
+            t_exterior,
+            circle_scale,
+            matched_slope,
+            torch.ones_like(circle_scale) * rho_outer,
+            matched_slope,
+            exterior_span,
+        )
+        return torch.where(
+            rho <= core_ratio,
+            radial_core,
+            torch.where(rho <= 1.0, radial_shell, radial_exterior),
+        )
+
+    def build_double_matched_circle_asr_mapping(
+        self,
+        nx: int,
+        ny: int,
+        core_radius: float,
+        outer_radius: float,
+    ) -> CircleASRMapping:
+        """Build a C2 radial map matched to both concentric interfaces.
+
+        Homothetic rectangles (orthogonal cells) or regular hexagons
+        (triangular cells) in computational space are mapped to the inner and
+        outer physical circles.  Three quintic Hermite pieces join the centre,
+        both interfaces, and the Wigner--Seitz boundary.  The map is C2 at the
+        interfaces and returns to the identity value with matching slope and
+        zero curvature at the periodic boundary.
+        """
+
+        self._validate_grid(int(self.order[0]), nx, "u")
+        self._validate_grid(int(self.order[1]), ny, "v")
+        lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
+        core_radius, core_value = _real_parameter_tensor(
+            "core_radius",
+            core_radius,
+            dtype=torch.float64,
+            device=self._device,
+            allow_zero=False,
+        )
+        outer_radius, outer_value = _real_parameter_tensor(
+            "outer_radius",
+            outer_radius,
+            dtype=torch.float64,
+            device=self._device,
+            allow_zero=False,
+        )
+        if core_value >= outer_value:
+            raise ValueError("core_radius must be smaller than outer_radius.")
+
+        triangular = getattr(self, "lattice_kind", "rectangular") == "triangular"
+        cosine = 0.5 if triangular else 0.0
+        sine = math.sqrt(3.0) / 2.0 if triangular else 1.0
+        if triangular:
+            if not math.isclose(lx, ly, rel_tol=1.0e-8, abs_tol=1.0e-12):
+                raise UnsupportedCombinationError(
+                    "Triangular double-matched ASR requires equal primitive-vector lengths."
+                )
+            zeta = float(getattr(self, "zeta_deg", 90.0))
+            if abs(zeta - 60.0) > 1.0e-7:
+                raise UnsupportedCombinationError(
+                    "Triangular double-matched ASR requires a 60-degree cell."
+                )
+            if nx != ny:
+                raise UnsupportedCombinationError(
+                    "Triangular double-matched ASR requires an equal u/v grid."
+                )
+            support_boundary = 0.5 * lx
+        else:
+            if hasattr(self, "cos_zeta") and abs(_as_float(self.cos_zeta)) > 1.0e-8:
+                raise UnsupportedCombinationError(
+                    "Double-matched circle ASR supports orthogonal or 60-degree triangular cells."
+                )
+            support_boundary = 0.5 * min(lx, ly)
+        if outer_value >= support_boundary:
+            raise ValueError(
+                "double-matched ASR requires a non-touching outer circle: "
+                "2*outer_radius < min(Lx,Ly)."
+            )
+
+        u_axis = torch.arange(nx, dtype=torch.float64, device=self._device) * lx / nx
+        v_axis = torch.arange(ny, dtype=torch.float64, device=self._device) * ly / ny
+        u_grid, v_grid = torch.meshgrid(u_axis, v_axis, indexing="ij")
+        u_leaf = u_grid.detach().requires_grad_(True)
+        v_leaf = v_grid.detach().requires_grad_(True)
+
+        if triangular:
+            q1_candidates: list[torch.Tensor] = []
+            q2_candidates: list[torch.Tensor] = []
+            r2_candidates: list[torch.Tensor] = []
+            shifts: list[tuple[int, int]] = []
+            for shift_i_candidate in (-1, 0, 1):
+                for shift_j_candidate in (-1, 0, 1):
+                    q1_candidate = u_leaf - 0.5 * lx - shift_i_candidate * lx
+                    q2_candidate = v_leaf - 0.5 * ly - shift_j_candidate * ly
+                    q1_candidates.append(q1_candidate)
+                    q2_candidates.append(q2_candidate)
+                    r2_candidates.append(
+                        q1_candidate**2
+                        + q2_candidate**2
+                        + 2.0 * cosine * q1_candidate * q2_candidate
+                    )
+                    shifts.append((shift_i_candidate, shift_j_candidate))
+            nearest = torch.argmin(
+                torch.stack(r2_candidates, dim=0), dim=0, keepdim=True
+            )
+            q1 = torch.gather(torch.stack(q1_candidates, dim=0), 0, nearest)[0]
+            q2 = torch.gather(torch.stack(q2_candidates, dim=0), 0, nearest)[0]
+            shift_i_values = torch.tensor(
+                [item[0] for item in shifts], dtype=torch.float64, device=self._device
+            )[:, None, None]
+            shift_j_values = torch.tensor(
+                [item[1] for item in shifts], dtype=torch.float64, device=self._device
+            )[:, None, None]
+            shift_i = torch.gather(
+                shift_i_values.expand(-1, nx, ny), 0, nearest
+            )[0]
+            shift_j = torch.gather(
+                shift_j_values.expand(-1, nx, ny), 0, nearest
+            )[0]
+            support_radius = torch.maximum(
+                torch.maximum(
+                    torch.abs(q1 + 0.5 * q2),
+                    torch.abs(0.5 * q1 + q2),
+                ),
+                torch.abs(0.5 * (q1 - q2)),
+            )
+        else:
+            q1 = u_leaf - 0.5 * lx
+            q2 = v_leaf - 0.5 * ly
+            shift_i = torch.zeros_like(q1)
+            shift_j = torch.zeros_like(q2)
+            minimum_length = min(lx, ly)
+            support_radius = torch.maximum(
+                torch.abs(q1) * minimum_length / lx,
+                torch.abs(q2) * minimum_length / ly,
+            )
+
+        # Keep both discontinuities on fixed computational curves.  This is
+        # essential for a shape derivative: the Boolean material masks then do
+        # not move across quadrature samples, and both physical radii enter only
+        # through the smooth map/Jacobian.  Fractions 1/3 and 2/3 leave equal
+        # computational widths for core, shell, and exterior regions.
+        outer_coordinate_radius = outer_radius.new_tensor(
+            (2.0 / 3.0) * support_boundary
+        )
+        core_coordinate_radius = outer_radius.new_tensor(
+            (1.0 / 3.0) * support_boundary
+        )
+        core_ratio = core_coordinate_radius / outer_coordinate_radius
+        rho = support_radius / outer_coordinate_radius
+        normal_weight = torch.ones_like(rho)
+        interface_normal_u = torch.autograd.grad(
+            rho,
+            u_leaf,
+            normal_weight,
+            retain_graph=True,
+            create_graph=False,
+        )[0]
+        interface_normal_v = torch.autograd.grad(
+            rho,
+            v_leaf,
+            normal_weight,
+            retain_graph=True,
+            create_graph=False,
+        )[0]
+        epsilon = 64.0 * torch.finfo(torch.float64).eps
+        active = rho > epsilon
+        safe_rho = torch.clamp(rho, min=epsilon)
+        q1_interface = q1 / safe_rho
+        q2_interface = q2 / safe_rho
+        interface_norm = torch.sqrt(
+            torch.clamp(
+                q1_interface**2
+                + q2_interface**2
+                + 2.0 * cosine * q1_interface * q2_interface,
+                min=epsilon**2,
+            )
+        )
+        circle_scale = torch.where(
+            active,
+            outer_radius / torch.clamp(interface_norm, min=epsilon),
+            torch.ones_like(interface_norm),
+        )
+        core_target = torch.where(
+            active,
+            core_radius / torch.clamp(interface_norm, min=epsilon),
+            torch.ones_like(interface_norm) * core_ratio,
+        )
+        rho_outer = outer_radius.new_tensor(support_boundary) / outer_coordinate_radius
+        radial = self._double_matched_radial_profile(
+            rho,
+            core_ratio=core_ratio,
+            core_target=core_target,
+            circle_scale=circle_scale,
+            rho_outer=rho_outer,
+        )
+        mapped_q1 = torch.where(active, radial * q1_interface, q1)
+        mapped_q2 = torch.where(active, radial * q2_interface, q2)
+
+        absolute_1 = 0.5 * lx + shift_i * lx + mapped_q1
+        absolute_2 = 0.5 * ly + shift_j * ly + mapped_q2
+        x = absolute_1 + cosine * absolute_2
+        y = sine * absolute_2
+        ones = torch.ones_like(x)
+        differentiable_geometry = bool(
+            core_radius.requires_grad or outer_radius.requires_grad
+        )
+        x_u = torch.autograd.grad(
+            x,
+            u_leaf,
+            ones,
+            retain_graph=True,
+            create_graph=differentiable_geometry,
+        )[0]
+        x_v = torch.autograd.grad(
+            x,
+            v_leaf,
+            ones,
+            retain_graph=True,
+            create_graph=differentiable_geometry,
+        )[0]
+        y_u = torch.autograd.grad(
+            y,
+            u_leaf,
+            ones,
+            retain_graph=True,
+            create_graph=differentiable_geometry,
+        )[0]
+        y_v = torch.autograd.grad(
+            y,
+            v_leaf,
+            ones,
+            retain_graph=differentiable_geometry,
+            create_graph=differentiable_geometry,
+        )[0]
+        det_j = x_u * y_v - x_v * y_u
+        arrays = (x, y, x_u, x_v, y_u, y_v, det_j)
+        if not all(bool(torch.all(torch.isfinite(value))) for value in arrays):
+            raise RuntimeError("The double-matched circle map produced non-finite values.")
+        minimum_jacobian = 1.0e-11 * sine
+        if _as_float(torch.min(det_j)) <= minimum_jacobian:
+            raise RuntimeError(
+                "The double-matched circle map is not orientation-preserving; "
+                "increase circle_G, separate the radii, or reduce outer_radius."
+            )
+        if not differentiable_geometry:
+            x, y, x_u, x_v, y_u, y_v, det_j = (
+                value.detach() for value in (x, y, x_u, x_v, y_u, y_v, det_j)
+            )
+
+        identity_u_breaks = torch.tensor(
+            [0.0, lx], dtype=torch.float64, device=self._device
+        )
+        identity_v_breaks = torch.tensor(
+            [0.0, ly], dtype=torch.float64, device=self._device
+        )
+        radial_breaks = torch.stack(
+            (
+                outer_radius.new_tensor(0.0),
+                core_coordinate_radius,
+                outer_coordinate_radius,
+                outer_radius.new_tensor(support_boundary),
+            )
+        )
+        return CircleASRMapping(
+            u=u_axis.detach(),
+            v=v_axis.detach(),
+            tu=u_axis.detach(),
+            tv=v_axis.detach(),
+            x=x,
+            y=y,
+            x_u=x_u,
+            x_v=x_v,
+            y_u=y_u,
+            y_v=y_v,
+            det_j=det_j,
+            tu_breaks=radial_breaks,
+            tv_breaks=radial_breaks.clone(),
+            u_breaks=identity_u_breaks,
+            v_breaks=identity_v_breaks,
+            matched_outer_mask=rho <= 1.0 + epsilon,
+            matched_core_mask=rho <= core_ratio + epsilon,
+            interface_normal_u=interface_normal_u.detach(),
+            interface_normal_v=interface_normal_v.detach(),
+        )
 
     def build_triangular_circle_asr_mapping(
         self,

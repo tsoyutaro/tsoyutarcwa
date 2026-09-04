@@ -1,0 +1,95 @@
+{
+  "paper": {
+    "title": "Rigorous Coupled-Wave Analysis of Multilayer Metal-Insulator Aperture-Particle Composite Periodic Arrays",
+    "doi": "10.1109/LAWP.2025.3543371"
+  },
+  "geometry_and_material_model": {
+    "period_um": 62.0,
+    "outer_radius_um": 30.0,
+    "inner_radius_um": 14.0,
+    "silver_thickness_um": 1.0,
+    "epsilon_aperture_real": 1.0,
+    "epsilon_aperture_imag": 0.0,
+    "epsilon_pi_real": 3.5,
+    "epsilon_pi_imag": 0.009
+  },
+  "reproduction_assumptions": {
+    "silver_drude": {
+      "epsilon_infinity": 1.0,
+      "plasma_rad_s": 1.37e+16,
+      "collision_rad_s": 27300000000000.0
+    },
+    "pattern_layer": "Ag background / air annulus / Ag central particle",
+    "mi_substrate": "semi-infinite PI",
+    "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
+    "method_note": "The primitive-cell solver selects the project's outer-only or C2 double-boundary matched-ASR implementation. It is not a bit-for-bit copy of the paper's stepped separable ASR plus interpolated NV field."
+  },
+  "study": "smoke",
+  "frequencies_thz": [
+    3.0
+  ],
+  "native_orders": [
+    1
+  ],
+  "native_grid": [
+    64,
+    64
+  ],
+  "matched_radial_mapping": "double",
+  "supercell_grid": [
+    64,
+    112
+  ],
+  "supercell_order_rule": {
+    "x": "native_order",
+    "y": "2*native_order"
+  },
+  "use_native_d6_x_source": false,
+  "lattice_identity": {
+    "native_vectors": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.5,
+        0.8660254037844386
+      ]
+    ],
+    "supercell_vectors": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.7320508075688772
+      ]
+    ],
+    "sites_per_supercell": 2,
+    "hidden_translation": [
+      0.5,
+      0.8660254037844386
+    ],
+    "forbidden_supercell_orders": "m+n odd",
+    "first_folded_air_cutoff_thz": 2.791697682698703
+  },
+  "comparison": {
+    "lattice_maximum_absolute_differences": {
+      "reflectance": 0.0008481946320441081,
+      "transmittance": 6.301706601646337e-14,
+      "absorptance": 0.0008481946319810908,
+      "maximum": 0.0008481946320441081
+    },
+    "matched_vs_raster_maximum_absolute_differences": {
+      "reflectance": 0.0004511027378522048,
+      "transmittance": 6.303695019649624e-14,
+      "absorptance": 0.00045110273778916753,
+      "maximum": 0.0004511027378522048
+    },
+    "tolerance": 0.05,
+    "passed": true,
+    "important_note": "The pass/fail comparison uses standard raster on both the triangular primitive and rectangular supercell. The matched primitive is reported separately so lattice equivalence is not confused with factorization error."
+  },
+  "rows_per_model": 1
+}

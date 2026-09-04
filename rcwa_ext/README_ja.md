@@ -24,8 +24,9 @@
 | `standard` hard raster | 固定半径のみ | 固定半径のみ | 非対応 |
 
 三角NVMとmatched-ASRのx/y短縮は実装済みです。一般斜交格子ではx/yを異なるsectorへ
-分けられませんが、両者が共有するC2 source sectorだけを解く短縮に対応します。未実装
-なのは、NVM射影行列とmatched-coordinate tensorを二重適用する `matched-nvm` です。
+分けられませんが、両者が共有するC2 source sectorだけを解く短縮に対応します。
+NVM射影行列とmatched-coordinate tensorを二重適用する `matched-nvm` は、有限Toeplitz
+空間で二重補正になるため採用しません。二重matchedコアシェルは一般化Li因数分解で扱います。
 native D6-star全体の `A1/A2/B1/B2/E1/E2` 完全isotypic分解は、三角NVMと
 matched-ASRで実装済みです。Redheffer／Li-2a、full／half／quarter公開S、
 `external`／`internal`／`all` の6成分場再構成を組み合わせられます。partial公開Sでも
@@ -48,20 +49,31 @@ from rcwa_solver_auto import AutoRCWA, Circle, LayerSpec, Material
 ```
 
 各ファイルの数式、導出、依存関係、変更時の検証項目は
-`../rcwa_modular_math_guide_ja.md` にまとめています。三角NVMのD6-star/Cs偏光短縮と完全D6 E1 source-row短縮は
-`../triangular_nvm_polarization_report_ja.md`、native-star完全D6の全指標射影と計算量は
-`../complete_d6_native_star_report_ja.md` を参照してください。
+`../docs/rcwa_modular_math_guide_ja.md` にまとめています。三角NVMのD6-star/Cs偏光短縮と完全D6 E1 source-row短縮は
+`../docs/triangular_nvm_polarization_report_ja.md`、native-star完全D6の全指標射影と計算量は
+`../docs/complete_d6_native_star_report_ja.md` を参照してください。
 
 応用例として、金円錐モスアイのmatched-ASRスライス数・Fourier次数・sampling gridを
-収束させる `../converge_gold_motheye.py`、金分散の `../gold_dispersion.py`、導出と実行手順の
-`../gold_motheye_convergence_ja.md` があります。
+収束させる `../studies/gold_motheye/converge.py`、金分散の
+`../studies/shared/gold_dispersion.py`、導出と実行手順の
+`../studies/gold_motheye/README_ja.md` があります。
 
 PMMAコアへ金薄膜を被覆する同心三材料層は
-`AutoRCWA.add_layer_circle_shell_asr(...)` で追加できます。写像は外側の金–背景境界へ
-厳密に整合し、内側の金–PMMA境界は変換座標上で求積します。独立した回折次数／層数収束
-スクリプトと導出は `../pmma_gold_motheye_convergence_ja.md` を参照してください。
+`AutoRCWA.add_layer_circle_shell_asr(...)` で追加できます。`radial_mapping="outer"` は
+外側境界だけに整合する従来方式、`radial_mapping="double"` は内外両境界に整合する
+半径方向C2写像です。二重写像は内外半径Tensorの逆伝播にも対応します。二重写像では
+逐次u/v factorizationを流用せず、level-set法線を用いる一般化Li
+normal-D/tangential-E因数分解を使います。Cartesian NVMの後掛けは行いません。
+独立した回折次数／層数収束スクリプトと導出は
+`../studies/pmma_gold_motheye/README_ja.md` を参照してください。
 
 正方形金属パッチに対するWang et al. (2022)のASR-RCWA図8再現は
-`../reproduce_asr_fig8.py`、静的および小次数統合検証は
-`../validate_asr_fig8.py`、条件と数式は `../asr_fig8_reproduction_ja.md` にあります。
+`../paper_reproductions/wang2022_fig8/reproduce.py`、静的および小次数統合検証は
+`../paper_reproductions/wang2022_fig8/validation/validate.py`、条件と数式は
+`../paper_reproductions/wang2022_fig8/README_ja.md` にあります。
 この例は正方格子C4vであり、三角格子用D6短縮は適用しません。
+
+Peng–Zhang (2025) Fig. 2 のAg背景／空気環状開口／Ag中心粒子と半無限PI基板は
+`../paper_reproductions/peng2025/reproduce_square.py`、同じ三角格子を1サイトprimitiveと直交二サイト・
+supercellで比較する例は `../paper_reproductions/peng2025/compare_hex_supercell.py`、検証と再現上の制限は
+`../paper_reproductions/peng2025/README_ja.md` にあります。

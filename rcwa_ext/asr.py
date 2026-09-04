@@ -186,6 +186,146 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         )
         return result11, result12, result21, result22
 
+    def _generalized_li_factorized_transverse_tensor(
+        self,
+        tensor11: torch.Tensor,
+        tensor12: torch.Tensor,
+        tensor21: torch.Tensor,
+        tensor22: torch.Tensor,
+        normal_u: torch.Tensor,
+        normal_v: torch.Tensor,
+        *,
+        convolution=None,
+        harmonic_count: int | None = None,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Apply Li's inverse rule to the local normal/tangential traces.
+
+        ``A`` maps covariant electric components to contravariant electric
+        displacement.  With the undeformed computational metric ``g``, set
+        ``C=g A`` and ``B=Pt+Pn C``.  The auxiliary field ``G=B E`` consists
+        of the continuous tangential E and normal D traces.  Consequently,
+
+            C_eff = [C B^-1] [B^-1]^-1,
+            A_eff = g^-1 C_eff.
+
+        This is the generalized Li factorization needed by a non-separable
+        double-matched map.  For scalar epsilon and a u-normal interface it
+        reduces exactly to ``diag([1/epsilon]^-1, [epsilon])``.
+        """
+        conv = self._material_conv if convolution is None else convolution
+        count = self.order_N if harmonic_count is None else int(harmonic_count)
+        if count <= 0:
+            raise ValueError("harmonic_count must be positive.")
+        if normal_u.shape != tensor11.shape or normal_v.shape != tensor11.shape:
+            raise ValueError(
+                "Generalized Li normals must match the tensor sampling shape."
+            )
+
+        real_dtype = tensor11.real.dtype
+        dtype = tensor11.dtype
+        cosine_real = torch.as_tensor(
+            _as_float(getattr(self, "cos_zeta", 0.0)),
+            dtype=real_dtype,
+            device=self._device,
+        )
+        sine_squared_real = 1.0 - cosine_real**2
+        if _as_float(sine_squared_real) <= 1.0e-12:
+            raise UnsupportedCombinationError(
+                "Generalized Li factorization requires a non-degenerate lattice metric."
+            )
+        cosine = cosine_real.to(dtype)
+        sine_squared = sine_squared_real.to(dtype)
+
+        # n_flat=d(rho), n_sharp=g^-1 n_flat, and
+        # Pn=n_flat outer n_sharp/(n_flat.n_sharp).
+        n1 = normal_u.to(real_dtype)
+        n2 = normal_v.to(real_dtype)
+        n_sharp_1 = (n1 - cosine_real * n2) / sine_squared_real
+        n_sharp_2 = (n2 - cosine_real * n1) / sine_squared_real
+        normal_squared = n1 * n_sharp_1 + n2 * n_sharp_2
+        normal_tolerance = 64.0 * torch.finfo(real_dtype).eps
+        inverse_normal_squared = torch.where(
+            normal_squared > normal_tolerance,
+            1.0 / torch.clamp(normal_squared, min=normal_tolerance),
+            torch.zeros_like(normal_squared),
+        )
+        p11 = (n1 * n_sharp_1 * inverse_normal_squared).to(dtype)
+        p12 = (n1 * n_sharp_2 * inverse_normal_squared).to(dtype)
+        p21 = (n2 * n_sharp_1 * inverse_normal_squared).to(dtype)
+        p22 = (n2 * n_sharp_2 * inverse_normal_squared).to(dtype)
+
+        # C=g A for g=[[1,cos(zeta)],[cos(zeta),1]].
+        c11 = tensor11 + cosine * tensor21
+        c12 = tensor12 + cosine * tensor22
+        c21 = cosine * tensor11 + tensor21
+        c22 = cosine * tensor12 + tensor22
+
+        one = torch.ones_like(c11)
+        pc11 = p11 * c11 + p12 * c21
+        pc12 = p11 * c12 + p12 * c22
+        pc21 = p21 * c11 + p22 * c21
+        pc22 = p21 * c12 + p22 * c22
+        b11 = one - p11 + pc11
+        b12 = -p12 + pc12
+        b21 = -p21 + pc21
+        b22 = one - p22 + pc22
+        determinant_b = b11 * b22 - b12 * b21
+        determinant_scale = torch.maximum(
+            torch.maximum(torch.abs(b11 * b22), torch.abs(b12 * b21)),
+            torch.ones_like(torch.abs(determinant_b)),
+        )
+        if bool(
+            torch.any(
+                torch.abs(determinant_b)
+                <= 128.0 * torch.finfo(real_dtype).eps * determinant_scale
+            )
+        ):
+            raise RuntimeError(
+                "The generalized Li continuous-field transform is singular; "
+                "check material parameters and the matched map."
+            )
+        inverse_b11 = b22 / determinant_b
+        inverse_b12 = -b12 / determinant_b
+        inverse_b21 = -b21 / determinant_b
+        inverse_b22 = b11 / determinant_b
+
+        u11 = c11 * inverse_b11 + c12 * inverse_b21
+        u12 = c11 * inverse_b12 + c12 * inverse_b22
+        u21 = c21 * inverse_b11 + c22 * inverse_b21
+        u22 = c21 * inverse_b12 + c22 * inverse_b22
+
+        def block(values: tuple[torch.Tensor, ...]) -> torch.Tensor:
+            a11, a12, a21, a22 = (conv(value) for value in values)
+            return torch.cat(
+                (
+                    torch.cat((a11, a12), dim=1),
+                    torch.cat((a21, a22), dim=1),
+                ),
+                dim=0,
+            )
+
+        inverse_b_conv = block(
+            (inverse_b11, inverse_b12, inverse_b21, inverse_b22)
+        )
+        u_conv = block((u11, u12, u21, u22))
+        if inverse_b_conv.shape != (2 * count, 2 * count):
+            raise RuntimeError(
+                "Generalized Li convolution returned an inconsistent harmonic dimension."
+            )
+        # Right solve: C_eff=U_conv @ inverse(inverse_B_conv).
+        c_effective = self._solve(inverse_b_conv.mT, u_conv.mT).mT
+        ce11 = c_effective[:count, :count]
+        ce12 = c_effective[:count, count:]
+        ce21 = c_effective[count:, :count]
+        ce22 = c_effective[count:, count:]
+
+        inverse_metric = 1.0 / sine_squared
+        a11 = inverse_metric * (ce11 - cosine * ce21)
+        a12 = inverse_metric * (ce12 - cosine * ce22)
+        a21 = inverse_metric * (ce21 - cosine * ce11)
+        a22 = inverse_metric * (ce22 - cosine * ce12)
+        return a11, a12, a21, a22
+
     def _build_circle_conversion_matrices(
         self, mapping: CircleASRMapping
     ) -> tuple[torch.Tensor, torch.Tensor]:
@@ -284,12 +424,32 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         mu33: torch.Tensor,
         *,
         factorization_rules: bool,
+        factorization_normals: tuple[torch.Tensor, torch.Tensor] | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         eps33_conv = self._material_conv(eps33)
         mu33_conv = self._material_conv(mu33)
         inv_eps33 = self._solve(eps33_conv, self._eye(self.order_N))
         inv_mu33 = self._solve(mu33_conv, self._eye(self.order_N))
-        if factorization_rules:
+        if factorization_rules and factorization_normals is not None:
+            eps11_m, eps12_m, eps21_m, eps22_m = (
+                self._generalized_li_factorized_transverse_tensor(
+                    eps11,
+                    eps12,
+                    eps21,
+                    eps22,
+                    *factorization_normals,
+                )
+            )
+            mu11_m, mu12_m, mu21_m, mu22_m = (
+                self._generalized_li_factorized_transverse_tensor(
+                    mu11,
+                    mu12,
+                    mu21,
+                    mu22,
+                    *factorization_normals,
+                )
+            )
+        elif factorization_rules:
             eps11_m, eps12_m, eps21_m, eps22_m = (
                 self._symmetric_factorized_transverse_tensor(
                     eps11, eps12, eps21, eps22
@@ -346,6 +506,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         core_radius=None,
         eps_core=None,
         mu_core=1.0,
+        radial_mapping: str = "outer",
         nx: int = 256,
         ny: int = 256,
         factorization_rules: bool = True,
@@ -365,6 +526,25 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             allow_zero=True,
         )
         core_shell = core_radius is not None or eps_core is not None
+        mapping_aliases = {
+            "outer": "outer",
+            "single": "outer",
+            "double": "double",
+            "dual": "double",
+            "both": "double",
+            "double-matched": "double",
+        }
+        normalized_mapping = mapping_aliases.get(
+            str(radial_mapping).strip().lower().replace("_", "-")
+        )
+        if normalized_mapping is None:
+            raise ValueError(
+                "radial_mapping must be 'outer' or 'double' "
+                "('dual', 'both', and 'double-matched' are aliases)."
+            )
+        if not core_shell and normalized_mapping != "outer":
+            raise ValueError("radial_mapping='double' requires a core-shell circle.")
+        requested_factorization_rules = bool(factorization_rules)
         if (core_radius is None) != (eps_core is None):
             raise ValueError(
                 "core_radius and eps_core must be supplied together for a "
@@ -394,7 +574,11 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         )
         core_radius_value = None
         if core_shell:
-            if torch.is_tensor(core_radius) and core_radius.requires_grad:
+            if (
+                normalized_mapping == "outer"
+                and torch.is_tensor(core_radius)
+                and core_radius.requires_grad
+            ):
                 raise UnsupportedCombinationError(
                     "The inner core/shell boundary is sampled rather than "
                     "coordinate-matched, so core_radius does not have a "
@@ -417,7 +601,11 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             raise UnsupportedCombinationError(
                 "symmetry='d6' requires a 60-degree equal-length triangular cell."
             )
-        if triangular:
+        if core_shell and normalized_mapping == "double":
+            mapping = self.build_double_matched_circle_asr_mapping(
+                nx, ny, core_radius, radius
+            )
+        elif triangular:
             mapping = self.build_triangular_circle_asr_mapping(nx, ny, radius)
         else:
             if hasattr(self, "cos_zeta") and abs(_as_float(self.cos_zeta)) > 1.0e-8:
@@ -426,13 +614,22 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 )
             mapping = self.build_circle_asr_mapping(nx, ny, radius)
         lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
-        inside = self._periodic_circle_mask(mapping.x, mapping.y, radius)
+        if core_shell and normalized_mapping == "double":
+            if mapping.matched_outer_mask is None or mapping.matched_core_mask is None:
+                raise RuntimeError("Double-matched map did not provide fixed material masks.")
+            inside = mapping.matched_outer_mask
+        else:
+            inside = self._periodic_circle_mask(mapping.x, mapping.y, radius)
         eps_uv = torch.where(inside, eps_cyl_t, eps_bg_t)
         mu_uv = torch.where(inside, mu_cyl_t, mu_bg_t)
         if core_shell:
-            core_inside = self._periodic_circle_mask(
-                mapping.x, mapping.y, core_radius
+            core_inside = (
+                mapping.matched_core_mask
+                if normalized_mapping == "double"
+                else self._periodic_circle_mask(mapping.x, mapping.y, core_radius)
             )
+            if core_inside is None:
+                raise RuntimeError("Core-shell map did not provide a core mask.")
             eps_uv = torch.where(core_inside, eps_core_t, eps_uv)
             mu_uv = torch.where(core_inside, mu_core_t, mu_uv)
 
@@ -456,6 +653,19 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             mu_uv * metric22,
             mu_uv * h,
         )
+        factorization_normals = None
+        if core_shell and normalized_mapping == "double" and factorization_rules:
+            if (
+                mapping.interface_normal_u is None
+                or mapping.interface_normal_v is None
+            ):
+                raise RuntimeError(
+                    "Double-matched map did not provide interface normals for Li factorization."
+                )
+            factorization_normals = (
+                mapping.interface_normal_u,
+                mapping.interface_normal_v,
+            )
         p, q, eps33_conv, mu33_conv = self._build_circle_asr_pq(
             eps11,
             eps12,
@@ -468,6 +678,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             mu22,
             mu33,
             factorization_rules=factorization_rules,
+            factorization_normals=factorization_normals,
         )
         transform, transform_z_all = self._build_circle_conversion_matrices(mapping)
         layer_index = self.layer_N
@@ -494,6 +705,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 mu22,
                 mu33,
                 factorization_rules=factorization_rules,
+                factorization_normals=factorization_normals,
             )
             vector_embedding, _, _, _, _ = self._triangular_star_operators()
             transform_star = vector_embedding.mH @ transform @ vector_embedding
@@ -536,6 +748,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 mu22,
                 mu33,
                 factorization_rules=factorization_rules,
+                factorization_normals=factorization_normals,
             )
             vector_embedding, _, _, _, _ = self._triangular_star_operators()
             transform_star = vector_embedding.mH @ transform @ vector_embedding
@@ -573,6 +786,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     mu22,
                     mu33,
                     factorization_rules=factorization_rules,
+                    factorization_normals=factorization_normals,
                 )
                 if triangular
                 else None
@@ -700,7 +914,9 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 shape="core-shell-circle" if core_shell else "circle",
                 lattice=getattr(self, "lattice_kind", "rectangular"),
                 reason=(
-                    "OUTER_MATCHED_CORE_SHELL_COORDINATES"
+                    "DOUBLE_MATCHED_CORE_SHELL_COORDINATES"
+                    if core_shell and normalized_mapping == "double"
+                    else "OUTER_MATCHED_CORE_SHELL_COORDINATES"
                     if core_shell
                     else "MATCHED_CIRCLE_COORDINATES"
                 ),
@@ -709,9 +925,30 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     "core_radius": core_radius_value,
                     "grid": (nx, ny),
                     "asr_G": self.matched_asr_G,
+                    "factorization_rules_requested": requested_factorization_rules,
                     "factorization_rules": factorization_rules,
+                    "factorization_scheme": (
+                        "generalized-li-normal-tangential"
+                        if factorization_normals is not None
+                        else "weiss-symmetric-29-36"
+                        if factorization_rules
+                        else "direct-laurent"
+                    ),
+                    "radial_mapping": normalized_mapping,
+                    "matched_boundaries": (
+                        "inner+outer"
+                        if core_shell and normalized_mapping == "double"
+                        else "outer"
+                    ),
+                    "double_match_coordinate_fractions": (
+                        (1.0 / 3.0, 2.0 / 3.0)
+                        if core_shell and normalized_mapping == "double"
+                        else None
+                    ),
                     "map": (
-                        "D6 hex-to-circle periodic Hermite map"
+                        "C2 double-matched radial quintic Hermite map"
+                        if core_shell and normalized_mapping == "double"
+                        else "D6 hex-to-circle periodic Hermite map"
                         if triangular
                         else "Weiss-37-38 + separable ASR"
                     ),
@@ -743,18 +980,22 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         mu_bg=1.0,
         mu_shell=1.0,
         mu_core=1.0,
+        radial_mapping: str = "outer",
         nx: int = 256,
         ny: int = 256,
         factorization_rules: bool = True,
     ) -> None:
-        """Add a concentric core-shell circle with an outer matched map.
+        """Add a concentric core-shell circle with selectable radial matching.
 
-        The coordinate map exactly matches the shell/background boundary.
-        The concentric core/shell boundary is evaluated in the same transformed
-        coordinates, but is not independently matched; convergence with both
-        Fourier order and quadrature grid therefore remains mandatory.  A
-        trainable ``core_radius`` is rejected instead of returning the zero or
-        misleading gradient of a sampled occupancy mask.
+        ``radial_mapping='outer'`` retains the legacy outer-boundary map.  The
+        core/shell boundary is sampled and a trainable ``core_radius`` is
+        rejected.  ``radial_mapping='double'`` uses a C2 radial map whose two
+        computational support curves map exactly to the core/shell and
+        shell/background circles.  Both radii then remain differentiable
+        through the map and its Jacobian.  With ``factorization_rules=True``,
+        the double map uses generalized Li normal-D/tangential-E tensor
+        factorization; it does not multiply by a Cartesian NVM projector.
+        Fourier-order and grid convergence are required for either choice.
         """
         self.add_layer_circle_asr(
             thickness,
@@ -766,6 +1007,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             core_radius=core_radius,
             eps_core=eps_core,
             mu_core=mu_core,
+            radial_mapping=radial_mapping,
             nx=nx,
             ny=ny,
             factorization_rules=factorization_rules,

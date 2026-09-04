@@ -1,0 +1,145 @@
+{
+  "passed": true,
+  "device": "cpu",
+  "checks": {
+    "geometry_and_material_defaults": {
+      "passed": true
+    },
+    "drude_passive": {
+      "epsilon_at_3_thz": [
+        -170533.91126130457,
+        246987.41428246658
+      ],
+      "passed": true
+    },
+    "supercell_hidden_translation": {
+      "maximum_material_error": 0.0,
+      "passed": true
+    },
+    "air_annular_aperture_fill_fraction": {
+      "sampled": 0.6587301587301587,
+      "analytic": 0.6643677171804835,
+      "absolute_error": 0.0056375584503247644,
+      "passed": true
+    },
+    "square_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "triangular_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "double_matched_geometry": {
+      "maximum_interface_radius_error": {
+        "square": 2.7755575615628914e-17,
+        "triangular": 2.7755575615628914e-17
+      },
+      "minimum_jacobian": {
+        "square": 0.028740469170808025,
+        "triangular": 0.02598076211351219
+      },
+      "fixed_interface_masks": {
+        "square": true,
+        "triangular": true
+      },
+      "passed": true
+    },
+    "double_matched_radius_gradient": {
+      "objective": 28.53698926599757,
+      "autograd": {
+        "core_radius": -141.51502275360696,
+        "outer_radius": 364.62001243920355
+      },
+      "finite_difference": {
+        "core_radius": -141.5150205261284,
+        "outer_radius": 364.6200168956781
+      },
+      "scaled_errors": {
+        "core_radius": 1.5740226748786932e-08,
+        "outer_radius": 1.2222243216407311e-08
+      },
+      "passed": true
+    },
+    "double_matched_internal_fields": {
+      "finite": {
+        "square": true,
+        "triangular_d6_x": true
+      },
+      "passed": true
+    },
+    "square_double_matched_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "double_matched_redheffer_vs_algo2a": {
+      "maximum_RTA_difference": 6.661338147750939e-16,
+      "passed": true
+    },
+    "triangular_double_matched_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "triangular_double_matched_d6_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "triangular_d6_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "triangular_full_d6_reference": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "triangular_raster_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "d6_vs_rectangular_truncation_diagnostic": {
+      "maximum_RTA_difference": 0.3266780295509703,
+      "basis_note": "At equal index N=4 the D6 path uses a closed native star, whereas the unreduced path uses a rectangular box. Exact parity is not expected before separate basis convergence.",
+      "passed": true
+    },
+    "supercell_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "raster_lattice_equivalence": {
+      "maximum_RTA_difference": 0.0008286124103622505,
+      "passed": true
+    },
+    "forbidden_folded_orders": {
+      "R_plus_T": 9.991550173259965e-37,
+      "passed": true
+    }
+  },
+  "note": "This is an implementation smoke/invariance test, not a proof of high-order convergence or agreement with unavailable paper samples."
+}

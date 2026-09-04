@@ -1,0 +1,48 @@
+{
+  "paper": {
+    "title": "Rigorous Coupled-Wave Analysis of Multilayer Metal-Insulator Aperture-Particle Composite Periodic Arrays",
+    "doi": "10.1109/LAWP.2025.3543371"
+  },
+  "geometry_and_material_model": {
+    "period_um": 62.0,
+    "outer_radius_um": 30.0,
+    "inner_radius_um": 14.0,
+    "silver_thickness_um": 1.0,
+    "epsilon_aperture_real": 1.0,
+    "epsilon_aperture_imag": 0.0,
+    "epsilon_pi_real": 3.5,
+    "epsilon_pi_imag": 0.009
+  },
+  "reproduction_assumptions": {
+    "silver_drude": {
+      "epsilon_infinity": 1.0,
+      "plasma_rad_s": 1.37e+16,
+      "collision_rad_s": 27300000000000.0
+    },
+    "pattern_layer": "Ag background / air annulus / Ag central particle",
+    "mi_substrate": "semi-infinite PI",
+    "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
+    "method_note": "The primitive-cell solver uses the project's outer-boundary matched-ASR-FR implementation. It is not a bit-for-bit copy of the paper's stepped separable ASR plus interpolated NV field."
+  },
+  "study": "smoke",
+  "frequency_thz": [
+    10.0
+  ],
+  "orders": [
+    1
+  ],
+  "grid": [
+    96,
+    96
+  ],
+  "asr_g": 0.001,
+  "cascade": "redheffer",
+  "use_symmetry": false,
+  "paper_comparison": {
+    "figure": "Fig. 2(c,d)",
+    "reported_asr_nv_spectrum_order": 23,
+    "reference_curve_samples_available": false,
+    "claim": "Compare curve shape and convergence qualitatively unless the authors' exact Drude constants/reference samples are supplied."
+  },
+  "rows": 1
+}

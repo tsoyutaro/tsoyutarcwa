@@ -1,0 +1,87 @@
+{
+  "paper": {
+    "title": "Rigorous Coupled-Wave Analysis of Multilayer Metal-Insulator Aperture-Particle Composite Periodic Arrays",
+    "doi": "10.1109/LAWP.2025.3543371"
+  },
+  "paper_stated_geometry": {
+    "period_um": 62.0,
+    "outer_radius_um": 30.0,
+    "inner_radius_um": 14.0,
+    "silver_thickness_um": 1.0,
+    "epsilon_pi_real": 3.5,
+    "epsilon_pi_imag": 0.009
+  },
+  "reproduction_assumptions": {
+    "silver_drude": {
+      "epsilon_infinity": 1.0,
+      "plasma_rad_s": 1.37e+16,
+      "collision_rad_s": 27300000000000.0
+    },
+    "mi_substrate": "semi-infinite PI",
+    "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
+    "method_note": "The primitive-cell solver uses the project's outer-boundary matched-ASR-FR implementation. It is not a bit-for-bit copy of the paper's stepped separable ASR plus interpolated NV field."
+  },
+  "study": "convergence",
+  "frequencies_thz": [
+    1.95
+  ],
+  "native_orders": [
+    1,
+    2,
+    3
+  ],
+  "native_grid": [
+    96,
+    96
+  ],
+  "supercell_grid": [
+    96,
+    168
+  ],
+  "supercell_order_rule": {
+    "x": "native_order",
+    "y": "2*native_order"
+  },
+  "use_native_d6_x_source": false,
+  "lattice_identity": {
+    "native_vectors": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.5,
+        0.8660254037844386
+      ]
+    ],
+    "supercell_vectors": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.7320508075688772
+      ]
+    ],
+    "sites_per_supercell": 2,
+    "hidden_translation": [
+      0.5,
+      0.8660254037844386
+    ],
+    "forbidden_supercell_orders": "m+n odd",
+    "first_folded_air_cutoff_thz": 2.791697682698703
+  },
+  "comparison": {
+    "maximum_absolute_differences": {
+      "reflectance": 0.7354742049804208,
+      "transmittance": 0.665601705313178,
+      "absorptance": 0.27051698997134227,
+      "maximum": 0.7354742049804208
+    },
+    "tolerance": 0.05,
+    "passed": false,
+    "important_note": "Continuum structures are identical, but the native path uses matched-ASR-FR and the supercell path uses a hard standard raster. Agreement is therefore a joint Fourier-order and raster-grid convergence test."
+  },
+  "rows_per_model": 3
+}

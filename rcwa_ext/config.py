@@ -490,7 +490,18 @@ def _real_parameter_tensor(
     only.  Every physical formula must use the Tensor returned as the first
     item.  This separation prevents accidental ``float(tensor)`` graph cuts.
     """
-    source = torch.as_tensor(value, device=device)
+    if torch.is_tensor(value):
+        source = value.to(device=device)
+    else:
+        # torch.as_tensor(0.1) follows the global default (normally float32),
+        # which permanently rounds Python design values before the requested
+        # solver precision is applied below.  Start scalar inputs in double
+        # precision and only then cast to the solver's real dtype.
+        source = torch.as_tensor(
+            value,
+            dtype=torch.complex128 if isinstance(value, complex) else torch.float64,
+            device=device,
+        )
     if source.numel() != 1:
         raise ValueError(f"{name} must be a scalar; got shape {tuple(source.shape)}.")
     if torch.is_complex(source):
