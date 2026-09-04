@@ -612,6 +612,7 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
     )
 
     torch.set_default_dtype(torch.float64)
+    integration_device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def make(
         method="matched-asr",
@@ -643,7 +644,7 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             verify_cascade=fields != "none",
             compute_condition_numbers=True,
             dtype=torch.complex128,
-            device="cuda",
+            device=integration_device,
         )
         sim.add_input_layer(eps=1.0)
         sim.add_output_layer(eps=1.0)
@@ -678,7 +679,11 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
     zero_y = int(torch.nonzero(full_r.order_y == 0, as_tuple=False)[0])
     harmonic = zero_x * len(full_r.order_y) + zero_y
     for offset, label in ((0, "x"), (full_r.order_N, "y")):
-        source = torch.zeros(2 * full_r.order_N, dtype=torch.complex128)
+        source = torch.zeros(
+            2 * full_r.order_N,
+            dtype=full_r.S[0].dtype,
+            device=full_r.S[0].device,
+        )
         source[offset + harmonic] = 1.0
         transmitted, reflected = full_r.S[0] @ source, full_r.S[1] @ source
         power = sum(float(torch.abs(vector[index]) ** 2) for vector in (transmitted, reflected) for index in (harmonic, full_r.order_N + harmonic))
@@ -688,7 +693,11 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
     for algorithm in ("redheffer", "algo2a"):
         for pol in ("x", "y"):
             reduced[(algorithm, pol)] = make(algorithm=algorithm, size="half", pol=pol)
-            source = torch.zeros(2 * full_r.order_N, dtype=torch.complex128)
+            source = torch.zeros(
+                2 * full_r.order_N,
+                dtype=full_r.S[0].dtype,
+                device=full_r.S[0].device,
+            )
             source[(0 if pol == "x" else full_r.order_N) + harmonic] = 1.0
             red = reduced[("redheffer", pol)] if ("redheffer", pol) in reduced else None
             if red is not None and algorithm == "algo2a":
@@ -790,7 +799,9 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
 
     nvm_base = make(method="nvm", algorithm="redheffer", size="half")
     nvm_vector_embedding, *_ = nvm_base._triangular_star_operators()
-    nvm_radius = torch.tensor(0.24, dtype=torch.float64)
+    nvm_radius = torch.tensor(
+        0.24, dtype=torch.float64, device=nvm_base._device
+    )
     nvm_centers = nvm_base.layer_records[0].options["centers"]
     inverse_eps_rule = nvm_base._circle_toeplitz(
         nvm_radius,
@@ -866,7 +877,11 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             )
         )
         for pol in ("x", "y"):
-            source = torch.zeros(2 * nvm_base.order_N, dtype=torch.complex128)
+            source = torch.zeros(
+                2 * nvm_base.order_N,
+                dtype=nvm_reference.dtype,
+                device=nvm_reference.device,
+            )
             source[(0 if pol == "x" else nvm_base.order_N) + harmonic] = 1.0
             checks.append(
                 Check(
@@ -884,7 +899,11 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             )
 
     for pol in ("x", "y"):
-        source = torch.zeros(2 * nvm_base.order_N, dtype=torch.complex128)
+        source = torch.zeros(
+            2 * nvm_base.order_N,
+            dtype=nvm_reduced[("redheffer", pol)].S[0].dtype,
+            device=nvm_reduced[("redheffer", pol)].S[0].device,
+        )
         source[(0 if pol == "x" else nvm_base.order_N) + harmonic] = 1.0
         for block, label in ((0, "Tf"), (1, "Rf")):
             checks.append(
@@ -1076,7 +1095,9 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
 
         def set_source(sim, component, direction):
             source = torch.zeros(
-                (2 * sim.order_N, 1), dtype=torch.complex128
+                (2 * sim.order_N, 1),
+                dtype=sim._dtype,
+                device=sim._device,
             )
             source[(0 if component == "x" else sim.order_N) + harmonic, 0] = 1.0
             sim.E_i = source
@@ -1255,7 +1276,9 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
                 )
             )
             source = torch.zeros(
-                2 * red_source.order_N, dtype=torch.complex128
+                2 * red_source.order_N,
+                dtype=red_source.S[0].dtype,
+                device=red_source.S[0].device,
             )
             source[
                 (0 if pol == "x" else red_source.order_N) + harmonic
@@ -1318,7 +1341,9 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             symmetry="d6",
         )
         source_x = torch.zeros(
-            2 * quarter_source.order_N, dtype=torch.complex128
+            2 * quarter_source.order_N,
+            dtype=quarter_source.S[1].dtype,
+            device=quarter_source.S[1].device,
         )
         source_x[harmonic] = 1.0
         checks.append(
@@ -1393,7 +1418,9 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
                 strict=pol is not None,
                 polarization=pol,
             ),
-            verify_cascade=fields != "none", dtype=torch.complex128, device="cuda",
+            verify_cascade=fields != "none",
+            dtype=torch.complex128,
+            device=integration_device,
         )
         sim.add_input_layer(); sim.add_output_layer(); sim.set_incident_angle(0.0, 0.0)
         sim.add_structured_layer(LayerSpec(thickness=.18, geometry=Circle(.24), background=Material(1.0), inclusion=Material(4.0), method=method))
@@ -1404,7 +1431,11 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
     square_harmonic = int(torch.nonzero(square_full.order_x == 0)[0]) * len(square_full.order_y) + int(torch.nonzero(square_full.order_y == 0)[0])
     for pol in ("x", "y"):
         square_reduced = make_square(pol)
-        source = torch.zeros(2*square_full.order_N, dtype=torch.complex128)
+        source = torch.zeros(
+            2 * square_full.order_N,
+            dtype=square_full.S[0].dtype,
+            device=square_full.S[0].device,
+        )
         source[(0 if pol == "x" else square_full.order_N) + square_harmonic] = 1.0
         for block, label in ((0, "Tf"), (1, "Rf")):
             checks.append(Check(f"orthogonal reduced/full {pol} {label}", float(torch.max(torch.abs((square_reduced.S[block]-square_full.S[block])@source))), 5e-8))
@@ -1424,7 +1455,9 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             algorithm="algo2a",
         )
         source = torch.zeros(
-            (2 * square_field_full.order_N, 1), dtype=torch.complex128
+            (2 * square_field_full.order_N, 1),
+            dtype=square_field_full._dtype,
+            device=square_field_full._device,
         )
         source[square_harmonic, 0] = 1.0
         for simulation in (square_field_full, square_field_reduced):
@@ -1467,7 +1500,12 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
         nvm = make(method="nvm", selected_order=selected_order)
         zx = int(torch.nonzero(matched.order_x == 0)[0]); zy = int(torch.nonzero(matched.order_y == 0)[0])
         h0 = zx * len(matched.order_y) + zy
-        source = torch.zeros(2*matched.order_N, dtype=torch.complex128); source[h0] = 1.0
+        source = torch.zeros(
+            2 * matched.order_N,
+            dtype=matched.S[0].dtype,
+            device=matched.S[0].device,
+        )
+        source[h0] = 1.0
         difference = max(float(torch.max(torch.abs((matched.S[i]-nvm.S[i])@source))) for i in (0,1))
         convergence.append({"order": selected_order, "matched_nvm_source_error": difference})
 
