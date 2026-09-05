@@ -12,7 +12,8 @@ outputs/
 ├─ studies/                   # モスアイなどの応用・収束計算
 │  ├─ shared/                 # 共通材料モデル（金分散）
 │  ├─ gold_motheye/           # 金モスアイ／金基板
-│  └─ pmma_gold_motheye/      # 金被覆PMMAモスアイ
+│  ├─ pmma_gold_motheye/      # 非接触金被覆PMMAモスアイ
+│  └─ mosmite_gold_30nm/      # Au 30 nm合体を扱うASR/周期ラスタ混成モデル
 ├─ paper_reproductions/       # 論文ごとの再現実装
 │  ├─ wang2022_fig8/          # ASR-RCWA論文 Fig. 8
 │  └─ peng2025/               # Ag–air–Ag円形構造

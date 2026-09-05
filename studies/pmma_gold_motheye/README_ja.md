@@ -79,6 +79,9 @@ P Q W=W K_z^2,\qquad V=QWK_z^{-1}
 周期セル境界を零曲率quintic Hermite区間で接続します。半径方向にはC2で、物質maskは
 計算空間に固定されるため、`core_radius` と `outer_radius` の両方をTensor設計変数にできます。
 `outer` へtrainable `core_radius` を渡す場合は、従来どおり誤ったゼロ勾配を避けるため例外です。
+各区間の最小割線勾配を `minimum_radial_secant` として求め、共通端点勾配を
+`min(circle_G, 0.95*minimum_radial_secant)` に自動制限します。したがって、小さい先端コアと
+厚いAuシェルでも半径写像は単調になり、結果JSONには有効勾配と最小Jacobianが記録されます。
 
 二重放射支持曲線には既存の逐次u/v対称factorizationを流用せず、計算格子計量と
 level-set法線から作る一般化Li因数分解を使います。法線Dには逆則、接線Eには直接則が

@@ -16,7 +16,7 @@ group_theory=GroupTheoryOptions(
 
 matched-ASRでは、同じ中心を持つPMMAコア／金シェルのような同心円層にも適用できる。
 `radial_mapping="outer"` は外円だけにmatchedし、`radial_mapping="double"` は内外円を
-同時にmatchedする。後者は一般化Li因数分解のToeplitz演算子をnative starへ制限してから
+単調性保証付きC2半径写像で同時にmatchedする。後者は一般化Li因数分解のToeplitz演算子をnative starへ制限してから
 逆則を適用するため、矩形corner harmonicを介さず完全D6およびE1 source-row短縮と併用できる。
 
 特定の正入射x/y偏光だけが必要な場合は、全既約表現を再結合せず、sourceが属する

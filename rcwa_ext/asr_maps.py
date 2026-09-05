@@ -59,6 +59,8 @@ class CircleASRMapping:
     matched_core_mask: torch.Tensor | None = None
     interface_normal_u: torch.Tensor | None = None
     interface_normal_v: torch.Tensor | None = None
+    effective_radial_slope: torch.Tensor | None = None
+    minimum_radial_secant: torch.Tensor | None = None
 
 class _ASRMappingMixin:
     """Construct coordinate maps and their sampled Jacobians."""
@@ -413,27 +415,30 @@ class _ASRMappingMixin:
         core_target: torch.Tensor,
         circle_scale: torch.Tensor,
         rho_outer: torch.Tensor,
+        matched_slope: torch.Tensor,
     ) -> torch.Tensor:
-        """C2 radial profile matching the core and shell interfaces.
+        """Monotone C2 radial profile matching both material interfaces.
 
         The computational interfaces are ``rho=core_ratio`` and ``rho=1``.
         They are mapped to concentric physical circles through the target
         values ``core_target`` and ``circle_scale``.  The profile returns to
         the identity value at the periodic cell boundary, with the same
-        positive matched slope on both sides of every periodic seam.
+        positive slope at the centre, both interfaces, and periodic boundary.
+        The caller limits that common slope to every segment's minimum secant.
+        For equal endpoint slopes ``m`` and secant ``delta``, the derivative is
+
+            R' = m + 30 t^2 (1-t)^2 (delta-m),
+
+        so ``0 < m <= delta`` guarantees strict radial monotonicity.
         """
 
         zero = torch.zeros_like(circle_scale)
-        matched_slope = torch.as_tensor(
-            self.matched_asr_G, dtype=torch.float64, device=self._device
-        )
-        one = torch.ones_like(circle_scale)
 
         t_core = torch.clamp(rho / core_ratio, 0.0, 1.0)
         radial_core = self._quintic_hermite_zero_curvature(
             t_core,
             zero,
-            one,
+            matched_slope,
             core_target,
             matched_slope,
             core_ratio,
@@ -603,6 +608,47 @@ class _ASRMappingMixin:
             (1.0 / 3.0) * support_boundary
         )
         core_ratio = core_coordinate_radius / outer_coordinate_radius
+        rho_outer = outer_radius.new_tensor(support_boundary) / outer_coordinate_radius
+
+        # The map preserves each ray, so a positive radial derivative is
+        # sufficient for an orientation-preserving map inside every square or
+        # hexagonal sector.  Bound the common Hermite endpoint slope by the
+        # smallest secant over all three radial segments and all ray angles.
+        # The closest point of either support polygon has norm r_u.  Its
+        # farthest point is a rectangle corner or a regular-hexagon vertex.
+        minimum_interface_norm = outer_coordinate_radius
+        if triangular:
+            maximum_interface_norm = (
+                2.0 / math.sqrt(3.0)
+            ) * outer_coordinate_radius
+        else:
+            aspect_x = lx / minimum_length
+            aspect_y = ly / minimum_length
+            maximum_interface_norm = math.hypot(
+                aspect_x, aspect_y
+            ) * outer_coordinate_radius
+        core_secant = (
+            core_radius / maximum_interface_norm
+        ) / core_ratio
+        shell_secant = (
+            (outer_radius - core_radius) / maximum_interface_norm
+        ) / (1.0 - core_ratio)
+        exterior_secant = (
+            rho_outer - outer_radius / minimum_interface_norm
+        ) / (rho_outer - 1.0)
+        minimum_radial_secant = torch.minimum(
+            torch.minimum(core_secant, shell_secant), exterior_secant
+        )
+        if _as_float(minimum_radial_secant) <= 0.0:
+            raise RuntimeError(
+                "The double-matched radial targets are not strictly ordered."
+            )
+        requested_slope = outer_radius.new_tensor(self.matched_asr_G)
+        monotonicity_margin = outer_radius.new_tensor(0.95)
+        effective_radial_slope = torch.minimum(
+            requested_slope,
+            monotonicity_margin * minimum_radial_secant,
+        )
         rho = support_radius / outer_coordinate_radius
         normal_weight = torch.ones_like(rho)
         interface_normal_u = torch.autograd.grad(
@@ -642,13 +688,13 @@ class _ASRMappingMixin:
             core_radius / torch.clamp(interface_norm, min=epsilon),
             torch.ones_like(interface_norm) * core_ratio,
         )
-        rho_outer = outer_radius.new_tensor(support_boundary) / outer_coordinate_radius
         radial = self._double_matched_radial_profile(
             rho,
             core_ratio=core_ratio,
             core_target=core_target,
             circle_scale=circle_scale,
             rho_outer=rho_outer,
+            matched_slope=effective_radial_slope,
         )
         mapped_q1 = torch.where(active, radial * q1_interface, q1)
         mapped_q2 = torch.where(active, radial * q2_interface, q2)
@@ -697,7 +743,8 @@ class _ASRMappingMixin:
         if _as_float(torch.min(det_j)) <= minimum_jacobian:
             raise RuntimeError(
                 "The double-matched circle map is not orientation-preserving; "
-                "increase circle_G, separate the radii, or reduce outer_radius."
+                "the monotone radial bound passed but a sector Jacobian did not. "
+                "Use radial_mapping='outer' and report this geometry."
             )
         if not differentiable_geometry:
             x, y, x_u, x_v, y_u, y_v, det_j = (
@@ -738,6 +785,8 @@ class _ASRMappingMixin:
             matched_core_mask=rho <= core_ratio + epsilon,
             interface_normal_u=interface_normal_u.detach(),
             interface_normal_v=interface_normal_v.detach(),
+            effective_radial_slope=effective_radial_slope.detach(),
+            minimum_radial_secant=minimum_radial_secant.detach(),
         )
 
     def build_triangular_circle_asr_mapping(

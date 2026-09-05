@@ -545,6 +545,81 @@ def core_checks() -> list[Check]:
             3.0e-12,
         )
     )
+
+    # The default 32-slice PMMA/Au tip previously folded because the old
+    # double map imposed unit slope at the centre.  Equal endpoint slopes m in
+    # a zero-curvature quintic give
+    # R'=m+30*t^2*(1-t)^2*(delta-m).  Limiting m below every directional
+    # secant delta therefore provides an independent monotonicity certificate.
+    t = np.linspace(0.0, 1.0, 20001)
+    smoothstep_derivative = 30.0 * t**2 * (1.0 - t) ** 2
+    support_boundary = 0.5
+    outer_coordinate_radius = (2.0 / 3.0) * support_boundary
+    core_ratio = 0.5
+    rho_outer = support_boundary / outer_coordinate_radius
+    minimum_interface_norm = outer_coordinate_radius
+    maximum_interface_norm = (
+        2.0 / np.sqrt(3.0)
+    ) * outer_coordinate_radius
+    minimum_derivative = float("inf")
+    minimum_effective_slope = float("inf")
+    for layer in range(32):
+        core_radius = (
+            5.0 + (75.0 - 5.0) * ((layer + 0.5) / 32.0)
+        ) / 200.0
+        outer_radius = core_radius + 20.0 / 200.0
+        secants = (
+            (core_radius / maximum_interface_norm) / core_ratio,
+            ((outer_radius - core_radius) / maximum_interface_norm)
+            / (1.0 - core_ratio),
+            (rho_outer - outer_radius / minimum_interface_norm)
+            / (rho_outer - 1.0),
+        )
+        effective_slope = min(0.03, 0.95 * min(secants))
+        minimum_effective_slope = min(
+            minimum_effective_slope, effective_slope
+        )
+        for secant in secants:
+            derivative = effective_slope + smoothstep_derivative * (
+                secant - effective_slope
+            )
+            minimum_derivative = min(
+                minimum_derivative, float(np.min(derivative))
+            )
+    checks.append(
+        Check(
+            "monotone double map for 32-slice PMMA/Au tip",
+            max(0.0, -minimum_derivative),
+            0.0,
+            (
+                f"min radial derivative={minimum_derivative:.6e}, "
+                f"min effective slope={minimum_effective_slope:.6e}"
+            ),
+        )
+    )
+    stress_secants = (0.006, 0.18, 0.24)
+    stress_slope = min(0.03, 0.95 * min(stress_secants))
+    stress_derivative = min(
+        float(
+            np.min(
+                stress_slope
+                + smoothstep_derivative * (secant - stress_slope)
+            )
+        )
+        for secant in stress_secants
+    )
+    checks.append(
+        Check(
+            "monotone double map automatic slope limiter",
+            max(0.0, -stress_derivative)
+            + (0.0 if stress_slope < 0.03 else 1.0),
+            0.0,
+            (
+                f"effective slope={stress_slope:.6e}, "
+                f"min radial derivative={stress_derivative:.6e}"
+            ),
+        )
+    )
     return checks
 
 

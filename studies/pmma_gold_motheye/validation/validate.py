@@ -28,6 +28,7 @@ def _source(path: Path) -> str:
 
 def core_checks() -> list[dict[str, object]]:
     asr = _source(_OUTPUTS_ROOT / "rcwa_ext" / "asr.py")
+    asr_maps = _source(_OUTPUTS_ROOT / "rcwa_ext" / "asr_maps.py")
     auto = _source(_OUTPUTS_ROOT / "rcwa_ext" / "auto.py")
     symmetry = _source(_OUTPUTS_ROOT / "rcwa_ext" / "symmetry.py")
     common = _source(_PACKAGE_ROOT / "common.py")
@@ -49,6 +50,15 @@ def core_checks() -> list[dict[str, object]]:
                 and '"generalized-li-normal-tangential"' in asr
                 and "factorization_normals=factorization_normals" in asr
                 and "factorization_rules=True" in common
+            ),
+        },
+        {
+            "name": "monotonicity-guaranteed double-matched radial map",
+            "passed": (
+                "minimum_radial_secant" in asr_maps
+                and "effective_radial_slope" in asr_maps
+                and "monotonicity_margin" in asr_maps
+                and "radial_monotonicity_guaranteed" in asr
             ),
         },
         {
@@ -103,12 +113,52 @@ def core_checks() -> list[dict[str, object]]:
 def integration_check(device: str) -> dict[str, object]:
     import torch
 
-    from studies.pmma_gold_motheye.common import GeometryConfig, NumericalConfig, simulate_case
+    from rcwa_solver_auto import ASROptions, AutoRCWA, Lattice, OutputSpec
+    from studies.pmma_gold_motheye.common import (
+        GeometryConfig,
+        NumericalConfig,
+        simulate_case,
+        slice_core_radius_nm,
+    )
+
+    geometry = GeometryConfig()
+    probe = AutoRCWA(
+        freq=geometry.period_nm / 550.0,
+        order=[1, 1],
+        lattice=Lattice.triangular(1.0),
+        outputs=OutputSpec(smatrix_size="quarter", fields="none"),
+        asr=ASROptions(circle_G=geometry.asr_circle_g, grid=(48, 48)),
+        dtype=torch.complex128,
+        device=torch.device(device),
+    )
+    tip_mapping_jacobians: list[float] = []
+    tip_mapping_slopes: list[float] = []
+    tip_mapping_secants: list[float] = []
+    for layer in range(32):
+        core_radius = slice_core_radius_nm(geometry, layer, 32)
+        mapping = probe.build_double_matched_circle_asr_mapping(
+            48,
+            48,
+            core_radius / geometry.period_nm,
+            (core_radius + geometry.gold_thickness_nm) / geometry.period_nm,
+        )
+        tip_mapping_jacobians.append(
+            float(torch.min(mapping.det_j).detach().cpu())
+        )
+        tip_mapping_slopes.append(
+            float(mapping.effective_radial_slope.detach().cpu())
+        )
+        tip_mapping_secants.append(
+            float(mapping.minimum_radial_secant.detach().cpu())
+        )
+    minimum_tip_jacobian = min(tip_mapping_jacobians)
+    minimum_tip_slope = min(tip_mapping_slopes)
+    minimum_tip_secant = min(tip_mapping_secants)
 
     result = simulate_case(
         550.0,
         NumericalConfig(order=1, slices=2, grid=48),
-        GeometryConfig(),
+        geometry,
         gold_epsilon_rakic_ld,
         cascade="redheffer",
         use_symmetry=True,
@@ -117,7 +167,7 @@ def integration_check(device: str) -> dict[str, object]:
     cs_result = simulate_case(
         550.0,
         NumericalConfig(order=1, slices=2, grid=48),
-        GeometryConfig(),
+        geometry,
         gold_epsilon_rakic_ld,
         cascade="redheffer",
         use_symmetry=True,
@@ -127,7 +177,7 @@ def integration_check(device: str) -> dict[str, object]:
     double_result = simulate_case(
         550.0,
         NumericalConfig(order=1, slices=2, grid=48, radial_mapping="double"),
-        GeometryConfig(),
+        geometry,
         gold_epsilon_rakic_ld,
         cascade="redheffer",
         use_symmetry=True,
@@ -160,6 +210,9 @@ def integration_check(device: str) -> dict[str, object]:
         and double_result["radial_mapping"] == "double"
         and "generalized-li-normal-tangential"
         in double_result["factorization_schemes"]
+        and minimum_tip_jacobian > 0.0
+        and minimum_tip_slope > 0.0
+        and minimum_tip_slope <= minimum_tip_secant
     )
     return {
         "name": "minimal Au-coated PMMA matched-ASR solve",
@@ -169,6 +222,9 @@ def integration_check(device: str) -> dict[str, object]:
         "expected_d6_e1_dimension": 3,
         "expected_cs_dimension": 7,
         "d6_cs_max_rta_error": d6_cs_error,
+        "32_slice_double_map_minimum_jacobian": minimum_tip_jacobian,
+        "32_slice_double_map_minimum_effective_slope": minimum_tip_slope,
+        "32_slice_double_map_minimum_radial_secant": minimum_tip_secant,
         "result": result,
         "cs_result": cs_result,
         "double_matched_result": double_result,

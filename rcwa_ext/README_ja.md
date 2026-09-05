@@ -61,7 +61,8 @@ from rcwa_solver_auto import AutoRCWA, Circle, LayerSpec, Material
 PMMAコアへ金薄膜を被覆する同心三材料層は
 `AutoRCWA.add_layer_circle_shell_asr(...)` で追加できます。`radial_mapping="outer"` は
 外側境界だけに整合する従来方式、`radial_mapping="double"` は内外両境界に整合する
-半径方向C2写像です。二重写像は内外半径Tensorの逆伝播にも対応します。二重写像では
+単調性保証付き半径方向C2写像です。端点勾配を各半径区間の最小割線勾配以下へ制限して
+Jacobianの折り返しを防ぎ、内外半径Tensorの逆伝播にも対応します。二重写像では
 逐次u/v factorizationを流用せず、level-set法線を用いる一般化Li
 normal-D/tangential-E因数分解を使います。Cartesian NVMの後掛けは行いません。
 独立した回折次数／層数収束スクリプトと導出は

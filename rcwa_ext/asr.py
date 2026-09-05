@@ -945,8 +945,26 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                         if core_shell and normalized_mapping == "double"
                         else None
                     ),
+                    "radial_monotonicity_guaranteed": bool(
+                        core_shell and normalized_mapping == "double"
+                    ),
+                    "effective_radial_slope": (
+                        _as_float(mapping.effective_radial_slope)
+                        if mapping.effective_radial_slope is not None
+                        else None
+                    ),
+                    "minimum_radial_secant": (
+                        _as_float(mapping.minimum_radial_secant)
+                        if mapping.minimum_radial_secant is not None
+                        else None
+                    ),
+                    "minimum_mapping_jacobian": (
+                        _as_float(torch.min(mapping.det_j))
+                        if core_shell and normalized_mapping == "double"
+                        else None
+                    ),
                     "map": (
-                        "C2 double-matched radial quintic Hermite map"
+                        "monotone C2 double-matched radial quintic Hermite map"
                         if core_shell and normalized_mapping == "double"
                         else "D6 hex-to-circle periodic Hermite map"
                         if triangular

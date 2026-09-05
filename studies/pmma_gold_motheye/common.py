@@ -262,6 +262,26 @@ def simulate_case(
             if "factorization_scheme" in record.options
         }
     )
+    double_mapping_records = [
+        record
+        for record in simulation.layer_records
+        if record.options.get("radial_mapping") == "double"
+    ]
+    effective_slopes = [
+        float(record.options["effective_radial_slope"])
+        for record in double_mapping_records
+        if record.options.get("effective_radial_slope") is not None
+    ]
+    radial_secants = [
+        float(record.options["minimum_radial_secant"])
+        for record in double_mapping_records
+        if record.options.get("minimum_radial_secant") is not None
+    ]
+    mapping_jacobians = [
+        float(record.options["minimum_mapping_jacobian"])
+        for record in double_mapping_records
+        if record.options.get("minimum_mapping_jacobian") is not None
+    ]
     return {
         "wavelength_nm": wavelength_nm,
         "order": numerical.order,
@@ -270,6 +290,18 @@ def simulate_case(
         "grid": numerical.grid,
         "radial_mapping": numerical.radial_mapping,
         "factorization_schemes": factorization_schemes,
+        "double_mapping_effective_slope_min": (
+            min(effective_slopes) if effective_slopes else None
+        ),
+        "double_mapping_effective_slope_max": (
+            max(effective_slopes) if effective_slopes else None
+        ),
+        "double_mapping_minimum_radial_secant": (
+            min(radial_secants) if radial_secants else None
+        ),
+        "double_mapping_minimum_jacobian": (
+            min(mapping_jacobians) if mapping_jacobians else None
+        ),
         "epsilon_gold_real": epsilon_gold.real,
         "epsilon_gold_imag": epsilon_gold.imag,
         "epsilon_pmma": epsilon_pmma,
@@ -552,6 +584,8 @@ def run_axis_convergence(
             "boundary sampled in the transformed coordinates"
         ),
     }
+    if args.radial_mapping == "double":
+        assumptions["double_map_revision"] = "monotone-c2-common-slope-v2"
     signature = configuration_signature(assumptions)
     prefix: Path = args.output_prefix
     prefix.parent.mkdir(parents=True, exist_ok=True)

@@ -257,7 +257,7 @@ sim.add_layer_circle_shell_asr(
 )
 ```
 
-`double` は半径方向C2のquintic-Hermite写像と固定計算空間maskを用いるため、
+`double` は単調性保証付き半径方向C2のquintic-Hermite写像と固定計算空間maskを用いるため、
 `core_radius` と `outer_radius` の両方をTensor設計変数にできる。二重放射supportには
 逐次u/v因子分解を流用せず、level-set法線 (n_i=\partial_i\rho) を使う一般化Li
 因数分解を適用する。計算格子計量で法線projector (P_n) を作り、
@@ -270,9 +270,15 @@ B=P_t+P_nC,\qquad C=gA
 として、連続な接線 (E) と法線 (D) を有限Fourier空間へ入れる。これはmatched空間内の
 因数分解であり、Cartesian NVM射影を後掛けする混成法ではない。
 
+零曲率quinticの全端点には共通正勾配
+`min(circle_G, 0.95*minimum_radial_secant)`を与える。各区間の割線勾配以上の端点勾配を
+禁止するため、物理内外半径比が固定support比と大きく異なる細いモスアイ先端でも、半径方向
+Jacobianは正に保たれる。
+
 ## 7. 検証結果
 
-`validation/validate_circle_matched_asr.py --integration --order 5 --grid 192` の結果は19/19項目合格だった。
+`validation/validate_circle_matched_asr.py --integration --order 5 --grid 192` は、単調写像、
+一般化Li、S行列一致、エネルギー保存を含む全項目を検証する。
 
 | 検証 | 最大誤差または結果 |
 |---|---:|
