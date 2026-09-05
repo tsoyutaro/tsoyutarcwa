@@ -171,12 +171,34 @@ def _plot(
     if study == "convergence":
         selected = sorted(rows, key=lambda row: int(row["order_x"]))
         x = [int(row["order_x"]) for row in selected]
+        transmission = numpy_column(selected, "transmittance")
         axis.plot(
             x,
-            numpy_column(selected, "transmittance"),
+            transmission,
             "o-",
             label="Transmission",
         )
+        warning_x = [
+            int(row["order_x"])
+            for row in selected
+            if bool(row["passivity_warning"])
+        ]
+        warning_t = [
+            float(row["transmittance"])
+            for row in selected
+            if bool(row["passivity_warning"])
+        ]
+        if warning_x:
+            axis.scatter(
+                warning_x,
+                warning_t,
+                marker="x",
+                s=80,
+                linewidths=2,
+                color="red",
+                label="Nonpassive truncation",
+                zorder=4,
+            )
         if plot_all:
             axis.plot(
                 x,
@@ -270,7 +292,11 @@ def main() -> int:
             "WARNING: "
             f"{len(nonpassive)}/{len(rows)} rows triggered the passivity diagnostic."
         )
-    if not args.no_plot and (not nonpassive or args.allow_nonpassive):
+    convergence_diagnostic = args.study == "convergence"
+    figure_allowed = (
+        not nonpassive or args.allow_nonpassive or convergence_diagnostic
+    )
+    if not args.no_plot and figure_allowed:
         _plot(
             rows,
             args.output_dir / "square_mi.png",
@@ -295,7 +321,7 @@ def main() -> int:
             "use_symmetry": args.use_symmetry,
             "passivity_warning_count": len(nonpassive),
             "figure_written": bool(
-                not args.no_plot and (not nonpassive or args.allow_nonpassive)
+                not args.no_plot and figure_allowed
             ),
             "paper_comparison": {
                 "figure": "Fig. 2(c,d)",
@@ -315,12 +341,11 @@ def main() -> int:
         for name in ("reflectance", "transmittance", "absorptance")
     ):
         raise RuntimeError("A power observable is NaN or infinity.")
-    if nonpassive and not args.allow_nonpassive:
+    if nonpassive and not args.allow_nonpassive and not convergence_diagnostic:
         raise RuntimeError(
             "The requested truncation produced nonpassive power. CSV and metadata "
             "were retained, but no figure was generated. Increase --order/--grid "
-            "or use the default analytic --solver nvm. Pass --allow-nonpassive "
-            "only for debugging."
+            "or change the solver. Pass --allow-nonpassive only for debugging."
         )
     return 0
 

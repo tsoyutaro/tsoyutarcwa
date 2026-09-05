@@ -143,9 +143,11 @@ python -m paper_reproductions.peng2025.reproduce_square --study spectrum --solve
 
 とする。これは論文値の断定ではなく仮定であり、metadata JSONへ記録される。
 
-`--order 8`は論文Fig. 2(d)のASR-NV次数23より低い診断条件である。受動性違反が一つでも
-生じた場合、既定ではCSVとmetadataだけを保存してエラー終了し、誤ったスペクトル図を
-生成しない。`--allow-nonpassive`は原因調査時だけ使用する。
+`--order 8`は論文Fig. 2(d)のASR-NV次数23より低い診断条件である。スペクトル計算で
+受動性違反が一つでも生じた場合、既定ではCSVとmetadataだけを保存してエラー終了し、
+誤ったスペクトル図を生成しない。次数収束調査では低次の非受動点も診断情報なので、
+赤い`x`で区別して図を保存し、正常終了する。`--allow-nonpassive`は非受動スペクトルを
+原因調査用に描く場合だけ使用する。
 
 次数 23 では `(2N+1)^2=2209` harmonics、full vector modal dimension は 4418 である。
 複素倍精度 eigensolve の作業領域は単一行列の約 312 MB より大幅に大きくなるため、
