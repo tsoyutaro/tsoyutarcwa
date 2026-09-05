@@ -79,9 +79,13 @@ P Q W=W K_z^2,\qquad V=QWK_z^{-1}
 周期セル境界を零曲率quintic Hermite区間で接続します。半径方向にはC2で、物質maskは
 計算空間に固定されるため、`core_radius` と `outer_radius` の両方をTensor設計変数にできます。
 `outer` へtrainable `core_radius` を渡す場合は、従来どおり誤ったゼロ勾配を避けるため例外です。
-各区間の最小割線勾配を `minimum_radial_secant` として求め、共通端点勾配を
-`min(circle_G, 0.95*minimum_radial_secant)` に自動制限します。したがって、小さい先端コアと
-厚いAuシェルでも半径写像は単調になり、結果JSONには有効勾配と最小Jacobianが記録されます。
+各区間の最小割線勾配を `minimum_radial_secant` として求め、物質界面勾配を
+`min(circle_G, 0.95*minimum_radial_secant)` に自動制限します。中心・周期境界では各区間の
+割線勾配の0.95倍（上限1）まで勾配を大きくし、単調性を保ったまま変換行列の過圧縮を
+防ぎます。結果JSONには界面・中心・境界の有効勾配と最小Jacobianが記録されます。
+
+受動媒質で `R<0`、`T<0`、`A<0` または `R+T>1` となる候補は収束値として採用しません。
+これは単なる候補範囲不足ではなく `nonpassive_results` として報告されます。
 
 二重放射支持曲線には既存の逐次u/v対称factorizationを流用せず、計算格子計量と
 level-set法線から作る一般化Li因数分解を使います。法線Dには逆則、接線Eには直接則が
@@ -125,6 +129,17 @@ D_{E_1,x}=M(M+1)+1
 ## 4. 独立した収束実行
 
 以下は `outputs` ディレクトリ内で実行します。
+
+高次数計算の前に、二重写像、一般化Li、D6/Cs/full、Redheffer/algo2aを小さい問題で
+切り分ける診断を実行できます。
+
+```bash
+python studies/pmma_gold_motheye/diagnose_double.py --device cuda
+```
+
+`double_d6_redheffer` と `double_full_redheffer` が低次数の打切り誤差の範囲で一致し、全ケースが
+受動的であることを確認してから収束計算へ進みます。`double_d6_direct` は一般化Liを外す原因切分け
+専用で、最終結果には使いません。
 
 回折次数 (M) だけを上げ、profile層数を32に固定:
 

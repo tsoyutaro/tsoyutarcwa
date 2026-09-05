@@ -270,10 +270,11 @@ B=P_t+P_nC,\qquad C=gA
 として、連続な接線 (E) と法線 (D) を有限Fourier空間へ入れる。これはmatched空間内の
 因数分解であり、Cartesian NVM射影を後掛けする混成法ではない。
 
-零曲率quinticの全端点には共通正勾配
-`min(circle_G, 0.95*minimum_radial_secant)`を与える。各区間の割線勾配以上の端点勾配を
-禁止するため、物理内外半径比が固定support比と大きく異なる細いモスアイ先端でも、半径方向
-Jacobianは正に保たれる。
+零曲率quinticの物質界面には
+`min(circle_G, 0.95*minimum_radial_secant)`を与える。中心と周期境界は、それぞれの
+区間の最小割線勾配の0.95倍（上限1）まで勾配を戻す。各区間で両端勾配を割線勾配以下に
+制限するため半径方向Jacobianは正に保たれ、同時に中心と周期境界での不必要な
+`det(J) ~ circle_G^2`圧縮を避ける。
 
 ## 7. 検証結果
 

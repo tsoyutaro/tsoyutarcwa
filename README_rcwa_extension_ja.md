@@ -230,7 +230,7 @@ group_theory=GroupTheoryOptions(
 - 直交格子: Weiss型の円境界matched mapとseparable ASR stretchを組み合わせます。
 - 60°三角格子: Wigner–Seitz六角形を円へ写すD6-equivariant周期Hermite mapを使い、斜交基底の計量と周期境界を同時に扱います。
 - 両格子: Jacobianから変換媒質 `epsilon'`, `mu'` を作り、Fourier factorization後の `(P,Q)` を解き、一般変換 `(T,T_z)` で通常のCartesian S行列へ接続します。
-- コアシェル: `add_layer_circle_shell_asr(..., radial_mapping="outer"|"double")` を選べます。`double` は計算空間の固定支持曲線を内外円へ写す単調性保証付き半径方向C2 quintic-Hermite写像で、両半径のautogradを保持します。共通端点勾配は全区間・全方向の最小割線勾配以下へ自動制限されます。
+- コアシェル: `add_layer_circle_shell_asr(..., radial_mapping="outer"|"double")` を選べます。`double` は計算空間の固定支持曲線を内外円へ写す単調性保証付き半径方向C2 quintic-Hermite写像で、両半径のautogradを保持します。界面勾配は全区間・全方向の最小割線勾配以下へ制限し、中心・周期境界の勾配は単調範囲内で大きくして過圧縮を避けます。
 - 二重matched写像: level-set法線と計算格子計量から法線projectorを作り、連続な接線E／法線Dに一般化Li因数分解を適用します。`factorization_rules=False`の場合だけ比較用の直接Fourier畳み込みを使います。
 - NVM: 円板の誘電率Toeplitz行列をFourier–Bessel式で解析的に作り、normal-vector projectionを使う独立バックエンドです。
 

@@ -953,6 +953,16 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                         if mapping.effective_radial_slope is not None
                         else None
                     ),
+                    "central_radial_slope": (
+                        _as_float(mapping.central_radial_slope)
+                        if mapping.central_radial_slope is not None
+                        else None
+                    ),
+                    "boundary_radial_slope": (
+                        _as_float(mapping.boundary_radial_slope)
+                        if mapping.boundary_radial_slope is not None
+                        else None
+                    ),
                     "minimum_radial_secant": (
                         _as_float(mapping.minimum_radial_secant)
                         if mapping.minimum_radial_secant is not None

@@ -158,6 +158,7 @@ def simulate_case(
     cascade: str,
     use_symmetry: bool,
     symmetry_reduction: str = "d6-source",
+    factorization_rules: bool = True,
     device: torch.device,
 ) -> dict[str, object]:
     """Evaluate R, T and A for one wavelength and discretization."""
@@ -191,7 +192,7 @@ def simulate_case(
         asr=ASROptions(
             circle_G=geometry.asr_circle_g,
             grid=(numerical.grid, numerical.grid),
-            factorization_rules=True,
+            factorization_rules=factorization_rules,
         ),
         group_theory=GroupTheoryOptions(
             enabled=use_symmetry,
@@ -216,7 +217,7 @@ def simulate_case(
             epsilon_gold,
             nx=numerical.grid,
             ny=numerical.grid,
-            factorization_rules=True,
+            factorization_rules=factorization_rules,
         )
 
     layer_thickness = geometry.height_nm / numerical.slices / period
@@ -232,7 +233,7 @@ def simulate_case(
             epsilon_pmma,
             nx=numerical.grid,
             ny=numerical.grid,
-            factorization_rules=True,
+            factorization_rules=factorization_rules,
             radial_mapping=numerical.radial_mapping,
         )
 
@@ -272,6 +273,16 @@ def simulate_case(
         for record in double_mapping_records
         if record.options.get("effective_radial_slope") is not None
     ]
+    central_slopes = [
+        float(record.options["central_radial_slope"])
+        for record in double_mapping_records
+        if record.options.get("central_radial_slope") is not None
+    ]
+    boundary_slopes = [
+        float(record.options["boundary_radial_slope"])
+        for record in double_mapping_records
+        if record.options.get("boundary_radial_slope") is not None
+    ]
     radial_secants = [
         float(record.options["minimum_radial_secant"])
         for record in double_mapping_records
@@ -289,12 +300,19 @@ def simulate_case(
         "total_pattern_layers": numerical.slices + int(geometry.include_top_cap),
         "grid": numerical.grid,
         "radial_mapping": numerical.radial_mapping,
+        "factorization_rules": factorization_rules,
         "factorization_schemes": factorization_schemes,
         "double_mapping_effective_slope_min": (
             min(effective_slopes) if effective_slopes else None
         ),
         "double_mapping_effective_slope_max": (
             max(effective_slopes) if effective_slopes else None
+        ),
+        "double_mapping_central_slope_min": (
+            min(central_slopes) if central_slopes else None
+        ),
+        "double_mapping_boundary_slope_min": (
+            min(boundary_slopes) if boundary_slopes else None
         ),
         "double_mapping_minimum_radial_secant": (
             min(radial_secants) if radial_secants else None
@@ -354,13 +372,18 @@ def choose_candidate(
     comparisons: list[dict[str, object]] = []
     for coarse, fine in zip(candidates, candidates[1:]):
         maximum, per_metric = adjacent_error(spectra[coarse], spectra[fine])
+        nonpassive = any(
+            bool(case.get("passivity_warning", False))
+            for case in (*spectra[coarse], *spectra[fine])
+        )
         comparisons.append(
             {
                 "coarse": coarse,
                 "fine": fine,
                 "max_abs_change": maximum,
                 "per_metric": per_metric,
-                "passed": maximum <= tolerance,
+                "nonpassive_candidate": nonpassive,
+                "passed": maximum <= tolerance and not nonpassive,
             }
         )
     # One accidental close pair is not accepted.  Two consecutive refinement
@@ -381,6 +404,7 @@ class Study:
         cascade: str,
         use_symmetry: bool,
         symmetry_reduction: str,
+        factorization_rules: bool,
         device: torch.device,
         checkpoint: Path,
         signature: str,
@@ -391,6 +415,7 @@ class Study:
         self.cascade = cascade
         self.use_symmetry = use_symmetry
         self.symmetry_reduction = symmetry_reduction
+        self.factorization_rules = factorization_rules
         self.device = device
         self.checkpoint = checkpoint
         self.signature = signature
@@ -442,6 +467,7 @@ class Study:
                 cascade=self.cascade,
                 use_symmetry=self.use_symmetry,
                 symmetry_reduction=self.symmetry_reduction,
+                factorization_rules=self.factorization_rules,
                 device=self.device,
             )
             self._write_checkpoint()
@@ -464,6 +490,13 @@ def write_csv(path: Path, cases: Iterable[dict[str, object]]) -> None:
         "profile_slices",
         "total_pattern_layers",
         "grid",
+        "radial_mapping",
+        "double_mapping_effective_slope_min",
+        "double_mapping_effective_slope_max",
+        "double_mapping_central_slope_min",
+        "double_mapping_boundary_slope_min",
+        "double_mapping_minimum_radial_secant",
+        "double_mapping_minimum_jacobian",
         "epsilon_gold_real",
         "epsilon_gold_imag",
         "epsilon_pmma",
@@ -529,6 +562,11 @@ def add_shared_arguments(parser) -> None:
     parser.add_argument("--cascade", choices=("redheffer", "algo2a"), default="redheffer")
     parser.add_argument("--no-symmetry", action="store_true")
     parser.add_argument(
+        "--no-factorization-rules",
+        action="store_true",
+        help="Diagnostic only: replace Li/Weiss factorization by direct convolution.",
+    )
+    parser.add_argument(
         "--symmetry-reduction",
         choices=("d6-source", "cs-source"),
         default="d6-source",
@@ -574,6 +612,7 @@ def run_axis_convergence(
         "cascade": args.cascade,
         "use_source_symmetry": not args.no_symmetry,
         "symmetry_reduction": args.symmetry_reduction,
+        "factorization_rules": not args.no_factorization_rules,
         "dtype": "complex128",
         "radial_mapping": args.radial_mapping,
         "asr_statement": (
@@ -585,7 +624,7 @@ def run_axis_convergence(
         ),
     }
     if args.radial_mapping == "double":
-        assumptions["double_map_revision"] = "monotone-c2-common-slope-v2"
+        assumptions["double_map_revision"] = "monotone-c2-conditioned-end-slopes-v3"
     signature = configuration_signature(assumptions)
     prefix: Path = args.output_prefix
     prefix.parent.mkdir(parents=True, exist_ok=True)
@@ -596,6 +635,7 @@ def run_axis_convergence(
         cascade=args.cascade,
         use_symmetry=not args.no_symmetry,
         symmetry_reduction=args.symmetry_reduction,
+        factorization_rules=not args.no_factorization_rules,
         device=device,
         checkpoint=prefix.with_name(prefix.name + "_checkpoint.json"),
         signature=signature,
@@ -609,11 +649,29 @@ def run_axis_convergence(
     selected, converged, comparisons = choose_candidate(
         candidates, spectra, args.tolerance
     )
+    nonpassive_cases = [
+        {
+            "candidate": candidate,
+            "wavelength_nm": float(case["wavelength_nm"]),
+            "reflectance": float(case["reflectance"]),
+            "transmittance": float(case["transmittance"]),
+            "absorptance": float(case["absorptance"]),
+        }
+        for candidate, spectrum in spectra.items()
+        for case in spectrum
+        if bool(case.get("passivity_warning", False))
+    ]
     selected_values = asdict(fixed)
     selected_values[axis] = selected
     recommendation = NumericalConfig(**selected_values)
     report = {
-        "status": "converged" if converged else "candidate_range_insufficient",
+        "status": (
+            "converged"
+            if converged
+            else "nonpassive_results"
+            if nonpassive_cases
+            else "candidate_range_insufficient"
+        ),
         "axis": axis,
         "assumptions": assumptions,
         "fixed_numerics": asdict(fixed),
@@ -621,6 +679,7 @@ def run_axis_convergence(
         "tolerance": args.tolerance,
         "criterion": "two consecutive adjacent refinements below tolerance",
         "comparisons": comparisons,
+        "nonpassive_cases": nonpassive_cases,
         "recommendation": asdict(recommendation),
         "selected_spectrum": spectra[selected],
         "integration": {

@@ -60,6 +60,8 @@ class CircleASRMapping:
     interface_normal_u: torch.Tensor | None = None
     interface_normal_v: torch.Tensor | None = None
     effective_radial_slope: torch.Tensor | None = None
+    central_radial_slope: torch.Tensor | None = None
+    boundary_radial_slope: torch.Tensor | None = None
     minimum_radial_secant: torch.Tensor | None = None
 
 class _ASRMappingMixin:
@@ -416,6 +418,8 @@ class _ASRMappingMixin:
         circle_scale: torch.Tensor,
         rho_outer: torch.Tensor,
         matched_slope: torch.Tensor,
+        central_slope: torch.Tensor,
+        boundary_slope: torch.Tensor,
     ) -> torch.Tensor:
         """Monotone C2 radial profile matching both material interfaces.
 
@@ -423,13 +427,17 @@ class _ASRMappingMixin:
         They are mapped to concentric physical circles through the target
         values ``core_target`` and ``circle_scale``.  The profile returns to
         the identity value at the periodic cell boundary, with the same
-        positive slope at the centre, both interfaces, and periodic boundary.
-        The caller limits that common slope to every segment's minimum secant.
-        For equal endpoint slopes ``m`` and secant ``delta``, the derivative is
+        positive slopes at the centre, both interfaces, and periodic boundary.
+        The small ASR slope is used only at the two material interfaces.  The
+        centre and cell-boundary slopes are separately enlarged while retaining
+        a monotonicity certificate.  For endpoint slopes ``m0,m1`` and secant
+        ``delta``, the Bernstein coefficients of the radial derivative are
 
-            R' = m + 30 t^2 (1-t)^2 (delta-m),
+            {m0, m0, 5 delta - 2 m0 - 2 m1, m1, m1}.
 
-        so ``0 < m <= delta`` guarantees strict radial monotonicity.
+        Thus choosing both endpoint slopes in ``(0,delta]`` guarantees strict
+        radial monotonicity.  It also avoids the former ``G^2`` compression at
+        the coordinate origin and periodic seam.
         """
 
         zero = torch.zeros_like(circle_scale)
@@ -438,7 +446,7 @@ class _ASRMappingMixin:
         radial_core = self._quintic_hermite_zero_curvature(
             t_core,
             zero,
-            matched_slope,
+            central_slope,
             core_target,
             matched_slope,
             core_ratio,
@@ -462,7 +470,7 @@ class _ASRMappingMixin:
             circle_scale,
             matched_slope,
             torch.ones_like(circle_scale) * rho_outer,
-            matched_slope,
+            boundary_slope,
             exterior_span,
         )
         return torch.where(
@@ -649,6 +657,20 @@ class _ASRMappingMixin:
             requested_slope,
             monotonicity_margin * minimum_radial_secant,
         )
+        # G is an interface-resolution parameter, not a desirable slope at the
+        # coordinate origin or periodic seam.  Keeping G there made det(J)
+        # scale as G^2 and was badly conditioned for multilayer metals.  The
+        # larger endpoint slopes below remain no greater than their segment's
+        # minimum secant, so the Bernstein certificate in the profile applies.
+        identity_slope = outer_radius.new_tensor(1.0)
+        central_radial_slope = torch.minimum(
+            identity_slope,
+            monotonicity_margin * core_secant,
+        )
+        boundary_radial_slope = torch.minimum(
+            identity_slope,
+            monotonicity_margin * exterior_secant,
+        )
         rho = support_radius / outer_coordinate_radius
         normal_weight = torch.ones_like(rho)
         interface_normal_u = torch.autograd.grad(
@@ -695,6 +717,8 @@ class _ASRMappingMixin:
             circle_scale=circle_scale,
             rho_outer=rho_outer,
             matched_slope=effective_radial_slope,
+            central_slope=central_radial_slope,
+            boundary_slope=boundary_radial_slope,
         )
         mapped_q1 = torch.where(active, radial * q1_interface, q1)
         mapped_q2 = torch.where(active, radial * q2_interface, q2)
@@ -786,6 +810,8 @@ class _ASRMappingMixin:
             interface_normal_u=interface_normal_u.detach(),
             interface_normal_v=interface_normal_v.detach(),
             effective_radial_slope=effective_radial_slope.detach(),
+            central_radial_slope=central_radial_slope.detach(),
+            boundary_radial_slope=boundary_radial_slope.detach(),
             minimum_radial_secant=minimum_radial_secant.detach(),
         )
 

@@ -547,12 +547,14 @@ def core_checks() -> list[Check]:
     )
 
     # The default 32-slice PMMA/Au tip previously folded because the old
-    # double map imposed unit slope at the centre.  Equal endpoint slopes m in
-    # a zero-curvature quintic give
-    # R'=m+30*t^2*(1-t)^2*(delta-m).  Limiting m below every directional
-    # secant delta therefore provides an independent monotonicity certificate.
+    # double map imposed unit slope at the centre.  For endpoint slopes m0,m1,
+    # the derivative of a zero-curvature quintic has Bernstein coefficients
+    # {m0,m0,5*delta-2*m0-2*m1,m1,m1}.  Keeping both slopes below the minimum
+    # directional secant delta is therefore an independent certificate.
     t = np.linspace(0.0, 1.0, 20001)
-    smoothstep_derivative = 30.0 * t**2 * (1.0 - t) ** 2
+    h10_derivative = 1.0 - 18.0 * t**2 + 32.0 * t**3 - 15.0 * t**4
+    h01_derivative = 30.0 * t**2 - 60.0 * t**3 + 30.0 * t**4
+    h11_derivative = -12.0 * t**2 + 28.0 * t**3 - 15.0 * t**4
     support_boundary = 0.5
     outer_coordinate_radius = (2.0 / 3.0) * support_boundary
     core_ratio = 0.5
@@ -563,6 +565,8 @@ def core_checks() -> list[Check]:
     ) * outer_coordinate_radius
     minimum_derivative = float("inf")
     minimum_effective_slope = float("inf")
+    minimum_central_slope = float("inf")
+    minimum_boundary_slope = float("inf")
     for layer in range(32):
         core_radius = (
             5.0 + (75.0 - 5.0) * ((layer + 0.5) / 32.0)
@@ -576,12 +580,23 @@ def core_checks() -> list[Check]:
             / (rho_outer - 1.0),
         )
         effective_slope = min(0.03, 0.95 * min(secants))
+        central_slope = min(1.0, 0.95 * secants[0])
+        boundary_slope = min(1.0, 0.95 * secants[2])
         minimum_effective_slope = min(
             minimum_effective_slope, effective_slope
         )
-        for secant in secants:
-            derivative = effective_slope + smoothstep_derivative * (
-                secant - effective_slope
+        minimum_central_slope = min(minimum_central_slope, central_slope)
+        minimum_boundary_slope = min(minimum_boundary_slope, boundary_slope)
+        endpoint_slopes = (
+            (central_slope, effective_slope),
+            (effective_slope, effective_slope),
+            (effective_slope, boundary_slope),
+        )
+        for secant, (slope0, slope1) in zip(secants, endpoint_slopes):
+            derivative = (
+                secant * h01_derivative
+                + slope0 * h10_derivative
+                + slope1 * h11_derivative
             )
             minimum_derivative = min(
                 minimum_derivative, float(np.min(derivative))
@@ -593,20 +608,31 @@ def core_checks() -> list[Check]:
             0.0,
             (
                 f"min radial derivative={minimum_derivative:.6e}, "
-                f"min effective slope={minimum_effective_slope:.6e}"
+                f"interface/centre/boundary slopes="
+                f"{minimum_effective_slope:.6e}/"
+                f"{minimum_central_slope:.6e}/"
+                f"{minimum_boundary_slope:.6e}"
             ),
         )
     )
     stress_secants = (0.006, 0.18, 0.24)
     stress_slope = min(0.03, 0.95 * min(stress_secants))
+    stress_center = min(1.0, 0.95 * stress_secants[0])
+    stress_boundary = min(1.0, 0.95 * stress_secants[2])
+    stress_endpoints = (
+        (stress_center, stress_slope),
+        (stress_slope, stress_slope),
+        (stress_slope, stress_boundary),
+    )
     stress_derivative = min(
         float(
             np.min(
-                stress_slope
-                + smoothstep_derivative * (secant - stress_slope)
+                secant * h01_derivative
+                + slope0 * h10_derivative
+                + slope1 * h11_derivative
             )
         )
-        for secant in stress_secants
+        for secant, (slope0, slope1) in zip(stress_secants, stress_endpoints)
     )
     checks.append(
         Check(

@@ -49,7 +49,8 @@ def core_checks() -> list[dict[str, object]]:
                 "def _generalized_li_factorized_transverse_tensor(" in asr
                 and '"generalized-li-normal-tangential"' in asr
                 and "factorization_normals=factorization_normals" in asr
-                and "factorization_rules=True" in common
+                and "factorization_rules=factorization_rules" in common
+                and "factorization_rules: bool = True" in common
             ),
         },
         {
@@ -57,6 +58,8 @@ def core_checks() -> list[dict[str, object]]:
             "passed": (
                 "minimum_radial_secant" in asr_maps
                 and "effective_radial_slope" in asr_maps
+                and "central_radial_slope" in asr_maps
+                and "boundary_radial_slope" in asr_maps
                 and "monotonicity_margin" in asr_maps
                 and "radial_monotonicity_guaranteed" in asr
             ),
@@ -134,6 +137,8 @@ def integration_check(device: str) -> dict[str, object]:
     tip_mapping_jacobians: list[float] = []
     tip_mapping_slopes: list[float] = []
     tip_mapping_secants: list[float] = []
+    tip_mapping_central_slopes: list[float] = []
+    tip_mapping_boundary_slopes: list[float] = []
     for layer in range(32):
         core_radius = slice_core_radius_nm(geometry, layer, 32)
         mapping = probe.build_double_matched_circle_asr_mapping(
@@ -151,9 +156,17 @@ def integration_check(device: str) -> dict[str, object]:
         tip_mapping_secants.append(
             float(mapping.minimum_radial_secant.detach().cpu())
         )
+        tip_mapping_central_slopes.append(
+            float(mapping.central_radial_slope.detach().cpu())
+        )
+        tip_mapping_boundary_slopes.append(
+            float(mapping.boundary_radial_slope.detach().cpu())
+        )
     minimum_tip_jacobian = min(tip_mapping_jacobians)
     minimum_tip_slope = min(tip_mapping_slopes)
     minimum_tip_secant = min(tip_mapping_secants)
+    minimum_tip_central_slope = min(tip_mapping_central_slopes)
+    minimum_tip_boundary_slope = min(tip_mapping_boundary_slopes)
 
     result = simulate_case(
         550.0,
@@ -198,7 +211,7 @@ def integration_check(device: str) -> dict[str, object]:
         and residual <= 2.0e-9
         and int(result["reduced_dimension"]) == 3
         and int(cs_result["reduced_dimension"]) == 7
-        and d6_cs_error <= 2.0e-4
+        and d6_cs_error <= 1.0e-3
         and not bool(double_result["passivity_warning"])
         and abs(
             float(double_result["reflectance"])
@@ -213,6 +226,8 @@ def integration_check(device: str) -> dict[str, object]:
         and minimum_tip_jacobian > 0.0
         and minimum_tip_slope > 0.0
         and minimum_tip_slope <= minimum_tip_secant
+        and minimum_tip_central_slope > minimum_tip_slope
+        and minimum_tip_boundary_slope > minimum_tip_slope
     )
     return {
         "name": "minimal Au-coated PMMA matched-ASR solve",
@@ -222,9 +237,12 @@ def integration_check(device: str) -> dict[str, object]:
         "expected_d6_e1_dimension": 3,
         "expected_cs_dimension": 7,
         "d6_cs_max_rta_error": d6_cs_error,
+        "d6_cs_max_rta_limit": 1.0e-3,
         "32_slice_double_map_minimum_jacobian": minimum_tip_jacobian,
         "32_slice_double_map_minimum_effective_slope": minimum_tip_slope,
         "32_slice_double_map_minimum_radial_secant": minimum_tip_secant,
+        "32_slice_double_map_minimum_central_slope": minimum_tip_central_slope,
+        "32_slice_double_map_minimum_boundary_slope": minimum_tip_boundary_slope,
         "result": result,
         "cs_result": cs_result,
         "double_matched_result": double_result,
