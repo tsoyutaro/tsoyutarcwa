@@ -1,0 +1,180 @@
+{
+  "status": "candidate_range_insufficient",
+  "axis": "order",
+  "assumptions": {
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 75.0,
+      "gold_thickness_nm": 20.0,
+      "profile_power": 1.0,
+      "pmma_index": 1.49,
+      "lattice": "triangular",
+      "include_top_cap": true,
+      "asr_circle_g": 0.03
+    },
+    "wavelengths_nm": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "gold_model": "rakic-ld",
+    "gold_csv": null,
+    "gold_csv_sha256": null,
+    "cascade": "redheffer",
+    "use_source_symmetry": true,
+    "symmetry_reduction": "d6-source",
+    "factorization_rules": true,
+    "dtype": "complex128",
+    "radial_mapping": "double",
+    "asr_statement": "both concentric interfaces use the C2 radial matched map and generalized Li normal-D/tangential-E factorization",
+    "double_map_revision": "monotone-c2-conditioned-end-slopes-v3"
+  },
+  "fixed_numerics": {
+    "order": 10,
+    "slices": 32,
+    "grid": 256,
+    "radial_mapping": "double"
+  },
+  "candidates": [
+    10,
+    12,
+    14
+  ],
+  "tolerance": 0.005,
+  "criterion": "two consecutive adjacent refinements below tolerance",
+  "comparisons": [
+    {
+      "coarse": 10,
+      "fine": 12,
+      "max_abs_change": 0.17539459052663042,
+      "per_metric": {
+        "reflectance": 0.17539459052663042,
+        "transmittance": 0.04086912533565176,
+        "absorptance": 0.1625493629694743
+      },
+      "nonpassive_candidate": false,
+      "passed": false
+    },
+    {
+      "coarse": 12,
+      "fine": 14,
+      "max_abs_change": 0.5327743821241788,
+      "per_metric": {
+        "reflectance": 0.46393538183745,
+        "transmittance": 0.15848142995952505,
+        "absorptance": 0.5327743821241788
+      },
+      "nonpassive_candidate": false,
+      "passed": false
+    }
+  ],
+  "nonpassive_cases": [],
+  "recommendation": {
+    "order": 14,
+    "slices": 32,
+    "grid": 256,
+    "radial_mapping": "double"
+  },
+  "selected_spectrum": [
+    {
+      "wavelength_nm": 400.0,
+      "order": 14,
+      "profile_slices": 32,
+      "total_pattern_layers": 33,
+      "grid": 256,
+      "radial_mapping": "double",
+      "factorization_rules": true,
+      "factorization_schemes": [
+        "generalized-li-normal-tangential",
+        "weiss-symmetric-29-36"
+      ],
+      "double_mapping_effective_slope_min": 0.03,
+      "double_mapping_effective_slope_max": 0.03,
+      "double_mapping_central_slope_min": 0.15040425567287555,
+      "double_mapping_boundary_slope_min": 0.17367187499999984,
+      "double_mapping_minimum_radial_secant": 0.1583202691293427,
+      "double_mapping_minimum_jacobian": 0.004179812801347046,
+      "epsilon_gold_real": -1.0611633694991678,
+      "epsilon_gold_imag": 4.9206873818569425,
+      "epsilon_pmma": 2.2201,
+      "reflectance": 0.2877861579037797,
+      "transmittance": 0.16800418793404506,
+      "absorptance": 0.5442096541621753,
+      "passivity_warning": false,
+      "symmetry_reduction": "D6-E1-source-row",
+      "symmetry_irrep": "E1",
+      "reduced_dimension": 211,
+      "full_dimension": 1682,
+      "runtime_seconds": 22.53499292297056
+    },
+    {
+      "wavelength_nm": 550.0,
+      "order": 14,
+      "profile_slices": 32,
+      "total_pattern_layers": 33,
+      "grid": 256,
+      "radial_mapping": "double",
+      "factorization_rules": true,
+      "factorization_schemes": [
+        "generalized-li-normal-tangential",
+        "weiss-symmetric-29-36"
+      ],
+      "double_mapping_effective_slope_min": 0.03,
+      "double_mapping_effective_slope_max": 0.03,
+      "double_mapping_central_slope_min": 0.15040425567287555,
+      "double_mapping_boundary_slope_min": 0.17367187499999984,
+      "double_mapping_minimum_radial_secant": 0.1583202691293427,
+      "double_mapping_minimum_jacobian": 0.004179812801347046,
+      "epsilon_gold_real": -5.371371338856619,
+      "epsilon_gold_imag": 2.3581635829859637,
+      "epsilon_pmma": 2.2201,
+      "reflectance": 0.5843611498670388,
+      "transmittance": 0.15518084713185176,
+      "absorptance": 0.26045800300110944,
+      "passivity_warning": false,
+      "symmetry_reduction": "D6-E1-source-row",
+      "symmetry_irrep": "E1",
+      "reduced_dimension": 211,
+      "full_dimension": 1682,
+      "runtime_seconds": 22.397414413979277
+    },
+    {
+      "wavelength_nm": 700.0,
+      "order": 14,
+      "profile_slices": 32,
+      "total_pattern_layers": 33,
+      "grid": 256,
+      "radial_mapping": "double",
+      "factorization_rules": true,
+      "factorization_schemes": [
+        "generalized-li-normal-tangential",
+        "weiss-symmetric-29-36"
+      ],
+      "double_mapping_effective_slope_min": 0.03,
+      "double_mapping_effective_slope_max": 0.03,
+      "double_mapping_central_slope_min": 0.15040425567287555,
+      "double_mapping_boundary_slope_min": 0.17367187499999984,
+      "double_mapping_minimum_radial_secant": 0.1583202691293427,
+      "double_mapping_minimum_jacobian": 0.004179812801347046,
+      "epsilon_gold_real": -13.754263491271207,
+      "epsilon_gold_imag": 1.9104862668338753,
+      "epsilon_pmma": 2.2201,
+      "reflectance": 0.5958764188090837,
+      "transmittance": 0.17667436381780272,
+      "absorptance": 0.22744921737311358,
+      "passivity_warning": false,
+      "symmetry_reduction": "D6-E1-source-row",
+      "symmetry_irrep": "E1",
+      "reduced_dimension": 211,
+      "full_dimension": 1682,
+      "runtime_seconds": 22.465805504005402
+    }
+  ],
+  "integration": {
+    "torch": "2.6.0+cu124",
+    "device": "cuda",
+    "completed_cases": 9
+  }
+}
