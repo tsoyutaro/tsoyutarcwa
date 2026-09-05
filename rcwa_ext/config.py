@@ -6,6 +6,7 @@ import math
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, Sequence
+from typing import Union
 
 import torch
 import torcwa
@@ -360,7 +361,7 @@ class Homogeneous:
     material: Material
 
 
-Geometry = Rectangle | Square | Circle | Raster | Homogeneous
+Geometry = Union[Rectangle, Square, Circle, Raster, Homogeneous]
 
 
 @dataclass(frozen=True)

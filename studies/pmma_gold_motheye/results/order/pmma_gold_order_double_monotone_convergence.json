@@ -1,0 +1,215 @@
+{
+  "status": "candidate_range_insufficient",
+  "axis": "order",
+  "assumptions": {
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 75.0,
+      "gold_thickness_nm": 20.0,
+      "profile_power": 1.0,
+      "pmma_index": 1.49,
+      "lattice": "triangular",
+      "include_top_cap": true,
+      "asr_circle_g": 0.03
+    },
+    "wavelengths_nm": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "gold_model": "rakic-ld",
+    "gold_csv": null,
+    "gold_csv_sha256": null,
+    "cascade": "redheffer",
+    "use_source_symmetry": true,
+    "symmetry_reduction": "d6-source",
+    "dtype": "complex128",
+    "radial_mapping": "double",
+    "asr_statement": "both concentric interfaces use the C2 radial matched map and generalized Li normal-D/tangential-E factorization",
+    "double_map_revision": "monotone-c2-common-slope-v2"
+  },
+  "fixed_numerics": {
+    "order": 10,
+    "slices": 32,
+    "grid": 256,
+    "radial_mapping": "double"
+  },
+  "candidates": [
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22
+  ],
+  "tolerance": 0.005,
+  "criterion": "two consecutive adjacent refinements below tolerance",
+  "comparisons": [
+    {
+      "coarse": 10,
+      "fine": 12,
+      "max_abs_change": 2.9293061448612905,
+      "per_metric": {
+        "reflectance": 2.9293061448612905,
+        "transmittance": 0.2746666349339121,
+        "absorptance": 2.9271564543109556
+      },
+      "passed": false
+    },
+    {
+      "coarse": 12,
+      "fine": 14,
+      "max_abs_change": 3.087062942594291,
+      "per_metric": {
+        "reflectance": 3.083729691189141,
+        "transmittance": 0.04709695208346591,
+        "absorptance": 3.087062942594291
+      },
+      "passed": false
+    },
+    {
+      "coarse": 14,
+      "fine": 16,
+      "max_abs_change": 31.441109772499605,
+      "per_metric": {
+        "reflectance": 27.21396847332446,
+        "transmittance": 4.227141299175144,
+        "absorptance": 31.441109772499605
+      },
+      "passed": false
+    },
+    {
+      "coarse": 16,
+      "fine": 18,
+      "max_abs_change": 30.1726906715123,
+      "per_metric": {
+        "reflectance": 25.933941532997366,
+        "transmittance": 4.238749138514932,
+        "absorptance": 30.1726906715123
+      },
+      "passed": false
+    },
+    {
+      "coarse": 18,
+      "fine": 20,
+      "max_abs_change": 0.5411903769405625,
+      "per_metric": {
+        "reflectance": 0.5411903769405625,
+        "transmittance": 0.004963027848492647,
+        "absorptance": 0.5392758672474306
+      },
+      "passed": false
+    },
+    {
+      "coarse": 20,
+      "fine": 22,
+      "max_abs_change": 0.3934123533060294,
+      "per_metric": {
+        "reflectance": 0.39341234984116624,
+        "transmittance": 4.643571193298406e-06,
+        "absorptance": 0.3934123533060294
+      },
+      "passed": false
+    }
+  ],
+  "recommendation": {
+    "order": 22,
+    "slices": 32,
+    "grid": 256,
+    "radial_mapping": "double"
+  },
+  "selected_spectrum": [
+    {
+      "wavelength_nm": 400.0,
+      "order": 22,
+      "profile_slices": 32,
+      "total_pattern_layers": 33,
+      "grid": 256,
+      "radial_mapping": "double",
+      "factorization_schemes": [
+        "generalized-li-normal-tangential",
+        "weiss-symmetric-29-36"
+      ],
+      "double_mapping_effective_slope_min": 0.03,
+      "double_mapping_effective_slope_max": 0.03,
+      "double_mapping_minimum_radial_secant": 0.1583202691293427,
+      "double_mapping_minimum_jacobian": 0.000864552992944509,
+      "epsilon_gold_real": -1.0611633694991678,
+      "epsilon_gold_imag": 4.9206873818569425,
+      "epsilon_pmma": 2.2201,
+      "reflectance": 0.8290022011217968,
+      "transmittance": 3.376131209332579e-08,
+      "absorptance": 0.1709977651168911,
+      "passivity_warning": false,
+      "symmetry_reduction": "D6-E1-source-row",
+      "symmetry_irrep": "E1",
+      "reduced_dimension": 507,
+      "full_dimension": 4050,
+      "runtime_seconds": 81.15984815199045
+    },
+    {
+      "wavelength_nm": 550.0,
+      "order": 22,
+      "profile_slices": 32,
+      "total_pattern_layers": 33,
+      "grid": 256,
+      "radial_mapping": "double",
+      "factorization_schemes": [
+        "generalized-li-normal-tangential",
+        "weiss-symmetric-29-36"
+      ],
+      "double_mapping_effective_slope_min": 0.03,
+      "double_mapping_effective_slope_max": 0.03,
+      "double_mapping_minimum_radial_secant": 0.1583202691293427,
+      "double_mapping_minimum_jacobian": 0.000864552992944509,
+      "epsilon_gold_real": -5.371371338856619,
+      "epsilon_gold_imag": 2.3581635829859637,
+      "epsilon_pmma": 2.2201,
+      "reflectance": 0.8853226237138795,
+      "transmittance": 7.164188867994433e-25,
+      "absorptance": 0.11467737628612051,
+      "passivity_warning": false,
+      "symmetry_reduction": "D6-E1-source-row",
+      "symmetry_irrep": "E1",
+      "reduced_dimension": 507,
+      "full_dimension": 4050,
+      "runtime_seconds": 81.10460919499747
+    },
+    {
+      "wavelength_nm": 700.0,
+      "order": 22,
+      "profile_slices": 32,
+      "total_pattern_layers": 33,
+      "grid": 256,
+      "radial_mapping": "double",
+      "factorization_schemes": [
+        "generalized-li-normal-tangential",
+        "weiss-symmetric-29-36"
+      ],
+      "double_mapping_effective_slope_min": 0.03,
+      "double_mapping_effective_slope_max": 0.03,
+      "double_mapping_minimum_radial_secant": 0.1583202691293427,
+      "double_mapping_minimum_jacobian": 0.000864552992944509,
+      "epsilon_gold_real": -13.754263491271207,
+      "epsilon_gold_imag": 1.9104862668338753,
+      "epsilon_pmma": 2.2201,
+      "reflectance": 1.2840945495984264,
+      "transmittance": 7.365835344086994e-216,
+      "absorptance": -0.2840945495984264,
+      "passivity_warning": true,
+      "symmetry_reduction": "D6-E1-source-row",
+      "symmetry_irrep": "E1",
+      "reduced_dimension": 507,
+      "full_dimension": 4050,
+      "runtime_seconds": 81.76096997401328
+    }
+  ],
+  "integration": {
+    "torch": "2.6.0+cu124",
+    "device": "cuda",
+    "completed_cases": 21
+  }
+}

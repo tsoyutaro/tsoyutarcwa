@@ -1,0 +1,128 @@
+{
+  "status": "candidate_range_insufficient",
+  "model": "hybrid monotone-double-matched-ASR / periodic-union raster",
+  "signature": {
+    "axis": "order",
+    "candidates": [
+      4,
+      6,
+      8,
+      10
+    ],
+    "wavelengths": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 75.0,
+      "gold_thickness_nm": 30.0,
+      "profile_power": 1.0,
+      "pmma_index": 1.49,
+      "include_top_cap": true,
+      "asr_circle_g": 0.03,
+      "asr_min_gap_nm": 2.0
+    },
+    "base": {
+      "order": 8,
+      "slices": 48,
+      "grid": 384
+    },
+    "cascade": "redheffer"
+  },
+  "tolerance": 0.005,
+  "criterion": "two consecutive adjacent refinements below tolerance",
+  "comparisons": [
+    {
+      "coarse": 4,
+      "fine": 6,
+      "maximum_absolute_change": 0.10212213745271992,
+      "per_metric": {
+        "reflectance": 0.08108800853864093,
+        "transmittance": 0.021034128914079134,
+        "absorptance": 0.10212213745271992
+      },
+      "passed": false
+    },
+    {
+      "coarse": 6,
+      "fine": 8,
+      "maximum_absolute_change": 0.06407334901747352,
+      "per_metric": {
+        "reflectance": 0.05443628339999787,
+        "transmittance": 0.009637065617475694,
+        "absorptance": 0.06407334901747352
+      },
+      "passed": false
+    },
+    {
+      "coarse": 8,
+      "fine": 10,
+      "maximum_absolute_change": 0.483043614303614,
+      "per_metric": {
+        "reflectance": 0.3325197946605374,
+        "transmittance": 0.15052381964307665,
+        "absorptance": 0.483043614303614
+      },
+      "passed": false
+    }
+  ],
+  "selected": 10,
+  "selected_spectrum": [
+    {
+      "wavelength_nm": 400.0,
+      "order": 10,
+      "slices": 48,
+      "grid": 384,
+      "reflectance": 0.025217100549561357,
+      "transmittance": 0.015632302310900313,
+      "absorptance": 0.9591505971395383,
+      "asr_layers": 44,
+      "coalesced_raster_layers": 4,
+      "top_cap_layers": 1,
+      "minimum_asr_jacobian": 0.0008146674944258962,
+      "minimum_asr_effective_slope": 0.03,
+      "minimum_raster_air_fraction": 0.043023003472222224,
+      "passivity_warning": false,
+      "runtime_seconds": 52.338458633981645
+    },
+    {
+      "wavelength_nm": 550.0,
+      "order": 10,
+      "slices": 48,
+      "grid": 384,
+      "reflectance": 0.07110673637179725,
+      "transmittance": 0.08824539658565274,
+      "absorptance": 0.84064786704255,
+      "asr_layers": 44,
+      "coalesced_raster_layers": 4,
+      "top_cap_layers": 1,
+      "minimum_asr_jacobian": 0.0008146674944258962,
+      "minimum_asr_effective_slope": 0.03,
+      "minimum_raster_air_fraction": 0.043023003472222224,
+      "passivity_warning": false,
+      "runtime_seconds": 50.85309001200949
+    },
+    {
+      "wavelength_nm": 700.0,
+      "order": 10,
+      "slices": 48,
+      "grid": 384,
+      "reflectance": 0.6286194299187485,
+      "transmittance": 0.16310896287135693,
+      "absorptance": 0.20827160720989454,
+      "asr_layers": 44,
+      "coalesced_raster_layers": 4,
+      "top_cap_layers": 1,
+      "minimum_asr_jacobian": 0.0008146674944258962,
+      "minimum_asr_effective_slope": 0.03,
+      "minimum_raster_air_fraction": 0.043023003472222224,
+      "passivity_warning": false,
+      "runtime_seconds": 51.3256322730158
+    }
+  ],
+  "device": "cuda"
+}
