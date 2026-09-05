@@ -2,10 +2,12 @@
 
 The paper's stated dimensions are used: p=62 um, R=30 um, r=14 um, and
 Ag thickness=1 um.  The selected material interpretation is air in the
-annular aperture and a semi-infinite PI output medium with
-epsilon_PI=3.5+0.009j.  Incidence is normal x/TM over 1--3 THz.
-The missing Ag Drude constants and MI substrate thickness are documented in
-the generated metadata rather than silently presented as paper values.
+annular aperture and PI with epsilon_PI=3.5+0.009j.  Incidence is normal
+x/TM over 1--3 THz.  An analytic concentric NVM solver is the default
+independent convergence route; the project's matched-ASR solver remains
+selectable.  The missing Ag Drude constants and MI substrate thickness are
+documented in the generated metadata rather than silently presented as paper
+values.
 
 Examples
 --------
@@ -84,10 +86,27 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--grid", type=int, help="Matched-ASR quadrature grid per axis.")
     parser.add_argument("--asr-g", type=float, default=1.0e-3)
     parser.add_argument(
+        "--solver",
+        choices=("nvm", "matched-asr"),
+        default="nvm",
+        help=(
+            "nvm uses analytic Fourier coefficients for both concentric "
+            "interfaces; matched-asr retains the coordinate-mapped backend."
+        ),
+    )
+    parser.add_argument(
         "--radial-mapping",
         choices=("outer", "double"),
         default="outer",
         help="Match only the outer circle or both core-shell radii.",
+    )
+    parser.add_argument(
+        "--pi-thickness-um",
+        type=float,
+        help=(
+            "Finite PI thickness followed by air. Omit for a semi-infinite PI "
+            "output; Fig. 2 does not state h2 numerically."
+        ),
     )
     parser.add_argument(
         "--cascade", choices=("redheffer", "algo2a"), default="redheffer"
@@ -105,6 +124,16 @@ def _parser() -> argparse.ArgumentParser:
         "--output-dir", type=Path, default=_PACKAGE_ROOT / "results" / "square"
     )
     parser.add_argument("--no-plot", action="store_true")
+    parser.add_argument(
+        "--plot-all",
+        action="store_true",
+        help="Also draw reflection and absorption; the paper panels show T only.",
+    )
+    parser.add_argument(
+        "--allow-nonpassive",
+        action="store_true",
+        help="Write a diagnostic plot even if a finite-order result violates passivity.",
+    )
     parser.add_argument("--show", action="store_true")
     return parser
 
@@ -130,13 +159,31 @@ def _study_values(args: argparse.Namespace) -> tuple[tuple[float, ...], tuple[in
     return frequencies, orders, grid
 
 
-def _plot(rows: list[dict[str, object]], path: Path, study: str, show: bool) -> None:
+def _plot(
+    rows: list[dict[str, object]],
+    path: Path,
+    study: str,
+    show: bool,
+    *,
+    plot_all: bool,
+) -> None:
     figure, axis = plt.subplots(figsize=(7.2, 4.8), constrained_layout=True)
     if study == "convergence":
         selected = sorted(rows, key=lambda row: int(row["order_x"]))
         x = [int(row["order_x"]) for row in selected]
-        axis.plot(x, numpy_column(selected, "transmittance"), "o-", label="T")
-        axis.plot(x, numpy_column(selected, "reflectance"), "s-", label="R")
+        axis.plot(
+            x,
+            numpy_column(selected, "transmittance"),
+            "o-",
+            label="Transmission",
+        )
+        if plot_all:
+            axis.plot(
+                x,
+                numpy_column(selected, "reflectance"),
+                "s-",
+                label="Reflection",
+            )
         axis.set_xlabel("Truncation rank $N_x=N_y$")
         axis.set_title("MI square lattice at 1.95 THz")
     else:
@@ -145,12 +192,13 @@ def _plot(rows: list[dict[str, object]], path: Path, study: str, show: bool) -> 
         axis.plot(
             x, numpy_column(selected, "transmittance"), marker="o", label="Transmission"
         )
-        axis.plot(
-            x, numpy_column(selected, "reflectance"), marker="s", label="Reflection"
-        )
-        axis.plot(
-            x, numpy_column(selected, "absorptance"), marker="^", label="Absorption"
-        )
+        if plot_all:
+            axis.plot(
+                x, numpy_column(selected, "reflectance"), marker="s", label="Reflection"
+            )
+            axis.plot(
+                x, numpy_column(selected, "absorptance"), marker="^", label="Absorption"
+            )
         axis.set_xlabel("Frequency (THz)")
         axis.set_title("Peng--Zhang MI coaxial cell, square lattice")
     axis.set_ylabel("Power fraction")
@@ -169,7 +217,9 @@ def main() -> int:
     frequencies, orders, grid = _study_values(args)
     if args.study == "convergence" and len(frequencies) != 1:
         raise ValueError("Convergence study accepts exactly one frequency.")
-    geometry = PaperGeometry()
+    if args.solver == "nvm" and args.radial_mapping != "outer":
+        raise ValueError("--radial-mapping applies only to --solver matched-asr.")
+    geometry = PaperGeometry(pi_thickness_um=args.pi_thickness_um)
     drude = SilverDrude(
         epsilon_infinity=args.silver_eps_infinity,
         plasma_rad_s=args.silver_plasma_rad_s,
@@ -198,6 +248,7 @@ def main() -> int:
                 cascade=args.cascade,
                 use_symmetry=args.use_symmetry,
                 shell_radial_mapping=args.radial_mapping,
+                solver=args.solver,
             ),
             device=device,
         )
@@ -213,10 +264,20 @@ def main() -> int:
         # Preserve completed points in long sweeps.
         write_rows(rows, args.output_dir / "square_mi.csv")
 
-    if any(bool(row["passivity_warning"]) for row in rows):
-        print("WARNING: at least one row triggered the passivity diagnostic.")
-    if not args.no_plot:
-        _plot(rows, args.output_dir / "square_mi.png", args.study, args.show)
+    nonpassive = [row for row in rows if bool(row["passivity_warning"])]
+    if nonpassive:
+        print(
+            "WARNING: "
+            f"{len(nonpassive)}/{len(rows)} rows triggered the passivity diagnostic."
+        )
+    if not args.no_plot and (not nonpassive or args.allow_nonpassive):
+        _plot(
+            rows,
+            args.output_dir / "square_mi.png",
+            args.study,
+            args.show,
+            plot_all=args.plot_all,
+        )
     write_metadata(
         args.output_dir / "square_mi_metadata.json",
         geometry=geometry,
@@ -227,9 +288,15 @@ def main() -> int:
             "orders": list(orders),
             "grid": [grid, grid],
             "asr_g": args.asr_g,
+            "solver": args.solver,
             "radial_mapping": args.radial_mapping,
+            "pi_thickness_um": args.pi_thickness_um,
             "cascade": args.cascade,
             "use_symmetry": args.use_symmetry,
+            "passivity_warning_count": len(nonpassive),
+            "figure_written": bool(
+                not args.no_plot and (not nonpassive or args.allow_nonpassive)
+            ),
             "paper_comparison": {
                 "figure": "Fig. 2(c,d)",
                 "reported_asr_nv_spectrum_order": 23,
@@ -248,6 +315,13 @@ def main() -> int:
         for name in ("reflectance", "transmittance", "absorptance")
     ):
         raise RuntimeError("A power observable is NaN or infinity.")
+    if nonpassive and not args.allow_nonpassive:
+        raise RuntimeError(
+            "The requested truncation produced nonpassive power. CSV and metadata "
+            "were retained, but no figure was generated. Increase --order/--grid "
+            "or use the default analytic --solver nvm. Pass --allow-nonpassive "
+            "only for debugging."
+        )
     return 0
 
 

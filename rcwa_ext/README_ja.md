@@ -65,6 +65,9 @@ PMMAコアへ金薄膜を被覆する同心三材料層は
 Jacobianの折り返しを防ぎ、内外半径Tensorの逆伝播にも対応します。二重写像では
 逐次u/v factorizationを流用せず、level-set法線を用いる一般化Li
 normal-D/tangential-E因数分解を使います。Cartesian NVMの後掛けは行いません。
+ASRを用いない独立経路として、`AutoRCWA.add_layer_circle_shell_nvm(...)`も使用できます。
+同心円の内外界面は法線方向を共有するため、一つの半径方向NVM射影と、両半径を含む
+解析的Fourier-Bessel係数で三材料を扱います。
 独立した回折次数／層数収束スクリプトと導出は
 `../studies/pmma_gold_motheye/README_ja.md` を参照してください。
 
@@ -74,7 +77,7 @@ normal-D/tangential-E因数分解を使います。Cartesian NVMの後掛けは�
 `../paper_reproductions/wang2022_fig8/README_ja.md` にあります。
 この例は正方格子C4vであり、三角格子用D6短縮は適用しません。
 
-Peng–Zhang (2025) Fig. 2 のAg背景／空気環状開口／Ag中心粒子と半無限PI基板は
+Peng–Zhang (2025) Fig. 2 のAg背景／空気環状開口／Ag中心粒子とPI基板は
 `../paper_reproductions/peng2025/reproduce_square.py`、同じ三角格子を1サイトprimitiveと直交二サイト・
 supercellで比較する例は `../paper_reproductions/peng2025/compare_hex_supercell.py`、検証と再現上の制限は
 `../paper_reproductions/peng2025/README_ja.md` にあります。

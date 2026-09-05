@@ -249,6 +249,59 @@ def _double_map_fields(device: torch.device) -> dict[str, object]:
             for component in (*fourier_fields, *electric_xy, *magnetic_xy)
         )
     return {"finite": finite, "passed": all(finite.values())}
+
+
+def _core_shell_nvm_coefficients(device: torch.device) -> dict[str, object]:
+    """Check analytic ring composition and its single-disk limiting case."""
+
+    simulation = AutoRCWA(
+        freq=0.4,
+        order=[2, 2],
+        lattice=Lattice.square(1.0),
+        outputs=OutputSpec(smatrix_size="half", fields="none"),
+        group_theory=GroupTheoryOptions(enabled=False),
+        verify_cascade=False,
+        dtype=torch.complex128,
+        device=device,
+    )
+    simulation.add_input_layer(eps=1.0)
+    simulation.add_output_layer(eps=1.0)
+    simulation.set_incident_angle(0.0, 0.0)
+    center = ((0.5, 0.5),)
+    simulation.add_layer_circle_shell_nvm(
+        0.02,
+        0.18,
+        0.32,
+        1.0,
+        2.5,
+        2.5,
+        centers=center,
+        nx=48,
+        ny=48,
+    )
+    limiting_shell = simulation.eps_conv[-1]
+    limiting_disk = simulation._circle_toeplitz(
+        torch.tensor(0.32, dtype=torch.float64, device=device),
+        1.0,
+        2.5,
+        center,
+        use_lanczos=False,
+        lanczos_power=2,
+    )
+    limiting_error = float(
+        torch.max(torch.abs(limiting_shell - limiting_disk)).detach().cpu()
+    )
+    physical = simulation._physical_material_by_layer[0][0]
+    finite = bool(torch.all(torch.isfinite(limiting_shell))) and bool(
+        torch.all(torch.isfinite(physical))
+    )
+    return {
+        "single_disk_limiting_error": limiting_error,
+        "finite": finite,
+        "passed": finite and limiting_error < 1.0e-12,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="cpu")
@@ -300,6 +353,34 @@ def main() -> int:
         geometry=geometry,
         drude=drude,
         numerics=base,
+        device=device,
+    )
+    square_nvm = simulate_matched_primitive(
+        1.95,
+        lattice_kind="square",
+        geometry=geometry,
+        drude=drude,
+        numerics=Numerics(
+            order_x=2,
+            order_y=2,
+            grid_x=48,
+            grid_y=48,
+            solver="nvm",
+        ),
+        device=device,
+    )
+    square_finite_pi_nvm = simulate_matched_primitive(
+        1.95,
+        lattice_kind="square",
+        geometry=PaperGeometry(pi_thickness_um=12.0),
+        drude=drude,
+        numerics=Numerics(
+            order_x=2,
+            order_y=2,
+            grid_x=48,
+            grid_y=48,
+            solver="nvm",
+        ),
         device=device,
     )
     triangular = simulate_matched_primitive(
@@ -466,6 +547,11 @@ def main() -> int:
             "passed": fill_error < 2.0e-2,
         },
         "square_smoke": _check_power(square),
+        "core_shell_nvm_coefficients": _core_shell_nvm_coefficients(device),
+        "square_core_shell_nvm_smoke": _check_power(square_nvm),
+        "square_finite_pi_core_shell_nvm_smoke": _check_power(
+            square_finite_pi_nvm
+        ),
         "triangular_smoke": _check_power(triangular),
         "double_matched_geometry": _double_map_geometry(device),
         "double_matched_radius_gradient": _double_map_gradient(device),

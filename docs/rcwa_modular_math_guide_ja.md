@@ -890,7 +890,30 @@ e^{-i\Delta\mathbf G\cdot\mathbf r_c}
 となる。これは square と triangular/oblique cell で同じ式を使え、違いは
 (Delta\mathbf G) と (A) だけである。
 
-### 9.3 Jinc の半径微分
+### 9.3 同心コアシェルの解析係数
+
+内半径を (r)、外半径を (R)、背景・shell・coreの誘電率をそれぞれ
+(\epsilon_b,\epsilon_s,\epsilon_c) とすると、二つの円板indicatorを重ねて
+
+\[
+[\epsilon]_{GG'}=\epsilon_b\delta_{GG'}
++(\epsilon_s-\epsilon_b)\widetilde\chi_R(\mathbf G-\mathbf G')
++(\epsilon_c-\epsilon_s)\widetilde\chi_r(\mathbf G-\mathbf G')
+\]
+
+と厳密に構成できる。逆則に必要な係数も
+
+\[
+[1/\epsilon]_{GG'}=\epsilon_b^{-1}\delta_{GG'}
++(\epsilon_s^{-1}-\epsilon_b^{-1})\widetilde\chi_R
++(\epsilon_c^{-1}-\epsilon_s^{-1})\widetilde\chi_r
+\]
+
+である。二つの同心円ではどちらの界面法線も同じ半径方向なので、法線射影
+(\mathcal P=\mathbf n\mathbf n^T)は一つでよい。`add_layer_circle_shell_nvm`はこの
+解析係数と共通射影を使い、環状領域のhard raster化を避ける。
+
+### 9.4 Jinc の半径微分
 
 \[
 \operatorname{jinc}(x)=\frac{2J_1(x)}x
@@ -911,7 +934,7 @@ backward として使う。原点近傍は
 
 を使う。これにより充填率 (\pi R^2/A) と Jinc の両経路から radius 勾配が入る。
 
-### 9.4 normal-vector projection
+### 9.5 normal-vector projection
 
 円境界の単位法線を
 
@@ -929,7 +952,7 @@ backward として使う。原点近傍は
 とする。周期像から最近接円中心を選び、中心特異点と Voronoi 境界だけ smooth weight で
 抑える。各成分を Fourier convolution matrix にする。
 
-### 9.5 NVM effective tensor
+### 9.6 NVM effective tensor
 
 Laurent convolution を (E=[\epsilon])、inverse-rule convolution を
 
@@ -952,7 +975,7 @@ E_i=[1/\epsilon]^{-1}
 を作る。法線成分には inverse rule、接線成分には Laurent rule を使う構成であり、曲面
 境界での Fourier factorization を改善する。
 
-### 9.6 斜交座標の (P,Q)
+### 9.7 斜交座標の (P,Q)
 
 covariant transverse basis で組んだ (P,Q) を解き、最後に
 

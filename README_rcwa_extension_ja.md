@@ -375,14 +375,18 @@ ASR-FR `N=M=8`、ASR `N=M=20`です。図8(b)のtotal-minus-zero-order power、
 ## Peng–Zhang (2025) のAg–air–Ag円形aperture–particle配列
 
 Fig. 2 のMI構造（周期62 µm、外半径30 µm、内半径14 µm、Ag厚1 µm、
-Ag背景／空気環状開口／Ag中心粒子、半無限PI基板 `epsilon=3.5+0.009i`、1–3 THz）を
+Ag背景／空気環状開口／Ag中心粒子、PI `epsilon=3.5+0.009i`、1–3 THz）を
 扱う正方格子コードと、三角格子primitiveを厳密に等価な直交二サイト・スーパーセルと
 比較するコードを `paper_reproductions/peng2025/` にまとめました。
 
+正方格子の既定計算は、両円のFourier係数を解析的に構成し、共通の半径方向法線場を
+用いる同心コアシェルNVMです。matched-ASRも比較用に選択できます。論文で数値が
+示されないPI厚`h2`は、半無限PIを既定とし、有限PI/空気条件もCLIで選択できます。
+
 ```bash
-python paper_reproductions/peng2025/reproduce_square.py --study smoke --device cpu
-python paper_reproductions/peng2025/compare_hex_supercell.py --study smoke --device cpu
-python paper_reproductions/peng2025/validation/validate.py --device cpu
+python -m paper_reproductions.peng2025.reproduce_square --study smoke --device cpu
+python -m paper_reproductions.peng2025.compare_hex_supercell --study smoke --device cpu
+python -m paper_reproductions.peng2025.validation.validate --device cpu
 ```
 
 論文本文にないAg Drude定数とMI基板厚は再現仮定としてmetadataへ明記します。

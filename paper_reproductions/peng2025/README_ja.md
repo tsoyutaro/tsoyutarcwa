@@ -16,6 +16,7 @@ DOI: 10.1109/LAWP.2025.3543371 である。
 | 内半径 r | 14 µm |
 | Ag パターン層厚 | 1 µm |
 | PI 比誘電率 | 3.5 + 0.009i |
+| Fig. 2 の PI 厚さ h2 | 本文に数値記載なし |
 | 周波数 | 1–3 THz |
 | 収束確認周波数 | 1.95 THz |
 | 入射 | 空気側、垂直、TM |
@@ -41,7 +42,8 @@ output substrate = PI
 
 - Ag: `epsilon_inf=1`, `omega_p=1.37e16 rad/s`, `gamma=2.73e13 rad/s`
 - 時間依存: `exp(-i omega t)`、受動媒質は `Im(epsilon)>=0`
-- MI の PI 基板: 半無限出力媒質
+- MI の PI 基板: 既定では半無限出力媒質。`--pi-thickness-um`を指定した場合は
+  有限PI層、その下を空気とする
 
 Drude 定数はすべてコマンドラインで変更でき、実行時の値は metadata JSON に保存する。
 著者が使用した値が分かれば、その値を指定して再計算する必要がある。
@@ -67,7 +69,14 @@ outputs/paper_reproductions/peng2025/
 
 ## 4. 正方格子コード
 
-`reproduce_square.py` はコアシェル写像を次の2方式から選択できる。
+`reproduce_square.py` は論文と同じ物理構造の収束解を独立に確認するため、次の
+ソルバーを選択できる。
+
+- `--solver nvm`（既定）: 内円・外円の誘電率Fourier係数をBessel関数で解析的に
+  構成する同心コアシェルNVM。二つの円の法線は同じ半径方向なので、一つの周期的
+  法線射影場で両界面へLiの逆則を適用する。hard rasterは使用しない。
+- `--solver matched-asr`: 本プロジェクトのmatched-coordinate ASR。以下の
+  `--radial-mapping`を選択する。
 
 - `--radial-mapping outer`（既定）: 従来互換。外円 `R` だけへ整合し、内円 `r` は
   同じ変換座標上で求積する。
@@ -75,42 +84,68 @@ outputs/paper_reproductions/peng2025/
   内円と外円へ写す、半径方向C2の二重matched写像を使う。内外半径の勾配も写像と
   Jacobianを通して保持する。
 
-二重写像では、中心、内円、外円、周期セル境界を零曲率のquintic Hermite区間で接続する。
-既存の逐次 `u/v` 対称factorizationは、この二重の放射支持曲線に対して正当化できず、
-高コントラストAgでは非受動な有限打切りを生じた。このため `double` は一般2D変換媒質
-tensorの直接Fourier畳み込みを使う。`outer` は従来のfactorization rulesを維持する。
-どちらも論文の段差型 separable ASR と補間 NV 場をそのまま複製したものではないため、
-論文との比較には方式ごとの次数・grid収束が必要である。
+二重写像では、中心、内円、外円、周期セル境界を零曲率のquintic Hermite区間で接続し、
+一般化Li normal-D/tangential-E factorizationを用いる。ただし高コントラストAgに対する
+`double`の次数収束は未確立なので、論文結果の独立検算には既定の`nvm`を優先する。
+どの方式も論文著者の段差型 separable ASR と補間NV場をbit-for-bitで複製するものではない。
+今回の目的は同一の物理問題に対する収束解の比較である。
+
+実行位置を混同しないこと。リポジトリルートからはモジュール形式を推奨する。
+
+```powershell
+python -m paper_reproductions.peng2025.reproduce_square --study smoke --device cpu
+```
+
+すでに`paper_reproductions/peng2025`へ移動済みなら、次のようにファイル名だけを指定する。
+
+```powershell
+python reproduce_square.py --study smoke --device cpu
+```
+
+移動後に`python paper_reproductions/peng2025/reproduce_square.py`と指定すると、添付ログのように
+パスが二重になり、ファイルが見つからない。
 
 高速 smoke test:
 
 ```powershell
-python paper_reproductions\peng2025\reproduce_square.py --study smoke --device cpu
+python -m paper_reproductions.peng2025.reproduce_square --study smoke --device cpu
 ```
 
 内外両円をmatchedする場合:
 
 ```powershell
-python paper_reproductions\peng2025\reproduce_square.py --study smoke --radial-mapping double --device cpu
+python -m paper_reproductions.peng2025.reproduce_square --study smoke --solver matched-asr --radial-mapping double --device cpu
 ```
 
 Fig. 2(d) と同じ 1–3 THz、報告次数 23:
 
 ```powershell
-python paper_reproductions\peng2025\reproduce_square.py --study spectrum --device cuda
+python -m paper_reproductions.peng2025.reproduce_square --study spectrum --solver nvm --device cuda
 ```
 
 Fig. 2(c) と同じ 1.95 THz の次数収束:
 
 ```powershell
-python paper_reproductions\peng2025\reproduce_square.py --study convergence --device cuda
+python -m paper_reproductions.peng2025.reproduce_square --study convergence --solver nvm --device cuda
 ```
 
 論文にない対称性短縮を使う場合:
 
 ```powershell
-python paper_reproductions\peng2025\reproduce_square.py --study spectrum --use-symmetry --device cuda
+python -m paper_reproductions.peng2025.reproduce_square --study spectrum --solver nvm --use-symmetry --device cuda
 ```
+
+Fig. 2のPI厚`h2`は論文本文に数値がない。有限PI膜を仮定して感度を確認する場合は、例えば
+
+```powershell
+python -m paper_reproductions.peng2025.reproduce_square --study spectrum --solver nvm --pi-thickness-um 12 --device cuda
+```
+
+とする。これは論文値の断定ではなく仮定であり、metadata JSONへ記録される。
+
+`--order 8`は論文Fig. 2(d)のASR-NV次数23より低い診断条件である。受動性違反が一つでも
+生じた場合、既定ではCSVとmetadataだけを保存してエラー終了し、誤ったスペクトル図を
+生成しない。`--allow-nonpassive`は原因調査時だけ使用する。
 
 次数 23 では `(2N+1)^2=2209` harmonics、full vector modal dimension は 4418 である。
 複素倍精度 eigensolve の作業領域は単一行列の約 312 MB より大幅に大きくなるため、

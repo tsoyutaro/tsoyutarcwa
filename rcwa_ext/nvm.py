@@ -498,6 +498,8 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
         eps_cyl,
         centers: Sequence[tuple[float, float]] = ((0.0, 0.0),),
         *,
+        core_radius=None,
+        eps_core=None,
         use_lanczos: bool = False,
         lanczos_power: int = 2,
         nx: int = 256,
@@ -516,6 +518,23 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
             device=self._device,
             allow_zero=False,
         )
+        core_shell = core_radius is not None or eps_core is not None
+        if (core_radius is None) != (eps_core is None):
+            raise ValueError(
+                "core_radius and eps_core must be supplied together for a "
+                "core-shell circle."
+            )
+        core_radius_value = None
+        if core_shell:
+            core_radius, core_radius_value = _real_parameter_tensor(
+                "core_radius",
+                core_radius,
+                dtype=torch.float64,
+                device=self._device,
+                allow_zero=False,
+            )
+            if core_radius_value >= radius_value:
+                raise ValueError("core_radius must be smaller than radius.")
         if not isinstance(lanczos_power, int) or lanczos_power < 0:
             raise ValueError("lanczos_power must be a nonnegative integer.")
         thickness_tensor, _ = _real_parameter_tensor(
@@ -531,13 +550,17 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
         eps_cyl_t = torch.as_tensor(
             eps_cyl, dtype=self._dtype, device=self._device
         )
-        if not torch.all(torch.isfinite(eps_bg_t)) or not torch.all(
-            torch.isfinite(eps_cyl_t)
-        ):
+        eps_core_t = (
+            torch.as_tensor(eps_core, dtype=self._dtype, device=self._device)
+            if core_shell
+            else None
+        )
+        materials = (eps_bg_t, eps_cyl_t) + (
+            (eps_core_t,) if eps_core_t is not None else ()
+        )
+        if not all(bool(torch.all(torch.isfinite(value))) for value in materials):
             raise ValueError("NVM permittivities must be finite.")
-        if torch.any(torch.abs(eps_bg_t) == 0.0) or torch.any(
-            torch.abs(eps_cyl_t) == 0.0
-        ):
+        if any(bool(torch.any(torch.abs(value) == 0.0)) for value in materials):
             raise ValueError("NVM permittivities must be nonzero.")
         centers = tuple((float(x), float(y)) for x, y in centers)
         if not all(math.isfinite(v) for center in centers for v in center):
@@ -583,6 +606,19 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
             use_lanczos=use_lanczos,
             lanczos_power=lanczos_power,
         )
+        if core_shell:
+            # For concentric interfaces the two boundary normals are collinear.
+            # The scalar convolution is therefore the outer disk plus an exact
+            # analytic correction over the core disk; no rasterized ring is
+            # introduced.
+            eps_zz = eps_zz + self._circle_toeplitz(
+                core_radius,
+                0.0,
+                eps_core_t - eps_cyl_t,
+                centers,
+                use_lanczos=use_lanczos,
+                lanczos_power=lanczos_power,
+            )
         inv_eps = self._circle_toeplitz(
             radius,
             1.0 / eps_bg,
@@ -591,11 +627,23 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
             use_lanczos=use_lanczos,
             lanczos_power=lanczos_power,
         )
+        if core_shell:
+            inv_eps = inv_eps + self._circle_toeplitz(
+                core_radius,
+                0.0,
+                1.0 / eps_core_t - 1.0 / eps_cyl_t,
+                centers,
+                use_lanczos=use_lanczos,
+                lanczos_power=lanczos_power,
+            )
         inverse_inverse_eps = self._solve(
             inv_eps, self._eye(self.order_N)
         )
         projection = self._projection_matrix(
-            radius, centers, nx=nx, ny=ny
+            core_radius if core_shell else radius,
+            centers,
+            nx=nx,
+            ny=ny,
         )
         delta = inverse_inverse_eps - eps_zz
         zero = torch.zeros_like(delta)
@@ -891,6 +939,11 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
             torch.as_tensor(eps_cyl, dtype=self._dtype, device=self._device),
             torch.as_tensor(eps_bg, dtype=self._dtype, device=self._device),
         )
+        if core_shell:
+            core_inside = (
+                torch.min(torch.stack(distances), dim=0).values <= core_radius**2
+            )
+            eps_physical = torch.where(core_inside, eps_core_t, eps_physical)
         self._physical_material_by_layer[layer_index] = (
             eps_physical,
             torch.ones_like(eps_physical),
@@ -899,15 +952,33 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
             LayerRecord(
                 index=layer_index,
                 method="nvm",
-                shape="circle" if len(centers) == 1 else "circle-array",
+                shape=(
+                    "core-shell-circle"
+                    if core_shell and len(centers) == 1
+                    else "core-shell-circle-array"
+                    if core_shell
+                    else "circle"
+                    if len(centers) == 1
+                    else "circle-array"
+                ),
                 lattice=getattr(self, "lattice_kind", "rectangular"),
-                reason="CURVED_ANALYTIC_BOUNDARY",
+                reason=(
+                    "CURVED_ANALYTIC_CONCENTRIC_BOUNDARIES"
+                    if core_shell
+                    else "CURVED_ANALYTIC_BOUNDARY"
+                ),
                 options={
                     "radius": radius_value,
+                    "core_radius": core_radius_value,
                     "centers": centers,
                     "grid": (nx, ny),
                     "use_lanczos": use_lanczos,
                     "lanczos_power": lanczos_power,
+                    "factorization_scheme": (
+                        "concentric-normal-vector"
+                        if core_shell
+                        else "normal-vector"
+                    ),
                     "group_theory": dict(self.group_theory_diagnostics[-1]),
                 },
             )
@@ -917,6 +988,44 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
                 w_cartesian, h_cartesian
             )
         self._nvm_eps_tensor = None
+
+    def add_layer_circle_shell_nvm(
+        self,
+        thickness,
+        core_radius,
+        outer_radius,
+        eps_bg,
+        eps_shell,
+        eps_core,
+        centers: Sequence[tuple[float, float]] = ((0.0, 0.0),),
+        *,
+        use_lanczos: bool = False,
+        lanczos_power: int = 2,
+        nx: int = 256,
+        ny: int = 256,
+    ) -> None:
+        """Add an analytic concentric core-shell layer using one NV field.
+
+        Both circular interfaces have the same radial normal direction.  A
+        single periodic normal-vector projector is therefore sufficient, while
+        the Fourier coefficients of ``epsilon`` and ``1/epsilon`` include both
+        radii analytically.  This avoids a hard-raster annulus and provides an
+        independent, non-ASR convergence path for coaxial structures.
+        """
+
+        self.add_layer_circle_nvm(
+            thickness,
+            outer_radius,
+            eps_bg,
+            eps_shell,
+            centers,
+            core_radius=core_radius,
+            eps_core=eps_core,
+            use_lanczos=use_lanczos,
+            lanczos_power=lanczos_power,
+            nx=nx,
+            ny=ny,
+        )
 
     def solve_global_smatrix(self) -> None:
         if self.polarization_reduction is not None or self._native_d6_active:

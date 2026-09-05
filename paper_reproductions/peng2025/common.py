@@ -2,13 +2,15 @@
 
 The MI unit cell is modeled as a silver background, an air annular aperture
 ``r < rho < R``, and a central silver particle ``rho < r``.  The patterned
-layer is placed on a semi-infinite polyimide substrate.  Lengths are normalized
-by the nearest-neighbour period before they enter torcwa.
+layer is placed on polyimide.  A semi-infinite PI output medium remains the
+default because the article does not give the Fig. 2 PI thickness; a finite PI
+layer followed by air can be selected explicitly.  Lengths are normalized by
+the nearest-neighbour period before they enter torcwa.
 
-The article does not state the numerical Drude constants for Ag or a finite MI
-substrate thickness.  This module therefore uses a documented, overridable
-Drude starting point and a semi-infinite PI output medium.  These assumptions
-must not be confused with digitized reference data from the paper.
+The article does not state the numerical Drude constants for Ag or the finite
+MI substrate thickness.  This module therefore uses a documented, overridable
+Drude starting point and makes the output-stack assumption explicit.  These
+assumptions must not be confused with digitized reference data from the paper.
 """
 
 from __future__ import annotations
@@ -61,6 +63,7 @@ class PaperGeometry:
     epsilon_aperture_imag: float = 0.0
     epsilon_pi_real: float = 3.5
     epsilon_pi_imag: float = 0.009
+    pi_thickness_um: float | None = None
 
     @property
     def epsilon_aperture(self) -> complex:
@@ -82,6 +85,10 @@ class PaperGeometry:
         for name, value in positive.items():
             if not math.isfinite(value) or value <= 0.0:
                 raise ValueError(f"{name} must be finite and positive.")
+        if self.pi_thickness_um is not None and (
+            not math.isfinite(self.pi_thickness_um) or self.pi_thickness_um <= 0.0
+        ):
+            raise ValueError("pi_thickness_um must be finite and positive when set.")
         if self.inner_radius_um >= self.outer_radius_um:
             raise ValueError("inner_radius_um must be smaller than outer_radius_um.")
         if 2.0 * self.outer_radius_um >= self.period_um:
@@ -157,6 +164,7 @@ class Numerics:
     cascade: str = "redheffer"
     use_symmetry: bool = False
     shell_radial_mapping: str = "outer"
+    solver: str = "matched-asr"
 
     def validate(self) -> None:
         if min(self.order_x, self.order_y) < 1:
@@ -169,6 +177,8 @@ class Numerics:
             raise ValueError("cascade must be redheffer or algo2a/li-2a.")
         if self.shell_radial_mapping not in {"outer", "double"}:
             raise ValueError("shell_radial_mapping must be 'outer' or 'double'.")
+        if self.solver not in {"matched-asr", "nvm"}:
+            raise ValueError("solver must be 'matched-asr' or 'nvm'.")
 
 
 def normalized_frequency(frequency_thz: float, period_um: float) -> float:
@@ -310,6 +320,8 @@ def _base_result(
         "epsilon_silver_imag": epsilon_silver.imag,
         "epsilon_pi_real": geometry.epsilon_pi.real,
         "epsilon_pi_imag": geometry.epsilon_pi.imag,
+        "pi_thickness_um": geometry.pi_thickness_um,
+        "output_medium": "PI" if geometry.pi_thickness_um is None else "air",
         "epsilon_aperture_real": geometry.epsilon_aperture.real,
         "epsilon_aperture_imag": geometry.epsilon_aperture.imag,
         "order_x": numerics.order_x,
@@ -319,6 +331,7 @@ def _base_result(
         "grid_x": numerics.grid_x,
         "grid_y": numerics.grid_y,
         "cascade": numerics.cascade,
+        "solver": numerics.solver,
         "symmetry_requested": numerics.use_symmetry,
         "shell_radial_mapping": numerics.shell_radial_mapping,
         "runtime_seconds": time.perf_counter() - started,
@@ -347,7 +360,7 @@ def simulate_matched_primitive(
     numerics: Numerics,
     device: torch.device,
 ) -> dict[str, object]:
-    """Simulate one centered MI cell with selectable core-shell matching."""
+    """Simulate one centered MI cell with matched-ASR or analytic NVM."""
 
     geometry.validate()
     numerics.validate()
@@ -386,20 +399,46 @@ def simulate_matched_primitive(
         device=device,
     )
     simulation.add_input_layer(eps=1.0, mu=1.0)
-    simulation.add_output_layer(eps=geometry.epsilon_pi, mu=1.0)
-    simulation.set_incident_angle(0.0, 0.0)
-    simulation.add_layer_circle_shell_asr(
-        geometry.silver_thickness_um / geometry.period_um,
-        geometry.inner_radius_um / geometry.period_um,
-        geometry.outer_radius_um / geometry.period_um,
-        epsilon_silver,
-        geometry.epsilon_aperture,
-        epsilon_silver,
-        nx=numerics.grid_x,
-        ny=numerics.grid_y,
-        factorization_rules=numerics.shell_radial_mapping != "double",
-        radial_mapping=numerics.shell_radial_mapping,
+    simulation.add_output_layer(
+        eps=geometry.epsilon_pi if geometry.pi_thickness_um is None else 1.0,
+        mu=1.0,
     )
+    simulation.set_incident_angle(0.0, 0.0)
+    if normalized == "square":
+        centers = ((0.5, 0.5),)
+    else:
+        centers = ((0.75, 0.25 * math.sqrt(3.0)),)
+    if numerics.solver == "nvm":
+        simulation.add_layer_circle_shell_nvm(
+            geometry.silver_thickness_um / geometry.period_um,
+            geometry.inner_radius_um / geometry.period_um,
+            geometry.outer_radius_um / geometry.period_um,
+            epsilon_silver,
+            geometry.epsilon_aperture,
+            epsilon_silver,
+            centers=centers,
+            nx=numerics.grid_x,
+            ny=numerics.grid_y,
+        )
+    else:
+        simulation.add_layer_circle_shell_asr(
+            geometry.silver_thickness_um / geometry.period_um,
+            geometry.inner_radius_um / geometry.period_um,
+            geometry.outer_radius_um / geometry.period_um,
+            epsilon_silver,
+            geometry.epsilon_aperture,
+            epsilon_silver,
+            nx=numerics.grid_x,
+            ny=numerics.grid_y,
+            factorization_rules=True,
+            radial_mapping=numerics.shell_radial_mapping,
+        )
+    if geometry.pi_thickness_um is not None:
+        simulation.add_layer(
+            geometry.pi_thickness_um / geometry.period_um,
+            eps=geometry.epsilon_pi,
+            mu=1.0,
+        )
     simulation.solve_global_smatrix()
     result = _base_result(
         simulation,
@@ -411,13 +450,19 @@ def simulate_matched_primitive(
     )
     result.update(
         {
-            "model": "matched-primitive",
+            "model": (
+                "analytic-nvm-primitive"
+                if numerics.solver == "nvm"
+                else "matched-asr-primitive"
+            ),
             "lattice": normalized,
             "cell_length_x_um": geometry.period_um,
             "cell_length_y_um": geometry.period_um,
             "sites_per_cell": 1,
             "factorization": (
-                "double-matched-ASR-FR"
+                "analytic-concentric-NVM"
+                if numerics.solver == "nvm"
+                else "double-matched-ASR-generalized-Li"
                 if numerics.shell_radial_mapping == "double"
                 else "outer-matched-ASR-FR"
             ),
@@ -565,13 +610,22 @@ def _simulate_standard_raster(
         device=device,
     )
     simulation.add_input_layer(eps=1.0, mu=1.0)
-    simulation.add_output_layer(eps=geometry.epsilon_pi, mu=1.0)
+    simulation.add_output_layer(
+        eps=geometry.epsilon_pi if geometry.pi_thickness_um is None else 1.0,
+        mu=1.0,
+    )
     simulation.set_incident_angle(0.0, 0.0)
     simulation.add_layer(
         geometry.silver_thickness_um / geometry.period_um,
         eps=material,
         mu=1.0,
     )
+    if geometry.pi_thickness_um is not None:
+        simulation.add_layer(
+            geometry.pi_thickness_um / geometry.period_um,
+            eps=geometry.epsilon_pi,
+            mu=1.0,
+        )
     simulation.solve_global_smatrix()
     result = _base_result(
         simulation,
@@ -584,6 +638,7 @@ def _simulate_standard_raster(
     result.update(
         {
             "model": model,
+            "solver": "standard-raster",
             "sites_per_cell": sites_per_cell,
             "factorization": "standard-raster-Laurent",
         }
@@ -746,13 +801,18 @@ def write_metadata(
         "reproduction_assumptions": {
             "silver_drude": asdict(drude),
             "pattern_layer": "Ag background / air annulus / Ag central particle",
-            "mi_substrate": "semi-infinite PI",
+            "mi_substrate": (
+                "semi-infinite PI"
+                if geometry.pi_thickness_um is None
+                else f"finite PI layer ({geometry.pi_thickness_um:g} um) / air output"
+            ),
             "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
             "method_note": (
-                "The primitive-cell solver selects the project's outer-only or "
-                "C2 double-boundary matched-ASR implementation. It is not a "
-                "bit-for-bit copy of the paper's stepped separable ASR plus "
-                "interpolated NV field."
+                "The primitive-cell solver selects an analytic concentric NVM "
+                "or the project's outer-only/C2 double-boundary matched-ASR "
+                "implementation. Neither is a bit-for-bit copy of the paper's "
+                "stepped separable ASR plus interpolated NV field; agreement is "
+                "assessed through convergence of the physical observables."
             ),
         },
         **payload,
