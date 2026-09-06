@@ -135,6 +135,19 @@ def _static_checks(package_root: Path, outputs_root: Path) -> list[Check]:
         math.isclose(cutoff, 9.993081933333333, rel_tol=0.0, abs_tol=1e-12),
         f"fc=c/Lambda={cutoff:.12f} GHz",
     )
+    count_function = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "propagating_order_count_air"
+    )
+    count_source = ast.get_source_segment(source, count_function) or ""
+    record(
+        checks,
+        "JSON-safe propagating-order count",
+        "return int(" in count_source,
+        "public count is normalized from NumPy int64 to Python int",
+    )
 
     # Eq. (2): transformed interval widths are proportional to cube roots.
     dx = (7.5, 15.0, 7.5)

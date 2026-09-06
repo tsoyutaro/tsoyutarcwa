@@ -117,10 +117,15 @@ def propagating_order_count_air(frequency_ghz: float, order: int) -> int:
     """Count propagating reflected/transmitted orders in an air half-space."""
     ratio = wavelength_mm(frequency_ghz) / PERIOD_MM
     tolerance = 64.0 * np.finfo(float).eps
-    return sum(
-        (ratio * m) ** 2 + (ratio * n) ** 2 <= 1.0 + tolerance
-        for m in range(-order, order + 1)
-        for n in range(-order, order + 1)
+    # ``tolerance`` is a NumPy scalar, so the comparisons are ``np.bool_`` and
+    # their sum can be ``np.int64``. Normalize at this public boundary so
+    # metadata produced by callers remains directly JSON serializable.
+    return int(
+        sum(
+            (ratio * m) ** 2 + (ratio * n) ** 2 <= 1.0 + tolerance
+            for m in range(-order, order + 1)
+            for n in range(-order, order + 1)
+        )
     )
 
 
