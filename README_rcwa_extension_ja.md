@@ -379,6 +379,15 @@ ASR-FR `N=M=8`、ASR `N=M=20`です。図8(b)のtotal-minus-zero-order power、
 公開されていないため、外部CSVがある場合だけ重ねます。数式、符号規約、実行順序、
 検証範囲は `paper_reproductions/wang2022_fig8/README_ja.md` を参照してください。
 
+論文再現とは独立に、6 GHzでASR-FRとCartesian Li因数分解の次数収束を比較できます。
+正方形境界は軸平行なのでNV場は使わず、Cartesian側は解析的矩形Fourier係数と方向別の
+Toeplitz逆則／直接則を用います。
+
+```bash
+python -m paper_reproductions.wang2022_fig8.compare_asr_fr_cartesian_li \
+  --orders 1,2,3,4,5,6,8,10,12 --device cuda
+```
+
 ## Peng–Zhang (2025) のAg–air–Ag円形aperture–particle配列
 
 Fig. 2 のMI構造（周期62 µm、外半径30 µm、内半径14 µm、Ag厚1 µm、

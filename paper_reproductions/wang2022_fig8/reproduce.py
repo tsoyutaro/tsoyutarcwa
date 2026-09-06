@@ -166,7 +166,11 @@ def power_for_x_incidence(simulation: CustomRCWA_ASR_FR) -> dict[str, float | No
     t_total = port_power(orders, "transmission")
     balance = r_total + t_total
     absorptance = 1.0 - balance
-    condition = simulation.asr_condition_numbers[-1]
+    condition = (
+        simulation.asr_condition_numbers[-1]
+        if simulation.asr_condition_numbers
+        else None
+    )
     return {
         "R00": _tensor_scalar(r00),
         "T00": _tensor_scalar(t00),

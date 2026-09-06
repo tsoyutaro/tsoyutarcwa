@@ -1310,6 +1310,102 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             "mu33": mu33,
         }
 
+    def _centered_interval_toeplitz(
+        self, fill_factor: float, order: torch.Tensor
+    ) -> torch.Tensor:
+        """Exact Toeplitz matrix of a centered periodic interval.
+
+        The unit-cell interval is ``[(1-f)/2, (1+f)/2)``.  Its Fourier
+        coefficient is ``f sinc(k f) exp(-i pi k)`` in PyTorch's normalized
+        sinc convention.  Keeping this analytic avoids confusing Cartesian
+        Li-factorization convergence with raster sampling convergence.
+        """
+        if not 0.0 < fill_factor < 1.0:
+            raise ValueError("fill_factor must be strictly between zero and one.")
+        delta = order[:, None] - order[None, :]
+        delta_real = delta.to(torch.float64)
+        phase = torch.exp(-1.0j * math.pi * delta_real).to(self._dtype)
+        return (
+            fill_factor * torch.sinc(delta_real * fill_factor).to(self._dtype)
+            * phase
+        )
+
+    def _rect_cartesian_li_convolutions(
+        self,
+        eps_bg: torch.Tensor,
+        eps_rect: torch.Tensor,
+        mu_bg: torch.Tensor,
+        mu_rect: torch.Tensor,
+        fill_factor_x: float,
+        fill_factor_y: float,
+    ) -> dict[str, torch.Tensor]:
+        """Exact separable Cartesian Li inverse/direct-rule operators.
+
+        For an axis-aligned rectangle, the interface normal is everywhere
+        parallel to x or y (apart from measure-zero corners).  The crossed-
+        grating factorization can therefore be formed without a sampled normal
+        vector field: first construct/invert the x Toeplitz matrices on the two
+        y regions, then Fourier-expand that matrix-valued function in y.  This
+        is the Cartesian, identity-coordinate limit of Eqs. (13)--(15).
+        """
+        tx = self._centered_interval_toeplitz(fill_factor_x, self.order_x)
+        ty = self._centered_interval_toeplitz(fill_factor_y, self.order_y)
+        ix = self._eye(len(self.order_x))
+        iy = self._eye(len(self.order_y))
+        indicator = torch.kron(tx, ty)
+
+        def material_set(
+            background: torch.Tensor, inclusion: torch.Tensor
+        ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+            if bool(torch.any(torch.abs(background) == 0.0)) or bool(
+                torch.any(torch.abs(inclusion) == 0.0)
+            ):
+                raise ValueError(
+                    "Cartesian Li factorization requires nonzero material values."
+                )
+            direct = background * self._eye(self.order_N) + (
+                inclusion - background
+            ) * indicator
+
+            x_direct_inside = background * ix + (inclusion - background) * tx
+            x_direct_outside_inverse = ix / background
+            x_direct_inside_inverse = self._solve(x_direct_inside, ix)
+            inverse_x_then_y = torch.kron(x_direct_outside_inverse, iy) + torch.kron(
+                x_direct_inside_inverse - x_direct_outside_inverse, ty
+            )
+            component_22 = self._solve(
+                inverse_x_then_y, self._eye(self.order_N)
+            )
+
+            reciprocal_bg = 1.0 / background
+            reciprocal_rect = 1.0 / inclusion
+            x_reciprocal_inside = reciprocal_bg * ix + (
+                reciprocal_rect - reciprocal_bg
+            ) * tx
+            x_reciprocal_outside_inverse = ix / reciprocal_bg
+            x_reciprocal_inside_inverse = self._solve(
+                x_reciprocal_inside, ix
+            )
+            component_11 = torch.kron(
+                x_reciprocal_outside_inverse, iy
+            ) + torch.kron(
+                x_reciprocal_inside_inverse
+                - x_reciprocal_outside_inverse,
+                ty,
+            )
+            return component_11, component_22, direct
+
+        eps11, eps22, eps33 = material_set(eps_bg, eps_rect)
+        mu11, mu22, mu33 = material_set(mu_bg, mu_rect)
+        return {
+            "eps11": eps11,
+            "eps22": eps22,
+            "eps33": eps33,
+            "mu11": mu11,
+            "mu22": mu22,
+            "mu33": mu33,
+        }
+
     def _build_conversion_matrix_T(self, mapping: ASRMapping) -> torch.Tensor:
         """
         Discretize Eqs. (21)-(22) in torcwa's +j spatial-phase convention.
@@ -1698,6 +1794,109 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         )
         self._append_smatrix_from_cartesian_modes(
             w_cartesian, v_cartesian
+        )
+
+    def add_layer_rect_li(
+        self,
+        thickness,
+        eps_bg,
+        eps_rect,
+        fill_factor_x: float,
+        fill_factor_y: float,
+        *,
+        mu_bg=1.0,
+        mu_rect=1.0,
+        physical_grid: int = 256,
+    ) -> None:
+        """Add an axis-aligned rectangle using Cartesian Li factorization.
+
+        No ASR coordinate map and no normal-vector field are used.  The
+        Fourier operators are analytic for the centered rectangle; the grid is
+        retained only for optional real-space field/material reconstruction.
+        """
+        self._require_kvectors()
+        if not isinstance(physical_grid, int) or physical_grid < 2:
+            raise ValueError("physical_grid must be an integer >= 2.")
+        thickness_tensor, _ = _real_parameter_tensor(
+            "thickness",
+            thickness,
+            dtype=self._dtype,
+            device=self._device,
+            allow_zero=True,
+        )
+        layer_index = self.layer_N
+        materials = tuple(
+            torch.as_tensor(value, dtype=self._dtype, device=self._device)
+            for value in (eps_bg, eps_rect, mu_bg, mu_rect)
+        )
+        if not all(bool(torch.all(torch.isfinite(value))) for value in materials):
+            raise ValueError("Cartesian Li materials must be finite.")
+        eps_bg_t, eps_rect_t, mu_bg_t, mu_rect_t = materials
+        convolutions = self._rect_cartesian_li_convolutions(
+            eps_bg_t,
+            eps_rect_t,
+            mu_bg_t,
+            mu_rect_t,
+            fill_factor_x,
+            fill_factor_y,
+        )
+        p, q, eps_conv, mu_conv = self._build_asr_pq(
+            convolutions["eps11"],
+            convolutions["eps22"],
+            convolutions["eps33"],
+            convolutions["mu11"],
+            convolutions["mu22"],
+            convolutions["mu33"],
+            factorization_rules=False,
+            direct_convolutions=convolutions,
+        )
+        kz_squared, electric_modes = self._eig(torch.matmul(p, q))
+        kz = self._positive_kz(kz_squared)
+        magnetic_modes = self._magnetic_eigenvectors(
+            p, q, electric_modes, kz
+        )
+
+        self.layer_N += 1
+        self.thickness.append(thickness_tensor)
+        self.eps_conv.append(eps_conv)
+        self.mu_conv.append(mu_conv)
+        self.P.append(p)
+        self.Q.append(q)
+        self.kz_norm.append(kz)
+        self.E_eigvec.append(electric_modes)
+        self.H_eigvec.append(magnetic_modes)
+
+        lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
+        x = (torch.arange(physical_grid, device=self._device) + 0.5) / physical_grid
+        y = (torch.arange(physical_grid, device=self._device) + 0.5) / physical_grid
+        inside_x = torch.abs(x - 0.5) < fill_factor_x / 2.0
+        inside_y = torch.abs(y - 0.5) < fill_factor_y / 2.0
+        inside = inside_x[:, None] & inside_y[None, :]
+        self._physical_material_by_layer[layer_index] = (
+            torch.where(inside, eps_rect_t, eps_bg_t),
+            torch.where(inside, mu_rect_t, mu_bg_t),
+        )
+        width_x, width_y = fill_factor_x * lx, fill_factor_y * ly
+        shape = "square" if math.isclose(
+            width_x, width_y, rel_tol=1.0e-8, abs_tol=1.0e-12
+        ) else "rectangle"
+        self.layer_records.append(
+            LayerRecord(
+                index=layer_index,
+                method="cartesian-li",
+                shape=shape,
+                lattice="rectangular",
+                reason="AXIS_ALIGNED_ANALYTIC_LI_FACTORIZATION",
+                options={
+                    "fill_factor": (fill_factor_x, fill_factor_y),
+                    "factorization_scheme": "x-Toeplitz-inverse/y-BTTB-Li",
+                    "fourier_coefficients": "analytic",
+                    "physical_grid": physical_grid,
+                },
+            )
+        )
+        self._append_smatrix_from_cartesian_modes(
+            electric_modes, magnetic_modes
         )
 
     def add_layer_metal_patch_asr(

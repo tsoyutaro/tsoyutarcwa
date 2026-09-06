@@ -207,6 +207,43 @@ python paper_reproductions/wang2022_fig8/reproduce.py --study smoke --cascade al
 python paper_reproductions/wang2022_fig8/reproduce.py --study convergence --max-order 24 --device cuda --no-plot
 ```
 
+## ASR-FRとCartesian Li因数分解の独立比較
+
+論文図の再現とは分離して、同じ正方形金属パッチをASR-FRとCartesian座標の
+Li因数分解で解く比較スクリプトを用意した。正方形・長方形の境界法線は辺上で
+(x/y) 軸方向に限られるため、一般曲線用のサンプリングされたNV場は使用しない。
+Cartesian側は、中心矩形の指示関数
+
+\[
+\widehat\chi_{mn}=f_x f_y\,\mathrm{sinc}(m f_x)
+\mathrm{sinc}(n f_y)e^{-i\pi(m+n)}
+\]
+
+を解析的に作り、各 (y) 領域で (x)-Toeplitz行列へLiの逆則を適用してから、
+その行列値関数を (y) 方向のBTTB行列へ組み立てる。したがって、Cartesian側の
+Fourier係数は `--grid` に依存せず、次数収束へラスタ誤差が混入しない。
+
+論文Fig. 9と同じ6 GHzで、まず実用的な次数範囲を計算するには次を使う。
+
+```bash
+python -m paper_reproductions.wang2022_fig8.compare_asr_fr_cartesian_li \
+  --orders 1,2,3,4,5,6,8,10,12 \
+  --grid 256 \
+  --quadrature-grid 4096 \
+  --device cuda
+```
+
+`--orders 1:20 --resume` のような包含範囲指定も可能である。出力は既定で
+`results/asr_fr_vs_cartesian_li/` の `convergence.csv`, `convergence.png`,
+`convergence_metadata.json` へ保存される。CSVには共通参照値に対する誤差、
+隣接次数間変化、passivity違反量、時間を記録する。
+
+既定の共通参照値は「今回計算した最大次数のASR-FR」であり、厳密解やHFSS値ではない。
+独立参照値がある場合は `--reference-r ... --reference-t ...` を同時に指定する。
+また、Cartesian Li曲線が振動しても、それ自体がこの高コントラスト問題で調べるべき
+収束特性である。非passive点は警告と赤い×で明示され、`--strict-passivity` を指定した
+場合だけ直ちに停止する。
+
 ## 6. HFSSデータと「再現」の範囲
 
 論文はunderlying dataを公開しておらず、著者への依頼で入手可能としている。そのため、

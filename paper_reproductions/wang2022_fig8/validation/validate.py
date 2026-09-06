@@ -67,6 +67,8 @@ def _static_checks(package_root: Path, outputs_root: Path) -> list[Check]:
     maps_source_path = outputs_root / "rcwa_ext" / "asr_maps.py"
     scattering_source_path = outputs_root / "rcwa_ext" / "scattering.py"
     source = reproduction.read_text(encoding="utf-8")
+    comparison = package_root / "compare_asr_fr_cartesian_li.py"
+    comparison_source = comparison.read_text(encoding="utf-8")
     tree = ast.parse(source, filename=str(reproduction))
     constants = _assignment_literals(tree)
 
@@ -231,6 +233,28 @@ def _static_checks(package_root: Path, outputs_root: Path) -> list[Check]:
         and "passivity_tolerance" in source,
         "R+T>1+tolerance is rejected before CSV/plot output",
     )
+    record(
+        checks,
+        "separate ASR-FR/Cartesian-Li comparison",
+        comparison.exists()
+        and 'METHODS = ("ASR-FR", "Cartesian-Li")' in comparison_source
+        and 'default=6.0' in comparison_source
+        and 'simulation.add_layer_rect_li(' in comparison_source,
+        "same Fig. 8 geometry at the Fig. 9 frequency; no sampled NV field",
+    )
+    cartesian_li_tokens = (
+        "_centered_interval_toeplitz",
+        "_rect_cartesian_li_convolutions",
+        "x_direct_inside_inverse",
+        "x_reciprocal_inside_inverse",
+        'method="cartesian-li"',
+    )
+    record(
+        checks,
+        "analytic rectangular Cartesian Li factorization",
+        all(token in asr_source for token in cartesian_li_tokens),
+        "analytic rectangle coefficients and directional inverse/direct rules found",
+    )
     return checks
 
 
@@ -291,6 +315,48 @@ def _run_smoke(package_root: Path, output: Path, cascade: str, methods: str) -> 
     return _read_numeric_csv(output / "smoke_powers.csv")
 
 
+def _run_method_comparison_smoke(
+    package_root: Path, output: Path
+) -> list[dict[str, str]]:
+    command = [
+        sys.executable,
+        "-m",
+        "paper_reproductions.wang2022_fig8.compare_asr_fr_cartesian_li",
+        "--orders",
+        "1",
+        "--frequency-ghz",
+        "6",
+        "--grid",
+        "32",
+        "--quadrature-grid",
+        "32",
+        "--device",
+        "cpu",
+        "--dtype",
+        "complex128",
+        "--output-dir",
+        str(output),
+        "--no-plot",
+    ]
+    completed = subprocess.run(
+        command,
+        cwd=_OUTPUTS_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=300,
+    )
+    if completed.returncode:
+        raise RuntimeError(
+            f"comparison smoke failed ({completed.returncode})\n"
+            f"stdout:\n{completed.stdout}\nstderr:\n{completed.stderr}"
+        )
+    with (output / "convergence.csv").open(
+        newline="", encoding="utf-8"
+    ) as stream:
+        return list(csv.DictReader(stream))
+
+
 def _integration_checks(package_root: Path) -> list[Check]:
     checks: list[Check] = []
     missing = [
@@ -311,6 +377,9 @@ def _integration_checks(package_root: Path) -> list[Check]:
         temporary = Path(temp)
         redheffer = _run_smoke(package_root, temporary / "redheffer", "redheffer", "both")
         algo2a = _run_smoke(package_root, temporary / "algo2a", "algo2a", "asr-fr")
+        comparison = _run_method_comparison_smoke(
+            package_root, temporary / "comparison"
+        )
 
     record(
         checks,
@@ -378,6 +447,26 @@ def _integration_checks(package_root: Path) -> list[Check]:
         "Redheffer/Li-2a ASR-FR parity",
         maximum < 2e-9,
         f"maximum power difference={maximum:.3e}",
+    )
+    comparison_methods = {row["method"] for row in comparison}
+    comparison_finite = all(
+        math.isfinite(float(row[key]))
+        for row in comparison
+        for key in ("R_total", "T_total", "A_total")
+    )
+    comparison_zero_order = all(
+        abs(float(row["R_total"]) - float(row["R00"])) < 2e-10
+        and abs(float(row["T_total"]) - float(row["T00"])) < 2e-10
+        for row in comparison
+    )
+    record(
+        checks,
+        "ASR-FR/Cartesian-Li comparison smoke",
+        len(comparison) == 2
+        and comparison_methods == {"ASR-FR", "Cartesian-Li"}
+        and comparison_finite
+        and comparison_zero_order,
+        "two finite methods and total=zeroth order at 6 GHz",
     )
     return checks
 
