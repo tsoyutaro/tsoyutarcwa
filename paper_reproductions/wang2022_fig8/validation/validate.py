@@ -245,6 +245,7 @@ def _static_checks(package_root: Path, outputs_root: Path) -> list[Check]:
     cartesian_li_tokens = (
         "_centered_interval_toeplitz",
         "_rect_cartesian_li_convolutions",
+        "left.contiguous(), right.contiguous()",
         "x_direct_inside_inverse",
         "x_reciprocal_inside_inverse",
         'method="cartesian-li"',

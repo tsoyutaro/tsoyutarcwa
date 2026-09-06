@@ -1352,7 +1352,14 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         ty = self._centered_interval_toeplitz(fill_factor_y, self.order_y)
         ix = self._eye(len(self.order_x))
         iy = self._eye(len(self.order_y))
-        indicator = torch.kron(tx, ty)
+
+        def kron(left: torch.Tensor, right: torch.Tensor) -> torch.Tensor:
+            # torch.linalg.solve may return a non-contiguous strided view.
+            # Older supported PyTorch releases implement kron through view(),
+            # which rejects that layout even though the matrix is valid.
+            return torch.kron(left.contiguous(), right.contiguous())
+
+        indicator = kron(tx, ty)
 
         def material_set(
             background: torch.Tensor, inclusion: torch.Tensor
@@ -1370,7 +1377,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             x_direct_inside = background * ix + (inclusion - background) * tx
             x_direct_outside_inverse = ix / background
             x_direct_inside_inverse = self._solve(x_direct_inside, ix)
-            inverse_x_then_y = torch.kron(x_direct_outside_inverse, iy) + torch.kron(
+            inverse_x_then_y = kron(x_direct_outside_inverse, iy) + kron(
                 x_direct_inside_inverse - x_direct_outside_inverse, ty
             )
             component_22 = self._solve(
@@ -1386,9 +1393,9 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             x_reciprocal_inside_inverse = self._solve(
                 x_reciprocal_inside, ix
             )
-            component_11 = torch.kron(
+            component_11 = kron(
                 x_reciprocal_outside_inverse, iy
-            ) + torch.kron(
+            ) + kron(
                 x_reciprocal_inside_inverse
                 - x_reciprocal_outside_inverse,
                 ty,
