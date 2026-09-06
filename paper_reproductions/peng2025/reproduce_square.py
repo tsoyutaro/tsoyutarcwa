@@ -103,7 +103,16 @@ def _parser() -> argparse.ArgumentParser:
         help="Comma-separated Nx=Ny values for convergence.",
     )
     parser.add_argument("--grid", type=int, help="Matched-ASR quadrature grid per axis.")
-    parser.add_argument("--asr-g", type=float, default=1.0e-3)
+    parser.add_argument(
+        "--asr-g",
+        type=float,
+        default=3.0e-2,
+        help=(
+            "Minimum interface slope of this non-separable matched map. "
+            "Default 0.03; the paper's 0.001 belongs to a different stepped "
+            "separable map."
+        ),
+    )
     parser.add_argument(
         "--solver",
         choices=("matched-nvm", "nvm", "matched-asr"),
@@ -116,9 +125,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--radial-mapping",
-        choices=("outer", "double"),
-        default="outer",
-        help="Match only the outer circle or both core-shell radii.",
+        choices=("auto", "outer", "double"),
+        default="auto",
+        help=(
+            "auto (recommended) selects the monotone double-matched map for "
+            "this concentric near-close-packed cell; outer is retained for "
+            "diagnostics and may be rejected as ill-conditioned."
+        ),
     )
     parser.add_argument(
         "--pi-thickness-um",
@@ -281,13 +294,21 @@ def main() -> int:
     if output_dir is None:
         solver_tag = args.solver
         if args.solver.startswith("matched-"):
-            solver_tag = f"{solver_tag}_{args.radial_mapping}"
+            mapping_tag = "double" if args.radial_mapping == "auto" else args.radial_mapping
+            solver_tag = f"{solver_tag}_{mapping_tag}"
         output_dir = _PACKAGE_ROOT / "results" / f"square_{solver_tag}_{args.study}"
     if args.study == "convergence" and len(frequencies) != 1:
         raise ValueError("Convergence study accepts exactly one frequency.")
-    if args.solver == "nvm" and args.radial_mapping != "outer":
+    if args.solver == "nvm" and args.radial_mapping not in {"auto", "outer"}:
         raise ValueError(
             "--radial-mapping applies only to --solver matched-asr/matched-nvm."
+        )
+    if args.solver.startswith("matched-") and args.radial_mapping == "outer":
+        print(
+            "MAP WARNING: the explicitly requested outer-only map can be poorly "
+            f"conditioned for R/p=30/62 (requested G={args.asr_g:g}). The solver "
+            "rejects a map whose minimum Jacobian is below its safety floor. Prefer "
+            "--radial-mapping double (or omit the option)."
         )
     geometry = PaperGeometry(pi_thickness_um=args.pi_thickness_um)
     print(
@@ -339,6 +360,12 @@ def main() -> int:
             f"T={float(result['transmittance']):.8f}, "
             f"A={float(result['absorptance']):.8f}, "
             f"time={float(result['runtime_seconds']):.2f} s"
+            + (
+                ""
+                if result.get("minimum_mapping_jacobian") is None
+                else ", min(detJ)="
+                f"{float(result['minimum_mapping_jacobian']):.3e}"
+            )
         )
         # Preserve completed points in long sweeps.
         write_rows(rows, output_dir / "square_mi.csv")
@@ -386,6 +413,13 @@ def main() -> int:
             "asr_g": args.asr_g,
             "solver": args.solver,
             "radial_mapping": args.radial_mapping,
+            "radial_mapping_resolved": (
+                None
+                if args.solver == "nvm"
+                else "double"
+                if args.radial_mapping == "auto"
+                else args.radial_mapping
+            ),
             "pi_thickness_um": args.pi_thickness_um,
             "cascade": args.cascade,
             "use_symmetry": args.use_symmetry,

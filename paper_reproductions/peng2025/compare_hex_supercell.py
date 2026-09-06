@@ -94,12 +94,20 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--grid", type=int, help="Native grid and supercell x grid.")
     parser.add_argument("--super-grid-y", type=int, help="Override supercell y grid.")
-    parser.add_argument("--asr-g", type=float, default=1.0e-3)
+    parser.add_argument(
+        "--asr-g",
+        type=float,
+        default=3.0e-2,
+        help="Minimum slope for the non-separable matched map.",
+    )
     parser.add_argument(
         "--radial-mapping",
-        choices=("outer", "double"),
-        default="outer",
-        help="Matched primitive only: match the outer circle or both radii.",
+        choices=("auto", "outer", "double"),
+        default="auto",
+        help=(
+            "Matched primitive only: auto selects the stable double-matched "
+            "core-shell map; outer is a diagnostic compatibility option."
+        ),
     )
     parser.add_argument(
         "--cascade", choices=("redheffer", "algo2a"), default="redheffer"

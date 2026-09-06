@@ -324,6 +324,11 @@ B=P_t+P_nC,\qquad C=gA
 - 対応：outer-only matched写像でも、物理円法線を (d(\phi\circ F)=J^T d\phi) で
   計算空間へpull backし、変換媒質tensorへ一般化Li normal-D/tangential-E因数分解を
   適用できる。Peng 2025再現コードではこのASR-then-NV経路を `matched-nvm` と呼ぶ。
+- 一般化Li NV補正は不連続な誘電率tensorへ限定する。通常の非磁性構造では透磁率に
+  物質界面ジャンプがないため、座標変換後の透磁率tensorにはWeiss対称ASR因数分解を使う。
+- 正のJacobianだけでなく用途別の安全下限を指定できる。Peng 2025再現コードでは
+  (\min\det J>10^{-8}) を要求し、数値的にほぼ特異なouter-only写像を固有値計算前に
+  拒否する。Peng形状では単調二重matched写像を既定とする。
 - 非採用：既存Cartesian NVM射影行列をmatched-coordinate tensorへ後から掛ける二重補正。
   採用した `matched-nvm` はmatched空間内で因数分解を一度だけ行うため、これとは異なる。
 

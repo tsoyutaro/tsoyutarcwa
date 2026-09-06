@@ -158,6 +158,13 @@ class AutoRCWA(CustomRCWA_NVM):
         if not 0.0 < float(self.asr_options.circle_G) < 1.0:
             raise ValueError("ASROptions.circle_G must be in (0,1).")
         if (
+            not math.isfinite(float(self.asr_options.minimum_circle_jacobian))
+            or float(self.asr_options.minimum_circle_jacobian) <= 0.0
+        ):
+            raise ValueError(
+                "ASROptions.minimum_circle_jacobian must be finite and positive."
+            )
+        if (
             len(self.asr_options.grid) != 2
             or len(self.nvm_options.grid) != 2
             or any(int(v) <= 0 for v in (*self.asr_options.grid, *self.nvm_options.grid))
@@ -214,6 +221,9 @@ class AutoRCWA(CustomRCWA_NVM):
         self.lattice_kind = lattice.kind
         self.asr_G = float(self.asr_options.G)
         self.matched_asr_G = float(self.asr_options.circle_G)
+        self.matched_asr_min_jacobian = float(
+            self.asr_options.minimum_circle_jacobian
+        )
         # CustomRCWA_ASR_FR initializes this legacy override in its own
         # constructor, but AutoRCWA composes the ASR methods without calling
         # that constructor directly.

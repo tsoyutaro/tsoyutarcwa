@@ -344,13 +344,22 @@ class _ASRMappingMixin:
         y_v = y_tv * dtv_dv[None, :]
         det_j = x_u * y_v - x_v * y_u
         scale = max(lx, ly)
-        minimum_jacobian = 1.0e-12 * scale * scale / (lx * ly)
+        orientation_floor = 1.0e-12 * scale * scale / (lx * ly)
+        minimum_jacobian = max(
+            orientation_floor,
+            float(getattr(self, "matched_asr_min_jacobian", 1.0e-12)),
+        )
+        observed_minimum = _as_float(torch.min(det_j))
         if not bool(torch.all(torch.isfinite(det_j))):
             raise RuntimeError("The matched circle map produced a non-finite Jacobian.")
-        if _as_float(torch.min(det_j)) <= minimum_jacobian:
+        if observed_minimum <= minimum_jacobian:
             raise RuntimeError(
-                "The matched circle map is not orientation-preserving; "
-                "reduce the circle radius or ASR strength."
+                "The outer-only matched circle map is numerically singular: "
+                f"min(det(J))={observed_minimum:.3e}, required > "
+                f"{minimum_jacobian:.3e}. For a concentric core-shell use "
+                "radial_mapping='double'; otherwise increase circle_G. The "
+                "G=0.001 value used by stepped separable ASR is not generally "
+                "transferable to this non-separable circle map."
             )
         return CircleASRMapping(
             u=u,
@@ -763,7 +772,10 @@ class _ASRMappingMixin:
         arrays = (x, y, x_u, x_v, y_u, y_v, det_j)
         if not all(bool(torch.all(torch.isfinite(value))) for value in arrays):
             raise RuntimeError("The double-matched circle map produced non-finite values.")
-        minimum_jacobian = 1.0e-11 * sine
+        minimum_jacobian = max(
+            1.0e-11 * sine,
+            float(getattr(self, "matched_asr_min_jacobian", 1.0e-12)),
+        )
         if _as_float(torch.min(det_j)) <= minimum_jacobian:
             raise RuntimeError(
                 "The double-matched circle map is not orientation-preserving; "
@@ -978,7 +990,10 @@ class _ASRMappingMixin:
         arrays = (x, y, x_u, x_v, y_u, y_v, det_j)
         if not all(bool(torch.all(torch.isfinite(value))) for value in arrays):
             raise RuntimeError("The triangular matched map produced non-finite values.")
-        minimum_jacobian = 1.0e-11 * sine
+        minimum_jacobian = max(
+            1.0e-11 * sine,
+            float(getattr(self, "matched_asr_min_jacobian", 1.0e-12)),
+        )
         if _as_float(torch.min(det_j)) <= minimum_jacobian:
             raise RuntimeError(
                 "The triangular matched map is not orientation-preserving; "

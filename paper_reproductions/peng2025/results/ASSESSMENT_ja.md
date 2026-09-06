@@ -20,6 +20,17 @@ Fig. 2のPI厚 `h2` の数値がなく、保存結果は半無限PIと既定Drud
 この結果は `not_converged` であり、論文再現結果として使用しない。原因はouter-only ASR経路が
 曲面界面のNV因数分解を持たず、Ag/空気の極端なコントラストに対して不安定だったことである。
 
+## `matched-nvm outer` の添付実行結果
+
+- N=8でT=1.1866、N=24でR=10.2193となり、13点中6点が非受動。
+- 高次数側でもTがほぼ0へ崩れ、末尾は安定しない。
+- `R/p=30/62`、grid=256、`G=0.001`のouter-only非分離写像では、
+  `min(det J)`が約`1.2e-10`となり、写像が数値的にほぼ特異である。
+
+これは物理解ではなく `not_converged` である。修正版では同条件のouter写像を固有値計算前に
+拒否し、`auto`で単調性保証付きdouble写像を選ぶ。また一般化Li NV補正は誘電率tensorだけへ
+適用し、透磁率tensorはWeiss対称ASR因数分解とする。
+
 ## `square/square_mi.*`
 
 これは旧 `matched-asr outer` の未収束スペクトルで、R>1またはA<0の点を多数含む。
@@ -32,7 +43,7 @@ Fig. 2のPI厚 `h2` の数値がなく、保存結果は半無限PIと既定Drud
 python -m paper_reproductions.peng2025.reproduce_square \
   --study convergence \
   --solver matched-nvm \
-  --radial-mapping outer \
+  --radial-mapping auto \
   --orders 4,6,8,10,12,14,16,18,20,22,23,24,26 \
   --grid 256 \
   --device cuda

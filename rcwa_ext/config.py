@@ -379,6 +379,7 @@ class LayerSpec:
 class ASROptions:
     G: float = 1.0e-3
     circle_G: float = 3.0e-2
+    minimum_circle_jacobian: float = 1.0e-12
     grid: tuple[int, int] = (256, 256)
     factorization_rules: bool = True
 

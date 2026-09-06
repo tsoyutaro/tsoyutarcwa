@@ -773,7 +773,7 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             if double_redheffer.layer_records[-1].options.get(
                 "factorization_scheme"
             )
-            == "generalized-li-normal-tangential"
+            == "generalized-li-epsilon+weiss-symmetric-mu"
             else 1.0,
             0.0,
         )

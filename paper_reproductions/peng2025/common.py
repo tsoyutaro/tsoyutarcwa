@@ -160,10 +160,10 @@ class Numerics:
     order_y: int
     grid_x: int
     grid_y: int
-    asr_g: float = 1.0e-3
+    asr_g: float = 3.0e-2
     cascade: str = "redheffer"
     use_symmetry: bool = False
-    shell_radial_mapping: str = "outer"
+    shell_radial_mapping: str = "auto"
     solver: str = "matched-asr"
 
     def validate(self) -> None:
@@ -175,8 +175,10 @@ class Numerics:
             raise ValueError("asr_g must lie in (0, 1).")
         if self.cascade not in {"redheffer", "algo2a", "li-2a"}:
             raise ValueError("cascade must be redheffer or algo2a/li-2a.")
-        if self.shell_radial_mapping not in {"outer", "double"}:
-            raise ValueError("shell_radial_mapping must be 'outer' or 'double'.")
+        if self.shell_radial_mapping not in {"auto", "outer", "double"}:
+            raise ValueError(
+                "shell_radial_mapping must be 'auto', 'outer', or 'double'."
+            )
         if self.solver not in {"matched-asr", "matched-nvm", "nvm"}:
             raise ValueError(
                 "solver must be 'matched-asr', 'matched-nvm', or 'nvm'."
@@ -471,6 +473,14 @@ def simulate_matched_primitive(
     else:
         raise ValueError("lattice_kind must be square or triangular.")
 
+    resolved_radial_mapping = numerics.shell_radial_mapping
+    if resolved_radial_mapping == "auto":
+        # The Peng cell is concentric and its outer radius is only 1 um from
+        # the periodic boundary.  The outer-only non-separable circle map then
+        # becomes nearly singular for paper-like G.  Matching both radii with
+        # the certified monotone radial profile is the stable ASR choice.
+        resolved_radial_mapping = "double"
+
     started = time.perf_counter()
     epsilon_silver = drude.epsilon(frequency_thz)
     simulation = AutoRCWA(
@@ -481,6 +491,7 @@ def simulate_matched_primitive(
         outputs=OutputSpec(smatrix_size="half", fields="none"),
         asr=ASROptions(
             circle_G=numerics.asr_g,
+            minimum_circle_jacobian=1.0e-8,
             grid=(numerics.grid_x, numerics.grid_y),
             factorization_rules=True,
         ),
@@ -528,7 +539,7 @@ def simulate_matched_primitive(
             ny=numerics.grid_y,
             factorization_rules=True,
             normal_vector_factorization=numerics.solver == "matched-nvm",
-            radial_mapping=numerics.shell_radial_mapping,
+            radial_mapping=resolved_radial_mapping,
         )
     pattern_layer_record = simulation.layer_records[-1]
     if geometry.pi_thickness_um is not None:
@@ -548,6 +559,10 @@ def simulate_matched_primitive(
     )
     result.update(
         {
+            "shell_radial_mapping_requested": numerics.shell_radial_mapping,
+            "shell_radial_mapping": (
+                None if numerics.solver == "nvm" else resolved_radial_mapping
+            ),
             "model": (
                 "analytic-nvm-primitive"
                 if numerics.solver == "nvm"
@@ -565,13 +580,19 @@ def simulate_matched_primitive(
                 else "matched-ASR-generalized-Li-NVM"
                 if numerics.solver == "matched-nvm"
                 else "double-matched-ASR-generalized-Li"
-                if numerics.shell_radial_mapping == "double"
+                if resolved_radial_mapping == "double"
                 else "outer-matched-ASR-FR"
             ),
         }
     )
     result["backend_factorization_scheme"] = pattern_layer_record.options.get(
         "factorization_scheme"
+    )
+    result["minimum_mapping_jacobian"] = pattern_layer_record.options.get(
+        "minimum_mapping_jacobian"
+    )
+    result["effective_radial_slope"] = pattern_layer_record.options.get(
+        "effective_radial_slope"
     )
     return result
 

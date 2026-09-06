@@ -45,6 +45,7 @@ def _check_power(result: dict[str, object]) -> dict[str, object]:
     finite = all(math.isfinite(value) for value in values.values())
     balance = sum(values.values())
     return {
+        **values,
         "finite": finite,
         "balance": balance,
         "balance_error": abs(balance - 1.0),
@@ -52,6 +53,41 @@ def _check_power(result: dict[str, object]) -> dict[str, object]:
         "passed": finite
         and abs(balance - 1.0) <= 1.0e-10
         and not bool(result["passivity_warning"]),
+    }
+
+
+def _outer_map_condition_guard(device: torch.device) -> dict[str, object]:
+    """Ensure the known near-singular Peng outer map fails before eigensolving."""
+
+    simulation = AutoRCWA(
+        freq=0.2,
+        order=[1, 1],
+        lattice=Lattice.square(1.0),
+        outputs=OutputSpec(smatrix_size="quarter", fields="none"),
+        asr=ASROptions(
+            circle_G=1.0e-3,
+            minimum_circle_jacobian=1.0e-8,
+            grid=(256, 256),
+        ),
+        verify_cascade=False,
+        dtype=torch.complex128,
+        device=device,
+    )
+    try:
+        simulation.build_circle_asr_mapping(
+            256, 256, PaperGeometry().outer_radius_um / PaperGeometry().period_um
+        )
+    except RuntimeError as error:
+        message = str(error)
+        return {
+            "rejected": True,
+            "message": message,
+            "passed": "numerically singular" in message,
+        }
+    return {
+        "rejected": False,
+        "message": "The unsafe outer-only map was unexpectedly accepted.",
+        "passed": False,
     }
 
 
@@ -344,7 +380,7 @@ def main() -> int:
         order_y=1,
         grid_x=grid_x,
         grid_y=grid_x,
-        asr_g=1.0e-3,
+        asr_g=3.0e-2,
         cascade="redheffer",
         use_symmetry=False,
     )
@@ -575,20 +611,22 @@ def main() -> int:
         },
         "square_smoke": _check_power(square),
         "square_matched_nvm_factorization": {
-            "finite": all(
-                math.isfinite(float(square_matched_nvm[name]))
-                for name in ("reflectance", "transmittance", "absorptance")
-            ),
+            **_check_power(square_matched_nvm),
             "backend_factorization_scheme": square_matched_nvm.get(
                 "backend_factorization_scheme"
             ),
-            "passed": square_matched_nvm.get("backend_factorization_scheme")
-            == "generalized-li-normal-tangential"
-            and all(
-                math.isfinite(float(square_matched_nvm[name]))
-                for name in ("reflectance", "transmittance", "absorptance")
+            "radial_mapping": square_matched_nvm.get("shell_radial_mapping"),
+            "minimum_mapping_jacobian": square_matched_nvm.get(
+                "minimum_mapping_jacobian"
             ),
+            "passed": _check_power(square_matched_nvm)["passed"]
+            and square_matched_nvm.get("backend_factorization_scheme")
+            == "generalized-li-epsilon+weiss-symmetric-mu"
+            and square_matched_nvm.get("shell_radial_mapping") == "double"
+            and float(square_matched_nvm.get("minimum_mapping_jacobian", 0.0))
+            > 1.0e-8,
         },
+        "outer_map_condition_guard": _outer_map_condition_guard(device),
         "order_convergence_classifier": {
             "result": classifier_result,
             "passed": classifier_result["status"] == "converged",

@@ -40,12 +40,22 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             quadrature_grid = int(quadrature_grid)
         self.asr_quadrature_grid = quadrature_grid
         self.matched_asr_G = float(kwargs.pop("matched_asr_G", 3.0e-2))
+        self.matched_asr_min_jacobian = float(
+            kwargs.pop("matched_asr_min_jacobian", 1.0e-12)
+        )
         if not 0.0 < self.asr_G < 1.0:
             raise ValueError("asr_G must be in (0, 1); the paper uses 0.001.")
         if not 0.0 < self.matched_asr_G < 1.0:
             raise ValueError(
                 "matched_asr_G must be in (0,1); 0.03 corresponds to "
                 "Weiss et al. eta=0.97."
+            )
+        if (
+            not math.isfinite(self.matched_asr_min_jacobian)
+            or self.matched_asr_min_jacobian <= 0.0
+        ):
+            raise ValueError(
+                "matched_asr_min_jacobian must be finite and positive."
             )
         self.lattice_kind = "rectangular"
         super().__init__(freq, order, L, **kwargs)
@@ -510,6 +520,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         mu33: torch.Tensor,
         *,
         factorization_rules: bool,
+        normal_factorize_mu: bool = False,
         factorization_normals: (
             tuple[torch.Tensor, torch.Tensor]
             | tuple[torch.Tensor, torch.Tensor, torch.Tensor]
@@ -530,15 +541,29 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     *factorization_normals,
                 )
             )
-            mu11_m, mu12_m, mu21_m, mu22_m = (
-                self._generalized_li_factorized_transverse_tensor(
-                    mu11,
-                    mu12,
-                    mu21,
-                    mu22,
-                    *factorization_normals,
+            if normal_factorize_mu:
+                mu11_m, mu12_m, mu21_m, mu22_m = (
+                    self._generalized_li_factorized_transverse_tensor(
+                        mu11,
+                        mu12,
+                        mu21,
+                        mu22,
+                        *factorization_normals,
+                    )
                 )
-            )
+            else:
+                # The NV correction belongs to each discontinuous constitutive
+                # product.  For the usual nonmagnetic structures mu has no
+                # material jump (Peng et al., Eqs. 8--10 only modify epsilon);
+                # applying the nonlinear normal/tangential transform to the
+                # coordinate metric as well needlessly squares the conditioning
+                # of a strongly compressed ASR map.  Retain symmetric ASR
+                # factorization for that smooth transformed mu tensor.
+                mu11_m, mu12_m, mu21_m, mu22_m = (
+                    self._symmetric_factorized_transverse_tensor(
+                        mu11, mu12, mu21, mu22
+                    )
+                )
         elif factorization_rules:
             eps11_m, eps12_m, eps21_m, eps22_m = (
                 self._symmetric_factorized_transverse_tensor(
@@ -661,6 +686,11 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         eps_core_t = mu_core_t = None
         if core_shell:
             eps_core_t, mu_core_t = material_values[4:]
+        magnetic_material_jump = not torch.equal(mu_bg_t, mu_cyl_t)
+        if core_shell:
+            magnetic_material_jump = magnetic_material_jump or not torch.equal(
+                mu_core_t, mu_cyl_t
+            )
         radius, radius_value = _real_parameter_tensor(
             "radius",
             radius,
@@ -783,6 +813,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             mu22,
             mu33,
             factorization_rules=factorization_rules,
+            normal_factorize_mu=magnetic_material_jump,
             factorization_normals=factorization_normals,
         )
         transform, transform_z_all = self._build_circle_conversion_matrices(mapping)
@@ -810,6 +841,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 mu22,
                 mu33,
                 factorization_rules=factorization_rules,
+                normal_factorize_mu=magnetic_material_jump,
                 factorization_normals=factorization_normals,
             )
             vector_embedding, _, _, _, _ = self._triangular_star_operators()
@@ -853,6 +885,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 mu22,
                 mu33,
                 factorization_rules=factorization_rules,
+                normal_factorize_mu=magnetic_material_jump,
                 factorization_normals=factorization_normals,
             )
             vector_embedding, _, _, _, _ = self._triangular_star_operators()
@@ -891,6 +924,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     mu22,
                     mu33,
                     factorization_rules=factorization_rules,
+                    normal_factorize_mu=magnetic_material_jump,
                     factorization_normals=factorization_normals,
                 )
                 if triangular
@@ -1035,8 +1069,15 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     "normal_vector_factorization_requested": bool(
                         normal_vector_factorization
                     ),
+                    "magnetic_normal_factorization": bool(
+                        factorization_normals is not None
+                        and magnetic_material_jump
+                    ),
                     "factorization_scheme": (
-                        "generalized-li-normal-tangential"
+                        "generalized-li-epsilon+generalized-li-mu"
+                        if factorization_normals is not None
+                        and magnetic_material_jump
+                        else "generalized-li-epsilon+weiss-symmetric-mu"
                         if factorization_normals is not None
                         else "weiss-symmetric-29-36"
                         if factorization_rules
@@ -1078,8 +1119,6 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     ),
                     "minimum_mapping_jacobian": (
                         _as_float(torch.min(mapping.det_j))
-                        if core_shell and normalized_mapping == "double"
-                        else None
                     ),
                     "map": (
                         "monotone C2 double-matched radial quintic Hermite map"

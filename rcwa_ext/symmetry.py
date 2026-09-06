@@ -1379,6 +1379,7 @@ class _SymmetryReductionMixin:
         mu33: torch.Tensor,
         *,
         factorization_rules: bool,
+        normal_factorize_mu: bool = False,
         factorization_normals: (
             tuple[torch.Tensor, torch.Tensor]
             | tuple[torch.Tensor, torch.Tensor, torch.Tensor]
@@ -1408,13 +1409,15 @@ class _SymmetryReductionMixin:
             value12: torch.Tensor,
             value21: torch.Tensor,
             value22: torch.Tensor,
+            *,
+            use_normal_factorization: bool,
         ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
             if not factorization_rules:
                 return tuple(
                     convolution(value)
                     for value in (value11, value12, value21, value22)
                 )
-            if factorization_normals is not None:
+            if factorization_normals is not None and use_normal_factorization:
                 return self._generalized_li_factorized_transverse_tensor(
                     value11,
                     value12,
@@ -1445,10 +1448,14 @@ class _SymmetryReductionMixin:
             )
 
         eps11_m, eps12_m, eps21_m, eps22_m = transverse(
-            eps11, eps12, eps21, eps22
+            eps11, eps12, eps21, eps22, use_normal_factorization=True
         )
         mu11_m, mu12_m, mu21_m, mu22_m = transverse(
-            mu11, mu12, mu21, mu22
+            mu11,
+            mu12,
+            mu21,
+            mu22,
+            use_normal_factorization=normal_factorize_mu,
         )
         eps33_m = convolution(eps33)
         mu33_m = convolution(mu33)

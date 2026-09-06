@@ -29,7 +29,9 @@
 Cartesian NVM射影行列をmatched-coordinate tensorへ後掛けする二重補正は採用しません。
 代わりに `normal_vector_factorization=True` では、物理円の法線covectorをJacobianで計算空間へ
 pull backし、変換媒質tensor自体へ一般化Li因数分解を一度だけ適用します。Peng 2025再現コードでは
-この方式を `matched-nvm` と呼びます。二重matchedコアシェルも同じ一般化Li原理で扱います。
+この方式を `matched-nvm` と呼びます。NV補正は不連続な誘電率tensorへ適用し、通常の
+非磁性構造の透磁率tensorにはWeiss対称ASR因数分解を使います。二重matchedコアシェルも
+同じ一般化Li原理で扱います。
 native D6-star全体の `A1/A2/B1/B2/E1/E2` 完全isotypic分解は、三角NVMと
 matched-ASRで実装済みです。Redheffer／Li-2a、full／half／quarter公開S、
 `external`／`internal`／`all` の6成分場再構成を組み合わせられます。partial公開Sでも
@@ -70,6 +72,10 @@ Jacobianの折り返しを防ぎ、内外半径Tensorの逆伝播にも対応し
 normal-D/tangential-E因数分解を使います。Cartesian NVMの後掛けは行いません。
 outer-only写像でも `normal_vector_factorization=True` を指定すれば、物理半径法線を
 計算座標へpull backして内外の同心円界面に同じ因数分解を適用できます。
+ただし正のJacobianだけでは十分ではありません。用途別に
+`ASROptions.minimum_circle_jacobian`で安全下限を設定でき、Peng 2025再現コードは
+`min(det J)>1e-8`を要求します。ほぼ接触する大円と強いASRでこれを満たさない場合は、
+`double`写像を使います。
 ASRを用いない独立経路として、`AutoRCWA.add_layer_circle_shell_nvm(...)`も使用できます。
 同心円の内外界面は法線方向を共有するため、一つの半径方向NVM射影と、両半径を含む
 解析的Fourier-Bessel係数で三材料を扱います。

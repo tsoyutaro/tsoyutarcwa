@@ -47,7 +47,7 @@ def core_checks() -> list[dict[str, object]]:
             "name": "double-matched generalized Li factorization",
             "passed": (
                 "def _generalized_li_factorized_transverse_tensor(" in asr
-                and '"generalized-li-normal-tangential"' in asr
+                and '"generalized-li-epsilon+weiss-symmetric-mu"' in asr
                 and "factorization_normals=factorization_normals" in asr
                 and "factorization_rules=factorization_rules" in common
                 and "factorization_rules: bool = True" in common
@@ -221,7 +221,7 @@ def integration_check(device: str) -> dict[str, object]:
         )
         <= 2.0e-9
         and double_result["radial_mapping"] == "double"
-        and "generalized-li-normal-tangential"
+        and "generalized-li-epsilon+weiss-symmetric-mu"
         in double_result["factorization_schemes"]
         and minimum_tip_jacobian > 0.0
         and minimum_tip_slope > 0.0

@@ -566,7 +566,15 @@ A^F=\operatorname{diag}\!\left([1/\varepsilon]^{-1},[\varepsilon]\right)
 
 へ厳密に還元する。したがってCartesian NVMを後掛けせず、matched空間だけで法線D／
 接線Eの境界条件を満たす。二重matched写像では `factorization_rules=True` がこの経路を
-選ぶ。outer-only写像では、物理円のlevel set
+選ぶ。
+
+ここで一般化Li NV補正を適用するのは、物質界面で不連続な誘電率tensorである。通常の
+非磁性構造では物理的な透磁率ジャンプがないため、座標変換で生じる滑らかな
+\(\mu'\) tensorにはWeiss式(29)--(36)の対称ASR因数分解を適用する。Peng et al.の
+NV補正式(8)--(10)も補正項 \(\Delta\) を誘電率側にのみ持つ。これにより強い座標圧縮時に
+同じ非線形NV変換をε・μへ二重適用して条件数を悪化させない。
+
+outer-only写像では、物理円のlevel set
 
 \[
 \phi(x,y)=(x-x_c)^2+(y-y_c)^2
