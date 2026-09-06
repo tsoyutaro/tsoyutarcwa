@@ -238,11 +238,16 @@ python -m paper_reproductions.wang2022_fig8.compare_asr_fr_cartesian_li \
 `convergence_metadata.json` へ保存される。CSVには共通参照値に対する誤差、
 隣接次数間変化、passivity違反量、時間を記録する。
 
-既定の共通参照値は「今回計算した最大次数のASR-FR」であり、厳密解やHFSS値ではない。
+既定の共通参照値は、論文Fig. 8で採用されたASR-FRの `N=M=8` であり、厳密解や
+HFSS値ではない。`--reference-order` で変更できるが、非passiveな行は参照値として
+選ばれない。
 独立参照値がある場合は `--reference-r ... --reference-t ...` を同時に指定する。
 また、Cartesian Li曲線が振動しても、それ自体がこの高コントラスト問題で調べるべき
 収束特性である。非passive点は警告と赤い×で明示され、`--strict-passivity` を指定した
 場合だけ直ちに停止する。
+
+`--resume` では、現在の `--orders` に含まれる行だけをCSV・図・参照値選択へ使用する。
+以前に広い次数範囲を計算したCSVから狭い範囲へ戻しても、範囲外の古い行は混入しない。
 
 ## 6. HFSSデータと「再現」の範囲
 

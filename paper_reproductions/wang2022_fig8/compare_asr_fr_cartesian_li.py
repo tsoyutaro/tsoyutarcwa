@@ -250,8 +250,10 @@ def enrich_convergence(
     rows: list[dict[str, object]],
     *,
     reference_method: str,
+    reference_order: int | None,
     reference_r: float | None,
     reference_t: float | None,
+    passivity_tolerance: float,
 ) -> tuple[list[dict[str, object]], dict[str, object]]:
     numeric_rows = [dict(row) for row in rows]
     for row in numeric_rows:
@@ -267,14 +269,36 @@ def enrich_convergence(
     if (reference_r is None) != (reference_t is None):
         raise ValueError("--reference-r and --reference-t must be supplied together.")
     if reference_r is None:
-        candidates = [row for row in numeric_rows if row["method"] == reference_method]
+        candidates = [
+            row
+            for row in numeric_rows
+            if row["method"] == reference_method
+            and float(row["passivity_violation"]) <= passivity_tolerance
+        ]
         if not candidates:
-            raise ValueError(f"No rows are available for reference method {reference_method}.")
-        source = max(candidates, key=lambda row: int(row["order"]))
+            raise ValueError(
+                f"No passive rows are available for reference method "
+                f"{reference_method}."
+            )
+        requested = [
+            row
+            for row in candidates
+            if reference_order is not None
+            and int(row["order"]) == reference_order
+        ]
+        source = (
+            requested[0]
+            if requested
+            else max(candidates, key=lambda row: int(row["order"]))
+        )
         reference_r = float(source["R_total"])
         reference_t = float(source["T_total"])
         reference = {
-            "kind": "highest-computed-order internal reference",
+            "kind": (
+                "requested passive internal reference"
+                if requested
+                else "highest-computed passive fallback reference"
+            ),
             "method": reference_method,
             "order": int(source["order"]),
             "R_total": reference_r,
@@ -360,7 +384,11 @@ def plot(
     axes[0, 1].axhline(float(reference["T_total"]), color="0.35", linestyle=":", linewidth=1)
     axes[0, 0].set_title("(a) Total reflection")
     axes[0, 1].set_title("(b) Total transmission")
-    axes[1, 0].set_title("(c) max(|ΔR|, |ΔT|) vs common reference")
+    axes[1, 0].set_title(
+        "(c) max(|ΔR|, |ΔT|) vs "
+        f"{reference.get('method') or 'external'} "
+        f"N={reference.get('order') if reference.get('order') is not None else '-'}"
+    )
     axes[1, 1].set_title("(d) Wall time")
     axes[0, 0].set_ylabel("Power fraction")
     axes[0, 1].set_ylabel("Power fraction")
@@ -391,6 +419,16 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     result.add_argument("--dtype", choices=("complex64", "complex128"), default="complex128")
     result.add_argument("--reference-method", choices=METHODS, default="ASR-FR")
+    result.add_argument(
+        "--reference-order",
+        type=int,
+        default=8,
+        help=(
+            "Passive internal reference order (default: the paper's ASR-FR "
+            "N=M=8). If absent from --orders, the highest passive computed "
+            "order is used."
+        ),
+    )
     result.add_argument("--reference-r", type=float)
     result.add_argument("--reference-t", type=float)
     result.add_argument("--passivity-tolerance", type=float, default=5e-5)
@@ -421,6 +459,8 @@ def main(args: argparse.Namespace) -> list[dict[str, object]]:
         raise ValueError(
             "--reference-r and --reference-t must be supplied together."
         )
+    if args.reference_order is not None and args.reference_order < 1:
+        raise ValueError("--reference-order must be positive.")
     device = select_device(args.device)
     dtype = torch.complex128 if args.dtype == "complex128" else torch.complex64
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -432,8 +472,14 @@ def main(args: argparse.Namespace) -> list[dict[str, object]]:
     rows = read_csv(csv_path) if args.resume else []
     if any(row.get("revision") != REVISION for row in rows):
         raise ValueError("Existing CSV has an incompatible numerical revision.")
-    completed = {row_key(row) for row in rows}
     cases = [(method, order) for method in METHODS for order in orders]
+    requested_keys = {
+        case_key(method, order, args) for method, order in cases
+    }
+    # A narrowed resumed sweep must not inherit stale rows (and especially an
+    # unstable high-order row) from an earlier, wider --orders selection.
+    rows = [row for row in rows if row_key(row) in requested_keys]
+    completed = {row_key(row) for row in rows}
     for index, (method, order) in enumerate(cases, start=1):
         key = case_key(method, order, args)
         if key in completed:
@@ -464,8 +510,10 @@ def main(args: argparse.Namespace) -> list[dict[str, object]]:
         temporary_rows, _temporary_reference = enrich_convergence(
             rows,
             reference_method=args.reference_method,
+            reference_order=args.reference_order,
             reference_r=args.reference_r,
             reference_t=args.reference_t,
+            passivity_tolerance=args.passivity_tolerance,
         )
         write_csv(temporary_rows, csv_path)
         rows = temporary_rows
@@ -478,8 +526,10 @@ def main(args: argparse.Namespace) -> list[dict[str, object]]:
     rows, reference = enrich_convergence(
         rows,
         reference_method=args.reference_method,
+        reference_order=args.reference_order,
         reference_r=args.reference_r,
         reference_t=args.reference_t,
+        passivity_tolerance=args.passivity_tolerance,
     )
     write_csv(rows, csv_path)
     metadata = {
@@ -508,9 +558,11 @@ def main(args: argparse.Namespace) -> list[dict[str, object]]:
         },
         "reference": reference,
         "reference_warning": (
-            "The default highest-order ASR-FR row is an internal comparison "
-            "reference, not HFSS or an exact solution. Supply --reference-r "
-            "and --reference-t when independent data are available."
+            "The default ASR-FR N=M=8 row follows the paper's Fig. 8 setting "
+            "but remains an internal comparison reference, not HFSS or an "
+            "exact solution. Non-passive rows are never selected as a "
+            "reference. Supply --reference-r and --reference-t when "
+            "independent data are available."
         ),
         "orders": orders,
         "grid": args.grid,

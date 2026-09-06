@@ -252,8 +252,12 @@ def _static_checks(package_root: Path, outputs_root: Path) -> list[Check]:
         comparison.exists()
         and 'METHODS = ("ASR-FR", "Cartesian-Li")' in comparison_source
         and 'default=6.0' in comparison_source
+        and 'default=8' in comparison_source
+        and 'float(row["passivity_violation"]) <= passivity_tolerance'
+        in comparison_source
+        and 'row_key(row) in requested_keys' in comparison_source
         and 'simulation.add_layer_rect_li(' in comparison_source,
-        "same Fig. 8 geometry at the Fig. 9 frequency; no sampled NV field",
+        "same Fig. 8 geometry; passive N=8 reference; resumed rows are scoped",
     )
     cartesian_li_tokens = (
         "_centered_interval_toeplitz",
