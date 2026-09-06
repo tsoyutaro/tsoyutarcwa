@@ -29,6 +29,22 @@ from __future__ import annotations
 import argparse
 import math
 from pathlib import Path
+import os
+NUM_THREADS = os.environ.get("TARCWA_NUM_THREADS", "1")
+
+for _name in (
+    "OMP_NUM_THREADS",
+    "OMP_THREAD_LIMIT",
+    "MKL_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "BLIS_NUM_THREADS",
+    "NUMBA_NUM_THREADS",
+):
+    os.environ[_name] = NUM_THREADS
+
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 import matplotlib
 

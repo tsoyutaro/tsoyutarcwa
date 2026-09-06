@@ -1,6 +1,6 @@
 {
-  "passed": true,
-  "device": "cpu",
+  "passed": false,
+  "device": "cuda",
   "checks": {
     "geometry_and_material_defaults": {
       "passed": true
@@ -29,6 +29,25 @@
       "passivity_warning": false,
       "passed": true
     },
+    "core_shell_nvm_coefficients": {
+      "single_disk_limiting_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    "square_core_shell_nvm_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
+    "square_finite_pi_core_shell_nvm_smoke": {
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true
+    },
     "triangular_smoke": {
       "finite": true,
       "balance": 1.0,
@@ -38,12 +57,12 @@
     },
     "double_matched_geometry": {
       "maximum_interface_radius_error": {
-        "square": 2.7755575615628914e-17,
-        "triangular": 2.7755575615628914e-17
+        "square": 2.220446049250313e-16,
+        "triangular": 2.220446049250313e-16
       },
       "minimum_jacobian": {
         "square": 0.028740469170808025,
-        "triangular": 0.02598076211351219
+        "triangular": 0.030956044959826456
       },
       "fixed_interface_masks": {
         "square": true,
@@ -52,18 +71,18 @@
       "passed": true
     },
     "double_matched_radius_gradient": {
-      "objective": 28.53698926599757,
+      "objective": 623.3434198626319,
       "autograd": {
-        "core_radius": -141.51502275360696,
-        "outer_radius": 364.62001243920355
+        "core_radius": 46520.61207022919,
+        "outer_radius": -53863.11546469284
       },
       "finite_difference": {
-        "core_radius": -141.5150205261284,
-        "outer_radius": 364.6200168956781
+        "core_radius": 46520.63379168112,
+        "outer_radius": -53863.14183954254
       },
       "scaled_errors": {
-        "core_radius": 1.5740226748786932e-08,
-        "outer_radius": 1.2222243216407311e-08
+        "core_radius": 4.6692080821954657e-07,
+        "outer_radius": 4.896641525367086e-07
       },
       "passed": true
     },
@@ -82,7 +101,7 @@
       "passed": true
     },
     "double_matched_redheffer_vs_algo2a": {
-      "maximum_RTA_difference": 6.661338147750939e-16,
+      "maximum_RTA_difference": 7.589415207398531e-19,
       "passed": true
     },
     "triangular_double_matched_smoke": {
@@ -94,10 +113,10 @@
     },
     "triangular_double_matched_d6_smoke": {
       "finite": true,
-      "balance": 1.0,
-      "balance_error": 0.0,
-      "passivity_warning": false,
-      "passed": true
+      "balance": 0.9999999999999999,
+      "balance_error": 1.1102230246251565e-16,
+      "passivity_warning": true,
+      "passed": false
     },
     "triangular_d6_smoke": {
       "finite": true,
@@ -121,7 +140,7 @@
       "passed": true
     },
     "d6_vs_rectangular_truncation_diagnostic": {
-      "maximum_RTA_difference": 0.3266780295509703,
+      "maximum_RTA_difference": 0.3266780295511194,
       "basis_note": "At equal index N=4 the D6 path uses a closed native star, whereas the unreduced path uses a rectangular box. Exact parity is not expected before separate basis convergence.",
       "passed": true
     },
@@ -133,11 +152,11 @@
       "passed": true
     },
     "raster_lattice_equivalence": {
-      "maximum_RTA_difference": 0.0008286124103622505,
+      "maximum_RTA_difference": 0.0008286124103631387,
       "passed": true
     },
     "forbidden_folded_orders": {
-      "R_plus_T": 9.991550173259965e-37,
+      "R_plus_T": 2.3706181092460575e-36,
       "passed": true
     }
   },
