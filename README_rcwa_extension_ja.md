@@ -225,19 +225,25 @@ group_theory=GroupTheoryOptions(
 
 ## 円形matched-ASRとNVMの関係
 
-円形ASRはすでに実装済みです。ただし、NVM行列へASR行列を後から掛ける `ASR+NVM` 混成ではなく、円境界へ座標線を一致させた独立の **matched-coordinate ASR-FR** バックエンドです。APIでは `method="matched-asr"` を使います。
+円形ASRはすでに実装済みです。円境界へ座標線を一致させた **matched-coordinate ASR-FR**
+に加え、ASR変換後の媒質tensorへ一般化Li normal-vector因数分解を適用できます。
+APIでは `method="matched-asr"` を使い、後者は円層追加時に
+`normal_vector_factorization=True` を指定します。
 
 - 直交格子: Weiss型の円境界matched mapとseparable ASR stretchを組み合わせます。
 - 60°三角格子: Wigner–Seitz六角形を円へ写すD6-equivariant周期Hermite mapを使い、斜交基底の計量と周期境界を同時に扱います。
 - 両格子: Jacobianから変換媒質 `epsilon'`, `mu'` を作り、Fourier factorization後の `(P,Q)` を解き、一般変換 `(T,T_z)` で通常のCartesian S行列へ接続します。
 - コアシェル: `add_layer_circle_shell_asr(..., radial_mapping="outer"|"double")` を選べます。`double` は計算空間の固定支持曲線を内外円へ写す単調性保証付き半径方向C2 quintic-Hermite写像で、両半径のautogradを保持します。界面勾配は全区間・全方向の最小割線勾配以下へ制限し、中心・周期境界の勾配は単調範囲内で大きくして過圧縮を避けます。
 - 二重matched写像: level-set法線と計算格子計量から法線projectorを作り、連続な接線E／法線Dに一般化Li因数分解を適用します。`factorization_rules=False`の場合だけ比較用の直接Fourier畳み込みを使います。
+- outer-only ASR-NV: 物理円の半径法線を `d(phi o F)=J^T d(phi)` で計算座標へpull backし、同心コア・シェルの両界面へ同じ一般化Li因数分解を適用します。
 - NVM: 円板の誘電率Toeplitz行列をFourier–Bessel式で解析的に作り、normal-vector projectionを使う独立バックエンドです。
 
-したがって、現在は `nvm` と `matched-asr` の2経路を独立に選択・比較できます。
+したがって、現在は解析 `nvm`、`matched-asr` 単独、`matched-asr` + generalized Li NVの
+3経路を選択・比較できます。
 Cartesian NVM射影行列をmatched-coordinate tensorへ後掛けする二重補正は採用しません。
-単一円はWeiss対称因数分解、二重matchedコアシェルは一般化Li因数分解により、
-matched空間内だけで境界条件を処理します。
+単一円/outer-onlyコアシェルは既定ではWeiss対称因数分解、NV optionではpull-back法線の
+一般化Li因数分解、二重matchedコアシェルは一般化Li因数分解により、matched空間内だけで
+境界条件を処理します。
 
 matched-ASRの適用条件は、セル中心の単一円または同心コアシェル、非接触条件
 `2*outer_radius < period`、固定トポロジーです。真の接触極限や内外半径の一致極限では
@@ -379,8 +385,9 @@ Ag背景／空気環状開口／Ag中心粒子、PI `epsilon=3.5+0.009i`、1–3
 扱う正方格子コードと、三角格子primitiveを厳密に等価な直交二サイト・スーパーセルと
 比較するコードを `paper_reproductions/peng2025/` にまとめました。
 
-正方格子の既定計算は、両円のFourier係数を解析的に構成し、共通の半径方向法線場を
-用いる同心コアシェルNVMです。matched-ASRも比較用に選択できます。論文で数値が
+正方格子の既定計算は、matched-coordinate ASRの後にpull-back円法線による一般化Li
+NV因数分解を適用する `matched-nvm` です。解析Fourier同心コアシェルNVMと、NVなしの
+matched-ASRも比較用に選択できます。論文で数値が
 示されないPI厚`h2`は、半無限PIを既定とし、有限PI/空気条件もCLIで選択できます。
 
 ```bash

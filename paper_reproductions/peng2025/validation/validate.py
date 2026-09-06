@@ -19,6 +19,7 @@ from paper_reproductions.peng2025.common import (
     Numerics,
     PaperGeometry,
     SilverDrude,
+    assess_order_convergence,
     annular_aperture_fill_fraction,
     rectangular_supercell_grid_y,
     rectangular_supercell_material,
@@ -369,6 +370,20 @@ def main() -> int:
         ),
         device=device,
     )
+    square_matched_nvm = simulate_matched_primitive(
+        1.95,
+        lattice_kind="square",
+        geometry=geometry,
+        drude=drude,
+        numerics=Numerics(
+            order_x=1,
+            order_y=1,
+            grid_x=48,
+            grid_y=48,
+            solver="matched-nvm",
+        ),
+        device=device,
+    )
     square_finite_pi_nvm = simulate_matched_primitive(
         1.95,
         lattice_kind="square",
@@ -523,6 +538,18 @@ def main() -> int:
         abs(float(square_double[name]) - float(square_double_algo2a[name]))
         for name in ("reflectance", "transmittance", "absorptance")
     )
+    classifier_result = assess_order_convergence(
+        [
+            {
+                "order_x": order,
+                "reflectance": 0.100 + 0.0002 * order,
+                "transmittance": 0.800 - 0.0002 * order,
+                "absorptance": 0.100,
+                "passivity_warning": False,
+            }
+            for order in (20, 22, 24)
+        ]
+    )
     checks = {
         "geometry_and_material_defaults": {
             "passed": geometry.period_um == 62.0
@@ -547,6 +574,25 @@ def main() -> int:
             "passed": fill_error < 2.0e-2,
         },
         "square_smoke": _check_power(square),
+        "square_matched_nvm_factorization": {
+            "finite": all(
+                math.isfinite(float(square_matched_nvm[name]))
+                for name in ("reflectance", "transmittance", "absorptance")
+            ),
+            "backend_factorization_scheme": square_matched_nvm.get(
+                "backend_factorization_scheme"
+            ),
+            "passed": square_matched_nvm.get("backend_factorization_scheme")
+            == "generalized-li-normal-tangential"
+            and all(
+                math.isfinite(float(square_matched_nvm[name]))
+                for name in ("reflectance", "transmittance", "absorptance")
+            ),
+        },
+        "order_convergence_classifier": {
+            "result": classifier_result,
+            "passed": classifier_result["status"] == "converged",
+        },
         "core_shell_nvm_coefficients": _core_shell_nvm_coefficients(device),
         "square_core_shell_nvm_smoke": _check_power(square_nvm),
         "square_finite_pi_core_shell_nvm_smoke": _check_power(

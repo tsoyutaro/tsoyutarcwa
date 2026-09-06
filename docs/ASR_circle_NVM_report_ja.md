@@ -321,8 +321,10 @@ B=P_t+P_nC,\qquad C=gA
 - 対応：D6-closed native star全体を `A1,A2,B1,B2,E1,E2` の6 isotypic blockへ分ける完全D6分解。三角NVM／matched-ASR、Redheffer／Li-2a、full／half／quarter S行列に対応する。元の矩形Fourier集合そのものはD6で閉じないため、そのcorner harmonicを含む集合の完全D6分解は数学的に行わない。
 - 対応：完全D6経路の内部・外部6成分電磁場、前方・後方入射、Redheffer／Li-2a。partial公開Sの場合も場用full Sとmodal couplingを内部保存する。
 - 対応：完全D6 E1 source-row経路の内部・外部場、Redheffer／Li-2a、full／half／quarter公開S。
-- 非採用：既存Cartesian NVM射影行列とmatched-coordinate tensorを二重適用する
-  `matched-nvm`。単一円はWeiss対称因数分解、二重matchedコアシェルは一般化Li
-  normal-D/tangential-E因数分解によりmatched空間内で完結するため、二重補正は行わない。
+- 対応：outer-only matched写像でも、物理円法線を (d(\phi\circ F)=J^T d\phi) で
+  計算空間へpull backし、変換媒質tensorへ一般化Li normal-D/tangential-E因数分解を
+  適用できる。Peng 2025再現コードではこのASR-then-NV経路を `matched-nvm` と呼ぶ。
+- 非採用：既存Cartesian NVM射影行列をmatched-coordinate tensorへ後から掛ける二重補正。
+  採用した `matched-nvm` はmatched空間内で因数分解を一度だけ行うため、これとは異なる。
 
 したがって、直交格子と三角格子の円形matched-ASR、一般2次元 \((T,T_z)\) による通常S行列への接続、ならびに直交・三角・一般斜交円形NVMのsource-accessible x/y短縮は達成済みである。三角格子では矩形用分離写像を流用せず、斜交周期境界とD6対称性に適合する別の写像を導入している。詳細な三角写像・群論・検証結果は `triangular_matched_asr_math_report_ja.md`、`triangular_nvm_polarization_report_ja.md`、`rcwa_modular_math_guide_ja.md` を参照すること。

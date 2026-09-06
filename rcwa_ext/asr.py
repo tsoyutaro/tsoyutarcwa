@@ -194,6 +194,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         tensor22: torch.Tensor,
         normal_u: torch.Tensor,
         normal_v: torch.Tensor,
+        normal_weight: torch.Tensor | None = None,
         *,
         convolution=None,
         harmonic_count: int | None = None,
@@ -253,6 +254,21 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         p12 = (n1 * n_sharp_2 * inverse_normal_squared).to(dtype)
         p21 = (n2 * n_sharp_1 * inverse_normal_squared).to(dtype)
         p22 = (n2 * n_sharp_2 * inverse_normal_squared).to(dtype)
+        if normal_weight is not None:
+            if normal_weight.shape != tensor11.shape:
+                raise ValueError(
+                    "Generalized Li normal weight must match the tensor sampling shape."
+                )
+            weight = torch.clamp(normal_weight.to(real_dtype), 0.0, 1.0).to(dtype)
+            # The normal extension is arbitrary away from material interfaces.
+            # Blend to the isotropic trace-one projector at the circle centre
+            # and periodic Voronoi seams.  The physical boundaries retain
+            # weight=1 and are therefore unchanged.
+            half = torch.as_tensor(0.5, dtype=dtype, device=self._device)
+            p11 = half + weight * (p11 - half)
+            p12 = weight * p12
+            p21 = weight * p21
+            p22 = half + weight * (p22 - half)
 
         # C=g A for g=[[1,cos(zeta)],[cos(zeta),1]].
         c11 = tensor11 + cosine * tensor21
@@ -325,6 +341,76 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         a21 = inverse_metric * (ce21 - cosine * ce11)
         a22 = inverse_metric * (ce22 - cosine * ce12)
         return a11, a12, a21, a22
+
+    def _pulled_back_circle_normal(
+        self,
+        mapping: CircleASRMapping,
+        taper_radius,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Return the physical radial normal as a computational covector.
+
+        If ``F(u,v)=(x,y)`` is the matched-coordinate map and
+        ``phi=(x-xc)^2+(y-yc)^2``, the material-interface covector in the
+        computational coordinates is
+
+            d(phi o F) = (phi_x x_u + phi_y y_u) du
+                       + (phi_x x_v + phi_y y_v) dv.
+
+        Both interfaces of a concentric core-shell circle are level sets of
+        the same ``phi`` and therefore share this normal field.  The nearest
+        periodic image is selected so that the extension is periodic.  Its
+        scale is immaterial because the generalized Li projector normalizes
+        the covector pointwise.
+        """
+
+        lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
+        cosine = float(getattr(self, "cos_zeta", 0.0))
+        sine = float(getattr(self, "sin_zeta", 1.0))
+        center_x = 0.5 * (lx + cosine * ly)
+        center_y = 0.5 * sine * ly
+        dx_candidates: list[torch.Tensor] = []
+        dy_candidates: list[torch.Tensor] = []
+        distance_candidates: list[torch.Tensor] = []
+        for shift_i in (-1, 0, 1):
+            for shift_j in (-1, 0, 1):
+                image_x = center_x + shift_i * lx + shift_j * cosine * ly
+                image_y = center_y + shift_j * sine * ly
+                dx = mapping.x - image_x
+                dy = mapping.y - image_y
+                dx_candidates.append(dx)
+                dy_candidates.append(dy)
+                distance_candidates.append(dx**2 + dy**2)
+        two_smallest, indices = torch.topk(
+            torch.stack(distance_candidates, dim=0),
+            k=2,
+            dim=0,
+            largest=False,
+        )
+        nearest = indices[:1]
+        dx = torch.gather(torch.stack(dx_candidates, dim=0), 0, nearest)[0]
+        dy = torch.gather(torch.stack(dy_candidates, dim=0), 0, nearest)[0]
+        normal_u = dx * mapping.x_u + dy * mapping.y_u
+        normal_v = dx * mapping.x_v + dy * mapping.y_v
+        radius_nearest = torch.sqrt(torch.clamp(two_smallest[0], min=0.0))
+        radius_second = torch.sqrt(torch.clamp(two_smallest[1], min=0.0))
+        real_dtype = mapping.x.real.dtype
+        taper = torch.as_tensor(
+            taper_radius, dtype=real_dtype, device=self._device
+        )
+        resolution = torch.as_tensor(
+            max(lx / mapping.x.shape[0], ly / mapping.x.shape[1]),
+            dtype=real_dtype,
+            device=self._device,
+        )
+
+        def smoothstep(value: torch.Tensor, upper: torch.Tensor) -> torch.Tensor:
+            parameter = torch.clamp(value / upper, 0.0, 1.0)
+            return parameter**2 * (3.0 - 2.0 * parameter)
+
+        center_width = torch.maximum(0.5 * taper, resolution)
+        center_weight = smoothstep(radius_nearest, center_width)
+        seam_weight = smoothstep(radius_second - radius_nearest, 3.0 * resolution)
+        return normal_u, normal_v, center_weight * seam_weight
 
     def _build_circle_conversion_matrices(
         self, mapping: CircleASRMapping
@@ -424,7 +510,11 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         mu33: torch.Tensor,
         *,
         factorization_rules: bool,
-        factorization_normals: tuple[torch.Tensor, torch.Tensor] | None = None,
+        factorization_normals: (
+            tuple[torch.Tensor, torch.Tensor]
+            | tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+            | None
+        ) = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         eps33_conv = self._material_conv(eps33)
         mu33_conv = self._material_conv(mu33)
@@ -510,6 +600,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         nx: int = 256,
         ny: int = 256,
         factorization_rules: bool = True,
+        normal_vector_factorization: bool = False,
     ) -> None:
         """Add a centered circular layer by matched-coordinate ASR-FR.
 
@@ -545,6 +636,11 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         if not core_shell and normalized_mapping != "outer":
             raise ValueError("radial_mapping='double' requires a core-shell circle.")
         requested_factorization_rules = bool(factorization_rules)
+        if normal_vector_factorization and not requested_factorization_rules:
+            raise ValueError(
+                "normal_vector_factorization=True requires "
+                "factorization_rules=True."
+            )
         if (core_radius is None) != (eps_core is None):
             raise ValueError(
                 "core_radius and eps_core must be supplied together for a "
@@ -665,6 +761,15 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             factorization_normals = (
                 mapping.interface_normal_u,
                 mapping.interface_normal_v,
+            )
+        elif normal_vector_factorization and factorization_rules:
+            # The outer-only map aligns only the outer boundary.  Pulling the
+            # physical radial normal back through the full 2-D Jacobian gives
+            # the correct normal for both the matched outer circle and the
+            # sampled concentric inner circle.  This is the ASR-then-NV route;
+            # it is not a post-truncation multiplication by a Cartesian NVM.
+            factorization_normals = self._pulled_back_circle_normal(
+                mapping, core_radius if core_shell else radius
             )
         p, q, eps33_conv, mu33_conv = self._build_circle_asr_pq(
             eps11,
@@ -927,6 +1032,9 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     "asr_G": self.matched_asr_G,
                     "factorization_rules_requested": requested_factorization_rules,
                     "factorization_rules": factorization_rules,
+                    "normal_vector_factorization_requested": bool(
+                        normal_vector_factorization
+                    ),
                     "factorization_scheme": (
                         "generalized-li-normal-tangential"
                         if factorization_normals is not None
@@ -1012,6 +1120,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         nx: int = 256,
         ny: int = 256,
         factorization_rules: bool = True,
+        normal_vector_factorization: bool = False,
     ) -> None:
         """Add a concentric core-shell circle with selectable radial matching.
 
@@ -1023,6 +1132,9 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         through the map and its Jacobian.  With ``factorization_rules=True``,
         the double map uses generalized Li normal-D/tangential-E tensor
         factorization; it does not multiply by a Cartesian NVM projector.
+        With the outer-only map, ``normal_vector_factorization=True`` pulls
+        the physical radial normal back through the matched map and applies
+        the same generalized Li factorization to both concentric interfaces.
         Fourier-order and grid convergence are required for either choice.
         """
         self.add_layer_circle_asr(
@@ -1039,6 +1151,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             nx=nx,
             ny=ny,
             factorization_rules=factorization_rules,
+            normal_vector_factorization=normal_vector_factorization,
         )
 
     def _factorized_bttb(

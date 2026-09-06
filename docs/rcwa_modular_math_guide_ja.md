@@ -565,8 +565,23 @@ A^F=\operatorname{diag}\!\left([1/\varepsilon]^{-1},[\varepsilon]\right)
 \]
 
 へ厳密に還元する。したがってCartesian NVMを後掛けせず、matched空間だけで法線D／
-接線Eの境界条件を満たす。`factorization_rules=True` がこの経路、`False` が比較用の
-直接Laurent畳み込みである。
+接線Eの境界条件を満たす。二重matched写像では `factorization_rules=True` がこの経路を
+選ぶ。outer-only写像では、物理円のlevel set
+
+\[
+\phi(x,y)=(x-x_c)^2+(y-y_c)^2
+\]
+
+の法線を
+
+\[
+d(\phi\circ F)=J^T d\phi
+\]
+
+で計算空間へpull backし、`normal_vector_factorization=True` のとき同じ一般化Li式へ渡す。
+同心コアシェルでは内外界面が同じ半径方向法線を共有するため一つの周期法線場でよい。
+この方式はASR後の変換媒質へ因数分解を一度だけ行い、Cartesian NVMを後掛けしない。
+`factorization_rules=False` は比較用の直接Laurent畳み込みである。
 
 三角格子の完全D6では、各Toeplitz行列をnative starへ制限した後に
 ([B^{-1}]_star) を逆行列化する。矩形基底で逆則を適用してからstarを切り出さないため、

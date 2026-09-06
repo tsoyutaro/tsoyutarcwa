@@ -57,6 +57,7 @@ class AutoRCWA(CustomRCWA_NVM):
     _generalized_li_factorized_transverse_tensor = (
         CustomRCWA_ASR_FR._generalized_li_factorized_transverse_tensor
     )
+    _pulled_back_circle_normal = CustomRCWA_ASR_FR._pulled_back_circle_normal
     _build_circle_conversion_matrices = (
         CustomRCWA_ASR_FR._build_circle_conversion_matrices
     )

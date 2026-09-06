@@ -1379,7 +1379,11 @@ class _SymmetryReductionMixin:
         mu33: torch.Tensor,
         *,
         factorization_rules: bool,
-        factorization_normals: tuple[torch.Tensor, torch.Tensor] | None = None,
+        factorization_normals: (
+            tuple[torch.Tensor, torch.Tensor]
+            | tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+            | None
+        ) = None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Assemble P,Q directly on a D6-closed reciprocal-lattice star.
 

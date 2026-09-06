@@ -55,6 +55,22 @@
   "cascade": "redheffer",
   "use_symmetry": false,
   "passivity_warning_count": 3,
+  "convergence_assessment": {
+    "status": "provisional_small_passivity_error",
+    "window": 3,
+    "orders": [23, 24, 26],
+    "observable_spans": {
+      "reflectance": 0.0013937893140052587,
+      "transmittance": 0.0056181223169924355,
+      "absorptance": 0.006644653319546112
+    },
+    "tolerance": 0.01,
+    "strict_passivity": false,
+    "maximum_passivity_violation": 0.0013814437988443062,
+    "relaxed_passivity_tolerance": 0.002,
+    "recommended_next_orders": [28, 30],
+    "recommended_action": "Extend the order sweep and require a passive final window before using the result as a reference spectrum."
+  },
   "figure_written": true,
   "paper_comparison": {
     "figure": "Fig. 2(c,d)",

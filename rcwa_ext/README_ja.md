@@ -21,12 +21,15 @@
 |---|---|---|---|
 | `nvm` | 対応 | 対応 | 直交C2v、三角D6-star/Csまたは完全D6 E1-row |
 | `matched-asr` | 対応 | 対応 | 直交C2v、三角D6-star/Csまたは完全D6 E1-row |
+| `matched-asr` + generalized Li NV | 対応 | 対応 | matched-ASRと同じ短縮を利用可能 |
 | `standard` hard raster | 固定半径のみ | 固定半径のみ | 非対応 |
 
 三角NVMとmatched-ASRのx/y短縮は実装済みです。一般斜交格子ではx/yを異なるsectorへ
 分けられませんが、両者が共有するC2 source sectorだけを解く短縮に対応します。
-NVM射影行列とmatched-coordinate tensorを二重適用する `matched-nvm` は、有限Toeplitz
-空間で二重補正になるため採用しません。二重matchedコアシェルは一般化Li因数分解で扱います。
+Cartesian NVM射影行列をmatched-coordinate tensorへ後掛けする二重補正は採用しません。
+代わりに `normal_vector_factorization=True` では、物理円の法線covectorをJacobianで計算空間へ
+pull backし、変換媒質tensor自体へ一般化Li因数分解を一度だけ適用します。Peng 2025再現コードでは
+この方式を `matched-nvm` と呼びます。二重matchedコアシェルも同じ一般化Li原理で扱います。
 native D6-star全体の `A1/A2/B1/B2/E1/E2` 完全isotypic分解は、三角NVMと
 matched-ASRで実装済みです。Redheffer／Li-2a、full／half／quarter公開S、
 `external`／`internal`／`all` の6成分場再構成を組み合わせられます。partial公開Sでも
@@ -65,6 +68,8 @@ PMMAコアへ金薄膜を被覆する同心三材料層は
 Jacobianの折り返しを防ぎ、内外半径Tensorの逆伝播にも対応します。二重写像では
 逐次u/v factorizationを流用せず、level-set法線を用いる一般化Li
 normal-D/tangential-E因数分解を使います。Cartesian NVMの後掛けは行いません。
+outer-only写像でも `normal_vector_factorization=True` を指定すれば、物理半径法線を
+計算座標へpull backして内外の同心円界面に同じ因数分解を適用できます。
 ASRを用いない独立経路として、`AutoRCWA.add_layer_circle_shell_nvm(...)`も使用できます。
 同心円の内外界面は法線方向を共有するため、一つの半径方向NVM射影と、両半径を含む
 解析的Fourier-Bessel係数で三材料を扱います。

@@ -3,9 +3,10 @@
 The paper's stated dimensions are used: p=62 um, R=30 um, r=14 um, and
 Ag thickness=1 um.  The selected material interpretation is air in the
 annular aperture and PI with epsilon_PI=3.5+0.009j.  Incidence is normal
-x/TM over 1--3 THz.  An analytic concentric NVM solver is the default
-independent convergence route; the project's matched-ASR solver remains
-selectable.  The missing Ag Drude constants and MI substrate thickness are
+x/TM over 1--3 THz.  The default solver applies generalized normal-vector Li
+factorization after the matched-coordinate transform; analytic concentric NVM
+and ASR without the curved-interface normal factorization remain selectable.
+The missing Ag Drude constants and MI substrate thickness are
 documented in the generated metadata rather than silently presented as paper
 values.
 
@@ -56,6 +57,7 @@ if __package__:
         PaperGeometry,
         SilverDrude,
         Numerics,
+        assess_order_convergence,
         numpy_column,
         parse_float_list,
         parse_int_list,
@@ -69,6 +71,7 @@ else:
         PaperGeometry,
         SilverDrude,
         Numerics,
+        assess_order_convergence,
         numpy_column,
         parse_float_list,
         parse_int_list,
@@ -103,11 +106,12 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--asr-g", type=float, default=1.0e-3)
     parser.add_argument(
         "--solver",
-        choices=("nvm", "matched-asr"),
-        default="nvm",
+        choices=("matched-nvm", "nvm", "matched-asr"),
+        default="matched-nvm",
         help=(
-            "nvm uses analytic Fourier coefficients for both concentric "
-            "interfaces; matched-asr retains the coordinate-mapped backend."
+            "matched-nvm applies the normal-vector Li rule after ASR; nvm is "
+            "the independent analytic-Fourier route; matched-asr omits the "
+            "curved-interface normal factorization."
         ),
     )
     parser.add_argument(
@@ -137,7 +141,9 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--silver-plasma-rad-s", type=float, default=1.37e16)
     parser.add_argument("--silver-collision-rad-s", type=float, default=2.73e13)
     parser.add_argument(
-        "--output-dir", type=Path, default=_PACKAGE_ROOT / "results" / "square"
+        "--output-dir",
+        type=Path,
+        help="Output directory. By default each solver/study gets its own directory.",
     )
     parser.add_argument("--no-plot", action="store_true")
     parser.add_argument(
@@ -149,6 +155,24 @@ def _parser() -> argparse.ArgumentParser:
         "--allow-nonpassive",
         action="store_true",
         help="Write a diagnostic plot even if a finite-order result violates passivity.",
+    )
+    parser.add_argument(
+        "--convergence-window",
+        type=int,
+        default=3,
+        help="Number of final orders used by the convergence classifier.",
+    )
+    parser.add_argument(
+        "--convergence-tolerance",
+        type=float,
+        default=1.0e-2,
+        help="Maximum R/T/A span in the final convergence window.",
+    )
+    parser.add_argument(
+        "--relaxed-passivity-tolerance",
+        type=float,
+        default=2.0e-3,
+        help="Largest residual passivity error allowed for provisional status.",
     )
     parser.add_argument("--show", action="store_true")
     return parser
@@ -253,11 +277,28 @@ def _plot(
 def main() -> int:
     args = _parser().parse_args()
     frequencies, orders, grid = _study_values(args)
+    output_dir = args.output_dir
+    if output_dir is None:
+        solver_tag = args.solver
+        if args.solver.startswith("matched-"):
+            solver_tag = f"{solver_tag}_{args.radial_mapping}"
+        output_dir = _PACKAGE_ROOT / "results" / f"square_{solver_tag}_{args.study}"
     if args.study == "convergence" and len(frequencies) != 1:
         raise ValueError("Convergence study accepts exactly one frequency.")
     if args.solver == "nvm" and args.radial_mapping != "outer":
-        raise ValueError("--radial-mapping applies only to --solver matched-asr.")
+        raise ValueError(
+            "--radial-mapping applies only to --solver matched-asr/matched-nvm."
+        )
     geometry = PaperGeometry(pi_thickness_um=args.pi_thickness_um)
+    print(
+        "REPRODUCTION ASSUMPTION: the article does not report the Ag Drude "
+        "constants or a numerical Fig. 2 PI thickness h2. "
+        + (
+            "Using a semi-infinite PI output."
+            if args.pi_thickness_um is None
+            else f"Using the requested finite PI thickness {args.pi_thickness_um:g} um."
+        )
+    )
     drude = SilverDrude(
         epsilon_infinity=args.silver_eps_infinity,
         plasma_rad_s=args.silver_plasma_rad_s,
@@ -300,7 +341,7 @@ def main() -> int:
             f"time={float(result['runtime_seconds']):.2f} s"
         )
         # Preserve completed points in long sweeps.
-        write_rows(rows, args.output_dir / "square_mi.csv")
+        write_rows(rows, output_dir / "square_mi.csv")
 
     nonpassive = [row for row in rows if bool(row["passivity_warning"])]
     if nonpassive:
@@ -309,19 +350,32 @@ def main() -> int:
             f"{len(nonpassive)}/{len(rows)} rows triggered the passivity diagnostic."
         )
     convergence_diagnostic = args.study == "convergence"
+    convergence_assessment = None
+    if convergence_diagnostic:
+        convergence_assessment = assess_order_convergence(
+            rows,
+            window=args.convergence_window,
+            tolerance=args.convergence_tolerance,
+            relaxed_passivity_tolerance=args.relaxed_passivity_tolerance,
+        )
+        print(
+            "convergence status: "
+            f"{convergence_assessment['status']} "
+            f"(tail orders={convergence_assessment.get('orders', [])})"
+        )
     figure_allowed = (
         not nonpassive or args.allow_nonpassive or convergence_diagnostic
     )
     if not args.no_plot and figure_allowed:
         _plot(
             rows,
-            args.output_dir / "square_mi.png",
+            output_dir / "square_mi.png",
             args.study,
             args.show,
             plot_all=args.plot_all,
         )
     write_metadata(
-        args.output_dir / "square_mi_metadata.json",
+        output_dir / "square_mi_metadata.json",
         geometry=geometry,
         drude=drude,
         payload={
@@ -336,6 +390,7 @@ def main() -> int:
             "cascade": args.cascade,
             "use_symmetry": args.use_symmetry,
             "passivity_warning_count": len(nonpassive),
+            "convergence_assessment": convergence_assessment,
             "figure_written": bool(
                 not args.no_plot and figure_allowed
             ),
@@ -343,6 +398,7 @@ def main() -> int:
                 "figure": "Fig. 2(c,d)",
                 "reported_asr_nv_spectrum_order": 23,
                 "reference_curve_samples_available": False,
+                "input_completeness": "underdetermined_from_paper",
                 "claim": (
                     "Compare curve shape and convergence qualitatively unless "
                     "the authors' exact Drude constants/reference samples are supplied."

@@ -55,6 +55,22 @@
   "cascade": "redheffer",
   "use_symmetry": false,
   "passivity_warning_count": 9,
+  "convergence_assessment": {
+    "status": "not_converged",
+    "window": 3,
+    "orders": [23, 24, 26],
+    "observable_spans": {
+      "reflectance": 0.12389078275626886,
+      "transmittance": 0.00009848312418069838,
+      "absorptance": 0.12398926588044955
+    },
+    "tolerance": 0.01,
+    "strict_passivity": false,
+    "maximum_passivity_violation": 0.02173371289688618,
+    "relaxed_passivity_tolerance": 0.002,
+    "recommended_next_orders": [28, 30],
+    "recommended_action": "Change to matched-nvm or analytic nvm; do not use this ASR-only tail as a reference result."
+  },
   "figure_written": true,
   "paper_comparison": {
     "figure": "Fig. 2(c,d)",

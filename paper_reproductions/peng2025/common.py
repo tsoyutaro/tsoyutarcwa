@@ -177,8 +177,10 @@ class Numerics:
             raise ValueError("cascade must be redheffer or algo2a/li-2a.")
         if self.shell_radial_mapping not in {"outer", "double"}:
             raise ValueError("shell_radial_mapping must be 'outer' or 'double'.")
-        if self.solver not in {"matched-asr", "nvm"}:
-            raise ValueError("solver must be 'matched-asr' or 'nvm'.")
+        if self.solver not in {"matched-asr", "matched-nvm", "nvm"}:
+            raise ValueError(
+                "solver must be 'matched-asr', 'matched-nvm', or 'nvm'."
+            )
 
 
 def normalized_frequency(frequency_thz: float, period_um: float) -> float:
@@ -214,6 +216,100 @@ def parse_int_list(text: str) -> tuple[int, ...]:
     if not values or any(value < 1 for value in values):
         raise ValueError("Orders must be positive comma-separated integers.")
     return values
+
+
+def assess_order_convergence(
+    rows: Sequence[dict[str, object]],
+    *,
+    window: int = 3,
+    tolerance: float = 1.0e-2,
+    relaxed_passivity_tolerance: float = 2.0e-3,
+) -> dict[str, object]:
+    """Classify the tail of an order sweep without hiding nonpassive points.
+
+    Strict convergence requires the last ``window`` values of R, T, and A to
+    span no more than ``tolerance`` and to pass the normal passivity diagnostic.
+    A separate provisional state is reported when the observables are stable
+    but the remaining negative-power error is no larger than
+    ``relaxed_passivity_tolerance``.  This distinction is useful for highly
+    conducting THz metals, where an apparently flat curve can still have a
+    small finite-truncation violation.
+    """
+
+    if window < 2:
+        raise ValueError("Convergence window must contain at least two orders.")
+    if not math.isfinite(tolerance) or tolerance <= 0.0:
+        raise ValueError("Convergence tolerance must be finite and positive.")
+    if (
+        not math.isfinite(relaxed_passivity_tolerance)
+        or relaxed_passivity_tolerance < 0.0
+    ):
+        raise ValueError(
+            "Relaxed passivity tolerance must be finite and nonnegative."
+        )
+    ordered = sorted(rows, key=lambda row: int(row["order_x"]))
+    if len(ordered) < window:
+        return {
+            "status": "insufficient_orders",
+            "window": window,
+            "available_orders": [int(row["order_x"]) for row in ordered],
+            "recommended_next_orders": [],
+        }
+
+    tail = ordered[-window:]
+    names = ("reflectance", "transmittance", "absorptance")
+    spans = {
+        name: max(float(row[name]) for row in tail)
+        - min(float(row[name]) for row in tail)
+        for name in names
+    }
+    finite = all(
+        math.isfinite(float(row[name])) for row in tail for name in names
+    )
+    maximum_passivity_violation = max(
+        0.0,
+        *(
+            max(
+                -float(row["reflectance"]),
+                -float(row["transmittance"]),
+                -float(row["absorptance"]),
+                float(row["reflectance"])
+                + float(row["transmittance"])
+                - 1.0,
+            )
+            for row in tail
+        ),
+    )
+    stable = finite and max(spans.values()) <= tolerance
+    strictly_passive = not any(bool(row["passivity_warning"]) for row in tail)
+    if stable and strictly_passive:
+        status = "converged"
+        action = "The requested order tail is stable and passive."
+    elif stable and maximum_passivity_violation <= relaxed_passivity_tolerance:
+        status = "provisional_small_passivity_error"
+        action = (
+            "Extend the order sweep and require a passive final window before "
+            "using the result as a reference spectrum."
+        )
+    else:
+        status = "not_converged"
+        action = (
+            "Increase the maximum order or change factorization; do not use "
+            "the current tail as a reference result."
+        )
+    maximum_order = int(ordered[-1]["order_x"])
+    return {
+        "status": status,
+        "window": window,
+        "orders": [int(row["order_x"]) for row in tail],
+        "observable_spans": spans,
+        "tolerance": tolerance,
+        "strict_passivity": strictly_passive,
+        "maximum_passivity_violation": maximum_passivity_violation,
+        "relaxed_passivity_tolerance": relaxed_passivity_tolerance,
+        "recommended_next_orders": [maximum_order + 2, maximum_order + 4],
+        "recommended_action": action,
+    }
 
 
 def select_device(name: str) -> torch.device:
@@ -360,7 +456,7 @@ def simulate_matched_primitive(
     numerics: Numerics,
     device: torch.device,
 ) -> dict[str, object]:
-    """Simulate one centered MI cell with matched-ASR or analytic NVM."""
+    """Simulate one centered MI cell with ASR, ASR-NV, or analytic NVM."""
 
     geometry.validate()
     numerics.validate()
@@ -431,8 +527,10 @@ def simulate_matched_primitive(
             nx=numerics.grid_x,
             ny=numerics.grid_y,
             factorization_rules=True,
+            normal_vector_factorization=numerics.solver == "matched-nvm",
             radial_mapping=numerics.shell_radial_mapping,
         )
+    pattern_layer_record = simulation.layer_records[-1]
     if geometry.pi_thickness_um is not None:
         simulation.add_layer(
             geometry.pi_thickness_um / geometry.period_um,
@@ -453,6 +551,8 @@ def simulate_matched_primitive(
             "model": (
                 "analytic-nvm-primitive"
                 if numerics.solver == "nvm"
+                else "matched-asr-nvm-primitive"
+                if numerics.solver == "matched-nvm"
                 else "matched-asr-primitive"
             ),
             "lattice": normalized,
@@ -462,11 +562,16 @@ def simulate_matched_primitive(
             "factorization": (
                 "analytic-concentric-NVM"
                 if numerics.solver == "nvm"
+                else "matched-ASR-generalized-Li-NVM"
+                if numerics.solver == "matched-nvm"
                 else "double-matched-ASR-generalized-Li"
                 if numerics.shell_radial_mapping == "double"
                 else "outer-matched-ASR-FR"
             ),
         }
+    )
+    result["backend_factorization_scheme"] = pattern_layer_record.options.get(
+        "factorization_scheme"
     )
     return result
 
@@ -808,11 +913,12 @@ def write_metadata(
             ),
             "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
             "method_note": (
-                "The primitive-cell solver selects an analytic concentric NVM "
-                "or the project's outer-only/C2 double-boundary matched-ASR "
-                "implementation. Neither is a bit-for-bit copy of the paper's "
-                "stepped separable ASR plus interpolated NV field; agreement is "
-                "assessed through convergence of the physical observables."
+                "The primitive-cell solver selects analytic concentric NVM, "
+                "matched-ASR alone, or generalized normal-vector Li "
+                "factorization after matched-ASR. The last option follows the "
+                "paper's ASR-then-NV sequence but is not a bit-for-bit copy of "
+                "its stepped separable map and interpolated NV extension; "
+                "agreement is assessed through converged physical observables."
             ),
         },
         **payload,

@@ -72,11 +72,16 @@ outputs/paper_reproductions/peng2025/
 `reproduce_square.py` は論文と同じ物理構造の収束解を独立に確認するため、次の
 ソルバーを選択できる。
 
-- `--solver nvm`（既定）: 内円・外円の誘電率Fourier係数をBessel関数で解析的に
+- `--solver matched-nvm`（既定）: matched-coordinate写像でASRを行った後、物理円の
+  半径方向法線を写像のJacobianで計算座標へpull backし、一般化Li
+  normal-D/tangential-E因数分解を適用する。内円と外円は同心なので同じ法線場を共有する。
+  論文の「ASRを先に適用し、その後NVを適用する」という構成に対応する経路である。
+- `--solver nvm`: 内円・外円の誘電率Fourier係数をBessel関数で解析的に
   構成する同心コアシェルNVM。二つの円の法線は同じ半径方向なので、一つの周期的
   法線射影場で両界面へLiの逆則を適用する。hard rasterは使用しない。
-- `--solver matched-asr`: 本プロジェクトのmatched-coordinate ASR。以下の
-  `--radial-mapping`を選択する。
+- `--solver matched-asr`: 曲面NV因数分解を使わないmatched-coordinate ASR。
+  Peng Fig. 2の高コントラストAgでは保存済み収束試験13点中9点が非受動となったため、
+  再現結果には推奨しない。ASR単独との比較診断用である。
 
 - `--radial-mapping outer`（既定）: 従来互換。外円 `R` だけへ整合し、内円 `r` は
   同じ変換座標上で求積する。
@@ -86,7 +91,8 @@ outputs/paper_reproductions/peng2025/
 
 二重写像では、中心、内円、外円、周期セル境界を零曲率のquintic Hermite区間で接続し、
 一般化Li normal-D/tangential-E factorizationを用いる。ただし高コントラストAgに対する
-`double`の次数収束は未確立なので、論文結果の独立検算には既定の`nvm`を優先する。
+`double`の次数収束は未確立なので、まず既定の`matched-nvm --radial-mapping outer`と
+独立な`nvm`の双方で次数収束を確認する。
 どの方式も論文著者の段差型 separable ASR と補間NV場をbit-for-bitで複製するものではない。
 今回の目的は同一の物理問題に対する収束解の比較である。
 
@@ -117,16 +123,22 @@ python -m paper_reproductions.peng2025.reproduce_square --study smoke --device c
 python -m paper_reproductions.peng2025.reproduce_square --study smoke --solver matched-asr --radial-mapping double --device cpu
 ```
 
-Fig. 2(d) と同じ 1–3 THz、報告次数 23:
+Fig. 2(d) と同じ 1–3 THz、報告次数 23（ASR-NV経路）:
 
 ```powershell
-python -m paper_reproductions.peng2025.reproduce_square --study spectrum --solver nvm --device cuda
+python -m paper_reproductions.peng2025.reproduce_square --study spectrum --solver matched-nvm --device cuda
 ```
 
 Fig. 2(c) と同じ 1.95 THz の次数収束:
 
 ```powershell
-python -m paper_reproductions.peng2025.reproduce_square --study convergence --solver nvm --device cuda
+python -m paper_reproductions.peng2025.reproduce_square --study convergence --solver matched-nvm --orders 4,6,8,10,12,14,16,18,20,22,23,24,26 --device cuda
+```
+
+解析Fourier NVMによる独立確認:
+
+```powershell
+python -m paper_reproductions.peng2025.reproduce_square --study convergence --solver nvm --orders 4,6,8,10,12,14,16,18,20,22,23,24,26 --device cuda
 ```
 
 論文にない対称性短縮を使う場合:
@@ -219,7 +231,9 @@ matched-ASR と hard raster の因子分解誤差が格子差のように見え�
 
 ## 6. 出力
 
-正方格子コードは既定で `outputs/paper_reproductions/peng2025/results/square/` に次を生成する。
+正方格子コードは既定で方式と試験を分離した
+`outputs/paper_reproductions/peng2025/results/square_<solver>_<mapping>_<study>/`
+（`nvm`ではmapping名なし）に次を生成する。`--output-dir`を指定すれば任意の場所へ変更できる。
 
 - `square_mi.csv`
 - `square_mi.png`
@@ -233,6 +247,8 @@ matched-ASR と hard raster の因子分解誤差が格子差のように見え�
 
 CSV には R、T、A、Ag 誘電率、次数、格子、計算時間、対称性診断を保存する。
 スーパーセル行には `m+n` 奇数次数の反射・透過 power も含む。
+収束試験のmetadataには、末尾3点のR/T/A変動幅、厳密な受動性、残留受動性誤差を分けた
+`convergence_assessment`も保存する。`provisional_small_passivity_error`は収束確定ではない。
 
 ## 7. 検証
 
@@ -250,11 +266,9 @@ python paper_reproductions\peng2025\validation\validate.py --device cpu
 - 三角 raster primitive と直交 raster supercell の低次同値性
 - `m+n` 奇数 folded orders の消失
 
-CPU smoke validation では全項目が合格した。`N=1`、3 THz の raster 格子表現間の
-最大 R/T/A 差は約 `8.29e-4`、禁制 folded-order power は約 `9.99e-37` だった。
-D6は過小なstarでの見かけの負吸収を合格させないよう`N=4`で受動性を確認している。
-これはコード経路と幾何同値性の検証であり、次数 23 の論文スペクトル収束を保証する
-ものではない。
+検証にはmatched-ASR後のpull-back法線が一般化Li経路を実際に選択したかも含める。
+D6は過小なstarでの見かけの負吸収を合格させず、警告が出れば検証全体も失敗になる。
+したがってsmoke/invariance検証の合格と、次数23の論文スペクトル収束は別々に判定する。
 
 検証JSONとsmoke図は `outputs/paper_reproductions/peng2025/validation/results/` に保存する。
 検証には、正方・三角格子の両界面半径一致、Jacobian正値、固定計算空間mask、
