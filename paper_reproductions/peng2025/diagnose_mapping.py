@@ -122,9 +122,17 @@ def main() -> int:
         "device": str(device),
         "mappings": mappings,
         "recommendation": (
-            "Use radial_mapping='double'."
+            "For matched-coordinate runs, use radial_mapping='double'."
             if bool(mappings.get("double", {}).get("usable", False))
             else "No tested map passed the requested safety floor."
+        ),
+        "scope": (
+            "This diagnostic checks mapping conditioning only; usable=true "
+            "does not establish RCWA passivity or Fourier-order convergence."
+        ),
+        "next_step": (
+            "Run reproduce_square --study convergence and require passive, "
+            "stable tail values before generating a spectrum."
         ),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

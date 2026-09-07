@@ -579,7 +579,7 @@ def simulate_matched_primitive(
                 if numerics.solver == "nvm"
                 else "matched-ASR-generalized-Li-NVM"
                 if numerics.solver == "matched-nvm"
-                else "double-matched-ASR-generalized-Li"
+                else "double-matched-ASR-Weiss-symmetric"
                 if resolved_radial_mapping == "double"
                 else "outer-matched-ASR-FR"
             ),

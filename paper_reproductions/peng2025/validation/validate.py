@@ -610,6 +610,17 @@ def main() -> int:
             "passed": fill_error < 2.0e-2,
         },
         "square_smoke": _check_power(square),
+        "square_matched_asr_factorization": {
+            **_check_power(square),
+            "backend_factorization_scheme": square.get(
+                "backend_factorization_scheme"
+            ),
+            "radial_mapping": square.get("shell_radial_mapping"),
+            "passed": _check_power(square)["passed"]
+            and square.get("backend_factorization_scheme")
+            == "weiss-symmetric-29-36"
+            and square.get("shell_radial_mapping") == "double",
+        },
         "square_matched_nvm_factorization": {
             **_check_power(square_matched_nvm),
             "backend_factorization_scheme": square_matched_nvm.get(
@@ -625,6 +636,16 @@ def main() -> int:
             and square_matched_nvm.get("shell_radial_mapping") == "double"
             and float(square_matched_nvm.get("minimum_mapping_jacobian", 0.0))
             > 1.0e-8,
+        },
+        "matched_solver_dispatch": {
+            "matched_asr": square.get("backend_factorization_scheme"),
+            "matched_nvm": square_matched_nvm.get(
+                "backend_factorization_scheme"
+            ),
+            "passed": square.get("backend_factorization_scheme")
+            == "weiss-symmetric-29-36"
+            and square_matched_nvm.get("backend_factorization_scheme")
+            == "generalized-li-epsilon+weiss-symmetric-mu",
         },
         "outer_map_condition_guard": _outer_map_condition_guard(device),
         "order_convergence_classifier": {

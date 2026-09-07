@@ -73,16 +73,18 @@ outputs/paper_reproductions/peng2025/
 `reproduce_square.py` は論文と同じ物理構造の収束解を独立に確認するため、次の
 ソルバーを選択できる。
 
-- `--solver matched-nvm`（既定）: matched-coordinate写像でASRを行った後、一般化Li
+- `--solver nvm`（既定・基準経路）: 内円・外円の誘電率Fourier係数をBessel関数で解析的に
+  構成する同心コアシェルNVM。二つの円の法線は同じ半径方向なので、一つの周期的
+  法線射影場で両界面へLiの逆則を適用する。hard rasterは使用しない。現在保存されている
+  高次数計算では3経路のうち最も安定だが、小さな受動性誤差が残るため最終確定には追加収束が必要である。
+- `--solver matched-nvm`（実験経路）: matched-coordinate写像でASRを行った後、一般化Li
   normal-D/tangential-E因数分解を不連続な誘電率tensorへ適用する。透磁率tensorには
   NV補正を重ねず、座標変換用のWeiss対称因数分解だけを適用する。論文式(8)--(10)と同様に、
-  NV補正を誘電率側へ限定した構成である。
-- `--solver nvm`: 内円・外円の誘電率Fourier係数をBessel関数で解析的に
-  構成する同心コアシェルNVM。二つの円の法線は同じ半径方向なので、一つの周期的
-  法線射影場で両界面へLiの逆則を適用する。hard rasterは使用しない。
+  NV補正を誘電率側へ限定した構成である。ただし保存済みdouble写像の収束試験は13点中
+  9点が非受動で未収束のため、再現結果として使用しない。
 - `--solver matched-asr`: 曲面NV因数分解を使わないmatched-coordinate ASR。
-  Peng Fig. 2の高コントラストAgでは保存済み収束試験13点中9点が非受動となったため、
-  再現結果には推奨しない。ASR単独との比較診断用である。
+  `double`写像ではWeiss対称因数分解を使用する。Peng Fig. 2の高コントラストAgでは
+  高次数側がまだ安定していないため、ASR単独との比較診断用である。
 
 - `--radial-mapping auto`（既定）: この同心コアシェルでは単調性保証付き`double`を選ぶ。
 - `--radial-mapping outer`: 従来互換の診断用。外円 `R` だけへ整合し、内円 `r` は
@@ -92,11 +94,11 @@ outputs/paper_reproductions/peng2025/
   内円と外円へ写す、半径方向C2の二重matched写像を使う。内外半径の勾配も写像と
   Jacobianを通して保持する。
 
-二重写像では、中心、内円、外円、周期セル境界を零曲率のquintic Hermite区間で接続し、
-一般化Li normal-D/tangential-E factorizationを用いる。Peng形状のouter-only写像へ
-論文の`G=0.001`をそのまま使った保存結果は発散したため、まず既定の
-`matched-nvm --radial-mapping auto`（実際には`double`）と独立な`nvm`の双方で
-次数収束を確認する。論文の`G=0.001`は段差近似した分離ASRの設定であり、現在の
+二重写像では、中心、内円、外円、周期セル境界を零曲率のquintic Hermite区間で接続する。
+`matched-asr`はWeiss対称因数分解、`matched-nvm`は誘電率側の一般化Li
+normal-D/tangential-E factorizationを用いる。Peng形状のouter-only写像へ
+論文の`G=0.001`をそのまま使った保存結果は発散したため、まず既定の解析`nvm`で
+次数収束を確認し、matched経路は独立な診断として比較する。論文の`G=0.001`は段差近似した分離ASRの設定であり、現在の
 非分離円写像のJacobian下限を保証する値ではない。このため非分離写像のCLI既定値は
 `G=0.03`とする。論文値を入力した感度試験は`--asr-g 0.001`と明示する。
 どの方式も論文著者の段差型 separable ASR と補間NV場をbit-for-bitで複製するものではない。
@@ -105,11 +107,12 @@ outputs/paper_reproductions/peng2025/
 固有値計算を始める前に写像だけを診断する場合:
 
 ```powershell
-python -m paper_reproductions.peng2025.diagnose_mapping --grid 256 --asr-g 0.001 --device cuda
+python -m paper_reproductions.peng2025.diagnose_mapping --grid 256 --asr-g 0.03 --device cuda
 ```
 
 `outer`と`double`について`minimum_jacobian`、Jacobianの点ごとの最大条件数、実効半径勾配を
 JSONへ保存する。これは次数4以上の固有値問題を解かないため、最初に実行できる。
+`usable=true`は写像が安全閾値を通ったことだけを意味し、RCWA解の受動性や次数収束を保証しない。
 
 実行位置を混同しないこと。リポジトリルートからはモジュール形式を推奨する。
 
@@ -138,22 +141,22 @@ python -m paper_reproductions.peng2025.reproduce_square --study smoke --device c
 python -m paper_reproductions.peng2025.reproduce_square --study smoke --solver matched-asr --radial-mapping double --device cpu
 ```
 
-Fig. 2(d) と同じ 1–3 THz、報告次数 23（ASR-NV経路）:
+Fig. 2(d) と同じ 1–3 THz、次数23の基準計算:
 
 ```powershell
-python -m paper_reproductions.peng2025.reproduce_square --study spectrum --solver matched-nvm --radial-mapping auto --device cuda
+python -m paper_reproductions.peng2025.reproduce_square --study spectrum --solver nvm --device cuda
 ```
 
 Fig. 2(c) と同じ 1.95 THz の次数収束:
 
 ```powershell
-python -m paper_reproductions.peng2025.reproduce_square --study convergence --solver matched-nvm --radial-mapping auto --orders 4,6,8,10,12,14,16,18,20,22,23,24,26 --device cuda
+python -m paper_reproductions.peng2025.reproduce_square --study convergence --solver nvm --orders 4,6,8,10,12,14,16,18,20,22,23,24,26 --device cuda
 ```
 
-解析Fourier NVMによる独立確認:
+実験的matched-NVM経路を診断する場合（結果を採用する前に受動性と末尾収束を必ず確認）:
 
 ```powershell
-python -m paper_reproductions.peng2025.reproduce_square --study convergence --solver nvm --orders 4,6,8,10,12,14,16,18,20,22,23,24,26 --device cuda
+python -m paper_reproductions.peng2025.reproduce_square --study convergence --solver matched-nvm --radial-mapping auto --orders 4,6,8,10,12,14,16,18,20,22,23,24,26 --device cuda
 ```
 
 論文にない対称性短縮を使う場合:

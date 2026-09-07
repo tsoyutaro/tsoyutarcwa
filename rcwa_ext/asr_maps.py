@@ -451,7 +451,13 @@ class _ASRMappingMixin:
 
         zero = torch.zeros_like(circle_scale)
 
-        t_core = torch.clamp(rho / core_ratio, 0.0, 1.0)
+        # Do not clamp the normalized segment coordinates.  Only the matching
+        # branch is selected below, so every selected coordinate is already in
+        # [0, 1].  More importantly, torch.clamp's derivative at an endpoint is
+        # backend/version dependent (and is zero in recent PyTorch releases).
+        # A zero endpoint derivative makes the periodic cell seam singular even
+        # though the Hermite profile has an explicitly positive boundary slope.
+        t_core = rho / core_ratio
         radial_core = self._quintic_hermite_zero_curvature(
             t_core,
             zero,
@@ -462,7 +468,7 @@ class _ASRMappingMixin:
         )
 
         shell_span = 1.0 - core_ratio
-        t_shell = torch.clamp((rho - core_ratio) / shell_span, 0.0, 1.0)
+        t_shell = (rho - core_ratio) / shell_span
         radial_shell = self._quintic_hermite_zero_curvature(
             t_shell,
             core_target,
@@ -473,7 +479,7 @@ class _ASRMappingMixin:
         )
 
         exterior_span = rho_outer - 1.0
-        t_exterior = torch.clamp((rho - 1.0) / exterior_span, 0.0, 1.0)
+        t_exterior = (rho - 1.0) / exterior_span
         radial_exterior = self._quintic_hermite_zero_curvature(
             t_exterior,
             circle_scale,
@@ -776,10 +782,13 @@ class _ASRMappingMixin:
             1.0e-11 * sine,
             float(getattr(self, "matched_asr_min_jacobian", 1.0e-12)),
         )
-        if _as_float(torch.min(det_j)) <= minimum_jacobian:
+        observed_minimum = _as_float(torch.min(det_j))
+        if observed_minimum <= minimum_jacobian:
             raise RuntimeError(
                 "The double-matched circle map is not orientation-preserving; "
-                "the monotone radial bound passed but a sector Jacobian did not. "
+                f"min(det(J))={observed_minimum:.3e}, required > "
+                f"{minimum_jacobian:.3e}; the monotone radial bound passed but "
+                "a sector Jacobian did not. "
                 "Use radial_mapping='outer' and report this geometry."
             )
         if not differentiable_geometry:

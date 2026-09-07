@@ -3,9 +3,11 @@
 The paper's stated dimensions are used: p=62 um, R=30 um, r=14 um, and
 Ag thickness=1 um.  The selected material interpretation is air in the
 annular aperture and PI with epsilon_PI=3.5+0.009j.  Incidence is normal
-x/TM over 1--3 THz.  The default solver applies generalized normal-vector Li
-factorization after the matched-coordinate transform; analytic concentric NVM
-and ASR without the curved-interface normal factorization remain selectable.
+x/TM over 1--3 THz.  The default solver is the analytic-Fourier concentric
+NVM route, which is the most stable of the implemented routes for this
+high-contrast geometry.  Matched-coordinate ASR, with or without the
+experimental generalized normal-vector factorization, remains selectable for
+convergence diagnostics.
 The missing Ag Drude constants and MI substrate thickness are
 documented in the generated metadata rather than silently presented as paper
 values.
@@ -116,11 +118,13 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--solver",
         choices=("matched-nvm", "nvm", "matched-asr"),
-        default="matched-nvm",
+        default="nvm",
         help=(
-            "matched-nvm applies the normal-vector Li rule after ASR; nvm is "
-            "the independent analytic-Fourier route; matched-asr omits the "
-            "curved-interface normal factorization."
+            "nvm (default) is the analytic-Fourier reference route; "
+            "matched-asr uses the Weiss symmetric rule in double-matched "
+            "coordinates; matched-nvm adds the experimental generalized "
+            "normal-vector Li rule and must not be used without an order-"
+            "convergence and passivity check."
         ),
     )
     parser.add_argument(
@@ -309,6 +313,13 @@ def main() -> int:
             f"conditioned for R/p=30/62 (requested G={args.asr_g:g}). The solver "
             "rejects a map whose minimum Jacobian is below its safety floor. Prefer "
             "--radial-mapping double (or omit the option)."
+        )
+    if args.solver == "matched-nvm":
+        print(
+            "SOLVER WARNING: matched-nvm is experimental for this Ag/air "
+            "core-shell problem. Saved high-order tests are not converged; "
+            "accept results only after both passivity and order convergence "
+            "succeed. Use --solver nvm for the current reference calculation."
         )
     geometry = PaperGeometry(pi_thickness_um=args.pi_thickness_um)
     print(

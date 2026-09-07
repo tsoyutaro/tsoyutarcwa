@@ -780,7 +780,12 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             mu_uv * h,
         )
         factorization_normals = None
-        if core_shell and normalized_mapping == "double" and factorization_rules:
+        if (
+            normal_vector_factorization
+            and core_shell
+            and normalized_mapping == "double"
+            and factorization_rules
+        ):
             if (
                 mapping.interface_normal_u is None
                 or mapping.interface_normal_v is None

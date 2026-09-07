@@ -31,6 +31,14 @@ Fig. 2のPI厚 `h2` の数値がなく、保存結果は半無限PIと既定Drud
 拒否し、`auto`で単調性保証付きdouble写像を選ぶ。また一般化Li NV補正は誘電率tensorだけへ
 適用し、透磁率tensorはWeiss対称ASR因数分解とする。
 
+## `square_matched_nvm_double_v2`
+
+- 安全なdouble写像を使用しているが、13点中9点が受動性診断に失敗。
+- N=23でR=2.647、N=26でR=20.830となり、高次数側でも安定しない。
+
+したがって、写像診断の`usable=true`にもかかわらず、このRCWA結果は`not_converged`である。
+`matched-nvm`は実験的比較経路に限定し、既定計算には使用しない。
+
 ## `square/square_mi.*`
 
 これは旧 `matched-asr outer` の未収束スペクトルで、R>1またはA<0の点を多数含む。
@@ -42,8 +50,7 @@ Fig. 2のPI厚 `h2` の数値がなく、保存結果は半無限PIと既定Drud
 ```bash
 python -m paper_reproductions.peng2025.reproduce_square \
   --study convergence \
-  --solver matched-nvm \
-  --radial-mapping auto \
+  --solver nvm \
   --orders 4,6,8,10,12,14,16,18,20,22,23,24,26 \
   --grid 256 \
   --device cuda

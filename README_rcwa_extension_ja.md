@@ -234,7 +234,7 @@ APIでは `method="matched-asr"` を使い、後者は円層追加時に
 - 60°三角格子: Wigner–Seitz六角形を円へ写すD6-equivariant周期Hermite mapを使い、斜交基底の計量と周期境界を同時に扱います。
 - 両格子: Jacobianから変換媒質 `epsilon'`, `mu'` を作り、Fourier factorization後の `(P,Q)` を解き、一般変換 `(T,T_z)` で通常のCartesian S行列へ接続します。NV補正は不連続な`epsilon'`へ適用し、非磁性構造の`mu'`にはWeiss対称ASR因数分解を使います。
 - コアシェル: `add_layer_circle_shell_asr(..., radial_mapping="outer"|"double")` を選べます。`double` は計算空間の固定支持曲線を内外円へ写す単調性保証付き半径方向C2 quintic-Hermite写像で、両半径のautogradを保持します。界面勾配は全区間・全方向の最小割線勾配以下へ制限し、中心・周期境界の勾配は単調範囲内で大きくして過圧縮を避けます。
-- 二重matched写像: level-set法線と計算格子計量から法線projectorを作り、連続な接線E／法線Dに一般化Li因数分解を適用します。`factorization_rules=False`の場合だけ比較用の直接Fourier畳み込みを使います。
+- 二重matched写像: 通常はWeiss対称因数分解を使います。`normal_vector_factorization=True`ではlevel-set法線と計算格子計量から法線projectorを作り、連続な接線E／法線Dに一般化Li因数分解を適用します。`factorization_rules=False`の場合だけ比較用の直接Fourier畳み込みを使います。
 - outer-only ASR-NV: 物理円の半径法線を `d(phi o F)=J^T d(phi)` で計算座標へpull backし、同心コア・シェルの両界面へ同じ一般化Li因数分解を適用します。
 - 写像安全性: orientation-preservingに加え、`ASROptions.minimum_circle_jacobian`で用途別の安全下限を指定できます。Peng 2025再現コードは`min(det J)>1e-8`を要求し、ほぼ接触する円ではouter-only写像へ`G=0.001`を使えないため、二重matched写像を選びます。
 - NVM: 円板の誘電率Toeplitz行列をFourier–Bessel式で解析的に作り、normal-vector projectionを使う独立バックエンドです。
@@ -242,9 +242,9 @@ APIでは `method="matched-asr"` を使い、後者は円層追加時に
 したがって、現在は解析 `nvm`、`matched-asr` 単独、`matched-asr` + generalized Li NVの
 3経路を選択・比較できます。
 Cartesian NVM射影行列をmatched-coordinate tensorへ後掛けする二重補正は採用しません。
-単一円/outer-onlyコアシェルは既定ではWeiss対称因数分解、NV optionではpull-back法線の
-一般化Li因数分解、二重matchedコアシェルは一般化Li因数分解により、matched空間内だけで
-境界条件を処理します。
+単一円/outer-onlyコアシェルと二重matchedコアシェルはいずれも既定ではWeiss対称因数分解、
+NV optionではそれぞれpull-back法線またはlevel-set法線の一般化Li因数分解により、
+matched空間内だけで境界条件を処理します。
 
 matched-ASRの適用条件は、セル中心の単一円または同心コアシェル、非接触条件
 `2*outer_radius < period`、固定トポロジーです。真の接触極限や内外半径の一致極限では
@@ -395,13 +395,13 @@ Ag背景／空気環状開口／Ag中心粒子、PI `epsilon=3.5+0.009i`、1–3
 扱う正方格子コードと、三角格子primitiveを厳密に等価な直交二サイト・スーパーセルと
 比較するコードを `paper_reproductions/peng2025/` にまとめました。
 
-正方格子の既定計算は、単調性保証付き二重matched-coordinate ASRの後に一般化Li
-NV因数分解を誘電率側へ適用する `matched-nvm` です。解析Fourier同心コアシェルNVMと、NVなしの
-matched-ASRも比較用に選択できます。論文で数値が
+正方格子の既定計算は、保存済み高次数計算で最も安定している解析Fourier同心コアシェル
+`nvm`です。二重matched-coordinate ASRと、その後に一般化Li NV因数分解を誘電率側へ
+適用する実験的`matched-nvm`も比較診断用に選択できます。論文で数値が
 示されないPI厚`h2`は、半無限PIを既定とし、有限PI/空気条件もCLIで選択できます。
 
 ```bash
-python -m paper_reproductions.peng2025.diagnose_mapping --grid 256 --asr-g 0.001 --device cpu
+python -m paper_reproductions.peng2025.diagnose_mapping --grid 256 --asr-g 0.03 --device cpu
 python -m paper_reproductions.peng2025.reproduce_square --study smoke --device cpu
 python -m paper_reproductions.peng2025.compare_hex_supercell --study smoke --device cpu
 python -m paper_reproductions.peng2025.validation.validate --device cpu
