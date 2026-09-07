@@ -120,7 +120,7 @@ def _parser() -> argparse.ArgumentParser:
         choices=("matched-nvm", "nvm", "matched-asr"),
         default="nvm",
         help=(
-            "nvm (default) is the analytic-Fourier reference route; "
+            "nvm (default) is the analytic-Fourier baseline route; "
             "matched-asr uses the Weiss symmetric rule in double-matched "
             "coordinates; matched-nvm adds the experimental generalized "
             "normal-vector Li rule and must not be used without an order-"
@@ -151,7 +151,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--use-symmetry",
         action="store_true",
-        help="Use the normal-incidence x-source C2v sector (not used in the paper).",
+        help=(
+            "Use the exact normal-incidence x-source C2v sector to reduce the "
+            "eigensolve; this reduction was not reported in the paper."
+        ),
     )
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument("--silver-eps-infinity", type=float, default=1.0)
@@ -319,7 +322,7 @@ def main() -> int:
             "SOLVER WARNING: matched-nvm is experimental for this Ag/air "
             "core-shell problem. Saved high-order tests are not converged; "
             "accept results only after both passivity and order convergence "
-            "succeed. Use --solver nvm for the current reference calculation."
+            "succeed. Use --solver nvm for the current baseline calculation."
         )
     geometry = PaperGeometry(pi_thickness_um=args.pi_thickness_um)
     print(

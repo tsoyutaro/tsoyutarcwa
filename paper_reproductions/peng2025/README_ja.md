@@ -73,10 +73,10 @@ outputs/paper_reproductions/peng2025/
 `reproduce_square.py` は論文と同じ物理構造の収束解を独立に確認するため、次の
 ソルバーを選択できる。
 
-- `--solver nvm`（既定・基準経路）: 内円・外円の誘電率Fourier係数をBessel関数で解析的に
+- `--solver nvm`（既定・baseline経路）: 内円・外円の誘電率Fourier係数をBessel関数で解析的に
   構成する同心コアシェルNVM。二つの円の法線は同じ半径方向なので、一つの周期的
   法線射影場で両界面へLiの逆則を適用する。hard rasterは使用しない。現在保存されている
-  高次数計算では3経路のうち最も安定だが、小さな受動性誤差が残るため最終確定には追加収束が必要である。
+  高次数計算では3経路のうち最も安定だが、N=31まで収束振動が残るため最終結果としては未確定である。
 - `--solver matched-nvm`（実験経路）: matched-coordinate写像でASRを行った後、一般化Li
   normal-D/tangential-E因数分解を不連続な誘電率tensorへ適用する。透磁率tensorには
   NV補正を重ねず、座標変換用のWeiss対称因数分解だけを適用する。論文式(8)--(10)と同様に、
@@ -164,6 +164,10 @@ python -m paper_reproductions.peng2025.reproduce_square --study convergence --so
 ```powershell
 python -m paper_reproductions.peng2025.reproduce_square --study spectrum --solver nvm --use-symmetry --device cuda
 ```
+
+正入射x偏光のC2v sectorは完全行列を厳密にblock対角化する計算短縮である。N=8の回帰試験では
+full計算との差はR/T/Aで最大`9e-12`だった。N=30を超える収束診断では、まず既知次数を一つ
+含めてfull計算との一致を確認したうえで`--use-symmetry`を使用できる。
 
 Fig. 2のPI厚`h2`は論文本文に数値がない。有限PI膜を仮定して感度を確認する場合は、例えば
 

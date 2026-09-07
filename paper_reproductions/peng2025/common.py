@@ -442,10 +442,20 @@ def _base_result(
         result["symmetry_applied"] = group.get("applied")
         result["symmetry"] = group.get("symmetry")
         result["irrep"] = group.get("irrep")
+        result["symmetry_invariance_residual"] = group.get(
+            "max_invariance_residual"
+        )
+        result["symmetry_magnetic_residual"] = group.get("magnetic_residual")
+        result["symmetry_magnetic_modes_projected"] = group.get(
+            "magnetic_modes_projected"
+        )
     else:
         result["symmetry_applied"] = False
         result["symmetry"] = None
         result["irrep"] = None
+        result["symmetry_invariance_residual"] = None
+        result["symmetry_magnetic_residual"] = None
+        result["symmetry_magnetic_modes_projected"] = None
     return result
 
 

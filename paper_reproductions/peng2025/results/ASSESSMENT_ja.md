@@ -8,7 +8,16 @@
 - 末尾3点の変動幅は、Rが約0.00139、Tが約0.00562、Aが約0.00664。
 - N=26では A=-0.001381 で、小さいものの厳密な受動性を満たさない。
 
-したがって、解析Fourier NVMは `provisional_small_passivity_error`（ほぼ安定だが未確定）と判定する。
+その後のN=26--31計算では収束していないことが確認された。
+
+- 偶数列N=26, 28, 30では、N=28だけT=0.865812へ低下し、末尾判定は`not_converged`。
+- 奇数列N=27, 29, 31では、Tが0.891320から0.874264へ変化し、Aが0.001853から
+  0.015819へ増加したため`not_converged`。
+- N=28のRedhefferとLi algorithm 2aは表示桁で一致した。
+- N=28でgridを256から384へ増やした差は、R=0.000246、T=0.000980、A=0.000735。
+
+したがって、主因はS行列連結法やnormal-vector projection gridではなく有限Fourier次数の
+収束振動である。解析Fourier NVMも現時点では`not_converged`であり、最終結果として使用しない。
 論文Fig. 2(c)の曲線との差をコード誤差だけに帰属することはできない。論文にはAg Drude定数と
 Fig. 2のPI厚 `h2` の数値がなく、保存結果は半無限PIと既定Drude定数を仮定しているためである。
 
@@ -45,17 +54,25 @@ Fig. 2のPI厚 `h2` の数値がなく、保存結果は半無限PIと既定Drud
 比較図・再現図として使用しない。修正版は方式と試験ごとの別フォルダへ出力するため、今後この
 旧結果へ上書きしない。
 
-## 修正版で最初に行う計算
+## 現在の次の計算
 
 ```bash
 python -m paper_reproductions.peng2025.reproduce_square \
   --study convergence \
   --solver nvm \
-  --orders 4,6,8,10,12,14,16,18,20,22,23,24,26 \
+  --orders 28,32,33,34 \
   --grid 256 \
+  --use-symmetry \
   --device cuda
 ```
 
-metadataの `convergence_assessment.status` が `converged` になってから、同じ方式と次数で
-`--study spectrum`を実行する。`provisional_small_passivity_error`または`not_converged`のままなら、
-提示された次次数まで拡張し、PI厚とDrude定数の感度は収束後に分離して調べる。
+N=28は既存full計算との一致を検査するanchorで、収束判定の末尾は連続するN=32,33,34になる。
+C2v短縮はN=8でfull計算とR/T/Aが最大`9e-12`で一致した。N=28も一致し、かつ末尾が
+`converged`になってから、同じ方式と次数で`--study spectrum`を実行する。末尾が再び
+`not_converged`なら次数追加をいったん止め、論文のseparable ASRと補間NV場の実装、PI厚、
+Drude定数を先に確定する。
+
+高次数C2vの旧実装は、縮約固有問題を解いた後に磁場モードだけfull Q行列から再構成し、N=28で
+`4.188e-08`のsector外丸め誤差を生じてstrict検査に失敗した。修正版は縮約`P_sub,Q_sub`から
+磁場を構成してpaired magnetic basisへliftする。full再構成のsector leakageはmetadataの
+`symmetry_magnetic_residual`へ診断値として保存し、実際のモードには混入させない。
