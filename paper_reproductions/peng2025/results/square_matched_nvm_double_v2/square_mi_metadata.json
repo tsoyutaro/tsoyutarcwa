@@ -1,0 +1,91 @@
+{
+  "paper": {
+    "title": "Rigorous Coupled-Wave Analysis of Multilayer Metal-Insulator Aperture-Particle Composite Periodic Arrays",
+    "doi": "10.1109/LAWP.2025.3543371"
+  },
+  "geometry_and_material_model": {
+    "period_um": 62.0,
+    "outer_radius_um": 30.0,
+    "inner_radius_um": 14.0,
+    "silver_thickness_um": 1.0,
+    "epsilon_aperture_real": 1.0,
+    "epsilon_aperture_imag": 0.0,
+    "epsilon_pi_real": 3.5,
+    "epsilon_pi_imag": 0.009,
+    "pi_thickness_um": null
+  },
+  "reproduction_assumptions": {
+    "silver_drude": {
+      "epsilon_infinity": 1.0,
+      "plasma_rad_s": 1.37e+16,
+      "collision_rad_s": 27300000000000.0
+    },
+    "pattern_layer": "Ag background / air annulus / Ag central particle",
+    "mi_substrate": "semi-infinite PI",
+    "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
+    "method_note": "The primitive-cell solver selects analytic concentric NVM, matched-ASR alone, or generalized normal-vector Li factorization after matched-ASR. The last option follows the paper's ASR-then-NV sequence but is not a bit-for-bit copy of its stepped separable map and interpolated NV extension; agreement is assessed through converged physical observables."
+  },
+  "study": "convergence",
+  "frequency_thz": [
+    1.95
+  ],
+  "orders": [
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    23,
+    24,
+    26
+  ],
+  "grid": [
+    256,
+    256
+  ],
+  "asr_g": 0.03,
+  "solver": "matched-nvm",
+  "radial_mapping": "auto",
+  "radial_mapping_resolved": "double",
+  "pi_thickness_um": null,
+  "cascade": "redheffer",
+  "use_symmetry": false,
+  "passivity_warning_count": 9,
+  "convergence_assessment": {
+    "status": "not_converged",
+    "window": 3,
+    "orders": [
+      23,
+      24,
+      26
+    ],
+    "observable_spans": {
+      "reflectance": 20.39089612849252,
+      "transmittance": 0.09000457070397229,
+      "absorptance": 20.319349965251426
+    },
+    "tolerance": 0.01,
+    "strict_passivity": false,
+    "maximum_passivity_violation": 19.94397865066237,
+    "relaxed_passivity_tolerance": 0.002,
+    "recommended_next_orders": [
+      28,
+      30
+    ],
+    "recommended_action": "Increase the maximum order or change factorization; do not use the current tail as a reference result."
+  },
+  "figure_written": true,
+  "paper_comparison": {
+    "figure": "Fig. 2(c,d)",
+    "reported_asr_nv_spectrum_order": 23,
+    "reference_curve_samples_available": false,
+    "input_completeness": "underdetermined_from_paper",
+    "claim": "Compare curve shape and convergence qualitatively unless the authors' exact Drude constants/reference samples are supplied."
+  },
+  "rows": 13
+}

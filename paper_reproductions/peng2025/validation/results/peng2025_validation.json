@@ -23,10 +23,57 @@
       "passed": true
     },
     "square_smoke": {
+      "reflectance": 0.9728927646496761,
+      "transmittance": 0.00019322523599569656,
+      "absorptance": 0.02691401011432819,
       "finite": true,
       "balance": 1.0,
       "balance_error": 0.0,
       "passivity_warning": false,
+      "passed": true
+    },
+    "square_matched_nvm_factorization": {
+      "reflectance": 0.9728927646496761,
+      "transmittance": 0.00019322523599569656,
+      "absorptance": 0.02691401011432819,
+      "finite": true,
+      "balance": 1.0,
+      "balance_error": 0.0,
+      "passivity_warning": false,
+      "passed": true,
+      "backend_factorization_scheme": "generalized-li-epsilon+weiss-symmetric-mu",
+      "radial_mapping": "double",
+      "minimum_mapping_jacobian": 0.028740469170808025
+    },
+    "outer_map_condition_guard": {
+      "rejected": true,
+      "message": "The outer-only matched circle map is numerically singular: min(det(J))=1.244e-10, required > 1.000e-08. For a concentric core-shell use radial_mapping='double'; otherwise increase circle_G. The G=0.001 value used by stepped separable ASR is not generally transferable to this non-separable circle map.",
+      "passed": true
+    },
+    "order_convergence_classifier": {
+      "result": {
+        "status": "converged",
+        "window": 3,
+        "orders": [
+          20,
+          22,
+          24
+        ],
+        "observable_spans": {
+          "reflectance": 0.0007999999999999952,
+          "transmittance": 0.0008000000000000229,
+          "absorptance": 0.0
+        },
+        "tolerance": 0.01,
+        "strict_passivity": true,
+        "maximum_passivity_violation": 0.0,
+        "relaxed_passivity_tolerance": 0.002,
+        "recommended_next_orders": [
+          26,
+          28
+        ],
+        "recommended_action": "The requested order tail is stable and passive."
+      },
       "passed": true
     },
     "core_shell_nvm_coefficients": {
@@ -35,6 +82,9 @@
       "passed": true
     },
     "square_core_shell_nvm_smoke": {
+      "reflectance": 0.5623491496689892,
+      "transmittance": 0.17491552087330015,
+      "absorptance": 0.26273532945771066,
       "finite": true,
       "balance": 1.0,
       "balance_error": 0.0,
@@ -42,6 +92,9 @@
       "passed": true
     },
     "square_finite_pi_core_shell_nvm_smoke": {
+      "reflectance": 0.4922711082103047,
+      "transmittance": 0.2014555478201296,
+      "absorptance": 0.3062733439695658,
       "finite": true,
       "balance": 1.0,
       "balance_error": 0.0,
@@ -49,6 +102,9 @@
       "passed": true
     },
     "triangular_smoke": {
+      "reflectance": 0.9812692147946477,
+      "transmittance": 3.144957461705215e-05,
+      "absorptance": 0.018699335630735267,
       "finite": true,
       "balance": 1.0,
       "balance_error": 0.0,
@@ -94,6 +150,9 @@
       "passed": true
     },
     "square_double_matched_smoke": {
+      "reflectance": 0.9703460724559939,
+      "transmittance": 0.0002547119972092514,
+      "absorptance": 0.029399215546796836,
       "finite": true,
       "balance": 1.0,
       "balance_error": 0.0,
@@ -101,10 +160,13 @@
       "passed": true
     },
     "double_matched_redheffer_vs_algo2a": {
-      "maximum_RTA_difference": 7.589415207398531e-19,
+      "maximum_RTA_difference": 4.440892098500626e-16,
       "passed": true
     },
     "triangular_double_matched_smoke": {
+      "reflectance": 0.9809772721333769,
+      "transmittance": 3.475113798539541e-05,
+      "absorptance": 0.01898797672863767,
       "finite": true,
       "balance": 1.0,
       "balance_error": 0.0,
@@ -112,6 +174,9 @@
       "passed": true
     },
     "triangular_double_matched_d6_smoke": {
+      "reflectance": 0.9315796261572868,
+      "transmittance": 0.09570495268796904,
+      "absorptance": -0.027284578845255883,
       "finite": true,
       "balance": 0.9999999999999999,
       "balance_error": 1.1102230246251565e-16,
@@ -119,13 +184,19 @@
       "passed": false
     },
     "triangular_d6_smoke": {
+      "reflectance": 0.9315796261572868,
+      "transmittance": 0.09570495268796904,
+      "absorptance": -0.027284578845255883,
       "finite": true,
-      "balance": 1.0,
-      "balance_error": 0.0,
-      "passivity_warning": false,
-      "passed": true
+      "balance": 0.9999999999999999,
+      "balance_error": 1.1102230246251565e-16,
+      "passivity_warning": true,
+      "passed": false
     },
     "triangular_full_d6_reference": {
+      "reflectance": 0.6303580583475357,
+      "transmittance": 0.2354088424831332,
+      "absorptance": 0.13423309916933113,
       "finite": true,
       "balance": 1.0,
       "balance_error": 0.0,
@@ -133,6 +204,9 @@
       "passed": true
     },
     "triangular_raster_smoke": {
+      "reflectance": 0.9931267546378287,
+      "transmittance": 8.98750143052891e-14,
+      "absorptance": 0.00687324536208139,
       "finite": true,
       "balance": 1.0,
       "balance_error": 0.0,
@@ -140,11 +214,14 @@
       "passed": true
     },
     "d6_vs_rectangular_truncation_diagnostic": {
-      "maximum_RTA_difference": 0.3266780295511194,
+      "maximum_RTA_difference": 0.3012215678097512,
       "basis_note": "At equal index N=4 the D6 path uses a closed native star, whereas the unreduced path uses a rectangular box. Exact parity is not expected before separate basis convergence.",
       "passed": true
     },
     "supercell_smoke": {
+      "reflectance": 0.9939553670481919,
+      "transmittance": 1.202553385039831e-17,
+      "absorptance": 0.006044632951808114,
       "finite": true,
       "balance": 1.0,
       "balance_error": 0.0,

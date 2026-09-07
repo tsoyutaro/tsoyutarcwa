@@ -1,0 +1,31 @@
+{
+  "geometry": {
+    "period_um": 62.0,
+    "inner_radius_um": 14.0,
+    "outer_radius_um": 30.0
+  },
+  "grid": 256,
+  "asr_g": 0.03,
+  "device": "cuda",
+  "mappings": {
+    "outer": {
+      "minimum_jacobian": 1.2507596226558502e-06,
+      "maximum_jacobian": 18.208103176121845,
+      "minimum_singular_value": 2.0488100177042898e-05,
+      "maximum_pointwise_jacobian_condition": 2979.685824628047,
+      "safe_minimum_jacobian": 1e-08,
+      "usable": true,
+      "effective_radial_slope": null
+    },
+    "double": {
+      "minimum_jacobian": 0.03034991003748236,
+      "maximum_jacobian": 4.136181633729074,
+      "minimum_singular_value": 0.03029901323779936,
+      "maximum_pointwise_jacobian_condition": 47.545885901728056,
+      "safe_minimum_jacobian": 1e-08,
+      "usable": true,
+      "effective_radial_slope": 0.03
+    }
+  },
+  "recommendation": "Use radial_mapping='double'."
+}

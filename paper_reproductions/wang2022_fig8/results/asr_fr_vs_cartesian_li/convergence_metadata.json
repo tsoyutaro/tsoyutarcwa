@@ -1,0 +1,53 @@
+{
+  "purpose": "method comparison separate from the Fig. 8 reproduction",
+  "paper_doi": "10.1364/OE.459110",
+  "frequency_GHz": 6.0,
+  "wavelength_mm": 49.965409666666666,
+  "rayleigh_cutoff_GHz": 9.993081933333334,
+  "propagating_orders_air": 1,
+  "geometry": {
+    "period_mm": [
+      30.0,
+      30.0
+    ],
+    "patch_fill": [
+      0.5,
+      0.5
+    ],
+    "patch_thickness_mm": 0.01,
+    "metal_epsilon_torcwa": [
+      1.0,
+      1000000.0
+    ]
+  },
+  "methods": {
+    "ASR-FR": "paper ASR map plus mixed Fourier factorization",
+    "Cartesian-Li": "identity coordinates; analytic rectangle coefficients; directional Li inverse/direct factorization; no NV field"
+  },
+  "reference": {
+    "kind": "requested passive internal reference",
+    "method": "ASR-FR",
+    "order": 8,
+    "R_total": 0.12066177230406595,
+    "T_total": 0.8727586839369618
+  },
+  "reference_warning": "The default ASR-FR N=M=8 row follows the paper's Fig. 8 setting but remains an internal comparison reference, not HFSS or an exact solution. Non-passive rows are never selected as a reference. Supply --reference-r and --reference-t when independent data are available.",
+  "orders": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    12
+  ],
+  "grid": 256,
+  "quadrature_grid": 4096,
+  "cascade": "redheffer",
+  "device": "cuda",
+  "dtype": "complex128",
+  "revision": "wang2022-asr-fr-vs-cartesian-li-v1",
+  "rows": 18
+}
