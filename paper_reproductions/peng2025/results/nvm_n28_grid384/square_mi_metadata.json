@@ -25,28 +25,16 @@
     "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
     "method_note": "The primitive-cell solver selects analytic concentric NVM, matched-ASR alone, or generalized normal-vector Li factorization after matched-ASR. The last option follows the paper's ASR-then-NV sequence but is not a bit-for-bit copy of its stepped separable map and interpolated NV extension; agreement is assessed through converged physical observables."
   },
-  "study": "convergence",
+  "study": "smoke",
   "frequency_thz": [
     1.95
   ],
   "orders": [
-    4,
-    6,
-    8,
-    10,
-    12,
-    14,
-    16,
-    18,
-    20,
-    22,
-    23,
-    24,
-    26
+    28
   ],
   "grid": [
-    256,
-    256
+    384,
+    384
   ],
   "asr_g": 0.03,
   "solver": "nvm",
@@ -55,31 +43,9 @@
   "pi_thickness_um": null,
   "cascade": "redheffer",
   "use_symmetry": false,
-  "passivity_warning_count": 3,
-  "convergence_assessment": {
-    "status": "provisional_small_passivity_error",
-    "window": 3,
-    "orders": [
-      23,
-      24,
-      26
-    ],
-    "observable_spans": {
-      "reflectance": 0.0013937893140052587,
-      "transmittance": 0.0056181223169924355,
-      "absorptance": 0.006644653319546112
-    },
-    "tolerance": 0.01,
-    "strict_passivity": false,
-    "maximum_passivity_violation": 0.0013814437988444173,
-    "relaxed_passivity_tolerance": 0.002,
-    "recommended_next_orders": [
-      28,
-      30
-    ],
-    "recommended_action": "Extend the order sweep and require a passive final window before using the result as a reference spectrum."
-  },
-  "figure_written": true,
+  "passivity_warning_count": 0,
+  "convergence_assessment": null,
+  "figure_written": false,
   "paper_comparison": {
     "figure": "Fig. 2(c,d)",
     "reported_asr_nv_spectrum_order": 23,
@@ -87,5 +53,5 @@
     "input_completeness": "underdetermined_from_paper",
     "claim": "Compare curve shape and convergence qualitatively unless the authors' exact Drude constants/reference samples are supplied."
   },
-  "rows": 13
+  "rows": 1
 }

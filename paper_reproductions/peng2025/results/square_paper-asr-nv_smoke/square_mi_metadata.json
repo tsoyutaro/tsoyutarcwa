@@ -23,62 +23,34 @@
     "pattern_layer": "Ag background / air annulus / Ag central particle",
     "mi_substrate": "semi-infinite PI",
     "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
-    "method_note": "The primitive-cell solver selects analytic concentric NVM, matched-ASR alone, or generalized normal-vector Li factorization after matched-ASR. The last option follows the paper's ASR-then-NV sequence but is not a bit-for-bit copy of its stepped separable map and interpolated NV extension; agreement is assessed through converged physical observables."
+    "method_note": "paper-asr reproduces the stepped-boundary Eq. (7) map; piecewise-constant uv rectangles are integrated exactly for the disclosed Laurent convolution. paper-asr-nv then applies Eqs. (8)-(10) using analytic circle gradients and periodic accelerated IDW. Values omitted by the article (staircase resolution, u_l/v_l allocation, IDW settings, and the discrete ASR/NV coordinate ordering) are explicit run parameters. Legacy smooth matched maps and analytic NVM remain independent routes."
   },
-  "study": "convergence",
+  "study": "smoke",
   "frequency_thz": [
     1.95
   ],
   "orders": [
-    4,
-    6,
-    8,
-    10,
-    12,
-    14,
-    16,
-    18,
-    20,
-    22,
-    23,
-    24,
-    26
+    1
   ],
   "grid": [
-    256,
-    256
+    48,
+    48
   ],
-  "asr_g": 0.03,
-  "solver": "nvm",
+  "asr_g": 0.001,
+  "solver": "paper-asr-nv",
+  "staircase_grid": 12,
+  "uv_break_allocation": "cube-root",
+  "nv_boundary_samples_per_circle": 256,
+  "nv_neighbors": 16,
+  "nv_power": 2.0,
+  "nv_coordinate_rule": "paper-disclosed",
   "radial_mapping": "auto",
   "radial_mapping_resolved": null,
   "pi_thickness_um": null,
   "cascade": "redheffer",
   "use_symmetry": false,
-  "passivity_warning_count": 3,
-  "convergence_assessment": {
-    "status": "provisional_small_passivity_error",
-    "window": 3,
-    "orders": [
-      23,
-      24,
-      26
-    ],
-    "observable_spans": {
-      "reflectance": 0.0013937893140052587,
-      "transmittance": 0.0056181223169924355,
-      "absorptance": 0.006644653319546112
-    },
-    "tolerance": 0.01,
-    "strict_passivity": false,
-    "maximum_passivity_violation": 0.0013814437988444173,
-    "relaxed_passivity_tolerance": 0.002,
-    "recommended_next_orders": [
-      28,
-      30
-    ],
-    "recommended_action": "Extend the order sweep and require a passive final window before using the result as a reference spectrum."
-  },
+  "passivity_warning_count": 0,
+  "convergence_assessment": null,
   "figure_written": true,
   "paper_comparison": {
     "figure": "Fig. 2(c,d)",
@@ -87,5 +59,5 @@
     "input_completeness": "underdetermined_from_paper",
     "claim": "Compare curve shape and convergence qualitatively unless the authors' exact Drude constants/reference samples are supplied."
   },
-  "rows": 13
+  "rows": 1
 }
