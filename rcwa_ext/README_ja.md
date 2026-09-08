@@ -63,6 +63,15 @@ from rcwa_solver_auto import AutoRCWA, Circle, LayerSpec, Material
 `../studies/shared/gold_dispersion.py`、導出と実行手順の
 `../studies/gold_motheye/README_ja.md` があります。
 
+Weiss et al. (2009) の円柱数値例で使われた式 (41)-(42) の固定界面 ASR profile も
+実装済みです。`CustomRCWA_ASR_FR` では
+`matched_asr_profile="weiss2009", matched_asr_G=0.03`、`AutoRCWA` では
+`ASROptions(circle_profile="weiss2009", circle_G=0.03)` と指定します。
+`matched_asr_profile="identity"` は式 (37)-(38) の matched coordinates のみを使い、
+1次元 ASR stretch を無効にします。既定の `"equalized"` は後方互換の区間再配分型です。
+再現スクリプトと制約は
+`../paper_reproductions/weiss2009/README_ja.md` を参照してください。
+
 PMMAコアへ金薄膜を被覆する同心三材料層は
 `AutoRCWA.add_layer_circle_shell_asr(...)` で追加できます。`radial_mapping="outer"` は
 外側境界だけに整合する従来方式、`radial_mapping="double"` は内外両境界に整合する

@@ -1,0 +1,114 @@
+{
+  "paper_doi": "10.1364/OE.17.008051",
+  "device": "cpu",
+  "passed": true,
+  "checks": [
+    {
+      "name": "Eq. 41 fixed interface coordinates",
+      "passed": true,
+      "detail": [
+        0.0,
+        0.39644660940672627,
+        1.1035533905932737,
+        1.5
+      ]
+    },
+    {
+      "name": "Eq. 42 interface slope equals 1-eta",
+      "passed": true,
+      "detail": [
+        0.03000186626896162,
+        0.030001866268960953
+      ]
+    },
+    {
+      "name": "one-dimensional map is finite and monotone",
+      "passed": true,
+      "detail": {
+        "minimum_derivative": 0.030000019398097377,
+        "maximum_derivative": 1.97
+      }
+    },
+    {
+      "name": "two-dimensional matched-ASR Jacobian is positive",
+      "passed": true,
+      "detail": 7.839435731994042e-06
+    },
+    {
+      "name": "identity profile leaves matched coordinates unstretched",
+      "passed": true,
+      "detail": "u=tu and v=tv"
+    },
+    {
+      "name": "analytical HE11 reference agrees with paper's rounded 25 1/um",
+      "passed": true,
+      "detail": 25.562067938661734
+    },
+    {
+      "name": "Drude gold has positive loss for exp(-i omega t)",
+      "passed": true,
+      "detail": [
+        -33.6814911003288,
+        1.2680462516358566
+      ]
+    },
+    {
+      "name": "low-order scattering is finite",
+      "passed": true,
+      "detail": [
+        {
+          "profile": "identity",
+          "label": "matched coordinates (no ASR)",
+          "frequency_THz": 619.5,
+          "order": 1,
+          "harmonics": 9,
+          "grid": 32,
+          "epsilon_real": 4.0,
+          "epsilon_imag": 0.0,
+          "R_x": 0.09175682472470298,
+          "T_x": 0.8977966950258484,
+          "A_x": 0.01044648024944872,
+          "balance_x": 0.9895535197505514,
+          "polarization_delta_T": 1.765254609153999e-14,
+          "minimum_jacobian": 0.48713550600343036,
+          "elapsed_s": 0.034223999828100204,
+          "revision": "weiss2009-v1-fixed-interface-eq41",
+          "R_y": 0.09175682472471594,
+          "T_y": 0.8977966950258307,
+          "A_y": 0.010446480249453383,
+          "balance_y": 0.9895535197505466
+        },
+        {
+          "profile": "weiss2009",
+          "label": "matched coordinates + ASR",
+          "frequency_THz": 619.5,
+          "order": 1,
+          "harmonics": 9,
+          "grid": 32,
+          "epsilon_real": 4.0,
+          "epsilon_imag": 0.0,
+          "R_x": 0.1306749996884866,
+          "T_x": 0.8640291461905042,
+          "A_x": 0.005295854121009191,
+          "balance_x": 0.9947041458789908,
+          "polarization_delta_T": 7.882583474838611e-15,
+          "minimum_jacobian": 6.526585389301977e-05,
+          "elapsed_s": 0.03121299995109439,
+          "revision": "weiss2009-v1-fixed-interface-eq41",
+          "R_y": 0.13067499968848587,
+          "T_y": 0.8640291461904963,
+          "A_y": 0.005295854121017851,
+          "balance_y": 0.9947041458789821
+        }
+      ]
+    },
+    {
+      "name": "symmetric factorization preserves x/y transmission",
+      "passed": true,
+      "detail": [
+        1.765254609153999e-14,
+        7.882583474838611e-15
+      ]
+    }
+  ]
+}

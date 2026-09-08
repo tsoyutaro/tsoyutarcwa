@@ -3,11 +3,10 @@
 The paper's stated dimensions are used: p=62 um, R=30 um, r=14 um, and
 Ag thickness=1 um.  The selected material interpretation is air in the
 annular aperture and PI with epsilon_PI=3.5+0.009j.  Incidence is normal
-x/TM over 1--3 THz.  The default solver is the analytic-Fourier concentric
-NVM route, which is the most stable of the implemented routes for this
-high-contrast geometry.  Matched-coordinate ASR, with or without the
-experimental generalized normal-vector factorization, remains selectable for
-convergence diagnostics.
+x/TM over 1--3 THz.  The default solver implements the paper's stepped
+uniform-grid ASR Eq. (7), followed by its NV Eqs. (8)--(10).  The boundary
+normal is sampled from the analytic circle gradients and extended with
+periodic k-nearest inverse-distance weighting, as described in the article.
 The missing Ag Drude constants and MI substrate thickness are
 documented in the generated metadata rather than silently presented as paper
 values.
@@ -108,23 +107,74 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--asr-g",
         type=float,
-        default=3.0e-2,
+        default=1.0e-3,
         help=(
-            "Minimum interface slope of this non-separable matched map. "
-            "Default 0.03; the paper's 0.001 belongs to a different stepped "
-            "separable map."
+            "Minimum slope G in Eq. (7). Default 0.001 as stated in the paper; "
+            "the legacy smooth matched-circle routes often require a larger value."
         ),
     )
     parser.add_argument(
         "--solver",
-        choices=("matched-nvm", "nvm", "matched-asr"),
-        default="nvm",
+        choices=("paper-asr-nv", "paper-asr", "matched-nvm", "nvm", "matched-asr"),
+        default="paper-asr-nv",
         help=(
-            "nvm (default) is the analytic-Fourier baseline route; "
+            "paper-asr-nv (default) reproduces Eqs. (7)--(10); paper-asr "
+            "reproduces Eq. (7) without NV; nvm is the analytic baseline; "
             "matched-asr uses the Weiss symmetric rule in double-matched "
             "coordinates; matched-nvm adds the experimental generalized "
-            "normal-vector Li rule and must not be used without an order-"
-            "convergence and passivity check."
+            "normal-vector Li rule."
+        ),
+    )
+    parser.add_argument(
+        "--staircase-grid",
+        type=int,
+        help=(
+            "Uniform pixels per axis used to make the paper's stepped circle. "
+            "The article does not state this value; defaults are 12 for smoke "
+            "and 64 for spectrum/convergence."
+        ),
+    )
+    parser.add_argument(
+        "--uv-interval-allocation",
+        choices=("cube-root", "uniform"),
+        default="cube-root",
+        help=(
+            "Placement of u_l/v_l. cube-root follows the regularized jump-point "
+            "rule used by the cited 2-D ASR formulation; uniform is a sensitivity run."
+        ),
+    )
+    parser.add_argument(
+        "--nv-boundary-samples",
+        type=int,
+        default=256,
+        help="Analytic-gradient samples per circular boundary (unreported in the paper).",
+    )
+    parser.add_argument(
+        "--nv-neighbors",
+        type=int,
+        default=16,
+        help="Nearest boundary samples used by accelerated periodic IDW.",
+    )
+    parser.add_argument(
+        "--nv-power",
+        type=float,
+        default=2.0,
+        help="Inverse-distance exponent used to fill the NV field.",
+    )
+    parser.add_argument(
+        "--nv-coordinate-rule",
+        choices=(
+            "paper-disclosed",
+            "tensor-metric",
+            "asr-correction",
+            "metric-left",
+            "piola",
+        ),
+        default="paper-disclosed",
+        help=(
+            "Ordering used to combine Cartesian NV Eqs. (8)-(9) with Eq. (7) "
+            "coordinates. paper-disclosed follows only the equations printed in "
+            "the article; the Jacobian-based alternatives are sensitivity runs."
         ),
     )
     parser.add_argument(
@@ -306,9 +356,9 @@ def main() -> int:
         output_dir = _PACKAGE_ROOT / "results" / f"square_{solver_tag}_{args.study}"
     if args.study == "convergence" and len(frequencies) != 1:
         raise ValueError("Convergence study accepts exactly one frequency.")
-    if args.solver == "nvm" and args.radial_mapping not in {"auto", "outer"}:
+    if args.solver in {"nvm", "paper-asr", "paper-asr-nv"} and args.radial_mapping not in {"auto", "outer"}:
         raise ValueError(
-            "--radial-mapping applies only to --solver matched-asr/matched-nvm."
+            "--radial-mapping applies only to the legacy matched-asr/matched-nvm solvers."
         )
     if args.solver.startswith("matched-") and args.radial_mapping == "outer":
         print(
@@ -324,6 +374,7 @@ def main() -> int:
             "accept results only after both passivity and order convergence "
             "succeed. Use --solver nvm for the current baseline calculation."
         )
+    staircase_grid = args.staircase_grid or (12 if args.study == "smoke" else 64)
     geometry = PaperGeometry(pi_thickness_um=args.pi_thickness_um)
     print(
         "REPRODUCTION ASSUMPTION: the article does not report the Ag Drude "
@@ -363,6 +414,12 @@ def main() -> int:
                 use_symmetry=args.use_symmetry,
                 shell_radial_mapping=args.radial_mapping,
                 solver=args.solver,
+                staircase_grid=staircase_grid,
+                asr_interval_allocation=args.uv_interval_allocation,
+                nv_boundary_samples=args.nv_boundary_samples,
+                nv_neighbors=args.nv_neighbors,
+                nv_power=args.nv_power,
+                nv_coordinate_rule=args.nv_coordinate_rule,
             ),
             device=device,
         )
@@ -426,10 +483,30 @@ def main() -> int:
             "grid": [grid, grid],
             "asr_g": args.asr_g,
             "solver": args.solver,
+            "staircase_grid": (
+                staircase_grid if args.solver.startswith("paper-") else None
+            ),
+            "uv_break_allocation": (
+                args.uv_interval_allocation
+                if args.solver.startswith("paper-")
+                else None
+            ),
+            "nv_boundary_samples_per_circle": (
+                args.nv_boundary_samples if args.solver == "paper-asr-nv" else None
+            ),
+            "nv_neighbors": (
+                args.nv_neighbors if args.solver == "paper-asr-nv" else None
+            ),
+            "nv_power": (
+                args.nv_power if args.solver == "paper-asr-nv" else None
+            ),
+            "nv_coordinate_rule": (
+                args.nv_coordinate_rule if args.solver == "paper-asr-nv" else None
+            ),
             "radial_mapping": args.radial_mapping,
             "radial_mapping_resolved": (
                 None
-                if args.solver == "nvm"
+                if args.solver == "nvm" or args.solver.startswith("paper-")
                 else "double"
                 if args.radial_mapping == "auto"
                 else args.radial_mapping

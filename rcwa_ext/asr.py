@@ -9,7 +9,7 @@ import torch
 from .asr_maps import ASRMapping, CircleASRMapping, _ASRMappingMixin
 from .config import (
     LayerRecord, UnsupportedCombinationError, _ORIGINAL_TORCWA_RCWA,
-    _as_float, _real_parameter_tensor,
+    _TWO_PI, _as_float, _real_parameter_tensor,
 )
 from .scattering import _StableLinearAlgebraMixin
 
@@ -40,6 +40,26 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             quadrature_grid = int(quadrature_grid)
         self.asr_quadrature_grid = quadrature_grid
         self.matched_asr_G = float(kwargs.pop("matched_asr_G", 3.0e-2))
+        profile_aliases = {
+            "equalized": "equalized",
+            "balanced": "equalized",
+            "default": "equalized",
+            "weiss2009": "weiss2009",
+            "weiss-2009": "weiss2009",
+            "paper": "weiss2009",
+            "identity": "identity",
+            "none": "identity",
+            "no-asr": "identity",
+        }
+        raw_profile = str(
+            kwargs.pop("matched_asr_profile", "equalized")
+        ).strip().lower().replace("_", "-")
+        self.matched_asr_profile = profile_aliases.get(raw_profile)
+        if self.matched_asr_profile is None:
+            raise ValueError(
+                "matched_asr_profile must be 'equalized', 'weiss2009', "
+                "or 'identity'."
+            )
         self.matched_asr_min_jacobian = float(
             kwargs.pop("matched_asr_min_jacobian", 1.0e-12)
         )
@@ -603,6 +623,467 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         q12 = torch.matmul(ku, torch.matmul(inv_mu33, ku)) - eps22_m
         q21 = eps11_m - torch.matmul(kv, torch.matmul(inv_mu33, kv))
         q22 = eps12_m + torch.matmul(kv, torch.matmul(inv_mu33, ku))
+        q = torch.cat(
+            (torch.cat((q11, q12), dim=1), torch.cat((q21, q22), dim=1)),
+            dim=0,
+        )
+        return p, q, eps33_conv, mu33_conv
+
+    def _piecewise_rectangular_conv(
+        self,
+        values: torch.Tensor,
+        u_breaks: torch.Tensor,
+        v_breaks: torch.Tensor,
+    ) -> torch.Tensor:
+        """Exact BTTB convolution for a rectangular piecewise-constant grid.
+
+        Peng--Zhang first staircase the circular boundary and then place every
+        material jump at an adaptive-coordinate breakpoint.  Each resulting
+        uv rectangle is constant, so its Fourier coefficient can be integrated
+        analytically instead of being obtained from an FFT raster.  This is
+        both closer to their Laurent-rule statement and important for the very
+        high Ag/air contrast.
+        """
+        if values.ndim != 2:
+            raise ValueError("Piecewise rectangular values must be two-dimensional.")
+        if values.shape != (u_breaks.numel() - 1, v_breaks.numel() - 1):
+            raise ValueError("Piecewise values do not match the breakpoint grid.")
+        if bool(torch.any(u_breaks[1:] <= u_breaks[:-1])) or bool(
+            torch.any(v_breaks[1:] <= v_breaks[:-1])
+        ):
+            raise ValueError("Piecewise breakpoints must be strictly increasing.")
+
+        mx, my = len(self.order_x), len(self.order_y)
+        dx = self.order_x[:, None] - self.order_x[None, :]
+        dy = self.order_y[:, None] - self.order_y[None, :]
+        minimum_dx = int(torch.min(dx).detach().cpu().item())
+        maximum_dx = int(torch.max(dx).detach().cpu().item())
+        minimum_dy = int(torch.min(dy).detach().cpu().item())
+        maximum_dy = int(torch.max(dy).detach().cpu().item())
+        unique_x = torch.arange(
+            minimum_dx,
+            maximum_dx + 1,
+            dtype=torch.float64,
+            device=self._device,
+        )
+        unique_y = torch.arange(
+            minimum_dy,
+            maximum_dy + 1,
+            dtype=torch.float64,
+            device=self._device,
+        )
+
+        def interval_integrals(
+            harmonics: torch.Tensor, breaks: torch.Tensor
+        ) -> torch.Tensor:
+            length = breaks[-1] - breaks[0]
+            scaled0 = (breaks[:-1] - breaks[0]) / length
+            scaled1 = (breaks[1:] - breaks[0]) / length
+            harmonic_grid = harmonics[:, None]
+            phase0 = torch.exp(-1.0j * _TWO_PI * harmonic_grid * scaled0[None, :])
+            phase1 = torch.exp(-1.0j * _TWO_PI * harmonic_grid * scaled1[None, :])
+            safe_harmonic = torch.where(
+                harmonic_grid == 0.0,
+                torch.ones_like(harmonic_grid),
+                harmonic_grid,
+            )
+            nonzero = (phase1 - phase0) / (-1.0j * _TWO_PI * safe_harmonic)
+            zero = (scaled1 - scaled0)[None, :].expand_as(nonzero)
+            return torch.where(harmonic_grid == 0.0, zero, nonzero).to(self._dtype)
+
+        integral_x = interval_integrals(unique_x, u_breaks)
+        integral_y = interval_integrals(unique_y, v_breaks)
+        coefficient_grid = torch.matmul(
+            integral_x,
+            torch.matmul(values.to(self._dtype), integral_y.mT),
+        )
+        index_x = (dx - minimum_dx).to(torch.int64)
+        index_y = (dy - minimum_dy).to(torch.int64)
+        return coefficient_grid[
+            index_x[:, None, :, None], index_y[None, :, None, :]
+        ].reshape(mx * my, mx * my)
+
+    def _peng_eq8_transverse_epsilon(
+        self,
+        epsilon_uv: torch.Tensor,
+        normal_u: torch.Tensor,
+        normal_v: torch.Tensor,
+        *,
+        epsilon_matrix: torch.Tensor | None = None,
+        inverse_epsilon_matrix: torch.Tensor | None = None,
+    ) -> tuple[
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+    ]:
+        """Implement Peng--Zhang Eqs. (8)-(9) with their published sign.
+
+        The paper defines ``Delta = E - [[1/epsilon]]^-1`` and subtracts
+        ``Delta N_ij``.  ``correction`` below is therefore ``-Delta``.  The
+        returned first four matrices map ``[E_u,E_v]`` to ``[D_u,D_v]``;
+        the final two are ``E`` and the inverse-rule matrix, retained for
+        diagnostics and regression tests.
+        """
+        if epsilon_uv.shape != normal_u.shape or epsilon_uv.shape != normal_v.shape:
+            raise ValueError("Peng NV epsilon and normal fields must share a grid.")
+        if bool(torch.any(torch.abs(epsilon_uv) == 0.0)):
+            raise ValueError("Peng NV requires nonzero permittivity samples.")
+        epsilon = (
+            self._material_conv(epsilon_uv)
+            if epsilon_matrix is None
+            else epsilon_matrix
+        )
+        inverse_rule = self._solve(
+            self._material_conv(1.0 / epsilon_uv)
+            if inverse_epsilon_matrix is None
+            else inverse_epsilon_matrix,
+            self._eye(self.order_N),
+        )
+        correction = inverse_rule - epsilon
+        n_uu = self._material_conv(normal_u * normal_u)
+        n_uv = self._material_conv(normal_u * normal_v)
+        n_vv = self._material_conv(normal_v * normal_v)
+        epsilon_uu = epsilon + torch.matmul(correction, n_uu)
+        epsilon_uv_matrix = torch.matmul(correction, n_uv)
+        epsilon_vu_matrix = epsilon_uv_matrix
+        epsilon_vv = epsilon + torch.matmul(correction, n_vv)
+        return (
+            epsilon_uu,
+            epsilon_uv_matrix,
+            epsilon_vu_matrix,
+            epsilon_vv,
+            epsilon,
+            inverse_rule,
+        )
+
+    def _peng_idw_normal_field(
+        self,
+        mapping: ASRMapping,
+        core_radius,
+        outer_radius,
+        *,
+        boundary_samples: int,
+        neighbors: int,
+        power: float,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Generate the paper's boundary-gradient/IDW normal-vector field.
+
+        Boundary normals are analytic Cartesian radial gradients on both
+        circles and are placed at their inverse-mapped ``uv`` boundary
+        coordinates.  The remaining periodic ``uv`` cell is filled by
+        k-nearest inverse-distance weighting, an explicit accelerated-IDW
+        realization of the method described after Eq. (10).
+        """
+        if (
+            isinstance(boundary_samples, bool)
+            or int(boundary_samples) != boundary_samples
+            or boundary_samples < 16
+        ):
+            raise ValueError("boundary_samples must be an integer >= 16.")
+        if (
+            isinstance(neighbors, bool)
+            or int(neighbors) != neighbors
+            or neighbors < 1
+        ):
+            raise ValueError("neighbors must be a positive integer.")
+        if not math.isfinite(float(power)) or float(power) <= 0.0:
+            raise ValueError("IDW power must be finite and positive.")
+        boundary_samples = int(boundary_samples)
+        neighbors = int(neighbors)
+        lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
+        real_dtype = mapping.x.dtype
+        radii = torch.stack(
+            tuple(
+                torch.as_tensor(value, dtype=real_dtype, device=self._device)
+                for value in (core_radius, outer_radius)
+            )
+        )
+        angles = (
+            torch.arange(
+                boundary_samples, dtype=real_dtype, device=self._device
+            )
+            + 0.5
+        ) * (_TWO_PI / boundary_samples)
+        cosine, sine = torch.cos(angles), torch.sin(angles)
+        sample_x = 0.5 * lx + (radii[:, None] * cosine[None, :]).reshape(-1)
+        sample_y = 0.5 * ly + (radii[:, None] * sine[None, :]).reshape(-1)
+        sample_nx = cosine.repeat(2)
+        sample_ny = sine.repeat(2)
+
+        def inverse_axis(
+            physical: torch.Tensor,
+            physical_breaks: torch.Tensor,
+            transformed_breaks: torch.Tensor,
+        ) -> tuple[torch.Tensor, torch.Tensor]:
+            """Invert Eq. (7) and return the local derivative at each point."""
+            interval = torch.bucketize(
+                physical, physical_breaks[1:-1], right=False
+            )
+            x0 = physical_breaks[interval]
+            x1 = physical_breaks[interval + 1]
+            u0 = transformed_breaks[interval]
+            u1 = transformed_breaks[interval + 1]
+            dx, du = x1 - x0, u1 - u0
+            a1 = (u1 * x0 - u0 * x1) / du
+            a2 = dx / du
+            a3 = self.asr_G * du - dx
+            coordinate = u0 + (physical - x0) * du / dx
+            for _ in range(10):
+                phase = _TWO_PI * (coordinate - u0) / du
+                mapped = a1 + a2 * coordinate + (a3 / _TWO_PI) * torch.sin(
+                    phase
+                )
+                derivative = a2 + (a3 / du) * torch.cos(phase)
+                coordinate = torch.minimum(
+                    u1,
+                    torch.maximum(
+                        u0,
+                        coordinate
+                        - (mapped - physical) / torch.clamp(derivative, min=1.0e-14),
+                    ),
+                )
+            phase = _TWO_PI * (coordinate - u0) / du
+            derivative = a2 + (a3 / du) * torch.cos(phase)
+            return coordinate, derivative
+
+        sample_u, sample_f = inverse_axis(
+            sample_x, mapping.x_breaks, mapping.u_breaks
+        )
+        sample_v, sample_g = inverse_axis(
+            sample_y, mapping.y_breaks, mapping.v_breaks
+        )
+        # The boundary locations live in uv after ASR, while the interpolated
+        # vector components remain Cartesian.  This permits the published
+        # scalar Cartesian NV operator to be formed first and then transformed
+        # rigorously with the Piola/Jacobian factors below.
+        del sample_f, sample_g
+        sample_count = sample_u.numel()
+        selected_neighbors = min(neighbors, sample_count)
+
+        uu, vv = torch.meshgrid(mapping.u, mapping.v, indexing="ij")
+        flat_u, flat_v = uu.reshape(-1), vv.reshape(-1)
+        interpolated_x: list[torch.Tensor] = []
+        interpolated_y: list[torch.Tensor] = []
+        # Bound the temporary distance matrix independently of the requested
+        # Fourier grid.  This matters for the paper-scale 256 x 256 sampling.
+        chunk_size = 2048
+        distance_floor = (
+            min(lx / mapping.x.numel(), ly / mapping.y.numel()) * 1.0e-9
+        ) ** 2
+        for start in range(0, flat_u.numel(), chunk_size):
+            stop = min(start + chunk_size, flat_u.numel())
+            du = flat_u[start:stop, None] - sample_u[None, :]
+            dv = flat_v[start:stop, None] - sample_v[None, :]
+            du = torch.remainder(du + 0.5 * lx, lx) - 0.5 * lx
+            dv = torch.remainder(dv + 0.5 * ly, ly) - 0.5 * ly
+            squared = du**2 + dv**2
+            nearest_squared, indices = torch.topk(
+                squared, k=selected_neighbors, dim=1, largest=False
+            )
+            weights = torch.pow(
+                torch.clamp(nearest_squared, min=distance_floor),
+                -0.5 * float(power),
+            )
+            weights = weights / torch.sum(weights, dim=1, keepdim=True)
+            interpolated_x.append(
+                torch.sum(weights * sample_nx[indices], dim=1)
+            )
+            interpolated_y.append(
+                torch.sum(weights * sample_ny[indices], dim=1)
+            )
+
+        normal_x = torch.cat(interpolated_x).reshape(uu.shape)
+        normal_y = torch.cat(interpolated_y).reshape(vv.shape)
+        norm = torch.sqrt(normal_x**2 + normal_y**2)
+        xx, yy = torch.meshgrid(mapping.x, mapping.y, indexing="ij")
+        fallback_x = xx - 0.5 * lx
+        fallback_y = yy - 0.5 * ly
+        fallback_norm = torch.sqrt(fallback_x**2 + fallback_y**2)
+        fallback_x = torch.where(
+            fallback_norm > 1.0e-14,
+            fallback_x / torch.clamp(fallback_norm, min=1.0e-14),
+            torch.ones_like(fallback_x),
+        )
+        fallback_y = torch.where(
+            fallback_norm > 1.0e-14,
+            fallback_y / torch.clamp(fallback_norm, min=1.0e-14),
+            torch.zeros_like(fallback_y),
+        )
+        normal_x = torch.where(
+            norm > 1.0e-12,
+            normal_x / torch.clamp(norm, min=1.0e-12),
+            fallback_x,
+        )
+        normal_y = torch.where(
+            norm > 1.0e-12,
+            normal_y / torch.clamp(norm, min=1.0e-12),
+            fallback_y,
+        )
+        final_norm = torch.sqrt(normal_x**2 + normal_y**2)
+        normal_x = normal_x / torch.clamp(final_norm, min=1.0e-14)
+        normal_y = normal_y / torch.clamp(final_norm, min=1.0e-14)
+        return normal_x, normal_y
+
+    def _build_peng_asr_nv_pq(
+        self,
+        epsilon_uv: torch.Tensor,
+        mu_uv: torch.Tensor,
+        mapping: ASRMapping,
+        normal_x: torch.Tensor,
+        normal_y: torch.Tensor,
+        *,
+        coordinate_rule: str = "paper-disclosed",
+        epsilon_matrix: torch.Tensor | None = None,
+        inverse_epsilon_matrix: torch.Tensor | None = None,
+        mu_matrix: torch.Tensor | None = None,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Apply published NV Eqs. (8)-(10) after separable ASR Eq. (7).
+
+        Eq. (8)'s scalar Cartesian NVM operator is built first.  The short
+        paper does not publish the combined ASR/NV transformed-tensor equation,
+        so the published form and three tensor-ordering sensitivity rules are
+        supported explicitly.  ``paper-disclosed`` uses the Eq. (8)-(10)
+        matrices directly on the Eq. (7) sampling grid, exactly as documented
+        in the article.  ``tensor-metric`` applies the continuous diagonal-Jacobian tensor law
+        (diagonal blocks acquire g/f and f/g, while the off-diagonal blocks do
+        not); ``asr-correction`` preserves the Eq. (7) ASR factorization and
+        adds only the Eq. (8) NV correction; ``metric-left`` is the historical
+        row-scaled sensitivity rule; ``piola`` applies both field transforms.
+        """
+        (
+            scalar_uu,
+            scalar_uv,
+            scalar_vu,
+            scalar_vv,
+            _epsilon,
+            _inverse_rule,
+        ) = self._peng_eq8_transverse_epsilon(
+            epsilon_uv,
+            normal_x,
+            normal_y,
+            epsilon_matrix=epsilon_matrix,
+            inverse_epsilon_matrix=inverse_epsilon_matrix,
+        )
+        f = mapping.f[:, None].to(self._dtype)
+        g = mapping.g[None, :].to(self._dtype)
+        ones = torch.ones_like(epsilon_uv)
+        normalized_rule = str(coordinate_rule).strip().lower().replace("_", "-")
+        if normalized_rule not in {
+            "paper-disclosed",
+            "tensor-metric",
+            "asr-correction",
+            "metric-left",
+            "piola",
+        }:
+            raise ValueError(
+                "coordinate_rule must be 'paper-disclosed', 'tensor-metric', "
+                "'asr-correction', 'metric-left', or 'piola'."
+            )
+        left_x = self._material_conv(ones * g)
+        left_y = self._material_conv(ones * f)
+        if normalized_rule == "paper-disclosed":
+            eps11_m = scalar_uu
+            eps12_m = scalar_uv
+            eps21_m = scalar_vu
+            eps22_m = scalar_vv
+            mu11_m = self._material_conv(mu_uv) if mu_matrix is None else mu_matrix
+            mu22_m = mu11_m
+            eps33_conv = _epsilon
+            mu33_conv = mu11_m
+        else:
+            eps33_conv = self._material_conv(epsilon_uv * f * g)
+            mu33_conv = self._material_conv(mu_uv * f * g)
+        if normalized_rule == "paper-disclosed":
+            pass
+        elif normalized_rule == "piola":
+            right_x = self._material_conv(ones / f)
+            right_y = self._material_conv(ones / g)
+            # D_uv = det(J) J^-1 D_xy and E_xy = J^-T E_uv.
+            eps11_m = torch.matmul(left_x, torch.matmul(scalar_uu, right_x))
+            eps12_m = torch.matmul(left_x, torch.matmul(scalar_uv, right_y))
+            eps21_m = torch.matmul(left_y, torch.matmul(scalar_vu, right_x))
+            eps22_m = torch.matmul(left_y, torch.matmul(scalar_vv, right_y))
+            mu_scalar = self._material_conv(mu_uv)
+            mu11_m = torch.matmul(left_x, torch.matmul(mu_scalar, right_x))
+            mu22_m = torch.matmul(left_y, torch.matmul(mu_scalar, right_y))
+        elif normalized_rule == "tensor-metric":
+            # For J=diag(f,g), det(J) J^-1 eps J^-T has factors
+            # g/f, 1, 1, f/g.  The scalar blocks already contain the
+            # published inverse-rule/NV convolution, so only the smooth
+            # diagonal metric is applied here.
+            metric_uu = self._material_conv(ones * g / f)
+            metric_vv = self._material_conv(ones * f / g)
+            eps11_m = torch.matmul(metric_uu, scalar_uu)
+            eps12_m = scalar_uv
+            eps21_m = scalar_vu
+            eps22_m = torch.matmul(metric_vv, scalar_vv)
+            mu11_m = self._material_conv(mu_uv * g / f)
+            mu22_m = self._material_conv(mu_uv * f / g)
+        elif normalized_rule == "metric-left":
+            metric_uu = self._material_conv(ones * g / f)
+            metric_vv = self._material_conv(ones * f / g)
+            eps11_m = torch.matmul(metric_uu, scalar_uu)
+            eps12_m = torch.matmul(metric_uu, scalar_uv)
+            eps21_m = torch.matmul(metric_vv, scalar_vu)
+            eps22_m = torch.matmul(metric_vv, scalar_vv)
+            mu11_m = self._material_conv(mu_uv * g / f)
+            mu22_m = self._material_conv(mu_uv * f / g)
+        else:
+            # Preserve the ASR-only factorization and add precisely the normal
+            # correction of Eq. (8).  This avoids multiplying two severely
+            # ill-conditioned truncated coordinate matrices when G=0.001.
+            epsilon_11 = epsilon_uv * g / f
+            epsilon_22 = epsilon_uv * f / g
+            eps11_base = self._factorized_bttb(
+                1.0 / epsilon_11,
+                invert_u_toeplitz=True,
+                invert_final_bttb=False,
+            )
+            eps22_base = self._factorized_bttb(
+                epsilon_22,
+                invert_u_toeplitz=True,
+                invert_final_bttb=True,
+            )
+            correction_uu = scalar_uu - _epsilon
+            correction_uv = scalar_uv
+            correction_vu = scalar_vu
+            correction_vv = scalar_vv - _epsilon
+            metric_uu = self._material_conv(ones * g / f)
+            metric_vv = self._material_conv(ones * f / g)
+            eps11_m = eps11_base + torch.matmul(metric_uu, correction_uu)
+            eps12_m = torch.matmul(metric_uu, correction_uv)
+            eps21_m = torch.matmul(metric_vv, correction_vu)
+            eps22_m = eps22_base + torch.matmul(metric_vv, correction_vv)
+            mu11_m = self._factorized_bttb(
+                1.0 / (mu_uv * g / f),
+                invert_u_toeplitz=True,
+                invert_final_bttb=False,
+            )
+            mu22_m = self._factorized_bttb(
+                mu_uv * f / g,
+                invert_u_toeplitz=True,
+                invert_final_bttb=True,
+            )
+        inverse_eps33 = self._solve(eps33_conv, self._eye(self.order_N))
+        inverse_mu33 = self._solve(mu33_conv, self._eye(self.order_N))
+        ku, kv = self.Kx_norm, self.Ky_norm
+        zero = torch.zeros_like(mu11_m)
+
+        p11 = zero + torch.matmul(ku, torch.matmul(inverse_eps33, kv))
+        p12 = mu22_m - torch.matmul(ku, torch.matmul(inverse_eps33, ku))
+        p21 = torch.matmul(kv, torch.matmul(inverse_eps33, kv)) - mu11_m
+        p22 = zero - torch.matmul(kv, torch.matmul(inverse_eps33, ku))
+        p = torch.cat(
+            (torch.cat((p11, p12), dim=1), torch.cat((p21, p22), dim=1)),
+            dim=0,
+        )
+        q11 = -eps21_m - torch.matmul(ku, torch.matmul(inverse_mu33, kv))
+        q12 = torch.matmul(ku, torch.matmul(inverse_mu33, ku)) - eps22_m
+        q21 = eps11_m - torch.matmul(kv, torch.matmul(inverse_mu33, kv))
+        q22 = eps12_m + torch.matmul(kv, torch.matmul(inverse_mu33, ku))
         q = torch.cat(
             (torch.cat((q11, q12), dim=1), torch.cat((q21, q22), dim=1)),
             dim=0,
@@ -1196,6 +1677,359 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             ny=ny,
             factorization_rules=factorization_rules,
             normal_vector_factorization=normal_vector_factorization,
+        )
+
+    def add_layer_circle_shell_peng_asr(
+        self,
+        thickness,
+        core_radius,
+        outer_radius,
+        eps_bg,
+        eps_shell,
+        eps_core,
+        *,
+        mu_bg=1.0,
+        mu_shell=1.0,
+        mu_core=1.0,
+        nx: int = 256,
+        ny: int = 256,
+        staircase_grid: int = 64,
+        uv_interval_allocation: str = "cube-root",
+        normal_vector_factorization: bool = False,
+        nv_boundary_samples: int = 256,
+        nv_neighbors: int = 16,
+        nv_power: float = 2.0,
+        nv_coordinate_rule: str = "paper-disclosed",
+    ) -> None:
+        """Add Peng--Zhang stepped ASR or ASR-NV concentric-circle layer.
+
+        This is the dedicated reproduction route for Eq. (7) and, when
+        requested, Eqs. (8)-(10).  It must not be confused with the smooth
+        Weiss matched-circle implementation exposed by
+        :meth:`add_layer_circle_shell_asr`.
+
+        The article does not disclose the staircase resolution, the placement
+        of transformed jump points, or the accelerated-IDW parameters.  All
+        three are therefore explicit arguments and are copied to layer
+        metadata so that a run is reproducible without presenting those
+        choices as values reported by the authors.
+        """
+        self._require_kvectors()
+        if getattr(self, "lattice_kind", "rectangular") not in {
+            "rectangular",
+            "square",
+        }:
+            raise UnsupportedCombinationError(
+                "Peng stepped ASR is implemented for the orthogonal Fig. 2 cell."
+            )
+        thickness_tensor, _ = _real_parameter_tensor(
+            "thickness",
+            thickness,
+            dtype=self._dtype,
+            device=self._device,
+            allow_zero=True,
+        )
+        core, core_value = _real_parameter_tensor(
+            "core_radius",
+            core_radius,
+            dtype=torch.float64,
+            device=self._device,
+            allow_zero=False,
+        )
+        outer, outer_value = _real_parameter_tensor(
+            "outer_radius",
+            outer_radius,
+            dtype=torch.float64,
+            device=self._device,
+            allow_zero=False,
+        )
+        if core_value >= outer_value:
+            raise ValueError("core_radius must be smaller than outer_radius.")
+        material_values = tuple(
+            torch.as_tensor(value, dtype=self._dtype, device=self._device)
+            for value in (eps_bg, eps_shell, eps_core, mu_bg, mu_shell, mu_core)
+        )
+        if not all(bool(torch.all(torch.isfinite(value))) for value in material_values):
+            raise ValueError("Peng ASR material values must be finite.")
+        if any(bool(torch.any(torch.abs(value) == 0.0)) for value in material_values):
+            raise ValueError("Peng ASR material values must be nonzero.")
+        eps_bg_t, eps_shell_t, eps_core_t, mu_bg_t, mu_shell_t, mu_core_t = (
+            material_values
+        )
+        mapping = self.build_stepped_circle_asr_mapping(
+            nx,
+            ny,
+            core,
+            outer,
+            staircase_grid=staircase_grid,
+            interval_allocation=uv_interval_allocation,
+        )
+        if mapping.region_grid is None or mapping.staircase_grid is None:
+            raise RuntimeError("Stepped circle map did not retain its region raster.")
+        lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
+
+        def sampled_regions(x_values: torch.Tensor, y_values: torch.Tensor) -> torch.Tensor:
+            x_index = torch.floor(
+                torch.remainder(x_values, lx) * mapping.staircase_grid / lx
+            ).to(torch.int64)
+            y_index = torch.floor(
+                torch.remainder(y_values, ly) * mapping.staircase_grid / ly
+            ).to(torch.int64)
+            x_index = torch.clamp(x_index, 0, mapping.staircase_grid - 1)
+            y_index = torch.clamp(y_index, 0, mapping.staircase_grid - 1)
+            return mapping.region_grid[x_index[:, None], y_index[None, :]]
+
+        region_uv = sampled_regions(mapping.x, mapping.y)
+        epsilon_uv = torch.where(
+            region_uv == 1,
+            eps_shell_t,
+            torch.where(region_uv == 2, eps_core_t, eps_bg_t),
+        )
+        mu_uv = torch.where(
+            region_uv == 1,
+            mu_shell_t,
+            torch.where(region_uv == 2, mu_core_t, mu_bg_t),
+        )
+        physical_x_mid = 0.5 * (mapping.x_breaks[:-1] + mapping.x_breaks[1:])
+        physical_y_mid = 0.5 * (mapping.y_breaks[:-1] + mapping.y_breaks[1:])
+        rectangular_regions = sampled_regions(physical_x_mid, physical_y_mid)
+        rectangular_epsilon = torch.where(
+            rectangular_regions == 1,
+            eps_shell_t,
+            torch.where(rectangular_regions == 2, eps_core_t, eps_bg_t),
+        )
+        rectangular_mu = torch.where(
+            rectangular_regions == 1,
+            mu_shell_t,
+            torch.where(rectangular_regions == 2, mu_core_t, mu_bg_t),
+        )
+        exact_epsilon_conv = self._piecewise_rectangular_conv(
+            rectangular_epsilon, mapping.u_breaks, mapping.v_breaks
+        )
+        exact_inverse_epsilon_conv = self._piecewise_rectangular_conv(
+            1.0 / rectangular_epsilon, mapping.u_breaks, mapping.v_breaks
+        )
+        exact_mu_conv = self._piecewise_rectangular_conv(
+            rectangular_mu, mapping.u_breaks, mapping.v_breaks
+        )
+        f = mapping.f[:, None].to(self._dtype)
+        g = mapping.g[None, :].to(self._dtype)
+        eps11 = epsilon_uv * g / f
+        eps22 = epsilon_uv * f / g
+        eps33 = epsilon_uv * f * g
+        mu11 = mu_uv * g / f
+        mu22 = mu_uv * f / g
+        mu33 = mu_uv * f * g
+
+        normal_x = normal_y = None
+        normalized_nv_rule = (
+            str(nv_coordinate_rule).strip().lower().replace("_", "-")
+            if normal_vector_factorization
+            else None
+        )
+        if normal_vector_factorization:
+            normal_x, normal_y = self._peng_idw_normal_field(
+                mapping,
+                core,
+                outer,
+                boundary_samples=nv_boundary_samples,
+                neighbors=nv_neighbors,
+                power=nv_power,
+            )
+            p, q, eps33_conv, mu33_conv = self._build_peng_asr_nv_pq(
+                epsilon_uv,
+                mu_uv,
+                mapping,
+                normal_x,
+                normal_y,
+                coordinate_rule=normalized_nv_rule,
+                epsilon_matrix=exact_epsilon_conv,
+                inverse_epsilon_matrix=exact_inverse_epsilon_conv,
+                mu_matrix=exact_mu_conv,
+            )
+        else:
+            p, q, eps33_conv, mu33_conv = self._build_asr_pq(
+                epsilon_uv,
+                epsilon_uv,
+                epsilon_uv,
+                mu_uv,
+                mu_uv,
+                mu_uv,
+                factorization_rules=False,
+                direct_convolutions={
+                    "eps11": exact_epsilon_conv,
+                    "eps22": exact_epsilon_conv,
+                    "eps33": exact_epsilon_conv,
+                    "mu11": exact_mu_conv,
+                    "mu22": exact_mu_conv,
+                    "mu33": exact_mu_conv,
+                },
+            )
+
+        kz_squared, electric_uv = self._eig(torch.matmul(p, q))
+        kz = self._positive_kz(kz_squared)
+        magnetic_uv = self._magnetic_eigenvectors(p, q, electric_uv, kz)
+        # The article writes the Fourier amplitudes directly in the adaptive
+        # coordinates and does not publish an interface/Jacobian conversion.
+        # Its disclosed discretization therefore uses identity matching.  The
+        # alternative tensor rules retain the full coordinate conversion.
+        disclosed_coordinate_form = (
+            not normal_vector_factorization
+            or normalized_nv_rule == "paper-disclosed"
+        )
+        if disclosed_coordinate_form:
+            transform = self._eye(2 * self.order_N)
+            transform_z = (
+                self._eye(self.order_N) if self.store_mode_couplings else None
+            )
+            self._last_asr_transform_condition = 1.0
+        else:
+            transform = self._build_conversion_matrix_T(mapping)
+            transform_z = (
+                self._build_conversion_matrix_Tz(mapping)
+                if self.store_mode_couplings
+                else None
+            )
+        electric_cartesian = torch.matmul(transform, electric_uv)
+        magnetic_cartesian = torch.matmul(transform, magnetic_uv)
+        layer_index = self.layer_N
+
+        self.layer_N += 1
+        self.thickness.append(thickness_tensor)
+        self.eps_conv.append(eps33_conv)
+        self.mu_conv.append(mu33_conv)
+        self.P.append(p)
+        self.Q.append(q)
+        self.kz_norm.append(kz)
+        self.E_eigvec_uv.append(electric_uv)
+        self.H_eigvec_uv.append(magnetic_uv)
+        self.E_eigvec.append(electric_cartesian)
+        self.H_eigvec.append(magnetic_cartesian)
+        self.asr_mappings.append(mapping)
+        self.asr_T_matrices.append(transform)
+        self.asr_Tz_matrices.append(transform_z)
+        self.asr_condition_numbers.append(
+            self._last_asr_transform_condition
+            if self.compute_condition_numbers
+            else None
+        )
+        material_record = {
+            "eps_uv": epsilon_uv,
+            "eps11": eps11,
+            "eps22": eps22,
+            "eps33": eps33,
+            "mu_uv": mu_uv,
+            "mu11": mu11,
+            "mu22": mu22,
+            "mu33": mu33,
+        }
+        if normal_x is not None and normal_y is not None:
+            material_record["normal_x"] = normal_x
+            material_record["normal_y"] = normal_y
+        self.asr_material_tensors.append(material_record)
+        slot = len(self.asr_mappings) - 1
+        self._asr_slot_by_layer[layer_index] = slot
+        if transform_z is not None:
+            self._asr_field_context_by_layer[layer_index] = {
+                "electric_modes_uv": electric_uv,
+                "magnetic_modes_uv": magnetic_uv,
+                "electric_modes_cartesian": electric_cartesian,
+                "magnetic_modes_cartesian": magnetic_cartesian,
+                "transform_xy": transform,
+                "transform_z": transform_z,
+                "eps33_conv": eps33_conv,
+                "mu33_conv": mu33_conv,
+            }
+
+        physical_x = (
+            torch.arange(nx, dtype=torch.float64, device=self._device) * lx / nx
+        )
+        physical_y = (
+            torch.arange(ny, dtype=torch.float64, device=self._device) * ly / ny
+        )
+        physical_regions = sampled_regions(physical_x, physical_y)
+        physical_epsilon = torch.where(
+            physical_regions == 1,
+            eps_shell_t,
+            torch.where(physical_regions == 2, eps_core_t, eps_bg_t),
+        )
+        physical_mu = torch.where(
+            physical_regions == 1,
+            mu_shell_t,
+            torch.where(physical_regions == 2, mu_core_t, mu_bg_t),
+        )
+        self._physical_material_by_layer[layer_index] = (
+            physical_epsilon,
+            physical_mu,
+        )
+        minimum_jacobian = float(
+            (torch.min(mapping.f) * torch.min(mapping.g)).detach().cpu()
+        )
+        factorization_scheme = (
+            f"peng-eq7-asr+eq8-10-nv-idw-{normalized_nv_rule}"
+            if normal_vector_factorization
+            else "peng-eq7-asr-exact-rectangular-laurent"
+        )
+        self.layer_records.append(
+            LayerRecord(
+                index=layer_index,
+                method="peng-asr-nv" if normal_vector_factorization else "peng-asr",
+                shape="stepped-core-shell-circle",
+                lattice=getattr(self, "lattice_kind", "rectangular"),
+                reason="PENG_ZHANG_2025_EQ7_EQ8_10_REPRODUCTION",
+                options={
+                    "core_radius": core_value,
+                    "outer_radius": outer_value,
+                    "grid": (nx, ny),
+                    "staircase_grid": mapping.staircase_grid,
+                    "x_jump_count": int(mapping.x_breaks.numel() - 2),
+                    "y_jump_count": int(mapping.y_breaks.numel() - 2),
+                    "asr_G": self.asr_G,
+                    "asr_equation": "Peng-Zhang Eq. (7)",
+                    "uv_break_allocation": mapping.interval_allocation,
+                    "material_fourier_integration": "exact-piecewise-rectangular",
+                    "normal_vector_factorization": normal_vector_factorization,
+                    "normal_field": (
+                        "analytic-boundary-gradient + periodic-kNN-IDW"
+                        if normal_vector_factorization
+                        else None
+                    ),
+                    "nv_boundary_samples_per_circle": (
+                        int(nv_boundary_samples)
+                        if normal_vector_factorization
+                        else None
+                    ),
+                    "nv_neighbors": (
+                        int(nv_neighbors) if normal_vector_factorization else None
+                    ),
+                    "nv_power": (
+                        float(nv_power) if normal_vector_factorization else None
+                    ),
+                    "nv_equations": (
+                        "Peng-Zhang Eqs. (8)-(10) followed by the recorded ASR coordinate rule"
+                        if normal_vector_factorization
+                        else None
+                    ),
+                    "nv_coordinate_rule": normalized_nv_rule,
+                    "factorization_scheme": factorization_scheme,
+                    "minimum_mapping_jacobian": minimum_jacobian,
+                    "unstated_reproduction_assumptions": [
+                        f"{mapping.interval_allocation} u_l/v_l interval allocation",
+                        "user-selected staircase resolution",
+                    ]
+                    + (
+                        [
+                            "periodic k-nearest accelerated IDW",
+                            f"{normalized_nv_rule} ordering combines Cartesian NV with ASR coordinates",
+                        ]
+                        if normal_vector_factorization
+                        else []
+                    ),
+                },
+            )
+        )
+        self._append_smatrix_from_cartesian_modes(
+            electric_cartesian, magnetic_cartesian
         )
 
     def _factorized_bttb(

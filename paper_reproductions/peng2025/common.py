@@ -165,6 +165,12 @@ class Numerics:
     use_symmetry: bool = False
     shell_radial_mapping: str = "auto"
     solver: str = "matched-asr"
+    staircase_grid: int = 64
+    asr_interval_allocation: str = "cube-root"
+    nv_boundary_samples: int = 256
+    nv_neighbors: int = 16
+    nv_power: float = 2.0
+    nv_coordinate_rule: str = "paper-disclosed"
 
     def validate(self) -> None:
         if min(self.order_x, self.order_y) < 1:
@@ -179,9 +185,57 @@ class Numerics:
             raise ValueError(
                 "shell_radial_mapping must be 'auto', 'outer', or 'double'."
             )
-        if self.solver not in {"matched-asr", "matched-nvm", "nvm"}:
+        if self.solver not in {
+            "paper-asr",
+            "paper-asr-nv",
+            "matched-asr",
+            "matched-nvm",
+            "nvm",
+        }:
             raise ValueError(
-                "solver must be 'matched-asr', 'matched-nvm', or 'nvm'."
+                "solver must be 'paper-asr', 'paper-asr-nv', "
+                "'matched-asr', 'matched-nvm', or 'nvm'."
+            )
+        if (
+            isinstance(self.staircase_grid, bool)
+            or int(self.staircase_grid) != self.staircase_grid
+            or self.staircase_grid < 8
+        ):
+            raise ValueError("staircase_grid must be an integer >= 8.")
+        if min(self.grid_x, self.grid_y) < 2 * self.staircase_grid and self.solver.startswith(
+            "paper-"
+        ):
+            raise ValueError(
+                "paper ASR requires grid_x/grid_y >= 2*staircase_grid."
+            )
+        if self.asr_interval_allocation not in {"cube-root", "uniform"}:
+            raise ValueError(
+                "asr_interval_allocation must be 'cube-root' or 'uniform'."
+            )
+        if (
+            isinstance(self.nv_boundary_samples, bool)
+            or int(self.nv_boundary_samples) != self.nv_boundary_samples
+            or self.nv_boundary_samples < 16
+        ):
+            raise ValueError("nv_boundary_samples must be an integer >= 16.")
+        if (
+            isinstance(self.nv_neighbors, bool)
+            or int(self.nv_neighbors) != self.nv_neighbors
+            or self.nv_neighbors < 1
+        ):
+            raise ValueError("nv_neighbors must be a positive integer.")
+        if not math.isfinite(self.nv_power) or self.nv_power <= 0.0:
+            raise ValueError("nv_power must be finite and positive.")
+        if self.nv_coordinate_rule not in {
+            "paper-disclosed",
+            "tensor-metric",
+            "asr-correction",
+            "metric-left",
+            "piola",
+        }:
+            raise ValueError(
+                "nv_coordinate_rule must be 'paper-disclosed', 'tensor-metric', "
+                "'asr-correction', 'metric-left', or 'piola'."
             )
 
 
@@ -432,6 +486,28 @@ def _base_result(
         "solver": numerics.solver,
         "symmetry_requested": numerics.use_symmetry,
         "shell_radial_mapping": numerics.shell_radial_mapping,
+        "staircase_grid": (
+            numerics.staircase_grid if numerics.solver.startswith("paper-") else None
+        ),
+        "asr_interval_allocation": (
+            numerics.asr_interval_allocation
+            if numerics.solver.startswith("paper-")
+            else None
+        ),
+        "nv_boundary_samples": (
+            numerics.nv_boundary_samples if numerics.solver == "paper-asr-nv" else None
+        ),
+        "nv_neighbors": (
+            numerics.nv_neighbors if numerics.solver == "paper-asr-nv" else None
+        ),
+        "nv_power": (
+            numerics.nv_power if numerics.solver == "paper-asr-nv" else None
+        ),
+        "nv_coordinate_rule": (
+            numerics.nv_coordinate_rule
+            if numerics.solver == "paper-asr-nv"
+            else None
+        ),
         "runtime_seconds": time.perf_counter() - started,
     }
     result.update(_power_observables(simulation))
@@ -483,8 +559,14 @@ def simulate_matched_primitive(
     else:
         raise ValueError("lattice_kind must be square or triangular.")
 
+    paper_solver = numerics.solver in {"paper-asr", "paper-asr-nv"}
+    if paper_solver and normalized != "square":
+        raise ValueError(
+            "The paper-faithful stepped ASR route currently implements the "
+            "orthogonal Fig. 2 cell only."
+        )
     resolved_radial_mapping = numerics.shell_radial_mapping
-    if resolved_radial_mapping == "auto":
+    if not paper_solver and numerics.solver != "nvm" and resolved_radial_mapping == "auto":
         # The Peng cell is concentric and its outer radius is only 1 um from
         # the periodic boundary.  The outer-only non-separable circle map then
         # becomes nearly singular for paper-like G.  Matching both radii with
@@ -500,6 +582,7 @@ def simulate_matched_primitive(
         cascade=numerics.cascade,
         outputs=OutputSpec(smatrix_size="half", fields="none"),
         asr=ASROptions(
+            G=numerics.asr_g,
             circle_G=numerics.asr_g,
             minimum_circle_jacobian=1.0e-8,
             grid=(numerics.grid_x, numerics.grid_y),
@@ -537,6 +620,24 @@ def simulate_matched_primitive(
             nx=numerics.grid_x,
             ny=numerics.grid_y,
         )
+    elif paper_solver:
+        simulation.add_layer_circle_shell_peng_asr(
+            geometry.silver_thickness_um / geometry.period_um,
+            geometry.inner_radius_um / geometry.period_um,
+            geometry.outer_radius_um / geometry.period_um,
+            epsilon_silver,
+            geometry.epsilon_aperture,
+            epsilon_silver,
+            nx=numerics.grid_x,
+            ny=numerics.grid_y,
+            staircase_grid=numerics.staircase_grid,
+            uv_interval_allocation=numerics.asr_interval_allocation,
+            normal_vector_factorization=numerics.solver == "paper-asr-nv",
+            nv_boundary_samples=numerics.nv_boundary_samples,
+            nv_neighbors=numerics.nv_neighbors,
+            nv_power=numerics.nv_power,
+            nv_coordinate_rule=numerics.nv_coordinate_rule,
+        )
     else:
         simulation.add_layer_circle_shell_asr(
             geometry.silver_thickness_um / geometry.period_um,
@@ -571,11 +672,17 @@ def simulate_matched_primitive(
         {
             "shell_radial_mapping_requested": numerics.shell_radial_mapping,
             "shell_radial_mapping": (
-                None if numerics.solver == "nvm" else resolved_radial_mapping
+                None
+                if numerics.solver == "nvm" or paper_solver
+                else resolved_radial_mapping
             ),
             "model": (
                 "analytic-nvm-primitive"
                 if numerics.solver == "nvm"
+                else "peng-stepped-asr-nv-primitive"
+                if numerics.solver == "paper-asr-nv"
+                else "peng-stepped-asr-primitive"
+                if numerics.solver == "paper-asr"
                 else "matched-asr-nvm-primitive"
                 if numerics.solver == "matched-nvm"
                 else "matched-asr-primitive"
@@ -587,6 +694,10 @@ def simulate_matched_primitive(
             "factorization": (
                 "analytic-concentric-NVM"
                 if numerics.solver == "nvm"
+                else "Peng-Eq7-stepped-ASR+Eq8-10-IDW-NV"
+                if numerics.solver == "paper-asr-nv"
+                else "Peng-Eq7-stepped-ASR-exact-rectangular-Laurent"
+                if numerics.solver == "paper-asr"
                 else "matched-ASR-generalized-Li-NVM"
                 if numerics.solver == "matched-nvm"
                 else "double-matched-ASR-Weiss-symmetric"
@@ -944,12 +1055,14 @@ def write_metadata(
             ),
             "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
             "method_note": (
-                "The primitive-cell solver selects analytic concentric NVM, "
-                "matched-ASR alone, or generalized normal-vector Li "
-                "factorization after matched-ASR. The last option follows the "
-                "paper's ASR-then-NV sequence but is not a bit-for-bit copy of "
-                "its stepped separable map and interpolated NV extension; "
-                "agreement is assessed through converged physical observables."
+                "paper-asr reproduces the stepped-boundary Eq. (7) map; "
+                "piecewise-constant uv rectangles are integrated exactly for "
+                "the disclosed Laurent convolution. paper-asr-nv then applies "
+                "Eqs. (8)-(10) using analytic circle gradients and periodic "
+                "accelerated IDW. Values omitted by the article (staircase "
+                "resolution, u_l/v_l allocation, IDW settings, and the discrete "
+                "ASR/NV coordinate ordering) are explicit run parameters. Legacy "
+                "smooth matched maps and analytic NVM remain independent routes."
             ),
         },
         **payload,

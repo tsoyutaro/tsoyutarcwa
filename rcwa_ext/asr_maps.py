@@ -24,6 +24,9 @@ class ASRMapping:
     y_breaks: torch.Tensor
     u_breaks: torch.Tensor
     v_breaks: torch.Tensor
+    staircase_grid: int | None = None
+    region_grid: torch.Tensor | None = None
+    interval_allocation: str | None = None
 
 
 @dataclass(frozen=True)
@@ -90,6 +93,7 @@ class _ASRMappingMixin:
         samples: int,
         *,
         minimum_slope: float | None = None,
+        interval_allocation: str = "cube-root",
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Implement Eqs. (1)-(2) on [0, length).
@@ -102,7 +106,20 @@ class _ASRMappingMixin:
         if torch.any(dx <= 0.0):
             raise ValueError("ASR physical breakpoints must be strictly increasing.")
 
-        weights = torch.pow(dx, 1.0 / 3.0)
+        allocation = str(interval_allocation).strip().lower().replace("_", "-")
+        if allocation == "cube-root":
+            weights = torch.pow(dx, 1.0 / 3.0)
+        elif allocation == "uniform":
+            # Peng and Zhang state that physical jump points x_l are mapped to
+            # corresponding u_l, but do not publish the u_l allocation.  Their
+            # preceding "stepped uniform grid" description is reproduced by
+            # assigning one equal computational interval to every detected
+            # staircase interval.  The choice is recorded in layer metadata.
+            weights = torch.ones_like(dx)
+        else:
+            raise ValueError(
+                "interval_allocation must be 'cube-root' or 'uniform'."
+            )
         du = length * weights / torch.sum(weights)
         # Keep the periodic endpoint exact without overwriting an autograd
         # output in place.  Interior breakpoints retain their design gradient.
@@ -141,6 +158,233 @@ class _ASRMappingMixin:
         if torch.any(jacobian <= 0.0):
             raise RuntimeError("The ASR mapping is not monotone.")
         return coordinate, mapped, jacobian, transformed_breaks
+
+    def build_stepped_circle_asr_mapping(
+        self,
+        nx: int,
+        ny: int,
+        core_radius,
+        outer_radius,
+        *,
+        staircase_grid: int = 64,
+        interval_allocation: str = "cube-root",
+    ) -> ASRMapping:
+        """Build Peng--Zhang Eq. (7) ASR for a stepped concentric circle.
+
+        The analytic circles are first sampled on a uniform square pixel grid,
+        exactly matching the paper's stated stepped-boundary construction.
+        Every Cartesian material jump in that raster becomes a physical
+        breakpoint ``x_l`` or ``y_l``.  The corresponding ``u_l,v_l``
+        allocation is made explicit here.  The default cube-root rule is the
+        regularized jump-point relation used by the cited 2-D ASR formulation;
+        ``uniform`` remains available as a sensitivity check.
+
+        This construction is intentionally separate from the smooth Weiss
+        matched-circle maps.  It is currently restricted to orthogonal cells,
+        which is the geometry used by Peng and Zhang's Fig. 2 MI example.
+        """
+        self._validate_grid(int(self.order[0]), nx, "x")
+        self._validate_grid(int(self.order[1]), ny, "y")
+        if isinstance(staircase_grid, bool) or int(staircase_grid) != staircase_grid:
+            raise TypeError("staircase_grid must be an integer.")
+        staircase_grid = int(staircase_grid)
+        if staircase_grid < 8:
+            raise ValueError("staircase_grid must be at least 8.")
+        if min(nx, ny) < 2 * staircase_grid:
+            raise ValueError(
+                "Peng stepped ASR requires at least two Fourier-grid samples "
+                "per staircase pixel; increase nx/ny or reduce staircase_grid."
+            )
+        if hasattr(self, "cos_zeta") and abs(_as_float(self.cos_zeta)) > 1.0e-10:
+            raise UnsupportedCombinationError(
+                "Peng stepped circle ASR currently requires an orthogonal cell."
+            )
+
+        lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
+        core, core_value = _real_parameter_tensor(
+            "core_radius",
+            core_radius,
+            dtype=torch.float64,
+            device=self._device,
+            allow_zero=False,
+        )
+        outer, outer_value = _real_parameter_tensor(
+            "outer_radius",
+            outer_radius,
+            dtype=torch.float64,
+            device=self._device,
+            allow_zero=False,
+        )
+        if core_value >= outer_value:
+            raise ValueError("core_radius must be smaller than outer_radius.")
+        if 2.0 * outer_value >= min(lx, ly):
+            raise ValueError("The outer circle must not touch a periodic boundary.")
+
+        # Cell-centred uniform pixels define the staircase approximation.  The
+        # integer labels are 0=background, 1=annular shell, and 2=core.
+        x_centres = (
+            torch.arange(staircase_grid, dtype=torch.float64, device=self._device)
+            + 0.5
+        ) * (lx / staircase_grid)
+        y_centres = (
+            torch.arange(staircase_grid, dtype=torch.float64, device=self._device)
+            + 0.5
+        ) * (ly / staircase_grid)
+        xx, yy = torch.meshgrid(x_centres, y_centres, indexing="ij")
+        radius_squared = (xx - 0.5 * lx) ** 2 + (yy - 0.5 * ly) ** 2
+        region_grid = torch.zeros(
+            (staircase_grid, staircase_grid),
+            dtype=torch.int8,
+            device=self._device,
+        )
+        region_grid = torch.where(
+            radius_squared <= outer**2,
+            torch.ones_like(region_grid),
+            region_grid,
+        )
+        region_grid = torch.where(
+            radius_squared <= core**2,
+            torch.full_like(region_grid, 2),
+            region_grid,
+        )
+
+        def jump_breaks(axis: int, length: float) -> torch.Tensor:
+            adjacent = torch.diff(region_grid, dim=axis) != 0
+            other_axis = 1 - axis
+            jump_indices = torch.nonzero(
+                torch.any(adjacent, dim=other_axis), as_tuple=False
+            ).flatten() + 1
+            interior = jump_indices.to(torch.float64) * (length / staircase_grid)
+            return torch.cat(
+                (
+                    torch.zeros(1, dtype=torch.float64, device=self._device),
+                    interior,
+                    torch.full(
+                        (1,), length, dtype=torch.float64, device=self._device
+                    ),
+                )
+            )
+
+        x_breaks = jump_breaks(0, lx)
+        y_breaks = jump_breaks(1, ly)
+        u, x, f, u_breaks = self._piecewise_asr_map(
+            lx,
+            x_breaks,
+            nx,
+            minimum_slope=self.asr_G,
+            interval_allocation=interval_allocation,
+        )
+        v, y, g, v_breaks = self._piecewise_asr_map(
+            ly,
+            y_breaks,
+            ny,
+            minimum_slope=self.asr_G,
+            interval_allocation=interval_allocation,
+        )
+        return ASRMapping(
+            u=u,
+            v=v,
+            x=x,
+            y=y,
+            f=f,
+            g=g,
+            x_breaks=x_breaks,
+            y_breaks=y_breaks,
+            u_breaks=u_breaks,
+            v_breaks=v_breaks,
+            staircase_grid=staircase_grid,
+            region_grid=region_grid,
+            interval_allocation=str(interval_allocation),
+        )
+
+    def _weiss2009_asr_map(
+        self,
+        length: float,
+        matched_breaks: torch.Tensor,
+        samples: int,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Implement Weiss et al. (2009), Eqs. (41)-(42).
+
+        The two interface positions are kept unchanged, as in the numerical
+        examples in Sec. 7 of the paper.  ``matched_asr_G`` is ``1 - eta``;
+        consequently the derivative at either interface is exactly this
+        value.  The returned map is ``tilde{x}(x)``: the ASR coordinate is
+        sampled uniformly and mapped to the intermediate matched coordinate.
+        """
+        if matched_breaks.numel() != 4:
+            raise ValueError(
+                "Weiss-2009 circle ASR requires [0, x_minus, x_plus, P]."
+            )
+        zero, matched_minus, matched_plus, endpoint = matched_breaks
+        tolerance = 128.0 * torch.finfo(torch.float64).eps * max(1.0, length)
+        if abs(_as_float(zero)) > tolerance or abs(_as_float(endpoint) - length) > tolerance:
+            raise ValueError("Weiss-2009 ASR breakpoints must span [0, P].")
+        if not (
+            0.0 < _as_float(matched_minus) < _as_float(matched_plus) < length
+        ):
+            raise ValueError("Weiss-2009 ASR interfaces must lie inside the cell.")
+        if abs(_as_float(matched_minus + matched_plus) - length) > tolerance:
+            raise ValueError("Weiss-2009 ASR requires symmetric interfaces.")
+
+        # The paper permits distinct new interface coordinates x_+/-; its
+        # numerical examples explicitly keep them at the matched-coordinate
+        # positions.  Retaining the tensors preserves fixed-radius autograd.
+        x_minus = matched_minus
+        x_plus = matched_plus
+        one_minus_eta = matched_minus.new_tensor(self.matched_asr_G)
+        a1 = matched_minus / x_minus**2 - one_minus_eta / x_minus
+        a_minus = (
+            2.0 * matched_minus * x_minus / x_minus**2
+            - one_minus_eta * (length - x_plus) / x_minus
+        )
+        a_plus = (
+            2.0 * matched_minus * x_plus / x_minus**2
+            - one_minus_eta * (length + x_plus) / x_minus
+        )
+        width = x_plus - x_minus
+        a2 = (x_plus * matched_minus - x_minus * matched_plus) / width
+        a3 = (matched_plus - matched_minus) / width
+        a4 = (
+            one_minus_eta * width - (matched_plus - matched_minus)
+        ) / _TWO_PI
+        a5 = (
+            matched_plus
+            + matched_minus * x_plus**2 / x_minus**2
+            - one_minus_eta * length * x_plus / x_minus
+        )
+
+        coordinate = (
+            torch.arange(samples, dtype=torch.float64, device=self._device)
+            * (length / samples)
+        )
+        lower = coordinate < x_minus
+        middle = (coordinate >= x_minus) & (coordinate <= x_plus)
+        phase = _TWO_PI * (coordinate - x_minus) / width
+        mapped = torch.where(
+            lower,
+            -a1 * coordinate**2 + a_minus * coordinate,
+            torch.where(
+                middle,
+                a2 + a3 * coordinate + a4 * torch.sin(phase),
+                a1 * coordinate**2 - a_plus * coordinate + a5,
+            ),
+        )
+        jacobian = torch.where(
+            lower,
+            -2.0 * a1 * coordinate + a_minus,
+            torch.where(
+                middle,
+                a3 + a4 * (_TWO_PI / width) * torch.cos(phase),
+                2.0 * a1 * coordinate - a_plus,
+            ),
+        )
+        if not bool(torch.all(torch.isfinite(mapped))) or not bool(
+            torch.all(torch.isfinite(jacobian))
+        ):
+            raise RuntimeError("The Weiss-2009 ASR mapping produced non-finite values.")
+        if torch.any(jacobian <= 0.0):
+            raise RuntimeError("The Weiss-2009 ASR mapping is not monotone.")
+        return coordinate, mapped, jacobian, matched_breaks
 
     def build_asr_mapping(
         self,
@@ -301,12 +545,27 @@ class _ASRMappingMixin:
         ty_breaks = torch.stack(
             (radius.new_tensor(0.0), ty_minus, ty_plus, radius.new_tensor(ly))
         )
-        u, tu, dtu_du, u_breaks = self._piecewise_asr_map(
-            lx, tx_breaks, nx, minimum_slope=self.matched_asr_G
-        )
-        v, tv, dtv_dv, v_breaks = self._piecewise_asr_map(
-            ly, ty_breaks, ny, minimum_slope=self.matched_asr_G
-        )
+        profile = getattr(self, "matched_asr_profile", "equalized")
+        if profile == "weiss2009":
+            u, tu, dtu_du, u_breaks = self._weiss2009_asr_map(
+                lx, tx_breaks, nx
+            )
+            v, tv, dtv_dv, v_breaks = self._weiss2009_asr_map(
+                ly, ty_breaks, ny
+            )
+        elif profile == "identity":
+            u = torch.arange(nx, dtype=torch.float64, device=self._device) * lx / nx
+            v = torch.arange(ny, dtype=torch.float64, device=self._device) * ly / ny
+            tu, tv = u, v
+            dtu_du, dtv_dv = torch.ones_like(u), torch.ones_like(v)
+            u_breaks, v_breaks = tx_breaks, ty_breaks
+        else:
+            u, tu, dtu_du, u_breaks = self._piecewise_asr_map(
+                lx, tx_breaks, nx, minimum_slope=self.matched_asr_G
+            )
+            v, tv, dtv_dv, v_breaks = self._piecewise_asr_map(
+                ly, ty_breaks, ny, minimum_slope=self.matched_asr_G
+            )
 
         x, x_tu, x_tv = self._matched_circle_axis(
             tu,

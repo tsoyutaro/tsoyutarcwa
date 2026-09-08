@@ -30,7 +30,11 @@ class AutoRCWA(CustomRCWA_NVM):
     _require_kvectors = CustomRCWA_ASR_FR._require_kvectors
     _validate_grid = staticmethod(CustomRCWA_ASR_FR._validate_grid)
     _piecewise_asr_map = CustomRCWA_ASR_FR._piecewise_asr_map
+    _weiss2009_asr_map = CustomRCWA_ASR_FR._weiss2009_asr_map
     build_asr_mapping = CustomRCWA_ASR_FR.build_asr_mapping
+    build_stepped_circle_asr_mapping = (
+        CustomRCWA_ASR_FR.build_stepped_circle_asr_mapping
+    )
     _matched_circle_axis = staticmethod(CustomRCWA_ASR_FR._matched_circle_axis)
     build_circle_asr_mapping = CustomRCWA_ASR_FR.build_circle_asr_mapping
     _cubic_hermite = staticmethod(CustomRCWA_ASR_FR._cubic_hermite)
@@ -62,8 +66,17 @@ class AutoRCWA(CustomRCWA_NVM):
         CustomRCWA_ASR_FR._build_circle_conversion_matrices
     )
     _build_circle_asr_pq = CustomRCWA_ASR_FR._build_circle_asr_pq
+    _piecewise_rectangular_conv = CustomRCWA_ASR_FR._piecewise_rectangular_conv
+    _peng_eq8_transverse_epsilon = (
+        CustomRCWA_ASR_FR._peng_eq8_transverse_epsilon
+    )
+    _peng_idw_normal_field = CustomRCWA_ASR_FR._peng_idw_normal_field
+    _build_peng_asr_nv_pq = CustomRCWA_ASR_FR._build_peng_asr_nv_pq
     add_layer_circle_asr = CustomRCWA_ASR_FR.add_layer_circle_asr
     add_layer_circle_shell_asr = CustomRCWA_ASR_FR.add_layer_circle_shell_asr
+    add_layer_circle_shell_peng_asr = (
+        CustomRCWA_ASR_FR.add_layer_circle_shell_peng_asr
+    )
     _factorized_bttb = CustomRCWA_ASR_FR._factorized_bttb
     _build_conversion_matrix_T = CustomRCWA_ASR_FR._build_conversion_matrix_T
     _build_conversion_matrix_Tz = CustomRCWA_ASR_FR._build_conversion_matrix_Tz
@@ -157,6 +170,26 @@ class AutoRCWA(CustomRCWA_NVM):
             raise ValueError("ASROptions.G must be in (0,1).")
         if not 0.0 < float(self.asr_options.circle_G) < 1.0:
             raise ValueError("ASROptions.circle_G must be in (0,1).")
+        profile_aliases = {
+            "equalized": "equalized",
+            "balanced": "equalized",
+            "default": "equalized",
+            "weiss2009": "weiss2009",
+            "weiss-2009": "weiss2009",
+            "paper": "weiss2009",
+            "identity": "identity",
+            "none": "identity",
+            "no-asr": "identity",
+        }
+        raw_circle_profile = str(self.asr_options.circle_profile).strip().lower().replace(
+            "_", "-"
+        )
+        normalized_circle_profile = profile_aliases.get(raw_circle_profile)
+        if normalized_circle_profile is None:
+            raise ValueError(
+                "ASROptions.circle_profile must be 'equalized', "
+                "'weiss2009', or 'identity'."
+            )
         if (
             not math.isfinite(float(self.asr_options.minimum_circle_jacobian))
             or float(self.asr_options.minimum_circle_jacobian) <= 0.0
@@ -221,6 +254,7 @@ class AutoRCWA(CustomRCWA_NVM):
         self.lattice_kind = lattice.kind
         self.asr_G = float(self.asr_options.G)
         self.matched_asr_G = float(self.asr_options.circle_G)
+        self.matched_asr_profile = normalized_circle_profile
         self.matched_asr_min_jacobian = float(
             self.asr_options.minimum_circle_jacobian
         )
