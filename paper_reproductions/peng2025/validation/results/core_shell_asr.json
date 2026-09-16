@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "checks": {
+    "inverse_roundtrip": {
+      "maximum_error": 5.10702591327572e-15,
+      "passed": true
+    },
+    "interface_flux_duality": {
+      "relative_error": 3.077150582229069e-16,
+      "passed": true
+    },
+    "double_map_mirror_parity": {
+      "maximum_error": 0.0,
+      "passed": true
+    },
+    "asr_quadrature_grid_invariance": {
+      "maximum_RTA_difference": 0.0,
+      "grid128": {
+        "reflectance": 0.015440806159903737,
+        "transmittance": 0.9845591938400959,
+        "absorptance": 3.3306690738754696e-16,
+        "passivity_warning": false
+      },
+      "grid256": {
+        "reflectance": 0.015440806159903737,
+        "transmittance": 0.9845591938400959,
+        "absorptance": 3.3306690738754696e-16,
+        "passivity_warning": false
+      },
+      "passed": true
+    },
+    "asr_full_vs_c2v": {
+      "maximum_RTA_difference": 4.884981308350689e-15,
+      "passed": true
+    },
+    "uniform_slab_reference": {
+      "maximum_RTA_difference": 0.0,
+      "asr": {
+        "reflectance": 0.04747893413541282,
+        "transmittance": 0.9525210658645873,
+        "absorptance": -1.1102230246251565e-16,
+        "passivity_warning": false
+      },
+      "reference": {
+        "reflectance": 0.04747893413541282,
+        "transmittance": 0.9525210658645873,
+        "absorptance": -1.1102230246251565e-16,
+        "passivity_warning": false
+      },
+      "passed": true
+    },
+    "covariant_nv_dielectric_reference": {
+      "maximum_RTA_difference": 0.00045725592010004146,
+      "tolerance": 0.001,
+      "cartesian": {
+        "reflectance": 0.014827483098062106,
+        "transmittance": 0.9851725169019399,
+        "absorptance": -1.9984014443252818e-15,
+        "passivity_warning": false
+      },
+      "covariant": {
+        "reflectance": 0.014370227177962477,
+        "transmittance": 0.9856297728220399,
+        "absorptance": -2.3314683517128287e-15,
+        "passivity_warning": false
+      },
+      "passed": true
+    },
+    "shared_adaptive_dielectric_reference": {
+      "maximum_RTA_difference": 0.0009198022149220497,
+      "tolerance": 0.001,
+      "cartesian": {
+        "reflectance": 0.014387253512888037,
+        "transmittance": 0.9856127464871053,
+        "absorptance": 6.661338147750939e-15,
+        "passivity_warning": false
+      },
+      "adaptive": {
+        "reflectance": 0.01346745129798138,
+        "transmittance": 0.9865325487020273,
+        "absorptance": -8.659739592076221e-15,
+        "passivity_warning": false
+      },
+      "passed": true
+    },
+    "shared_adaptive_full_vs_c2v": {
+      "maximum_RTA_difference": 5.551115123125783e-15,
+      "passed": true
+    },
+    "shared_adaptive_zero_thickness_fresnel": {
+      "maximum_RTA_difference": 5.412337245047638e-15,
+      "passed": true
+    },
+    "batched_port_dense_reference": {
+      "maximum_error": 4.440892098500626e-16,
+      "passed": true
+    },
+    "silver_core_shell_passivity": {
+      "reflectance": 0.10850155331802327,
+      "transmittance": 0.8498716205757483,
+      "absorptance": 0.041626826106228476,
+      "passed": true
+    }
+  }
+}

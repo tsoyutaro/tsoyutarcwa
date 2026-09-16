@@ -30,21 +30,25 @@
     1.95
   ],
   "orders": [
-    36,
-    38,
-    40
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32
   ],
   "grid": [
     256,
     256
   ],
   "asr_g": 0.001,
-  "solver": "nvm",
+  "solver": "paper-asr",
   "asr_interface_rule_requested": "auto",
-  "asr_interface_rule_resolved": null,
-  "port_basis": "Cartesian-Fourier",
-  "staircase_grid": null,
-  "uv_break_allocation": null,
+  "asr_interface_rule_resolved": "shared-adaptive",
+  "port_basis": "generalized-adaptive-homogeneous-modes",
+  "staircase_grid": 64,
+  "uv_break_allocation": "cube-root",
   "nv_boundary_samples_per_circle": null,
   "nv_neighbors": null,
   "nv_power": null,
@@ -59,22 +63,22 @@
     "status": "not_converged",
     "window": 3,
     "orders": [
-      36,
-      38,
-      40
+      24,
+      28,
+      32
     ],
     "observable_spans": {
-      "reflectance": 0.004457214400138229,
-      "transmittance": 0.016553817122090808,
-      "absorptance": 0.012096602721952565
+      "reflectance": 0.008321219354682302,
+      "transmittance": 0.032231171059638464,
+      "absorptance": 0.023909951704956245
     },
     "tolerance": 0.01,
     "strict_passivity": true,
     "maximum_passivity_violation": 0.0,
     "relaxed_passivity_tolerance": 0.002,
     "recommended_next_orders": [
-      42,
-      44
+      34,
+      36
     ],
     "recommended_action": "Increase the maximum order or change factorization; do not use the current tail as a reference result."
   },
@@ -86,5 +90,5 @@
     "input_completeness": "underdetermined_from_paper",
     "claim": "Compare curve shape and convergence qualitatively unless the authors' exact Drude constants/reference samples are supplied."
   },
-  "rows": 3
+  "rows": 7
 }
