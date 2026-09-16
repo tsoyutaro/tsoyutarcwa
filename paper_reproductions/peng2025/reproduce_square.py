@@ -3,10 +3,10 @@
 The paper's stated dimensions are used: p=62 um, R=30 um, r=14 um, and
 Ag thickness=1 um.  The selected material interpretation is air in the
 annular aperture and PI with epsilon_PI=3.5+0.009j.  Incidence is normal
-x/TM over 1--3 THz.  The default solver implements the paper's stepped
-uniform-grid ASR Eq. (7), followed by its NV Eqs. (8)--(10).  The boundary
-normal is sampled from the analytic circle gradients and extended with
-periodic k-nearest inverse-distance weighting, as described in the article.
+x/TM over 1--3 THz. The default uses the independently checked analytic NVM
+baseline. The stepped ASR route uses Eq. (7), exact Jacobian-weighted strip
+Li factorization, and shared adaptive ports for total powers. ASR and its
+optional curved-normal NV discretization still require convergence checks.
 The missing Ag Drude constants and MI substrate thickness are
 documented in the generated metadata rather than silently presented as paper
 values.
@@ -17,7 +17,7 @@ Fast installation and API check::
 
     python paper_reproductions/peng2025/reproduce_square.py --study smoke --device cpu
 
-Paper-band calculation using the reported ASR-NV truncation rank 23::
+Paper-band calculation using the NVM baseline at truncation order 40::
 
     python paper_reproductions/peng2025/reproduce_square.py --study spectrum --device cuda
 
@@ -116,10 +116,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--solver",
         choices=("paper-asr-nv", "paper-asr", "matched-nvm", "nvm", "matched-asr"),
-        default="paper-asr-nv",
+        default="nvm",
         help=(
-            "paper-asr-nv (default) reproduces Eqs. (7)--(10); paper-asr "
-            "reproduces Eq. (7) without NV; nvm is the analytic baseline; "
+            "nvm (default) is the analytic baseline; paper-asr uses exact "
+            "Jacobian-weighted strip Li factorization and shared adaptive "
+            "ports; paper-asr-nv is the experimental curved-normal variant; "
             "matched-asr uses the Weiss symmetric rule in double-matched "
             "coordinates; matched-nvm adds the experimental generalized "
             "normal-vector Li rule."
@@ -164,18 +165,24 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--nv-coordinate-rule",
         choices=(
+            "covariant",
             "paper-disclosed",
             "tensor-metric",
             "asr-correction",
             "metric-left",
             "piola",
         ),
-        default="paper-disclosed",
+        default="covariant",
         help=(
             "Ordering used to combine Cartesian NV Eqs. (8)-(9) with Eq. (7) "
-            "coordinates. paper-disclosed follows only the equations printed in "
-            "the article; the Jacobian-based alternatives are sensitivity runs."
+            "coordinates. covariant transforms tensors and normals before "
+            "factorization and converts fields at interfaces. Other rules "
+            "are legacy diagnostic discretizations."
         ),
+    )
+    parser.add_argument(
+        "--asr-interface-rule", choices=("auto", "shared-adaptive", "flux-dual", "projected"), default="auto",
+        help="auto uses shared adaptive ports for paper-asr and flux-dual matching for NV; projected is diagnostic.",
     )
     parser.add_argument(
         "--radial-mapping",
@@ -200,10 +207,12 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--use-symmetry",
-        action="store_true",
+        action=argparse.BooleanOptionalAction,
+        default=None,
         help=(
             "Use the exact normal-incidence x-source C2v sector to reduce the "
-            "eigensolve; this reduction was not reported in the paper."
+            "eigensolve; enabled by default for paper-asr and nvm. Use "
+            "--no-use-symmetry to calculate full matrices."
         ),
     )
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
@@ -255,13 +264,17 @@ def _study_values(args: argparse.Namespace) -> tuple[tuple[float, ...], tuple[in
         grid = args.grid or 48
     elif args.study == "spectrum":
         frequencies = parse_float_list(args.frequencies or "1.0:3.0:0.025")
-        # Fig. 2(d) uses ASR-NV Nx=Ny=23.
-        orders = (args.order or 23,)
+        default_order = {'paper-asr': 32, 'nvm': 40}.get(args.solver, 23)
+        orders = (args.order or default_order,)
         grid = args.grid or 256
     else:
         frequencies = parse_float_list(args.frequencies or "1.95")
         orders = parse_int_list(
-            args.orders or "1,3,5,7,9,11,13,15,17,19,21,23"
+            args.orders or (
+                "8,12,16,20,24,28,32" if args.solver == 'paper-asr'
+                else "8,16,24,32,36,38,40" if args.solver == 'nvm'
+                else "1,3,5,7,9,11,13,15,17,19,21,23"
+            )
         )
         grid = args.grid or 256
     if any(order < 1 for order in orders):
@@ -346,6 +359,8 @@ def _plot(
 
 def main() -> int:
     args = _parser().parse_args()
+    if args.use_symmetry is None:
+        args.use_symmetry = args.solver in {'paper-asr', 'nvm'} and args.pi_thickness_um is None
     frequencies, orders, grid = _study_values(args)
     output_dir = args.output_dir
     if output_dir is None:
@@ -367,9 +382,9 @@ def main() -> int:
             "rejects a map whose minimum Jacobian is below its safety floor. Prefer "
             "--radial-mapping double (or omit the option)."
         )
-    if args.solver == "matched-nvm":
+    if args.solver in {"matched-nvm", "paper-asr", "paper-asr-nv"}:
         print(
-            "SOLVER WARNING: matched-nvm is experimental for this Ag/air "
+            f"SOLVER WARNING: {args.solver} needs convergence verification for this Ag/air "
             "core-shell problem. Saved high-order tests are not converged; "
             "accept results only after both passivity and order convergence "
             "succeed. Use --solver nvm for the current baseline calculation."
@@ -420,6 +435,7 @@ def main() -> int:
                 nv_neighbors=args.nv_neighbors,
                 nv_power=args.nv_power,
                 nv_coordinate_rule=args.nv_coordinate_rule,
+                asr_interface_rule=args.asr_interface_rule,
             ),
             device=device,
         )
@@ -483,6 +499,9 @@ def main() -> int:
             "grid": [grid, grid],
             "asr_g": args.asr_g,
             "solver": args.solver,
+            "asr_interface_rule_requested": args.asr_interface_rule,
+            "asr_interface_rule_resolved": rows[0].get('asr_interface_rule'),
+            "port_basis": rows[0].get('port_basis', 'Cartesian-Fourier'),
             "staircase_grid": (
                 staircase_grid if args.solver.startswith("paper-") else None
             ),

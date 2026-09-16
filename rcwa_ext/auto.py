@@ -30,6 +30,7 @@ class AutoRCWA(CustomRCWA_NVM):
     _require_kvectors = CustomRCWA_ASR_FR._require_kvectors
     _validate_grid = staticmethod(CustomRCWA_ASR_FR._validate_grid)
     _piecewise_asr_map = CustomRCWA_ASR_FR._piecewise_asr_map
+    _inverse_piecewise_asr_axis = CustomRCWA_ASR_FR._inverse_piecewise_asr_axis
     _weiss2009_asr_map = CustomRCWA_ASR_FR._weiss2009_asr_map
     build_asr_mapping = CustomRCWA_ASR_FR.build_asr_mapping
     build_stepped_circle_asr_mapping = (
@@ -67,6 +68,8 @@ class AutoRCWA(CustomRCWA_NVM):
     )
     _build_circle_asr_pq = CustomRCWA_ASR_FR._build_circle_asr_pq
     _piecewise_rectangular_conv = CustomRCWA_ASR_FR._piecewise_rectangular_conv
+    _peng_weighted_convolutions = CustomRCWA_ASR_FR._peng_weighted_convolutions
+    _peng_conversion_matrices = CustomRCWA_ASR_FR._peng_conversion_matrices
     _peng_eq8_transverse_epsilon = (
         CustomRCWA_ASR_FR._peng_eq8_transverse_epsilon
     )

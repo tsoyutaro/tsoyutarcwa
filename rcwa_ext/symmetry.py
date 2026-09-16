@@ -1541,6 +1541,7 @@ class _SymmetryReductionMixin:
         layer_index: int,
         triangular_star_pq: tuple[torch.Tensor, torch.Tensor] | None = None,
         backend: str = "matched-ASR",
+        magnetic_transform: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Solve one x/y mirror sector for matched-ASR or triangular NVM."""
         polarization = self.polarization_reduction
@@ -1722,9 +1723,19 @@ class _SymmetryReductionMixin:
             magnetic_residual = torch.linalg.vector_norm(
                 magnetic_uv_full - torch.matmul(magnetic_uv_basis, magnetic_sub)
             ) / torch.maximum(torch.linalg.vector_norm(magnetic_uv_full), tiny)
+            # As in the Cartesian NVM sector solver, reconstruct the paired
+            # H modes inside the verified invariant subspace. Full Q@E/kz
+            # can amplify roundoff in metallic ASR modes at high order.
+            magnetic_sub = self._magnetic_eigenvectors(
+                p_sub, q_sub, electric_sub, kz
+            )
+            magnetic_uv_full = magnetic_uv_basis @ magnetic_sub
             electric_basis, magnetic_basis = electric_uv_basis, magnetic_uv_basis
             electric_cart_raw = torch.matmul(transform, electric_uv_full)
-            magnetic_cart_raw = torch.matmul(transform, magnetic_uv_full)
+            magnetic_cart_raw = torch.matmul(
+                transform if magnetic_transform is None else magnetic_transform,
+                magnetic_uv_full,
+            )
             electric_cart_sub = torch.matmul(electric_basis.mH, electric_cart_raw)
             magnetic_cart_sub = torch.matmul(magnetic_basis.mH, magnetic_cart_raw)
             electric_cart_full = torch.matmul(electric_basis, electric_cart_sub)
@@ -1735,9 +1746,10 @@ class _SymmetryReductionMixin:
                 torch.linalg.vector_norm(magnetic_cart_raw - magnetic_cart_full)
                 / torch.maximum(torch.linalg.vector_norm(magnetic_cart_raw), tiny),
             ).real
-            if _as_float(torch.maximum(magnetic_residual.real, conversion_residual)) > tolerance:
+            if _as_float(conversion_residual) > tolerance:
                 raise UnsupportedCombinationError(
-                    f"{backend} conversion left the selected C2v sector."
+                    f"{backend} conversion left the selected C2v sector: "
+                    f"relative residual {_as_float(conversion_residual):.3e}."
                 )
             symmetry_correction = torch.zeros((), dtype=p.real.dtype, device=self._device)
             transform_correction = torch.zeros((), dtype=p.real.dtype, device=self._device)

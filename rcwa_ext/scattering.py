@@ -138,23 +138,29 @@ class _StableLinearAlgebraMixin(_FieldRecoveryMixin):
     def _interface_s(
         self, medium_v: torch.Tensor, *, input_side: bool
     ) -> list[torch.Tensor]:
-        inverse_sum = self._solve(
-            self.Vf + medium_v, self._eye(2 * self.order_N)
-        )
-        difference = self.Vf - medium_v
-        if input_side:
-            return [
-                2.0 * torch.matmul(inverse_sum, medium_v),
-                -torch.matmul(inverse_sum, difference),
-                torch.matmul(inverse_sum, difference),
-                2.0 * torch.matmul(inverse_sum, self.Vf),
-            ]
-        return [
-            2.0 * torch.matmul(inverse_sum, self.Vf),
-            torch.matmul(inverse_sum, difference),
-            -torch.matmul(inverse_sum, difference),
-            2.0 * torch.matmul(inverse_sum, medium_v),
-        ]
+        """Solve independent 2x2 polarization systems in homogeneous ports.
+
+        Both admittances are block diagonal in diffraction order. A dense
+        inverse of the full 2N matrix is unnecessary and extremely costly
+        at the orders needed by metallic core-shell structures.
+        """
+        n = self.order_N
+        def pack(v):
+            return torch.stack((
+                torch.stack((torch.diagonal(v[:n, :n]), torch.diagonal(v[:n, n:])), -1),
+                torch.stack((torch.diagonal(v[n:, :n]), torch.diagonal(v[n:, n:])), -1),
+            ), -2)
+        def unpack(v):
+            return torch.cat((
+                torch.cat((torch.diag(v[:, 0, 0]), torch.diag(v[:, 0, 1])), 1),
+                torch.cat((torch.diag(v[:, 1, 0]), torch.diag(v[:, 1, 1])), 1),
+            ), 0)
+        free, medium = pack(self.Vf), pack(medium_v)
+        inv_sum = self._solve(free + medium, self._eye(2).expand(n, -1, -1))
+        reflection = inv_sum @ (free - medium)
+        tf, tm = 2.0 * (inv_sum @ free), 2.0 * (inv_sum @ medium)
+        blocks = (tm, -reflection, reflection, tf) if input_side else (tf, reflection, -reflection, tm)
+        return [unpack(block) for block in blocks]
 
     def _kvectors(self) -> None:
         """Rectangular reciprocal vectors with magnetic half-space support."""

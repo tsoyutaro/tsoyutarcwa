@@ -170,9 +170,14 @@ class Numerics:
     nv_boundary_samples: int = 256
     nv_neighbors: int = 16
     nv_power: float = 2.0
-    nv_coordinate_rule: str = "paper-disclosed"
+    nv_coordinate_rule: str = "covariant"
+    asr_interface_rule: str = "auto"
 
     def validate(self) -> None:
+        if self.asr_interface_rule not in {"auto", "shared-adaptive", "flux-dual", "projected"}:
+            raise ValueError("Unknown asr_interface_rule.")
+        if self.asr_interface_rule == 'shared-adaptive' and self.solver != 'paper-asr':
+            raise ValueError("Shared adaptive ports require solver='paper-asr'.")
         if min(self.order_x, self.order_y) < 1:
             raise ValueError("Both Fourier truncation orders must be at least one.")
         if min(self.grid_x, self.grid_y) < 16:
@@ -227,6 +232,7 @@ class Numerics:
         if not math.isfinite(self.nv_power) or self.nv_power <= 0.0:
             raise ValueError("nv_power must be finite and positive.")
         if self.nv_coordinate_rule not in {
+            "covariant",
             "paper-disclosed",
             "tensor-metric",
             "asr-correction",
@@ -234,7 +240,7 @@ class Numerics:
             "piola",
         }:
             raise ValueError(
-                "nv_coordinate_rule must be 'paper-disclosed', 'tensor-metric', "
+                "nv_coordinate_rule must be 'covariant', 'paper-disclosed', 'tensor-metric', "
                 "'asr-correction', 'metric-left', or 'piola'."
             )
 
@@ -508,6 +514,7 @@ def _base_result(
             if numerics.solver == "paper-asr-nv"
             else None
         ),
+        "asr_interface_rule": numerics.asr_interface_rule if numerics.solver.startswith('paper-') else None,
         "runtime_seconds": time.perf_counter() - started,
     }
     result.update(_power_observables(simulation))
@@ -575,7 +582,14 @@ def simulate_matched_primitive(
 
     started = time.perf_counter()
     epsilon_silver = drude.epsilon(frequency_thz)
-    simulation = AutoRCWA(
+    interface_rule = numerics.asr_interface_rule
+    if interface_rule == 'auto':
+        interface_rule = 'shared-adaptive' if numerics.solver == 'paper-asr' else 'flux-dual'
+    solver_class = AutoRCWA
+    if numerics.solver == 'paper-asr' and interface_rule == 'shared-adaptive':
+        from paper_reproductions.peng2025.adaptive_ports import _AdaptivePortRCWA
+        solver_class = _AdaptivePortRCWA
+    simulation = solver_class(
         freq=normalized_frequency(frequency_thz, geometry.period_um),
         order=[numerics.order_x, numerics.order_y],
         lattice=lattice,
@@ -637,6 +651,7 @@ def simulate_matched_primitive(
             nv_neighbors=numerics.nv_neighbors,
             nv_power=numerics.nv_power,
             nv_coordinate_rule=numerics.nv_coordinate_rule,
+            interface_rule='flux-dual' if interface_rule == 'shared-adaptive' else interface_rule,
         )
     else:
         simulation.add_layer_circle_shell_asr(
@@ -694,9 +709,9 @@ def simulate_matched_primitive(
             "factorization": (
                 "analytic-concentric-NVM"
                 if numerics.solver == "nvm"
-                else "Peng-Eq7-stepped-ASR+Eq8-10-IDW-NV"
+                else "Peng-Eq7-covariant-generalized-Li-IDW-NV"
                 if numerics.solver == "paper-asr-nv"
-                else "Peng-Eq7-stepped-ASR-exact-rectangular-Laurent"
+                else "Peng-Eq7-Jacobian-weighted-strip-Li"
                 if numerics.solver == "paper-asr"
                 else "matched-ASR-generalized-Li-NVM"
                 if numerics.solver == "matched-nvm"
@@ -709,6 +724,9 @@ def simulate_matched_primitive(
     result["backend_factorization_scheme"] = pattern_layer_record.options.get(
         "factorization_scheme"
     )
+    if paper_solver:
+        result['asr_interface_rule'] = pattern_layer_record.options.get('interface_rule', interface_rule)
+        result['port_basis'] = pattern_layer_record.options.get('port_basis', 'Cartesian-Fourier')
     result["minimum_mapping_jacobian"] = pattern_layer_record.options.get(
         "minimum_mapping_jacobian"
     )
@@ -1056,10 +1074,14 @@ def write_metadata(
             "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
             "method_note": (
                 "paper-asr reproduces the stepped-boundary Eq. (7) map; "
-                "piecewise-constant uv rectangles are integrated exactly for "
-                "the disclosed Laurent convolution. paper-asr-nv then applies "
-                "Eqs. (8)-(10) using analytic circle gradients and periodic "
-                "accelerated IDW. Values omitted by the article (staircase "
+                "Jacobian-weighted material strips are integrated exactly "
+                "with directional Li factorization. Shared adaptive ports "
+                "return total powers in generalized homogeneous modes. "
+                "paper-asr-nv uses transformed tensors and analytic circle "
+                "normals with periodic IDW. These coordinate/interface "
+                "completions are implementation assumptions, not a literal "
+                "reproduction of the printed Eqs. (8)-(10). Values omitted "
+                "by the article (staircase "
                 "resolution, u_l/v_l allocation, IDW settings, and the discrete "
                 "ASR/NV coordinate ordering) are explicit run parameters. Legacy "
                 "smooth matched maps and analytic NVM remain independent routes."

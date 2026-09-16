@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import math
+import warnings
+import numpy as np
 
 import torch
 
@@ -703,6 +705,96 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             index_x[:, None, :, None], index_y[None, :, None, :]
         ].reshape(mx * my, mx * my)
 
+    def _peng_weighted_convolutions(
+        self, epsilon: torch.Tensor, mu: torch.Tensor, mapping: ASRMapping
+    ) -> dict[str, torch.Tensor]:
+        """Integrate Eq. (7)'s Jacobian and step materials analytically.
+
+        The inverse rule is applied on each material strip before assembling
+        the other axis. No samples of 1/f or 1/g are needed at G=0.001.
+        """
+        def axis(physical, adaptive, orders):
+            width = adaptive[1:] - adaptive[:-1]
+            length = adaptive[-1] - adaptive[0]
+            delta = (orders[:, None] - orders[None, :]).to(torch.float64)
+            z = width[:, None, None] * delta[None] / length
+            phase = torch.exp(-1j * _TWO_PI * adaptive[:-1, None, None] * delta[None] / length)
+            def integral(argument):
+                return torch.exp(-1j * math.pi * argument) * torch.sinc(argument)
+            slope = ((physical[1:] - physical[:-1]) / width)[:, None, None]
+            moments = slope * integral(z) + 0.5 * (self.asr_G - slope) * (
+                integral(z - 1) + integral(z + 1)
+            )
+            return (width[:, None, None] / length * phase * moments).to(self._dtype)
+
+        fx = axis(mapping.x_breaks, mapping.u_breaks, self.order_x)
+        gy = axis(mapping.y_breaks, mapping.v_breaks, self.order_y)
+        mx, my = len(self.order_x), len(self.order_y)
+        ix, iy = self._eye(mx), self._eye(my)
+        def material(values):
+            inverse_x = torch.einsum('ipr,ij->jpr', fx, 1.0 / values)
+            inverse_y = torch.einsum('jqs,ij->iqs', gy, 1.0 / values)
+            normal_x = self._solve(inverse_x, ix.expand(values.shape[1], -1, -1))
+            normal_y = self._solve(inverse_y, iy.expand(values.shape[0], -1, -1))
+            xx = torch.einsum('jpr,jqs->pqrs', normal_x, gy)
+            yy = torch.einsum('ipr,iqs->pqrs', fx, normal_y)
+            zz = torch.einsum('ipr,ij,jqs->pqrs', fx, values, gy)
+            return tuple(a.reshape(self.order_N, self.order_N) for a in (xx, yy, zz))
+        result = {'jacobian_x': fx.sum(dim=0), 'jacobian_y': gy.sum(dim=0)}
+        for name, values in (('eps', epsilon), ('mu', mu)):
+            for component, matrix in zip(('11', '22', '33'), material(values)):
+                result[name + component] = matrix
+        if not mu.requires_grad and bool(torch.all(mu == mu.flatten()[0])):
+            result['inverse_mu33'] = torch.kron(
+                self._solve(fx.sum(dim=0), ix), self._solve(gy.sum(dim=0), iy)
+            ) / mu.flatten()[0]
+        return result
+
+    def _peng_conversion_matrices(self, mapping: ASRMapping):
+        """Resolve each ASR interval in 1-D when matching external fields."""
+        nodes, weights = np.polynomial.legendre.leggauss(
+            max(32, 2 * max(int(self.order[0]), int(self.order[1])) + 8)
+        )
+        nodes = torch.as_tensor(nodes, dtype=torch.float64, device=self._device)
+        weights = torch.as_tensor(weights, dtype=torch.float64, device=self._device)
+        mx, my = len(self.order_x), len(self.order_y)
+        def axis(physical, adaptive, wave_numbers):
+            du = adaptive[1:] - adaptive[:-1]
+            dx = physical[1:] - physical[:-1]
+            local = 0.5 * (nodes + 1.0)[None, :]
+            u = adaptive[:-1, None] + du[:, None] * local
+            slope = dx / du
+            x = physical[:-1, None] + dx[:, None] * local + (
+                (self.asr_G * du - dx)[:, None] / _TWO_PI
+            ) * torch.sin(_TWO_PI * local)
+            jacobian = slope[:, None] + (self.asr_G - slope)[:, None] * torch.cos(_TWO_PI * local)
+            w = (0.5 * du[:, None] * weights[None, :] / adaptive[-1]).reshape(-1)
+            u, x, jacobian = u.reshape(-1), x.reshape(-1), jacobian.reshape(-1)
+            plain, weighted = [], []
+            for start in range(0, wave_numbers.numel(), 8):
+                phase = torch.exp(1j * self.omega * (
+                    wave_numbers[None, :, None] * u[None, None, :]
+                    - wave_numbers[start:start + 8, None, None] * x[None, None, :]
+                ))
+                plain.append(torch.sum(phase * w, dim=-1))
+                weighted.append(torch.sum(phase * (w * jacobian), dim=-1))
+            return torch.cat(plain), torch.cat(weighted)
+        xu, xf = axis(mapping.x_breaks, mapping.u_breaks, self.Kx_norm_dn.reshape(mx, my)[:, 0])
+        yv, yg = axis(mapping.y_breaks, mapping.v_breaks, self.Ky_norm_dn.reshape(mx, my)[0, :])
+        transform = torch.block_diag(torch.kron(xu, yg), torch.kron(xf, yv))
+        # Weak interface matching uses flux-dual E/H projections. With
+        # C=[[0,I],[-I,0]], TE^H C TH=C preserves the Poynting bilinear
+        # form at finite truncation. The same projected matrix for E and H
+        # satisfies this identity only in the untruncated limit.
+        magnetic_transform = torch.block_diag(
+            torch.kron(self._solve(xf.mH, self._eye(mx)), self._solve(yv.mH, self._eye(my))),
+            torch.kron(self._solve(xu.mH, self._eye(mx)), self._solve(yg.mH, self._eye(my))),
+        )
+        self._last_asr_transform_condition = (
+            torch.linalg.cond(transform) if self.compute_condition_numbers else None
+        )
+        return transform, magnetic_transform, torch.kron(xf, yg) if self.store_mode_couplings else None
+
     def _peng_eq8_transverse_epsilon(
         self,
         epsilon_uv: torch.Tensor,
@@ -813,46 +905,10 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         sample_nx = cosine.repeat(2)
         sample_ny = sine.repeat(2)
 
-        def inverse_axis(
-            physical: torch.Tensor,
-            physical_breaks: torch.Tensor,
-            transformed_breaks: torch.Tensor,
-        ) -> tuple[torch.Tensor, torch.Tensor]:
-            """Invert Eq. (7) and return the local derivative at each point."""
-            interval = torch.bucketize(
-                physical, physical_breaks[1:-1], right=False
-            )
-            x0 = physical_breaks[interval]
-            x1 = physical_breaks[interval + 1]
-            u0 = transformed_breaks[interval]
-            u1 = transformed_breaks[interval + 1]
-            dx, du = x1 - x0, u1 - u0
-            a1 = (u1 * x0 - u0 * x1) / du
-            a2 = dx / du
-            a3 = self.asr_G * du - dx
-            coordinate = u0 + (physical - x0) * du / dx
-            for _ in range(10):
-                phase = _TWO_PI * (coordinate - u0) / du
-                mapped = a1 + a2 * coordinate + (a3 / _TWO_PI) * torch.sin(
-                    phase
-                )
-                derivative = a2 + (a3 / du) * torch.cos(phase)
-                coordinate = torch.minimum(
-                    u1,
-                    torch.maximum(
-                        u0,
-                        coordinate
-                        - (mapped - physical) / torch.clamp(derivative, min=1.0e-14),
-                    ),
-                )
-            phase = _TWO_PI * (coordinate - u0) / du
-            derivative = a2 + (a3 / du) * torch.cos(phase)
-            return coordinate, derivative
-
-        sample_u, sample_f = inverse_axis(
+        sample_u, sample_f = self._inverse_piecewise_asr_axis(
             sample_x, mapping.x_breaks, mapping.u_breaks
         )
-        sample_v, sample_g = inverse_axis(
+        sample_v, sample_g = self._inverse_piecewise_asr_axis(
             sample_y, mapping.y_breaks, mapping.v_breaks
         )
         # The boundary locations live in uv after ASR, while the interpolated
@@ -935,24 +991,41 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         normal_x: torch.Tensor,
         normal_y: torch.Tensor,
         *,
-        coordinate_rule: str = "paper-disclosed",
+        coordinate_rule: str = "covariant",
         epsilon_matrix: torch.Tensor | None = None,
         inverse_epsilon_matrix: torch.Tensor | None = None,
         mu_matrix: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Apply published NV Eqs. (8)-(10) after separable ASR Eq. (7).
+        """Combine separable ASR with a normal/tangential constitutive rule.
 
-        Eq. (8)'s scalar Cartesian NVM operator is built first.  The short
-        paper does not publish the combined ASR/NV transformed-tensor equation,
-        so the published form and three tensor-ordering sensitivity rules are
-        supported explicitly.  ``paper-disclosed`` uses the Eq. (8)-(10)
-        matrices directly on the Eq. (7) sampling grid, exactly as documented
-        in the article.  ``tensor-metric`` applies the continuous diagonal-Jacobian tensor law
-        (diagonal blocks acquire g/f and f/g, while the off-diagonal blocks do
-        not); ``asr-correction`` preserves the Eq. (7) ASR factorization and
-        adds only the Eq. (8) NV correction; ``metric-left`` is the historical
-        row-scaled sensitivity rule; ``piola`` applies both field transforms.
+        The default transforms tensors and normal covectors before applying
+        generalized Li factorization. It is a covariant completion, not a
+        claim that the paper publishes this combined discrete operator.
+        Other names preserve legacy diagnostic matrix orderings. In particular,
+        ``paper-disclosed`` omits the coordinate metric and changes the physical
+        problem; it must not serve as an ASR reference.
         """
+        normalized_rule = str(coordinate_rule).strip().lower().replace("_", "-")
+        if normalized_rule == "covariant":
+            # Transform the constitutive law BEFORE Fourier truncation.
+            # E_uv=J^T E_xy, D_uv=det(J) J^-1 D_xy, J=diag(f,g).
+            # A physical normal is a covector: n_uv=J^T n_xy.
+            # Applying scalar NV to epsilon(u,v), with Cartesian derivatives
+            # or identity interface matching, instead changes the structure.
+            f = mapping.f[:, None].to(self._dtype)
+            g = mapping.g[None, :].to(self._dtype)
+            zero = torch.zeros_like(epsilon_uv)
+            return self._build_circle_asr_pq(
+                epsilon_uv * g / f, zero, zero, epsilon_uv * f / g,
+                epsilon_uv * f * g,
+                mu_uv * g / f, zero, zero, mu_uv * f / g, mu_uv * f * g,
+                factorization_rules=True,
+                normal_factorize_mu=not bool(torch.all(mu_uv == mu_uv.flatten()[0])),
+                factorization_normals=(
+                    normal_x * mapping.f[:, None],
+                    normal_y * mapping.g[None, :],
+                ),
+            )
         (
             scalar_uu,
             scalar_uv,
@@ -1699,7 +1772,8 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         nv_boundary_samples: int = 256,
         nv_neighbors: int = 16,
         nv_power: float = 2.0,
-        nv_coordinate_rule: str = "paper-disclosed",
+        nv_coordinate_rule: str = "covariant",
+        interface_rule: str = "flux-dual",
     ) -> None:
         """Add Peng--Zhang stepped ASR or ASR-NV concentric-circle layer.
 
@@ -1756,6 +1830,23 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
         eps_bg_t, eps_shell_t, eps_core_t, mu_bg_t, mu_shell_t, mu_core_t = (
             material_values
         )
+        interface_rule = str(interface_rule).strip().lower().replace('_', '-')
+        if interface_rule not in {'flux-dual', 'projected'}:
+            raise ValueError("interface_rule must be 'flux-dual' or 'projected'.")
+        # A uniform layer has no lateral interface and needs no adaptive map.
+        # Keep differentiable material/shape parameters on the general path.
+        if (
+            not any(v.requires_grad for v in (*material_values, core, outer))
+            and getattr(self, 'polarization_reduction', None) is None
+            and torch.equal(eps_bg_t, eps_shell_t) and torch.equal(eps_bg_t, eps_core_t)
+            and torch.equal(mu_bg_t, mu_shell_t) and torch.equal(mu_bg_t, mu_core_t)
+        ):
+            self.add_layer(thickness_tensor, eps=eps_bg_t, mu=mu_bg_t)
+            self.layer_records[-1].options.update({
+                'factorization_scheme': 'homogeneous-exact',
+                'requested_shape': 'stepped-core-shell-circle',
+            })
+            return
         mapping = self.build_stepped_circle_asr_mapping(
             nx,
             ny,
@@ -1803,15 +1894,17 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             mu_shell_t,
             torch.where(rectangular_regions == 2, mu_core_t, mu_bg_t),
         )
-        exact_epsilon_conv = self._piecewise_rectangular_conv(
-            rectangular_epsilon, mapping.u_breaks, mapping.v_breaks
-        )
-        exact_inverse_epsilon_conv = self._piecewise_rectangular_conv(
-            1.0 / rectangular_epsilon, mapping.u_breaks, mapping.v_breaks
-        )
-        exact_mu_conv = self._piecewise_rectangular_conv(
-            rectangular_mu, mapping.u_breaks, mapping.v_breaks
-        )
+        exact_epsilon_conv = exact_inverse_epsilon_conv = exact_mu_conv = None
+        if normal_vector_factorization and nv_coordinate_rule != "covariant":
+            exact_epsilon_conv = self._piecewise_rectangular_conv(
+                rectangular_epsilon, mapping.u_breaks, mapping.v_breaks
+            )
+            exact_inverse_epsilon_conv = self._piecewise_rectangular_conv(
+                1.0 / rectangular_epsilon, mapping.u_breaks, mapping.v_breaks
+            )
+            exact_mu_conv = self._piecewise_rectangular_conv(
+                rectangular_mu, mapping.u_breaks, mapping.v_breaks
+            )
         f = mapping.f[:, None].to(self._dtype)
         g = mapping.g[None, :].to(self._dtype)
         eps11 = epsilon_uv * g / f
@@ -1827,6 +1920,14 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             if normal_vector_factorization
             else None
         )
+        if normal_vector_factorization and normalized_nv_rule != "covariant":
+            warnings.warn(
+                "Legacy Peng NV coordinate rule selected. These diagnostic "
+                "rules do not provide the covariant constitutive/interface "
+                "discretization; use nv_coordinate_rule='covariant' for ASR.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
         if normal_vector_factorization:
             normal_x, normal_y = self._peng_idw_normal_field(
                 mapping,
@@ -1849,50 +1950,41 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             )
         else:
             p, q, eps33_conv, mu33_conv = self._build_asr_pq(
-                epsilon_uv,
-                epsilon_uv,
-                epsilon_uv,
-                mu_uv,
-                mu_uv,
-                mu_uv,
+                eps11, eps22, eps33, mu11, mu22, mu33,
                 factorization_rules=False,
-                direct_convolutions={
-                    "eps11": exact_epsilon_conv,
-                    "eps22": exact_epsilon_conv,
-                    "eps33": exact_epsilon_conv,
-                    "mu11": exact_mu_conv,
-                    "mu22": exact_mu_conv,
-                    "mu33": exact_mu_conv,
-                },
+                direct_convolutions=self._peng_weighted_convolutions(
+                    rectangular_epsilon, rectangular_mu, mapping
+                ),
             )
 
-        kz_squared, electric_uv = self._eig(torch.matmul(p, q))
-        kz = self._positive_kz(kz_squared)
-        magnetic_uv = self._magnetic_eigenvectors(p, q, electric_uv, kz)
-        # The article writes the Fourier amplitudes directly in the adaptive
-        # coordinates and does not publish an interface/Jacobian conversion.
-        # Its disclosed discretization therefore uses identity matching.  The
-        # alternative tensor rules retain the full coordinate conversion.
-        disclosed_coordinate_form = (
-            not normal_vector_factorization
-            or normalized_nv_rule == "paper-disclosed"
-        )
+        # Retain identity matching only for the explicitly requested legacy
+        # diagnostic. Physical ASR needs conversion at both interfaces.
+        disclosed_coordinate_form = normalized_nv_rule == "paper-disclosed"
         if disclosed_coordinate_form:
             transform = self._eye(2 * self.order_N)
+            magnetic_transform = transform
             transform_z = (
                 self._eye(self.order_N) if self.store_mode_couplings else None
             )
             self._last_asr_transform_condition = 1.0
         else:
-            transform = self._build_conversion_matrix_T(mapping)
-            transform_z = (
-                self._build_conversion_matrix_Tz(mapping)
-                if self.store_mode_couplings
-                else None
-            )
-        electric_cartesian = torch.matmul(transform, electric_uv)
-        magnetic_cartesian = torch.matmul(transform, magnetic_uv)
+            transform, magnetic_transform, transform_z = self._peng_conversion_matrices(mapping)
+            if interface_rule == 'projected':
+                magnetic_transform = transform
         layer_index = self.layer_N
+        if getattr(self, "polarization_reduction", None) is not None:
+            kz, electric_uv, magnetic_uv, electric_cartesian, magnetic_cartesian = (
+                self._matched_polarization_eigendecomposition(
+                    p, q, transform, layer_index=layer_index,
+                    magnetic_transform=magnetic_transform,
+                )
+            )
+        else:
+            kz_squared, electric_uv = self._eig(torch.matmul(p, q))
+            kz = self._positive_kz(kz_squared)
+            magnetic_uv = self._magnetic_eigenvectors(p, q, electric_uv, kz)
+            electric_cartesian = torch.matmul(transform, electric_uv)
+            magnetic_cartesian = torch.matmul(magnetic_transform, magnetic_uv)
 
         self.layer_N += 1
         self.thickness.append(thickness_tensor)
@@ -1936,6 +2028,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 "electric_modes_cartesian": electric_cartesian,
                 "magnetic_modes_cartesian": magnetic_cartesian,
                 "transform_xy": transform,
+                "transform_h_xy": magnetic_transform,
                 "transform_z": transform_z,
                 "eps33_conv": eps33_conv,
                 "mu33_conv": mu33_conv,
@@ -1966,9 +2059,11 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             (torch.min(mapping.f) * torch.min(mapping.g)).detach().cpu()
         )
         factorization_scheme = (
-            f"peng-eq7-asr+eq8-10-nv-idw-{normalized_nv_rule}"
+            "peng-eq7-covariant-generalized-li-nv"
+            if normalized_nv_rule == "covariant"
+            else f"peng-eq7-asr+eq8-10-nv-idw-{normalized_nv_rule}"
             if normal_vector_factorization
-            else "peng-eq7-asr-exact-rectangular-laurent"
+            else "peng-eq7-covariant-asr-li"
         )
         self.layer_records.append(
             LayerRecord(
@@ -1987,7 +2082,14 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     "asr_G": self.asr_G,
                     "asr_equation": "Peng-Zhang Eq. (7)",
                     "uv_break_allocation": mapping.interval_allocation,
-                    "material_fourier_integration": "exact-piecewise-rectangular",
+                    "material_fourier_integration": (
+                        "exact-jacobian-weighted-strips" if normalized_nv_rule is None
+                        else "sampled-transformed-tensors"
+                        if normalized_nv_rule == "covariant"
+                        else "exact-piecewise-rectangular"
+                    ),
+                    "coordinate_consistent": normalized_nv_rule in (None, "covariant"),
+                    "interface_rule": 'identity-legacy' if disclosed_coordinate_form else interface_rule,
                     "normal_vector_factorization": normal_vector_factorization,
                     "normal_field": (
                         "analytic-boundary-gradient + periodic-kNN-IDW"
@@ -2006,7 +2108,9 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                         float(nv_power) if normal_vector_factorization else None
                     ),
                     "nv_equations": (
-                        "Peng-Zhang Eqs. (8)-(10) followed by the recorded ASR coordinate rule"
+                        "covariant generalized Li normal/tangential rule"
+                        if normalized_nv_rule == "covariant"
+                        else "Peng-Zhang Eqs. (8)-(10) followed by the recorded ASR coordinate rule"
                         if normal_vector_factorization
                         else None
                     ),
@@ -2028,9 +2132,10 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 },
             )
         )
-        self._append_smatrix_from_cartesian_modes(
-            electric_cartesian, magnetic_cartesian
-        )
+        if getattr(self, "polarization_reduction", None) is None:
+            self._append_smatrix_from_cartesian_modes(
+                electric_cartesian, magnetic_cartesian
+            )
 
     def _factorized_bttb(
         self,
@@ -2382,7 +2487,11 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             eps33_conv = direct_convolutions["eps33"]
             mu33_conv = direct_convolutions["mu33"]
         inv_eps33 = self._solve(eps33_conv, self._eye(self.order_N))
-        inv_mu33 = self._solve(mu33_conv, self._eye(self.order_N))
+        inv_mu33 = (
+            direct_convolutions['inverse_mu33']
+            if direct_convolutions is not None and 'inverse_mu33' in direct_convolutions
+            else self._solve(mu33_conv, self._eye(self.order_N))
+        )
 
         if factorization_rules:
             mu22_effective = self._factorized_bttb(
@@ -2413,13 +2522,13 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                 eps22_effective = direct_convolutions["eps22"]
                 eps11_effective = direct_convolutions["eps11"]
 
-        ku, kv = self.Kx_norm, self.Ky_norm
-        p11 = torch.matmul(ku, torch.matmul(inv_eps33, kv))
-        p12 = mu22_effective - torch.matmul(
-            ku, torch.matmul(inv_eps33, ku)
-        )
-        p21 = torch.matmul(kv, torch.matmul(inv_eps33, kv)) - mu11_effective
-        p22 = -torch.matmul(kv, torch.matmul(inv_eps33, ku))
+        # Kx/Ky are diagonal. Row/column scaling is algebraically identical
+        # and avoids eight dense cubic products at high Fourier order.
+        ku, kv = torch.diagonal(self.Kx_norm), torch.diagonal(self.Ky_norm)
+        p11 = ku[:, None] * inv_eps33 * kv[None, :]
+        p12 = mu22_effective - ku[:, None] * inv_eps33 * ku[None, :]
+        p21 = kv[:, None] * inv_eps33 * kv[None, :] - mu11_effective
+        p22 = -kv[:, None] * inv_eps33 * ku[None, :]
         p = torch.cat(
             (
                 torch.cat((p11, p12), dim=1),
@@ -2428,12 +2537,10 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
             dim=0,
         )
 
-        q11 = -torch.matmul(ku, torch.matmul(inv_mu33, kv))
-        q12 = torch.matmul(ku, torch.matmul(inv_mu33, ku)) - eps22_effective
-        q21 = eps11_effective - torch.matmul(
-            kv, torch.matmul(inv_mu33, kv)
-        )
-        q22 = torch.matmul(kv, torch.matmul(inv_mu33, ku))
+        q11 = -ku[:, None] * inv_mu33 * kv[None, :]
+        q12 = ku[:, None] * inv_mu33 * ku[None, :] - eps22_effective
+        q21 = eps11_effective - kv[:, None] * inv_mu33 * kv[None, :]
+        q22 = kv[:, None] * inv_mu33 * ku[None, :]
         q = torch.cat(
             (
                 torch.cat((q11, q12), dim=1),

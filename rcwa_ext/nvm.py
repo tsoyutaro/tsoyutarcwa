@@ -219,23 +219,7 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
     def _interface_s(
         self, medium_v: torch.Tensor, *, input_side: bool
     ) -> list[torch.Tensor]:
-        inverse_sum = self._solve(
-            self.Vf + medium_v, self._eye(2 * self.order_N)
-        )
-        difference = self.Vf - medium_v
-        if input_side:
-            return [
-                2.0 * torch.matmul(inverse_sum, medium_v),
-                -torch.matmul(inverse_sum, difference),
-                torch.matmul(inverse_sum, difference),
-                2.0 * torch.matmul(inverse_sum, self.Vf),
-            ]
-        return [
-            2.0 * torch.matmul(inverse_sum, self.Vf),
-            torch.matmul(inverse_sum, difference),
-            -torch.matmul(inverse_sum, difference),
-            2.0 * torch.matmul(inverse_sum, medium_v),
-        ]
+        return _StableLinearAlgebraMixin._interface_s(self, medium_v, input_side=input_side)
 
     def _circle_toeplitz(
         self,

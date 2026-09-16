@@ -304,9 +304,9 @@ def main() -> int:
             "paper_asr": asr.get("backend_factorization_scheme"),
             "paper_asr_nv": asr_nv.get("backend_factorization_scheme"),
             "passed": asr.get("backend_factorization_scheme")
-            == "peng-eq7-asr-exact-rectangular-laurent"
+            == "peng-eq7-covariant-asr-li"
             and asr_nv.get("backend_factorization_scheme")
-            == "peng-eq7-asr+eq8-10-nv-idw-paper-disclosed",
+            == "peng-eq7-covariant-generalized-li-nv",
         },
     }
     report = {

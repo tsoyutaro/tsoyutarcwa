@@ -746,6 +746,7 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
             nx=grid,
             ny=grid,
             factorization_rules=factorization,
+            normal_vector_factorization=factorization,
         )
         sim.solve_global_smatrix()
         return sim

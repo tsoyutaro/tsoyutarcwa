@@ -159,6 +159,42 @@ class _ASRMappingMixin:
             raise RuntimeError("The ASR mapping is not monotone.")
         return coordinate, mapped, jacobian, transformed_breaks
 
+    def _inverse_piecewise_asr_axis(
+        self,
+        physical: torch.Tensor,
+        physical_breaks: torch.Tensor,
+        transformed_breaks: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Invert Eq. (7) and return the local derivative at each point."""
+        interval = torch.bucketize(
+            physical, physical_breaks[1:-1], right=False
+        )
+        x0 = physical_breaks[interval]
+        x1 = physical_breaks[interval + 1]
+        u0 = transformed_breaks[interval]
+        u1 = transformed_breaks[interval + 1]
+        dx, du = x1 - x0, u1 - u0
+        a1 = (u1 * x0 - u0 * x1) / du
+        a2 = dx / du
+        a3 = self.asr_G * du - dx
+        lower, upper = u0.clone(), u1.clone()
+        coordinate = u0 + (physical - x0) * du / dx
+        # Clipped Newton oscillates between interval endpoints near a
+        # strongly compressed jump (G=0.001). Keep a valid bracket and
+        # bisect: 52 halvings resolve the inverse to float64 precision.
+        for _ in range(52):
+            phase = _TWO_PI * (coordinate - u0) / du
+            mapped = a1 + a2 * coordinate + (a3 / _TWO_PI) * torch.sin(
+                phase
+            )
+            lower = torch.where(mapped < physical, coordinate, lower)
+            upper = torch.where(mapped >= physical, coordinate, upper)
+            coordinate = 0.5 * (lower + upper)
+        phase = _TWO_PI * (coordinate - u0) / du
+        derivative = a2 + (a3 / du) * torch.cos(phase)
+        return coordinate, derivative
+
+
     def build_stepped_circle_asr_mapping(
         self,
         nx: int,
@@ -1033,6 +1069,21 @@ class _ASRMappingMixin:
             retain_graph=differentiable_geometry,
             create_graph=differentiable_geometry,
         )[0]
+        if not triangular:
+            # The periodic radial extension has two one-sided Jacobians on
+            # the cell seams. FFT quadrature at a jump must use their mean.
+            # Taking only q=-L/2 leaves an odd shear on a mirror-fixed line,
+            # breaking C2v and producing spurious polarization/power errors.
+            seam = (u_grid == 0.0) | (v_grid == 0.0)
+            x_v = torch.where(seam, torch.zeros_like(x_v), x_v)
+            y_u = torch.where(seam, torch.zeros_like(y_u), y_u)
+            corner = (u_grid == 0.0) & (v_grid == 0.0)
+            interface_normal_u = torch.where(
+                corner, torch.zeros_like(interface_normal_u), interface_normal_u
+            )
+            interface_normal_v = torch.where(
+                corner, torch.zeros_like(interface_normal_v), interface_normal_v
+            )
         det_j = x_u * y_v - x_v * y_u
         arrays = (x, y, x_u, x_v, y_u, y_v, det_j)
         if not all(bool(torch.all(torch.isfinite(value))) for value in arrays):
