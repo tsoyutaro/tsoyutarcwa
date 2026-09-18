@@ -1,0 +1,282 @@
+{
+  "schema": "weiss2009-fig4a-verification-v2",
+  "status": "matched_within_tolerance",
+  "rows": 202,
+  "expected_rows": 202,
+  "complete": true,
+  "full_frequency_coverage": true,
+  "paper_625_harmonics": true,
+  "finite": true,
+  "passive": true,
+  "positive_jacobian": true,
+  "max_polarization_difference": 6.515776806992335e-11,
+  "paper_metrics": {
+    "T": {
+      "max_abs": 0.004935411177040577,
+      "rmse": 0.0014695301975044168,
+      "mean_abs": 0.0009133017722349483,
+      "max_error_frequency_THz": 357.8849293097
+    },
+    "R": {
+      "max_abs": 0.005635312322132213,
+      "rmse": 0.001990095493785524,
+      "mean_abs": 0.0012340041641194467,
+      "max_error_frequency_THz": 369.9608314108
+    },
+    "A": {
+      "max_abs": 0.006292781994472252,
+      "rmse": 0.0009455646379157681,
+      "mean_abs": 0.0005042617329270413,
+      "max_error_frequency_THz": 369.9608314108
+    }
+  },
+  "alternative_power_metrics": {
+    "T": {
+      "max_abs": 0.18027845479579807,
+      "rmse": 0.07399265364693444,
+      "mean_abs": 0.03557042627077839,
+      "max_error_frequency_THz": 483.6269624873
+    },
+    "R": {
+      "max_abs": 0.17805303477418077,
+      "rmse": 0.07373423855191781,
+      "mean_abs": 0.03578629872458028,
+      "max_error_frequency_THz": 483.6269624873
+    },
+    "A": {
+      "max_abs": 0.006292781994472252,
+      "rmse": 0.0009455646379157681,
+      "mean_abs": 0.0005042617329270413,
+      "max_error_frequency_THz": 369.9608314108
+    }
+  },
+  "paper_power": "zeroth",
+  "first_diffraction_threshold_THz": 428.27494,
+  "power_definition_note": "Default comparison uses zeroth-order T0/R0 and total absorption. This is inferred from the plotted loss of T+R+A above the first diffraction threshold; the paper caption does not specify the orders. Total-order metrics are also provided; the mode is never selected by best fit.",
+  "grid_metrics": {
+    "T_x": {
+      "max_abs": 0.0005648198190886244,
+      "rmse": 0.00021062754543789522,
+      "mean_abs": 0.0001552808615438534,
+      "max_error_frequency_THz": 304.6060184013
+    },
+    "R_x": {
+      "max_abs": 0.003111061822249961,
+      "rmse": 0.000352297068970272,
+      "mean_abs": 0.0001150362078679922,
+      "max_error_frequency_THz": 367.4757500463
+    },
+    "A_x": {
+      "max_abs": 0.0033707443444879887,
+      "rmse": 0.0004081277698372616,
+      "mean_abs": 0.00018179291279710118,
+      "max_error_frequency_THz": 367.4757500463
+    },
+    "T0_x": {
+      "max_abs": 0.0005648198190886244,
+      "rmse": 0.0002107417512964305,
+      "mean_abs": 0.00015628391684170326,
+      "max_error_frequency_THz": 304.6060184013
+    },
+    "R0_x": {
+      "max_abs": 0.003111061822249961,
+      "rmse": 0.0003521450265656025,
+      "mean_abs": 0.00011162587248036469,
+      "max_error_frequency_THz": 367.4757500463
+    },
+    "T_y": {
+      "max_abs": 0.0005648198157240936,
+      "rmse": 0.0002106275463138163,
+      "mean_abs": 0.00015528086205371177,
+      "max_error_frequency_THz": 304.6060184013
+    },
+    "R_y": {
+      "max_abs": 0.0031110617780428784,
+      "rmse": 0.0003522970648352652,
+      "mean_abs": 0.00011503620734794472,
+      "max_error_frequency_THz": 367.4757500463
+    },
+    "A_y": {
+      "max_abs": 0.003370744310012677,
+      "rmse": 0.0004081277664354674,
+      "mean_abs": 0.00018179291202547653,
+      "max_error_frequency_THz": 367.4757500463
+    },
+    "T0_y": {
+      "max_abs": 0.0005648198157240936,
+      "rmse": 0.00021074175217064033,
+      "mean_abs": 0.00015628391733998786,
+      "max_error_frequency_THz": 304.6060184013
+    },
+    "R0_y": {
+      "max_abs": 0.0031110617780428784,
+      "rmse": 0.00035214502242886616,
+      "mean_abs": 0.00011162587193997028,
+      "max_error_frequency_THz": 367.4757500463
+    }
+  },
+  "grid_converged": true,
+  "reasons": [],
+  "thresholds": {
+    "paper_max_abs": 0.02,
+    "paper_rmse": 0.01,
+    "grid_max_abs": 0.005,
+    "passivity_abs": 1e-06,
+    "polarization_abs": 1e-06,
+    "max_frequency_step_THz": 3.0
+  },
+  "interpretation": "Agreement with digitized Fig. 4(a) within user-defined absolute tolerances. Not agreement with authors' raw data or a proof of Fourier-order convergence. A=1-R-T is not an independent conservation test.",
+  "alternative_power_mode": "total",
+  "sampled_extrema": {
+    "T_min": {
+      "frequency_THz": 369.9608314108,
+      "value": 0.0037409367276599937
+    },
+    "R_max": {
+      "frequency_THz": 372.3302678307,
+      "value": 0.9074308641967948
+    },
+    "A_max": {
+      "frequency_THz": 369.9608314108,
+      "value": 0.09000061729447226
+    }
+  },
+  "signature": {
+    "schema": "weiss2009-fig4a-verification-v2",
+    "physics": {
+      "period_um": 0.7,
+      "radius_um": 0.15,
+      "height_um": 0.05,
+      "epsilon_background": 1.0,
+      "epsilon_input": 1.0,
+      "epsilon_output": 1.0,
+      "gold_epsilon_inf": 1.0,
+      "gold_plasma_rad_s": 1.37e+16,
+      "gold_damping_rad_s": 85000000000000.0,
+      "eta": 0.97,
+      "incidence_degrees": 0.0,
+      "profile": "weiss2009",
+      "factorization": "Weiss symmetric",
+      "conversion": "general-2d-T"
+    },
+    "order": 12,
+    "dtype": "complex128",
+    "cascade": "redheffer",
+    "solver_source_sha256": "e1b10076d9a9f4c9408c0d61ea482aea05d65fc8d63226f8d50fbc880390e842",
+    "reference_csv_sha256": "502c3a40364b1ea80654df06830db3e49d49e1996333148abfb9a266cdd3de5d"
+  },
+  "reference": {
+    "source_kind": "publisher_figure_vector_digitization",
+    "paper_doi": "10.1364/OE.17.008051",
+    "figure": "4(a)",
+    "source_pdf_sha256": "e26522f3ed099449bb3184498ffc0068196b317321908cd6204a20138b3c7fb5",
+    "note": "Plotted polylines, not authors' raw numerical data. A is linearly interpolated at the T/R knots; collinear A vertices were omitted in PDF. No R+T+A normalization. Axis and line-width uncertainty remains. Comparison tolerances are user criteria, not error bars from the paper."
+  },
+  "grids": [
+    256,
+    512
+  ],
+  "frequencies_THz": [
+    241.8545015886,
+    244.2213681208,
+    246.5908045407,
+    249.0758859052,
+    251.4427524375,
+    253.9304036896,
+    256.2972702219,
+    258.6667066418,
+    261.1517880063,
+    263.5212244262,
+    266.0063057906,
+    268.3757422106,
+    270.860823575,
+    273.2302599949,
+    275.5971265272,
+    278.0847777793,
+    280.4516443116,
+    282.9367256761,
+    285.306162096,
+    287.6730286282,
+    290.1606798804,
+    292.5275464126,
+    295.0151976648,
+    297.382064197,
+    299.8697154492,
+    302.2365819814,
+    304.6060184013,
+    307.0910997658,
+    309.4605361857,
+    311.9456175502,
+    314.3150539701,
+    316.8001353346,
+    319.1670018668,
+    321.5364382867,
+    324.0215196512,
+    326.3909560711,
+    328.8760374356,
+    331.2454738555,
+    333.6123403878,
+    336.0999916399,
+    338.4668581722,
+    340.9545094243,
+    343.3213759566,
+    345.8090272087,
+    348.1758937409,
+    350.5453301609,
+    353.0304115253,
+    355.3972780576,
+    357.8849293097,
+    360.251795842,
+    362.7394470941,
+    365.108883514,
+    367.4757500463,
+    369.9608314108,
+    372.3302678307,
+    374.8153491951,
+    377.1847856151,
+    379.5516521473,
+    382.0393033994,
+    384.4061699317,
+    386.8912512962,
+    389.2606877161,
+    391.7483389682,
+    394.1152055005,
+    396.4846419204,
+    398.9697232849,
+    401.3391597048,
+    403.8242410693,
+    406.1911076015,
+    408.5605440214,
+    411.0456253859,
+    413.4150618058,
+    415.9001431703,
+    418.2695795902,
+    420.7546609547,
+    423.1240973746,
+    425.4909639068,
+    427.978615159,
+    430.3454816912,
+    432.8331329434,
+    435.1999994756,
+    437.6850808401,
+    440.05451726,
+    442.4213837923,
+    444.9090350444,
+    447.2759015767,
+    449.7635528288,
+    452.1304193611,
+    454.499855781,
+    456.9849371454,
+    459.3543735654,
+    461.8394549298,
+    464.2088913497,
+    466.6939727142,
+    469.0634091341,
+    471.4302756664,
+    473.9153570309,
+    476.2847934508,
+    478.7698748153,
+    481.1393112352,
+    483.6269624873
+  ]
+}
