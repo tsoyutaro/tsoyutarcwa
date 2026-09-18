@@ -266,7 +266,11 @@ def _tensor_float(value: torch.Tensor) -> float:
 def power_for_polarization(
     simulation: CustomRCWA_ASR_FR, polarization: str
 ) -> dict[str, float]:
-    """Return total power for Cartesian x or y input at normal incidence."""
+    """Return total and zeroth-order power for Cartesian x/y input.
+
+    Absorption always uses the sum over all diffraction orders. Above the
+    first diffraction threshold, 1-R0-T0 also contains higher-order power.
+    """
     all_orders = torch.cartesian_prod(simulation.order_x, simulation.order_y)
     if polarization == "x":
         co, cross = "pp", "sp"
@@ -275,16 +279,16 @@ def power_for_polarization(
     else:
         raise ValueError("polarization must be 'x' or 'y'.")
 
-    def port_power(port: str) -> torch.Tensor:
+    def port_power(port: str, orders: torch.Tensor) -> torch.Tensor:
         a = simulation.S_parameters(
-            all_orders,
+            orders,
             direction="forward",
             port=port,
             polarization=co,
             power_norm=True,
         )
         b = simulation.S_parameters(
-            all_orders,
+            orders,
             direction="forward",
             port=port,
             polarization=cross,
@@ -292,13 +296,18 @@ def power_for_polarization(
         )
         return torch.sum(torch.abs(a) ** 2 + torch.abs(b) ** 2)
 
-    reflection = port_power("reflection")
-    transmission = port_power("transmission")
+    reflection = port_power("reflection", all_orders)
+    transmission = port_power("transmission", all_orders)
+    zero_order = torch.zeros((1, 2), dtype=all_orders.dtype, device=all_orders.device)
+    reflection_zero = port_power("reflection", zero_order)
+    transmission_zero = port_power("transmission", zero_order)
     absorption = 1.0 - reflection - transmission
     return {
         "R": _tensor_float(reflection),
         "T": _tensor_float(transmission),
         "A": _tensor_float(absorption),
+        "R0": _tensor_float(reflection_zero),
+        "T0": _tensor_float(transmission_zero),
         "balance": _tensor_float(reflection + transmission),
     }
 
@@ -415,6 +424,8 @@ def simulate_scattering(
         "R_x": x_power["R"],
         "T_x": x_power["T"],
         "A_x": x_power["A"],
+        "R0_x": x_power["R0"],
+        "T0_x": x_power["T0"],
         "balance_x": x_power["balance"],
         "polarization_delta_T": "",
         "minimum_jacobian": float(
@@ -429,6 +440,8 @@ def simulate_scattering(
                 "R_y": y_power["R"],
                 "T_y": y_power["T"],
                 "A_y": y_power["A"],
+                "R0_y": y_power["R0"],
+                "T0_y": y_power["T0"],
                 "balance_y": y_power["balance"],
                 "polarization_delta_T": abs(x_power["T"] - y_power["T"]),
             }
