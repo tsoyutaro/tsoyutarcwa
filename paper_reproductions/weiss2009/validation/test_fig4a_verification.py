@@ -40,6 +40,15 @@ class VerificationTests(unittest.TestCase):
         self.assertLess(self.frequencies[0], 250)
         self.assertGreater(self.frequencies[-1], 470)
 
+    def test_reference_hash_is_newline_independent(self):
+        source = verify.PACKAGE / "reference" / "fig4a_reference.csv"
+        with tempfile.TemporaryDirectory() as temporary:
+            lf = Path(temporary) / "reference_lf.csv"
+            lf.write_text(source.read_text(encoding="utf-8").replace("\r\n", "\n"),
+                          encoding="utf-8", newline="\n")
+            self.assertNotEqual(verify.sha(source), verify.sha(lf))
+            self.assertEqual(verify.canonical_text_sha(source), verify.canonical_text_sha(lf))
+
     def test_complete_identical_curves_pass(self):
         report = self.analyze()
         self.assertEqual(report["status"], "matched_within_tolerance")

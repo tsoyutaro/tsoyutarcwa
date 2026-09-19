@@ -48,6 +48,13 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def canonical_text_sha(path):
+    """Hash UTF-8 text independently of CRLF/LF and a possible UTF-8 BOM."""
+    text = path.read_text(encoding="utf-8-sig")
+    canonical = "\n".join(text.splitlines()) + "\n"
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def source_hash():
     digest = hashlib.sha256()
     paths = sorted((ROOT / "rcwa_ext").rglob("*.py")) + [PACKAGE / "reproduce.py", Path(__file__)]
@@ -60,8 +67,16 @@ def source_hash():
 def load_reference():
     path = PACKAGE / "reference" / "fig4a_reference.csv"
     metadata = json.loads((path.parent / "fig4a_reference_metadata.json").read_text(encoding="utf-8"))
-    if sha(path) != metadata["reference_csv_sha256"]:
-        raise ValueError("Reference CSV differs from its extraction provenance.")
+    raw_hash = sha(path)
+    canonical_hash = canonical_text_sha(path)
+    expected_raw = metadata.get("reference_csv_sha256")
+    expected_canonical = metadata.get("reference_csv_canonical_sha256")
+    if raw_hash != expected_raw and canonical_hash != expected_canonical:
+        raise ValueError(
+            "Reference CSV content differs from its extraction provenance: "
+            f"raw_sha256={raw_hash}, canonical_text_sha256={canonical_hash}. "
+            "A CRLF/LF-only conversion is accepted; numeric/text changes are not."
+        )
     data = np.genfromtxt(path, delimiter=",", names=True)
     if len(data) < 3 or not np.all(np.diff(data["frequency_THz"]) > 0):
         raise ValueError("Invalid reference frequency sequence.")
@@ -271,7 +286,7 @@ def make_signature(args, reference_metadata):
     return {"schema": SCHEMA, "physics": PHYSICS, "order": args.order,
             "dtype": "complex128", "cascade": args.cascade,
             "solver_source_sha256": source_hash(),
-            "reference_csv_sha256": reference_metadata["reference_csv_sha256"]}
+            "reference_csv_canonical_sha256": reference_metadata["reference_csv_canonical_sha256"]}
 
 
 def run(args):

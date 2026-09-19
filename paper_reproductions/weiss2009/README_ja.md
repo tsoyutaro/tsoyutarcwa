@@ -189,3 +189,6 @@ python -m paper_reproductions.weiss2009.extract_fig4a_reference --pdf "/path/to/
 
 抽出器は今回の出版社PDFのレイアウト専用で、軸や曲線が認識できないPDFでは推測せず停止する。
 通常の比較実行ではPDF・pdfplumberは不要。
+
+参照CSVの整合性検査はUTF-8テキストをLF・末尾改行へ正規化したSHA256を使う。
+GitやWindows/Linux間の転送によるCRLF/LF変換は許容するが、数値・列・文字の変更は拒否する。

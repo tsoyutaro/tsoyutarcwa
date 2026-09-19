@@ -15,6 +15,12 @@ from pathlib import Path
 import numpy as np
 
 
+def canonical_text_sha(path: Path) -> str:
+    text = path.read_text(encoding="utf-8-sig")
+    canonical = "\n".join(text.splitlines()) + "\n"
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def extract(pdf: Path, output: Path) -> None:
     import pdfplumber
 
@@ -75,6 +81,7 @@ def extract(pdf: Path, output: Path) -> None:
             "pdf_page_1based": 11, "source_filename": pdf.name,
             "source_pdf_sha256": hashlib.sha256(pdf.read_bytes()).hexdigest(),
             "reference_csv_sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+            "reference_csv_canonical_sha256": canonical_text_sha(target),
             "frequency_ticks_pdf_x": ticks, "frequency_ticks_THz": [250, 300, 350, 400, 450],
             "frequency_per_pdf_x": float(slope), "frequency_intercept": float(intercept),
             "tick_fit_max_residual_THz": float(np.max(np.abs(
