@@ -630,24 +630,29 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
             ny=ny,
         )
         delta = inverse_inverse_eps - eps_zz
-        n = self.order_N
-        # diag(eps_zz, eps_zz) + diag(delta, delta) @ projection,
-        # assembled one block at a time. Do not materialize the two large
-        # block-diagonal intermediates or a full-sized product temporary.
-        self._nvm_eps_tensor = eps_zz.new_empty((2 * n, 2 * n))
-        self._nvm_eps_tensor[:n, :n] = eps_zz + delta @ projection[:n, :n]
-        self._nvm_eps_tensor[:n, n:] = delta @ projection[:n, n:]
-        self._nvm_eps_tensor[n:, :n] = delta @ projection[n:, :n]
-        self._nvm_eps_tensor[n:, n:] = eps_zz + delta @ projection[n:, n:]
-        # Release assembly inputs before allocating P, not after P and Q.
-        # Autograd retains any tensors it needs when inputs require gradients.
-        del delta, inverse_inverse_eps
-        if self.lattice_kind != "triangular":
-            del inv_eps, projection
+        zero = torch.zeros_like(delta)
+        delta_2n = torch.cat(
+            (
+                torch.cat((delta, zero), dim=1),
+                torch.cat((zero, delta), dim=1),
+            ),
+            dim=0,
+        )
+        eps_2n = torch.cat(
+            (
+                torch.cat((eps_zz, zero), dim=1),
+                torch.cat((zero, eps_zz), dim=1),
+            ),
+            dim=0,
+        )
+        self._nvm_eps_tensor = eps_2n + torch.matmul(
+            delta_2n, projection
+        )
 
-        mu_zz = self._eye(n)
-        inv_eps_zz = self._solve(eps_zz, self._eye(n))
+        mu_zz = self._eye(self.order_N)
+        inv_eps_zz = self._solve(eps_zz, self._eye(self.order_N))
         inv_mu_zz = mu_zz
+        n = self.order_N
         eps_xx = self._nvm_eps_tensor[:n, :n]
         eps_xy = self._nvm_eps_tensor[:n, n:]
         eps_yx = self._nvm_eps_tensor[n:, :n]
@@ -655,29 +660,44 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
         s, c = self.sin_zeta, self.cos_zeta
         k1, k2 = self.K1_norm, self.K2_norm
 
-        # Assign directly into the final P/Q buffers. Each right-hand side
-        # is temporary; four scalar blocks and two concatenated rows no
-        # longer remain live alongside the complete matrix.
-        p = eps_zz.new_empty((2 * n, 2 * n))
-        p[:n, :n] = (torch.matmul(k1, torch.matmul(inv_eps_zz, k2)) - c * mu_zz) / s
-        p[:n, n:] = (mu_zz - torch.matmul(k1, torch.matmul(inv_eps_zz, k1))) / s
-        p[n:, :n] = (torch.matmul(k2, torch.matmul(inv_eps_zz, k2)) - mu_zz) / s
-        p[n:, n:] = (c * mu_zz - torch.matmul(k2, torch.matmul(inv_eps_zz, k1))) / s
-        del inv_eps_zz
+        p11 = (torch.matmul(k1, torch.matmul(inv_eps_zz, k2)) - c * mu_zz) / s
+        p12 = (mu_zz - torch.matmul(k1, torch.matmul(inv_eps_zz, k1))) / s
+        p21 = (torch.matmul(k2, torch.matmul(inv_eps_zz, k2)) - mu_zz) / s
+        p22 = (c * mu_zz - torch.matmul(k2, torch.matmul(inv_eps_zz, k1))) / s
+        p = torch.cat(
+            (torch.cat((p11, p12), dim=1), torch.cat((p21, p22), dim=1)),
+            dim=0,
+        )
 
-        q = eps_zz.new_empty((2 * n, 2 * n))
-        q[:n, :n] = (
+        q11 = (
             -torch.matmul(k1, torch.matmul(inv_mu_zz, k2))
-            - s * eps_yx + c * eps_yy
+            - s * eps_yx
+            + c * eps_yy
         ) / s
-        q[:n, n:] = (torch.matmul(k1, torch.matmul(inv_mu_zz, k1)) - eps_yy) / s
+        q12 = (
+            torch.matmul(k1, torch.matmul(inv_mu_zz, k1)) - eps_yy
+        ) / s
         eps11 = s**2 * eps_xx - s * c * (eps_xy + eps_yx) + c**2 * eps_yy
-        q[n:, :n] = (eps11 - torch.matmul(k2, torch.matmul(inv_mu_zz, k2))) / s
-        del eps11
-        q[n:, n:] = (
-            torch.matmul(k2, torch.matmul(inv_mu_zz, k1))
-            + s * eps_xy - c * eps_yy
+        q21 = (
+            eps11 - torch.matmul(k2, torch.matmul(inv_mu_zz, k2))
         ) / s
+        q22 = (
+            torch.matmul(k2, torch.matmul(inv_mu_zz, k1))
+            + s * eps_xy
+            - c * eps_yy
+        ) / s
+        q = torch.cat(
+            (torch.cat((q11, q12), dim=1), torch.cat((q21, q22), dim=1)),
+            dim=0,
+        )
+
+        # Assembly temporaries are not needed by the eigensolver. Deleting
+        # Python references does not detach autograd; saved tensors survive
+        # automatically when a differentiable input requires them.
+        del delta_2n, eps_2n, delta, zero, inverse_inverse_eps, inv_eps_zz
+        del p11, p12, p21, p22, q11, q12, q21, q22, eps11
+        if self.lattice_kind != "triangular":
+            del inv_eps, projection
 
         # In the exactly orthogonal cell the covariant axes are Cartesian.
         # Avoid a full 2N identity transform and duplicate modal matrices.
