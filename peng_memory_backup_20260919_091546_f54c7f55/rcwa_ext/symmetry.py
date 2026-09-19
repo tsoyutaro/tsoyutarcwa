@@ -80,26 +80,29 @@ class _SymmetryReductionMixin:
     ) -> torch.Tensor:
         """Place scalar bases in the Ex and Ey blocks, respectively."""
         row_count = self.order_N
-        # Allocate only the final matrix; slice copies retain autograd.
-        basis = first.new_zeros((2 * row_count, first.shape[1] + second.shape[1]))
-        basis[:row_count, :first.shape[1]] = first
-        basis[row_count:, first.shape[1]:] = second
-        return basis
-
-    def _c2v_source_bases(
-        self, center: tuple[float, float], polarization: str
-    ) -> tuple[torch.Tensor, torch.Tensor]:
-        """Build only the paired E/H bases excited by a normal x/y source."""
-        if polarization not in {"x", "y"}:
-            raise ValueError("C2v source polarization must be x or y.")
-        lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
-        ex, ox = self._one_dimensional_parity_bases(self.order_x, _TWO_PI/lx, center[0])
-        ey, oy = self._one_dimensional_parity_bases(self.order_y, _TWO_PI/ly, center[1])
-        ee = self._kronecker(ex, ey)
-        oo = self._kronecker(ox, oy)
-        electric_x = self._component_basis(ee, oo)
-        magnetic_x = self._component_basis(oo, ee)
-        return (electric_x, magnetic_x) if polarization == "x" else (magnetic_x, electric_x)
+        top = torch.cat(
+            (
+                first,
+                torch.zeros(
+                    (row_count, second.shape[1]),
+                    dtype=self._dtype,
+                    device=self._device,
+                ),
+            ),
+            dim=1,
+        )
+        bottom = torch.cat(
+            (
+                torch.zeros(
+                    (row_count, first.shape[1]),
+                    dtype=self._dtype,
+                    device=self._device,
+                ),
+                second,
+            ),
+            dim=1,
+        )
+        return torch.cat((top, bottom), dim=0)
 
     def _c2v_group_blocks(
         self, center: tuple[float, float]
@@ -351,7 +354,7 @@ class _SymmetryReductionMixin:
                 raise UnsupportedCombinationError(
                     "Orthogonal x/y polarization reduction requires C2v symmetry."
                 )
-            electric_basis, magnetic_basis = self._c2v_source_bases(centers[0], polarization)
+            blocks = self._c2v_group_blocks(centers[0])
             block_index = 2 if polarization == "x" else 3
             symmetry_name = "c2v"
         else:
@@ -365,9 +368,7 @@ class _SymmetryReductionMixin:
             # retains their possible cross-polarization coupling.
             block_index = 0
             symmetry_name = "c2-source-sector"
-        if not orthogonal:
-            electric_basis, magnetic_basis = blocks[block_index]
-            del blocks
+        electric_basis, magnetic_basis = blocks[block_index]
         p_image = torch.matmul(p, magnetic_basis)
         q_image = torch.matmul(q, electric_basis)
         p_sub = torch.matmul(electric_basis.mH, p_image)
@@ -395,7 +396,6 @@ class _SymmetryReductionMixin:
                 f"{_as_float(maximum_residual):.3e}."
             )
 
-        del p_image, q_image
         kz_squared, electric_sub = self._eig(torch.matmul(p_sub, q_sub))
         kz = self._positive_kz(kz_squared)
         electric_modes = torch.matmul(electric_basis, electric_sub)
@@ -419,7 +419,6 @@ class _SymmetryReductionMixin:
         magnetic_residual = torch.linalg.vector_norm(
             full_magnetic_modes - projected_full_magnetic
         ) / torch.maximum(torch.linalg.vector_norm(full_magnetic_modes), tiny)
-        del full_magnetic_modes, projected_full_magnetic
         magnetic_sub = self._magnetic_eigenvectors(
             p_sub, q_sub, electric_sub, kz
         )
@@ -1693,9 +1692,11 @@ class _SymmetryReductionMixin:
             symmetry_name = "D6-star/Cs(x-mirror)"
             star_dimension = vector_embedding.shape[1]
         else:
-            electric_uv_basis, magnetic_uv_basis = self._c2v_source_bases(
-                (0.5 * _as_float(self.L[0]), 0.5 * _as_float(self.L[1])), polarization
+            blocks = self._c2v_group_blocks(
+                (0.5 * _as_float(self.L[0]), 0.5 * _as_float(self.L[1]))
             )
+            block_index = 2 if polarization == "x" else 3
+            electric_uv_basis, magnetic_uv_basis = blocks[block_index]
             p_image = torch.matmul(p, magnetic_uv_basis)
             q_image = torch.matmul(q, electric_uv_basis)
             p_sub = torch.matmul(electric_uv_basis.mH, p_image)

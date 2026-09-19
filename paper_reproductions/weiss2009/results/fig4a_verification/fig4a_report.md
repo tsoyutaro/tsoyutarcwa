@@ -2,15 +2,15 @@
 
 Status: **matched_within_tolerance**
 
-Computed rows: 202/202; N=12; grids=[256, 512].
+Computed rows: 303/303; N=12; grids=[256, 512, 768].
 
 Reference: vector polylines extracted from the publisher PDF, not raw author data.
 
 | Curve | Max absolute error | RMSE |
 |---|---:|---:|
-| T | 0.0049354112 | 0.0014695302 |
-| R | 0.0056353123 | 0.0019900955 |
-| A | 0.006292782 | 0.00094556464 |
+| T | 0.0050298722 | 0.001505848 |
+| R | 0.0061913085 | 0.0020238627 |
+| A | 0.0068188974 | 0.00097357184 |
 
 Reasons: all requested checks passed
 

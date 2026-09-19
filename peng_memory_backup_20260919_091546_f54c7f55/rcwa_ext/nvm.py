@@ -691,34 +691,21 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
             dim=0,
         )
 
-        # Assembly temporaries are not needed by the eigensolver. Deleting
-        # Python references does not detach autograd; saved tensors survive
-        # automatically when a differentiable input requires them.
-        del delta_2n, eps_2n, delta, zero, inverse_inverse_eps, inv_eps_zz
-        del p11, p12, p21, p22, q11, q12, q21, q22, eps11
-        if self.lattice_kind != "triangular":
-            del inv_eps, projection
-
-        # In the exactly orthogonal cell the covariant axes are Cartesian.
-        # Avoid a full 2N identity transform and duplicate modal matrices.
-        orthogonal_identity = self.zeta_deg == 90.0
-        covariant_to_cartesian = None
-        if not orthogonal_identity:
-            identity = self._eye(n)
-            zero_n = torch.zeros_like(identity)
-            covariant_to_cartesian = torch.cat(
-                (
-                    torch.cat((identity, zero_n), dim=1),
-                    torch.cat(
-                        (
-                            -(c / s) * identity,
-                            (1.0 / s) * identity,
-                        ),
-                        dim=1,
+        identity = self._eye(n)
+        zero_n = torch.zeros_like(identity)
+        covariant_to_cartesian = torch.cat(
+            (
+                torch.cat((identity, zero_n), dim=1),
+                torch.cat(
+                    (
+                        -(c / s) * identity,
+                        (1.0 / s) * identity,
                     ),
+                    dim=1,
                 ),
-                dim=0,
-            )
+            ),
+            dim=0,
+        )
 
         cartesian_modes_ready = False
         complete_d6 = (
@@ -872,11 +859,12 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
                 p, q, w_covariant, kz
             )
         if not cartesian_modes_ready:
-            if orthogonal_identity:
-                w_cartesian, h_cartesian = w_covariant, h_covariant
-            else:
-                w_cartesian = torch.matmul(covariant_to_cartesian, w_covariant)
-                h_cartesian = torch.matmul(covariant_to_cartesian, h_covariant)
+            w_cartesian = torch.matmul(
+                covariant_to_cartesian, w_covariant
+            )
+            h_cartesian = torch.matmul(
+                covariant_to_cartesian, h_covariant
+            )
         if self.polarization_reduction is not None:
             assert self._polarization_bases is not None
             electric_basis, magnetic_basis = self._polarization_bases
