@@ -395,30 +395,7 @@ class _ReducedScatteringMixin:
             [amplitudes @ source_projection for amplitudes in backward_reduced],
         ]
 
-    def solve_polarization_source(self, source: torch.Tensor):
-        """Return (transmitted, reflected) E vectors without expanding S.
-
-        Requires a source in the configured symmetry sector, fields disabled,
-        and half/full scattering. Public S is empty for this vector-only solve.
-        """
-        if self.store_mode_couplings or self.smatrix_size == "quarter":
-            raise UnsupportedCombinationError("Source response requires fields disabled and half/full scattering.")
-        source = torch.as_tensor(source, dtype=self._dtype, device=self._device)
-        if source.shape != (2 * self.order_N,):
-            raise ValueError("Source must be one transverse Fourier vector of length 2*order_N.")
-        if not bool(torch.isfinite(source).all()):
-            raise ValueError("Source must be finite.")
-        if self._polarization_bases is None:
-            raise UnsupportedCombinationError("Source response requires a configured symmetry-reduced layer.")
-        basis = self._polarization_bases[0]
-        residual = torch.linalg.vector_norm(source - basis @ (basis.mH @ source))
-        scale = torch.linalg.vector_norm(source).clamp_min(torch.finfo(source.real.dtype).tiny)
-        tolerance = 2e-5 if self._dtype == torch.complex64 else 1e-9
-        if _as_float(residual / scale) > tolerance:
-            raise UnsupportedCombinationError("Source lies outside the selected symmetry sector.")
-        return self._solve_polarization_reduced_smatrix(incident_source=source)
-
-    def _solve_polarization_reduced_smatrix(self, *, incident_source=None):
+    def _solve_polarization_reduced_smatrix(self) -> None:
         if not self._polarized_layers or self._polarization_bases is None:
             raise RuntimeError(
                 "Add at least one eligible symmetry-reduced circle layer before solving."
@@ -438,17 +415,19 @@ class _ReducedScatteringMixin:
         input_v = reduce_v(getattr(self, "Vi", self.Vf))
         output_v = reduce_v(getattr(self, "Vo", self.Vf))
         self._polarization_reference_v = reference_v
+        input_interface = self._reduced_interface_s(
+            reference_v, input_v, input_side=True
+        )
+        output_interface = self._reduced_interface_s(
+            reference_v, output_v, input_side=False
+        )
         need_field_data = bool(self.store_mode_couplings)
-        need_redheffer = self.smatrix_algorithm == "redheffer" or self.verify_cascade or need_field_data
-        redheffer = None
-        parity_error = None
-        if need_redheffer:
-            input_interface = self._reduced_interface_s(reference_v, input_v, input_side=True)
-            output_interface = self._reduced_interface_s(reference_v, output_v, input_side=False)
-            redheffer = self._polarized_redheffer_scattering(
-                self._polarized_layers, input_interface, output_interface,
-                force_full=need_field_data,
-            )
+        redheffer = self._polarized_redheffer_scattering(
+            self._polarized_layers,
+            input_interface,
+            output_interface,
+            force_full=need_field_data,
+        )
         if self.smatrix_algorithm == "redheffer":
             reduced_scattering = redheffer
             parity_error = None
@@ -459,48 +438,31 @@ class _ReducedScatteringMixin:
                 output_v,
                 force_full=need_field_data,
             )
-            if self.verify_cascade:
-                indices = (
-                    (0, 1, 2, 3)
-                    if self.smatrix_size == "full" or need_field_data
-                    else ((1,) if self.smatrix_size == "quarter" else (0, 1))
-                )
-                parity_error = torch.max(
-                    torch.stack(
-                        [
-                            torch.max(
-                                torch.abs(
-                                    reduced_scattering[index] - redheffer[index]
-                                )
+            indices = (
+                (0, 1, 2, 3)
+                if self.smatrix_size == "full" or need_field_data
+                else ((1,) if self.smatrix_size == "quarter" else (0, 1))
+            )
+            parity_error = torch.max(
+                torch.stack(
+                    [
+                        torch.max(
+                            torch.abs(
+                                reduced_scattering[index] - redheffer[index]
                             )
-                            for index in indices
-                        ]
-                    )
+                        )
+                        for index in indices
+                    ]
                 )
-                tolerance = 2.0e-4 if self._dtype == torch.complex64 else 2.0e-9
-                if self.verify_cascade and _as_float(parity_error) > tolerance:
-                    raise RuntimeError(
-                        "Polarization-reduced Li-2a/Redheffer parity check failed: "
-                        f"{_as_float(parity_error):.3e}."
-                    )
+            )
+            tolerance = 2.0e-4 if self._dtype == torch.complex64 else 2.0e-9
+            if self.verify_cascade and _as_float(parity_error) > tolerance:
+                raise RuntimeError(
+                    "Polarization-reduced Li-2a/Redheffer parity check failed: "
+                    f"{_as_float(parity_error):.3e}."
+                )
 
         full_size = 2 * self.order_N
-        if incident_source is not None:
-            projected_source = electric_basis.mH @ incident_source
-            transmitted = electric_basis @ (reduced_scattering[0] @ projected_source)
-            reflected = electric_basis @ (reduced_scattering[1] @ projected_source)
-            self.S = []
-            self.C = [[], []]
-            self.cascade_diagnostics = {
-                "algorithm": self.smatrix_algorithm, "size": self.smatrix_size,
-                "computed_blocks": (), "output": "incident-source-vectors",
-                "redheffer_computed": need_redheffer,
-                "polarization": self.polarization_reduction,
-                "reduced_dimension": electric_basis.shape[1], "full_dimension": full_size,
-            }
-            if parity_error is not None:
-                self.cascade_diagnostics["redheffer_max_abs_error"] = parity_error.detach()
-            return transmitted, reflected
         zero = torch.zeros(
             (full_size, full_size),
             dtype=self._dtype,

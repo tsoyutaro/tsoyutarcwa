@@ -413,13 +413,10 @@ def _mean_poynting_z(
     return float(flux.detach().cpu())
 
 
-def _power_observables(simulation: AutoRCWA, response=None) -> dict[str, float]:
+def _power_observables(simulation: AutoRCWA) -> dict[str, float]:
     source = _zero_order_x_source(simulation)
-    if response is None:
-        reflected = simulation.S[1] @ source
-        transmitted = simulation.S[0] @ source
-    else:
-        transmitted, reflected = response
+    reflected = simulation.S[1] @ source
+    transmitted = simulation.S[0] @ source
     incident_flux = _mean_poynting_z(source, simulation.Vi, direction=1)
     reflected_flux = _mean_poynting_z(reflected, simulation.Vi, direction=-1)
     transmitted_flux = _mean_poynting_z(transmitted, simulation.Vo, direction=1)
@@ -473,7 +470,6 @@ def _base_result(
     numerics: Numerics,
     geometry: PaperGeometry,
     started: float,
-    response=None,
 ) -> dict[str, object]:
     result: dict[str, object] = {
         "frequency_thz": float(frequency_thz),
@@ -521,11 +517,9 @@ def _base_result(
         "asr_interface_rule": numerics.asr_interface_rule if numerics.solver.startswith('paper-') else None,
         "runtime_seconds": time.perf_counter() - started,
     }
-    result.update(_power_observables(simulation, response))
+    result.update(_power_observables(simulation))
     diagnostics = simulation.cascade_diagnostics
     result["reduced_dimension"] = diagnostics.get("reduced_dimension")
-    result["scattering_output"] = diagnostics.get("output", "full-basis-matrices")
-    result["redheffer_computed"] = diagnostics.get("redheffer_computed")
     if simulation.group_theory_diagnostics:
         group = simulation.group_theory_diagnostics[-1]
         result["symmetry_applied"] = group.get("applied")
@@ -680,11 +674,7 @@ def simulate_matched_primitive(
             eps=geometry.epsilon_pi,
             mu=1.0,
         )
-    response = None
-    if normalized == "square" and numerics.use_symmetry:
-        response = simulation.solve_polarization_source(_zero_order_x_source(simulation))
-    else:
-        simulation.solve_global_smatrix()
+    simulation.solve_global_smatrix()
     result = _base_result(
         simulation,
         frequency_thz,
@@ -692,7 +682,6 @@ def simulate_matched_primitive(
         numerics,
         geometry,
         started,
-        response=response,
     )
     result.update(
         {

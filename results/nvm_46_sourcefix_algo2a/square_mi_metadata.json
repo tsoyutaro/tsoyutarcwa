@@ -1,0 +1,73 @@
+{
+  "paper": {
+    "title": "Rigorous Coupled-Wave Analysis of Multilayer Metal-Insulator Aperture-Particle Composite Periodic Arrays",
+    "doi": "10.1109/LAWP.2025.3543371"
+  },
+  "geometry_and_material_model": {
+    "period_um": 62.0,
+    "outer_radius_um": 30.0,
+    "inner_radius_um": 14.0,
+    "silver_thickness_um": 1.0,
+    "epsilon_aperture_real": 1.0,
+    "epsilon_aperture_imag": 0.0,
+    "epsilon_pi_real": 3.5,
+    "epsilon_pi_imag": 0.009,
+    "pi_thickness_um": null
+  },
+  "reproduction_assumptions": {
+    "silver_drude": {
+      "epsilon_infinity": 1.0,
+      "plasma_rad_s": 1.37e+16,
+      "collision_rad_s": 27300000000000.0
+    },
+    "pattern_layer": "Ag background / air annulus / Ag central particle",
+    "mi_substrate": "semi-infinite PI",
+    "time_convention": "exp(-i omega t), passive Im(epsilon)>=0",
+    "method_note": "paper-asr reproduces the stepped-boundary Eq. (7) map; Jacobian-weighted material strips are integrated exactly with directional Li factorization. Shared adaptive ports return total powers in generalized homogeneous modes. paper-asr-nv uses transformed tensors and analytic circle normals with periodic IDW. These coordinate/interface completions are implementation assumptions, not a literal reproduction of the printed Eqs. (8)-(10). Values omitted by the article (staircase resolution, u_l/v_l allocation, IDW settings, and the discrete ASR/NV coordinate ordering) are explicit run parameters. Legacy smooth matched maps and analytic NVM remain independent routes."
+  },
+  "study": "convergence",
+  "frequency_thz": [
+    1.95
+  ],
+  "orders": [
+    46
+  ],
+  "grid": [
+    256,
+    256
+  ],
+  "asr_g": 0.001,
+  "solver": "nvm",
+  "asr_interface_rule_requested": "auto",
+  "asr_interface_rule_resolved": null,
+  "port_basis": "Cartesian-Fourier",
+  "staircase_grid": null,
+  "uv_break_allocation": null,
+  "nv_boundary_samples_per_circle": null,
+  "nv_neighbors": null,
+  "nv_power": null,
+  "nv_coordinate_rule": null,
+  "radial_mapping": "auto",
+  "radial_mapping_resolved": null,
+  "pi_thickness_um": null,
+  "cascade": "algo2a",
+  "use_symmetry": true,
+  "passivity_warning_count": 0,
+  "convergence_assessment": {
+    "status": "insufficient_orders",
+    "window": 3,
+    "available_orders": [
+      46
+    ],
+    "recommended_next_orders": []
+  },
+  "figure_written": true,
+  "paper_comparison": {
+    "figure": "Fig. 2(c,d)",
+    "reported_asr_nv_spectrum_order": 23,
+    "reference_curve_samples_available": false,
+    "input_completeness": "underdetermined_from_paper",
+    "claim": "Compare curve shape and convergence qualitatively unless the authors' exact Drude constants/reference samples are supplied."
+  },
+  "rows": 1
+}
