@@ -83,7 +83,7 @@ def run_case(args, order, profile, directory):
     sim = r._new_simulation(frequency_thz=r.DIELECTRIC_FREQUENCY_THZ,
         order=order, period_um=r.DIELECTRIC_PERIOD_UM, profile=profile, grid=grid,
         dtype=torch.complex128, device=torch.device(args.device),
-        cascade="redheffer", smatrix_size="half")
+        cascade="redheffer", smatrix_size="half", use_symmetry=args.use_symmetry)
     r._add_circle(sim, height_um=r.DIELECTRIC_HEIGHT_UM, radius_um=r.DIELECTRIC_RADIUS_UM,
                   epsilon=r.DIELECTRIC_EPSILON, grid=grid)
     sim.solve_global_smatrix()
@@ -97,6 +97,8 @@ def run_case(args, order, profile, directory):
     phase = torch.exp(1j * sim.omega * sim.kz_norm[-1] * sim.thickness[-1])
     baseline_r, baseline_t = sim.S[1] @ incident, sim.S[0] @ incident
     report = {"order": order, "profile": profile, "grid": grid, "G": r.INTERFACE_SLOPE,
+        "use_symmetry": args.use_symmetry,
+        "symmetry_diagnostics": sim.group_theory_diagnostics,
         "status": "partial", "methods": {"production": {
             "power": {p: r.power_for_polarization(sim, p) for p in ("x", "y")},
             "flux_power": summarize(sim, baseline_r, baseline_t, incident)}}}
@@ -149,6 +151,8 @@ def main():
     parser.add_argument("--identity-grid", type=int, default=1024)
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--skip-conditions", action="store_true")
+    parser.add_argument("--use-symmetry", action="store_true",
+                        help="Use complete C2v eigensystem blocks, retaining all modes")
     parser.add_argument("--output-dir", type=Path, default=Path("results/boundary_comparison"))
     args = parser.parse_args()
     orders, profiles = [int(n) for n in args.orders.split(",")], args.profiles.split(",")

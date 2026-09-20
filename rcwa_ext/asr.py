@@ -14,8 +14,9 @@ from .config import (
     _TWO_PI, _as_float, _real_parameter_tensor,
 )
 from .scattering import _StableLinearAlgebraMixin
+from .symmetry import _SymmetryReductionMixin
 
-class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_TORCWA_RCWA):
+class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinearAlgebraMixin, _ORIGINAL_TORCWA_RCWA):
     """
     Paper-faithful 2D ASR-FR solver for centered rectangular patches.
 
@@ -30,6 +31,16 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
     """
 
     def __init__(self, freq, order, L, **kwargs):
+        self.use_group_theory = bool(kwargs.pop("use_group_theory", False))
+        self.group_theory_symmetry = kwargs.pop("group_theory_symmetry", "c2v")
+        if self.group_theory_symmetry not in {"c2v", "auto"}:
+            raise ValueError("Standalone ASR symmetry supports c2v or auto only.")
+        self.group_theory_strict = bool(kwargs.pop("group_theory_strict", True))
+        self.group_theory_tolerance = float(kwargs.pop("group_theory_tolerance", 1e-8))
+        if not math.isfinite(self.group_theory_tolerance) or self.group_theory_tolerance <= 0:
+            raise ValueError("group_theory_tolerance must be positive and finite.")
+        self.group_theory_diagnostics = []
+        self.zeta_deg = 90.0
         self.asr_G = float(kwargs.pop("asr_G", 1.0e-3))
         quadrature_grid = kwargs.pop("asr_quadrature_grid", None)
         if quadrature_grid is not None:
@@ -1498,6 +1509,21 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _StableLinearAlgebraMixin, _ORIGINAL_T
                     triangular_star_pq=triangular_star_pq,
                 )
             )
+        elif getattr(self, "use_group_theory", False):
+            # Complete C2v sectors retain all modes and both polarizations.
+            # The shared implementation checks P/Q invariance before reducing.
+            grouped = self._group_theory_eigendecomposition(
+                p, q, [(_as_float(self.L[0]) / 2, _as_float(self.L[1]) / 2)],
+                layer_index,
+            )
+            if grouped is None:
+                kz_squared, w_uv = self._eig(torch.matmul(p, q))
+                kz = self._positive_kz(kz_squared)
+            else:
+                kz, w_uv = grouped
+            v_uv = self._magnetic_eigenvectors(p, q, w_uv, kz)
+            w_cartesian = torch.matmul(transform, w_uv)
+            v_cartesian = torch.matmul(transform, v_uv)
         else:
             kz_squared, w_uv = self._eig(torch.matmul(p, q))
             kz = self._positive_kz(kz_squared)

@@ -212,6 +212,7 @@ def _new_simulation(
     device: torch.device,
     cascade: str,
     smatrix_size: str,
+    use_symmetry: bool = False,
 ) -> CustomRCWA_ASR_FR:
     simulation = CustomRCWA_ASR_FR(
         torcwa_frequency(frequency_thz),
@@ -224,6 +225,9 @@ def _new_simulation(
         store_mode_couplings=False,
         verify_cascade=False,
         stable_eig_grad=False,
+        use_group_theory=use_symmetry,
+        group_theory_symmetry="c2v",
+        group_theory_strict=True,
         compute_condition_numbers=False,
         matched_asr_G=INTERFACE_SLOPE,
         matched_asr_profile=profile,
@@ -322,6 +326,7 @@ def simulate_mode(
     dtype: torch.dtype,
     device: torch.device,
     cascade: str,
+    use_symmetry: bool = False,
 ) -> dict[str, object]:
     started = time.perf_counter()
     simulation = _new_simulation(
@@ -334,6 +339,7 @@ def simulate_mode(
         device=device,
         cascade=cascade,
         smatrix_size="half",
+        use_symmetry=use_symmetry,
     )
     _add_circle(
         simulation,
@@ -365,6 +371,8 @@ def simulate_mode(
         "beta_reference_um_inv": beta_reference,
         "relative_error": abs(beta / beta_reference - 1.0),
         "selected_kz_imag": float(selected.imag.cpu()),
+        "use_symmetry": use_symmetry,
+        "symmetry_diagnostics": json.dumps(simulation.group_theory_diagnostics),
         "minimum_jacobian": float(
             torch.min(simulation.asr_mappings[-1].det_j).detach().cpu()
         ),
@@ -389,6 +397,7 @@ def simulate_scattering(
     device: torch.device,
     cascade: str,
     both_polarizations: bool,
+    use_symmetry: bool = False,
 ) -> dict[str, object]:
     started = time.perf_counter()
     simulation = _new_simulation(
@@ -401,6 +410,7 @@ def simulate_scattering(
         device=device,
         cascade=cascade,
         smatrix_size="half",
+        use_symmetry=use_symmetry,
     )
     _add_circle(
         simulation,
@@ -413,6 +423,8 @@ def simulate_scattering(
     x_power = power_for_polarization(simulation, "x")
     y_power = power_for_polarization(simulation, "y") if both_polarizations else None
     row: dict[str, object] = {
+        "use_symmetry": use_symmetry,
+        "symmetry_diagnostics": json.dumps(simulation.group_theory_diagnostics),
         "profile": profile,
         "label": PROFILE_LABELS[profile],
         "frequency_THz": frequency_thz,
@@ -483,6 +495,7 @@ def write_metadata(path: Path, study: str, args: argparse.Namespace, rows: int) 
         "device": args.device,
         "dtype": args.dtype,
         "cascade": args.cascade,
+        "use_symmetry": getattr(args, "use_symmetry", False),
         "rows": rows,
         "revision": REVISION,
     }
@@ -673,6 +686,7 @@ def run(args: argparse.Namespace) -> None:
                 profile=profile,
                 grid=identity_grid if profile == "identity" else grid,
                 beta_reference=beta_reference,
+                use_symmetry=getattr(args, "use_symmetry", False),
                 dtype=dtype,
                 device=device,
                 cascade=args.cascade,
@@ -700,6 +714,7 @@ def run(args: argparse.Namespace) -> None:
                 device=device,
                 cascade=args.cascade,
                 both_polarizations=False,
+                use_symmetry=getattr(args, "use_symmetry", False),
             )
             for profile in PROFILES
             for order in orders
@@ -724,6 +739,7 @@ def run(args: argparse.Namespace) -> None:
                 device=device,
                 cascade=args.cascade,
                 both_polarizations=False,
+                use_symmetry=getattr(args, "use_symmetry", False),
             )
             for frequency in frequencies
         ]
@@ -748,6 +764,7 @@ def run(args: argparse.Namespace) -> None:
                 device=device,
                 cascade=args.cascade,
                 both_polarizations=True,
+                use_symmetry=getattr(args, "use_symmetry", False),
             )
             for profile in PROFILES
             for order in orders
@@ -771,6 +788,8 @@ def parser() -> argparse.ArgumentParser:
         default="smoke",
     )
     result.add_argument("--orders", default="6:15")
+    result.add_argument("--use-symmetry", action="store_true",
+                        help="Use all four C2v eigensystem blocks; retain both polarizations")
     result.add_argument("--frequencies", default="250:470:5")
     result.add_argument("--spectrum-order", type=int, default=12)
     result.add_argument("--grid", type=int, default=256)
