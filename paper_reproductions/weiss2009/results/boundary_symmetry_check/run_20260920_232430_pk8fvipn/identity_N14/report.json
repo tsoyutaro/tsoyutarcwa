@@ -1,0 +1,234 @@
+{
+  "order": 14,
+  "profile": "identity",
+  "grid": 1024,
+  "G": 0.030000000000000027,
+  "use_symmetry": true,
+  "symmetry_diagnostics": [
+    {
+      "layer": 0,
+      "requested": true,
+      "applied": true,
+      "symmetry": "c2v",
+      "blocks": [
+        420,
+        420,
+        421,
+        421
+      ],
+      "max_invariance_residual": 2.2879832821148603e-15,
+      "tolerance": 1e-08
+    }
+  ],
+  "status": "complete",
+  "methods": {
+    "production": {
+      "power": {
+        "x": {
+          "R": 0.1265103367657995,
+          "T": 0.8734023717811142,
+          "A": 8.729145308628006e-05,
+          "R0": 0.046261036010048835,
+          "T0": 0.7777348969393082,
+          "balance": 0.9999127085469137
+        },
+        "y": {
+          "R": 0.1265103367657972,
+          "T": 0.8734023717810936,
+          "A": 8.729145310926167e-05,
+          "R0": 0.046261036010048266,
+          "T0": 0.7777348969392426,
+          "balance": 0.9999127085468908
+        }
+      },
+      "flux_power": {
+        "x": {
+          "R": 0.12651033676579954,
+          "T": 0.8734023717811142,
+          "A": 8.729145308616904e-05
+        },
+        "y": {
+          "R": 0.12651033676579726,
+          "T": 0.8734023717810938,
+          "A": 8.729145310892861e-05
+        }
+      }
+    },
+    "cartesian_control": {
+      "power": {
+        "x": {
+          "R": 0.1265103367658011,
+          "T": 0.8734023717811222,
+          "A": 8.729145307662112e-05
+        },
+        "y": {
+          "R": 0.12651033676580023,
+          "T": 0.8734023717811215,
+          "A": 8.729145307828645e-05
+        }
+      },
+      "residuals": {
+        "forward_propagation": 2.7555881419663533e-12,
+        "backward_propagation": 6.582397495993493e-13,
+        "reflection_solve": 3.058738422146845e-14,
+        "transmission_solve": 8.241302554687377e-15
+      },
+      "relative_amplitude_difference_from_production": {
+        "reflection": 3.314330443494739e-13,
+        "transmission": 1.2672595976923171e-12
+      },
+      "surface_flux": {
+        "exterior_top": [
+          0.8734896632341989,
+          0.8734896632341996
+        ],
+        "exterior_bottom": [
+          0.8734023717811222,
+          0.8734023717811215
+        ],
+        "internal_covariant_top": [
+          0.873372938407639,
+          0.8733729384076696
+        ],
+        "internal_covariant_bottom": [
+          0.8733730984511948,
+          0.8733730984512005
+        ]
+      },
+      "conditions": {
+        "boundary_A": {
+          "sigma_max": 455.40877991250204,
+          "sigma_min": 0.006143571567309392,
+          "condition_2": 74127.69183576886
+        },
+        "boundary_core": {
+          "sigma_max": 574.1840171683044,
+          "sigma_min": 0.34263823898431517,
+          "condition_2": 1675.773313773623
+        }
+      }
+    },
+    "inverse_T_control": {
+      "power": {
+        "x": {
+          "R": 0.12651033676580384,
+          "T": 0.8734023717811124,
+          "A": 8.729145308383757e-05
+        },
+        "y": {
+          "R": 0.12651033676579718,
+          "T": 0.8734023717810728,
+          "A": 8.729145313002284e-05
+        }
+      },
+      "residuals": {
+        "forward_propagation": 2.9696447916620584e-12,
+        "backward_propagation": 7.307045946652789e-13,
+        "reflection_solve": 3.2633742223853984e-14,
+        "transmission_solve": 8.621990440167373e-15
+      },
+      "relative_amplitude_difference_from_production": {
+        "reflection": 1.3796039627707944e-12,
+        "transmission": 1.6126604645982109e-12
+      },
+      "surface_flux": {
+        "exterior_top": [
+          0.8734896632341963,
+          0.8734896632342029
+        ],
+        "exterior_bottom": [
+          0.8734023717811124,
+          0.8734023717810728
+        ],
+        "internal_covariant_top": [
+          0.8733729384076769,
+          0.8733729384076843
+        ],
+        "internal_covariant_bottom": [
+          0.8733730984511894,
+          0.8733730984511516
+        ]
+      },
+      "conditions": {
+        "boundary_A": {
+          "sigma_max": 455.40877991259214,
+          "sigma_min": 0.00614357156730735,
+          "condition_2": 74127.69183580815
+        },
+        "boundary_core": {
+          "sigma_max": 574.1840171682422,
+          "sigma_min": 0.3426382389843418,
+          "condition_2": 1675.7733137733112
+        }
+      }
+    },
+    "direct_pullback": {
+      "power": {
+        "x": {
+          "R": 0.12660366165710518,
+          "T": 0.8734841318610429,
+          "A": -8.779351814802716e-05
+        },
+        "y": {
+          "R": 0.126603661657108,
+          "T": 0.873484131861013,
+          "A": -8.779351812104874e-05
+        }
+      },
+      "residuals": {
+        "forward_propagation": 2.846020726586056e-12,
+        "backward_propagation": 8.029555846973789e-13,
+        "reflection_solve": 2.5243216417646272e-14,
+        "transmission_solve": 8.235894440589059e-15
+      },
+      "relative_amplitude_difference_from_production": {
+        "reflection": 0.2150672139099083,
+        "transmission": 0.11291358176275729
+      },
+      "surface_flux": {
+        "exterior_top": [
+          0.8733963383428949,
+          0.873396338342892
+        ],
+        "exterior_bottom": [
+          0.8734841318610429,
+          0.873484131861013
+        ],
+        "internal_covariant_top": [
+          0.8735050012456201,
+          0.8735050012456255
+        ],
+        "internal_covariant_bottom": [
+          0.8735051443150115,
+          0.8735051443149838
+        ]
+      },
+      "conditions": {
+        "boundary_A": {
+          "sigma_max": 139.66833038218144,
+          "sigma_min": 0.006112075900531526,
+          "condition_2": 22851.210072511603
+        },
+        "boundary_core": {
+          "sigma_max": 573.9312248332994,
+          "sigma_min": 0.01985516714012328,
+          "condition_2": 28905.887358334065
+        }
+      }
+    }
+  },
+  "projection": {
+    "BT_identity_residual": 0.19078044283722576,
+    "TB_identity_residual": 0.18993121893715434,
+    "T": {
+      "sigma_max": 1.9468952232847727,
+      "sigma_min": 0.010396701735388753,
+      "condition_2": 187.26085183898704
+    },
+    "B": {
+      "sigma_max": 1.9468952232848902,
+      "sigma_min": 0.010396701735389601,
+      "condition_2": 187.26085183898306
+    }
+  }
+}
