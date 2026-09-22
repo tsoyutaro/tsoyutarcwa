@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from paper_reproductions.weiss2009 import reproduce as r
 from rcwa_ext import UnsupportedCombinationError
 

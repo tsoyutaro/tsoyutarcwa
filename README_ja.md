@@ -16,6 +16,7 @@ outputs/
 │  └─ mosmite_gold_30nm/      # Au 30 nm合体を扱うASR/周期ラスタ混成モデル
 ├─ paper_reproductions/       # 論文ごとの再現実装
 │  ├─ wang2022_fig8/          # ASR-RCWA論文 Fig. 8
+│  ├─ weiss2009/              # 円形 matched-coordinate ASR、Fig. 2～5
 │  └─ peng2025/               # Ag–air–Ag円形構造
 ├─ validation/                # solver横断の独立検証
 ├─ docs/                      # 数式導出・設計資料
@@ -34,6 +35,10 @@ outputs/
 5. `docs/triangular_matched_asr_math_report_ja.md` — 三角格子matched-ASR
 6. `docs/complete_d6_native_star_report_ja.md` — native-star完全D6分解
 7. 目的に応じて `studies/*/README_ja.md` または `paper_reproductions/*/README_ja.md`
+
+Weiss 2009 の再現は [専用ガイド](paper_reproductions/weiss2009/README_ja.md) に、
+保存済み計算の評価は [結果の評価](paper_reproductions/weiss2009/docs/RESULTS_ja.md) にまとめています。
+Fig. 4(a) の図との一致と、Fig. 3・4(b) の高次数で残る収束問題を区別して記載しています。
 
 ## よく使うコマンド
 

@@ -1,6 +1,6 @@
 # Fig. 3 の負の吸収の診断
 
-`diagnose_fig3.py` を `reproduce.py` と同じディレクトリに配置してください。
+`diagnose_fig3.py` は `reproduce.py` と同じディレクトリにあります。
 既存ソルバーを変更せず、Fig. 3 の無損失誘電体を再計算します。
 G は reproduce.py の値（現状 0.03）を使用し、実値を metadata.json に保存します。
 
@@ -38,3 +38,9 @@ Redheffer と比較する場合は `--cascade redheffer` に変更します。
 status=complete は診断処理の完了を意味し、物理的合格の判定ではありません。
 途中結果は status=partial、例外は error.json に保存します。非有限数は JSON では null になります。
 結果を共有する際は run_* ディレクトリ全体（metadata.json、各 report.json、modes.csv、あれば error.json）を渡してください。
+
+保存済みの診断では、ASR の次数 11・14 で A=-0.132746・-0.092792、
+変換行列 T の条件数は約 4.5e6・9.8e7 でした。固有値問題の残差はおおむね
+1e-14 と小さく、Cartesian 境界で電力超過が大きくなります。
+次数 15 の A は約 -0.000163 に減りますが、高次数 16・18 で再び増えています。
+[結果の評価](RESULTS_ja.md) を参照してください。

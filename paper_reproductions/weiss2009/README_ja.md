@@ -4,6 +4,25 @@
 in the Fourier modal method*, Optics Express 17, 8051-8061 (2009),
 DOI: 10.1364/OE.17.008051 である。
 
+## 最初に確認するファイル
+
+| 場所 | 内容 |
+|---|---|
+| `reproduce.py` | Fig. 2～5 の計算とプロット。`--use-symmetry` はここで選ぶ。 |
+| `verify_fig4a.py` | Fig. 4(a) 全スペクトルの論文曲線との一致確認。 |
+| `fig4a_spectrum_only.py` | 論文曲線を重ねない計算スペクトル。 |
+| `diagnose_fig3.py` | 無損失 Fig. 3 の固有値・条件数・電力流診断。 |
+| `compare_boundaries.py` | Fig. 3 の境界投影方式を比較。 |
+| `reference/` | 論文図から抽出した参照CSVと出所情報。 |
+| `validation/` | 検証・テスト。 |
+| `docs/` | [診断方法](docs/DIAGNOSE_ja.md)、[境界比較](docs/COMPARE_BOUNDARIES_ja.md)、[保存済み結果の評価](docs/RESULTS_ja.md)。 |
+| `results/` | [結果フォルダの索引](results/README_ja.md)。計算条件・出所と一緒に保存。 |
+
+現時点では、Fig. 4(a) の625調和波・全スペクトルは PDF 曲線との規定許容差内で一致した。
+Fig. 3 の ASR エネルギー保存と Fig. 4(b) の高次数収束は未達成である。
+特に Fig. 4(b) は次数 15～18 で T/R/A が大きく変動する。
+図ごとの評価範囲は [保存済み結果の評価](docs/RESULTS_ja.md) にまとめた。
+
 ## 再現範囲
 
 既存の `rcwa_ext` に、論文の数値例で用いられた固定界面 ASR 写像を追加した。
@@ -49,24 +68,27 @@ Li マーカーは再現対象外である。論文の zigzag Cartesian 近似�
 
 `AutoRCWA` では `ASROptions(circle_profile="weiss2009", circle_G=0.03)` と指定する。
 `circle_G` はこの profile では `1-eta` を表す。
+この再現用CLIの `--use-symmetry` は、完全な C2v の4ブロックで固有値を解き、
+全モードと両偏光を保持する。境界行列は全サイズのままで、高次数の数値安定性を
+保証するものではない。
 
 ## 実行
 
 `outputs` をカレントディレクトリにするか、その親を `PYTHONPATH` に含める。
 PyTorch、torcwa 0.1.4.2、matplotlib が必要である。
 
-高速な一貫性確認:
+高速な一貫性確認（以下は `outputs` で実行する bash 例）:
 
-```powershell
-python -m paper_reproductions.weiss2009.reproduce --study smoke --device cpu `
+```bash
+python -m paper_reproductions.weiss2009.reproduce --study smoke --device cpu \
   --output-dir paper_reproductions/weiss2009/results/smoke
 ```
 
 論文次数の全計算:
 
-```powershell
-python -m paper_reproductions.weiss2009.reproduce --study paper --device cuda `
-  --orders 6:15 --grid 256 --identity-grid 1024 --frequencies 250:470:5 `
+```bash
+python -m paper_reproductions.weiss2009.reproduce --study paper --device cuda \
+  --orders 6:15 --grid 256 --identity-grid 1024 --frequencies 250:470:5 \
   --spectrum-order 12 --output-dir paper_reproductions/weiss2009/results/paper
 ```
 
@@ -77,6 +99,8 @@ ASR なしの matched-coordinate Jacobian は区分的に不連続なので、�
 `--identity-grid 1024` を使う。`N=12` では grid 256 が基本モードを別枝へ誤追跡したのに対し、
 grid 1024 で解析解に対する相対誤差が約 `8.8e-6` へ戻ることを確認した。ASR 系列は
 `--grid 256` を使う。
+高次数の Fig. 4(b) に `--use-symmetry` を指定する場合も、
+[保存済み結果の評価](docs/RESULTS_ja.md) のとおり収束を確認する必要がある。
 
 ## 出力
 
@@ -84,11 +108,17 @@ grid 1024 で解析解に対する相対誤差が約 `8.8e-6` へ戻ることを
 RCWA 解から Fig. 4(b) の透過率と Fig. 5(b) の x/y 差を出す。著者の元数値データは
 同梱していない。下記の全スペクトル検証では、PDF内の実際のベクトル曲線から抽出した
 参照値を、再計算結果と明確に区別して使用する。
+`reproduce.py --study fig4-spectrum` の既存PNGは全回折次数の T/R を描き、
+下記 `verify_fig4a.py` は論文図との比較にゼロ次 T/R を使用する。
+高周波側では回折次数が開くため、二つのプロットの縦軸定義を混同しない。
 
 検証:
 
-```powershell
+```bash
 python -m paper_reproductions.weiss2009.validation.validate --device cpu
+python -m unittest paper_reproductions.weiss2009.validation.test_asr_symmetry \
+  paper_reproductions.weiss2009.validation.test_compare_boundaries \
+  paper_reproductions.weiss2009.validation.test_fig4a_verification
 ```
 
 検証は式 (41)-(42) の界面勾配、界面位置、写像 Jacobian の正値、解析モード基準、

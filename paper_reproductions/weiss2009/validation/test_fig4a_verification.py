@@ -44,10 +44,15 @@ class VerificationTests(unittest.TestCase):
         source = verify.PACKAGE / "reference" / "fig4a_reference.csv"
         with tempfile.TemporaryDirectory() as temporary:
             lf = Path(temporary) / "reference_lf.csv"
-            lf.write_text(source.read_text(encoding="utf-8").replace("\r\n", "\n"),
-                          encoding="utf-8", newline="\n")
-            self.assertNotEqual(verify.sha(source), verify.sha(lf))
+            crlf = Path(temporary) / "reference_crlf.csv"
+            contents = source.read_text(encoding="utf-8-sig")
+            with lf.open("w", encoding="utf-8", newline="\n") as stream:
+                stream.write(contents)
+            with crlf.open("w", encoding="utf-8", newline="\r\n") as stream:
+                stream.write(contents)
+            self.assertNotEqual(verify.sha(crlf), verify.sha(lf))
             self.assertEqual(verify.canonical_text_sha(source), verify.canonical_text_sha(lf))
+            self.assertEqual(verify.canonical_text_sha(crlf), verify.canonical_text_sha(lf))
 
     def test_complete_identical_curves_pass(self):
         report = self.analyze()

@@ -1,8 +1,9 @@
 # 変換・境界接続の比較実験
 
-今回の対称性更新ZIPはプロジェクトルートで展開してください（末尾参照）。
-比較実験は既存の境界式を置き換えず、別経路で評価します。
-コアにはオプションの対称性固有値計算を追加しています。diagnose_fig3.py の共通関数を利用します。
+`compare_boundaries.py` は Fig. 3 の無損失誘電体について、同じ内部モードを使って
+複数の境界投影を比較する診断スクリプトです。通常の `reproduce.py` の境界式は
+変更しません。`diagnose_fig3.py` の共通関数を利用します。
+以下のコマンドは `reproduce.py` のあるディレクトリで実行します。
 
 ```bash
 python compare_boundaries.py --orders 11,14,15 --grid 512 --identity-grid 1024 --device cuda --output-dir results/boundary_comparison
@@ -11,7 +12,8 @@ python compare_boundaries.py --orders 11,14,15 --grid 512 --identity-grid 1024 -
 complex128、G=0.03（reproduce.py の実値を記録）、無損失誘電体の Fig.3 条件を使います。
 各次数・profile で内部モードは一度だけ計算し、全方式で共有します。
 接続比較を単純にするため、単層・真空入出射・垂直入射・Redheffer 固定です。
-`--dtype`、`--cascade` はありません。`--use-symmetry` は以下の更新で追加しました。
+`--dtype`、`--cascade` はありません。`--use-symmetry` で全 C2v ブロックを使う
+固有値計算を選べます。
 `identity` も matched 座標を使いますが、ASR の伸縮を行いません。
 
 計算する方式：
@@ -51,7 +53,7 @@ BT/TB と単位行列との差は投影の診断値であり、0でなければ�
 短い動作確認：
 
 ```bash
-python test_compare_boundaries.py
+python validation/test_compare_boundaries.py
 python compare_boundaries.py --orders 1 --grid 32 --identity-grid 32 --device cpu --output-dir results/boundary_smoke
 ```
 
@@ -63,20 +65,23 @@ P/Q の C2v 不変性を検査し、全4ブロックの固有値問題を解い�
 不変性検査に失敗した場合は停止します。適用したブロック数・残差を JSON/CSV に記録します。
 固有値計算を軽くしますが、変換行列の構築、全サイズの境界接続、SVD は縮小されません。
 したがって実行時間全体が必ず短くなるとは限りません。
-悪条件の高次数では演算経路による差があり得るため、まず既存次数の対称性なし結果と比較してください。
+悪条件の高次数では演算経路による差があり得ます。次数 11、14、15 の比較では、
+対称性ありとなしの R/T/A は概ね一致しましたが、次数 14、15 に微小な数値差があります。
 
 ```bash
 python compare_boundaries.py --orders 11,14,15 --grid 512 --identity-grid 1024 --device cuda --use-symmetry --output-dir results/boundary_symmetry_check
 python compare_boundaries.py --orders 15,16,17,18 --grid 512 --identity-grid 1024 --device cuda --use-symmetry --output-dir results/boundary_high_order
 python reproduce.py --study fig4-convergence --orders 15,16,17,18 --grid 512 --identity-grid 1024 --device cuda --dtype complex128 --use-symmetry --output-dir results/fig4b_high_order_grid512
-python reproduce.py --study fig4-convergence --orders 15,16,17,18 --grid 1024 --identity-grid 1024 --device cuda --dtype complex128 --use-symmetry --output-dir results/fig4b_high_order_grid1024
 ```
 
 境界比較は Fig.3 の誘電体です。Fig.4(b) の金属収束性は reproduce.py で計算します。
-高次数の --use-symmetry あり/なし一致やCUDAでの高速化は、利用環境で確認してください。
-CPU complex128 の低次数では誘電体・金属、ASRあり/なしで R/T/A の差が1e-9未満であることをテストします。
+実行済みの結果では、Fig. 3 の ASR は次数 16 で A=+0.007065、18 で
+A=+0.000968 となり、無損失の基準 A=0 に安定して近づいていません。
+direct_pullback も次数 11 で A=-0.346055 に悪化しました。
+Fig. 4(b) の grid 512 も次数 15～18 で透過率が大きく変動しています。
+詳細な表と残る検証は [結果の評価](RESULTS_ja.md) を参照してください。
+grid 1024 や金属の高次数での対称性なしとの比較はまだ結果がありません。
 
-この更新ZIPはプロジェクトルート（rcwa_ext と paper_reproductions がある場所）で展開してください。
-rcwa_ext/asr.py の更新も必要です。古いファイルは上書き前にバックアップしてください。
-reproduce.py/asr.py のハッシュが変わるため、verify_fig4a の古いチェックポイントに --resume すると拒否される可能性があります。
-その場合は新しい出力先で再計算し、署名チェックを外さないでください。
+CPU complex128 の低次数では、誘電体・金属、ASR あり・なしの
+R/T/A が対称性の有無で 1e-9 未満の差であることをテストしています。
+`python validation/test_asr_symmetry.py` で再検証できます。
