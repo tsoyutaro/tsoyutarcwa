@@ -208,8 +208,8 @@ def simulate_case(
         freq=frequency,
         order=[numerical.order, numerical.order],
         lattice=_lattice(geometry),
-        cascade=cascade,
-        outputs=OutputSpec(smatrix_size="half", fields="none"),
+        cascade=algo2a,  #cascade
+        outputs=OutputSpec(smatrix_size="quarter", fields="none"),
         asr=ASROptions(
             circle_G=geometry.asr_circle_g,
             grid=(numerical.grid, numerical.grid),

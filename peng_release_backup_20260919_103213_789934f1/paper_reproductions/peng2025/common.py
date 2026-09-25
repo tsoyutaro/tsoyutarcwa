@@ -526,8 +526,6 @@ def _base_result(
     result["reduced_dimension"] = diagnostics.get("reduced_dimension")
     result["scattering_output"] = diagnostics.get("output", "full-basis-matrices")
     result["redheffer_computed"] = diagnostics.get("redheffer_computed")
-    result["release_operators"] = diagnostics.get("release_operators", False)
-    result["discarded_operator_bytes"] = diagnostics.get("discarded_operator_bytes", 0)
     if simulation.group_theory_diagnostics:
         group = simulation.group_theory_diagnostics[-1]
         result["symmetry_applied"] = group.get("applied")
@@ -684,9 +682,7 @@ def simulate_matched_primitive(
         )
     response = None
     if normalized == "square" and numerics.use_symmetry:
-        response = simulation.solve_polarization_source(
-            _zero_order_x_source(simulation), release_operators=True
-        )
+        response = simulation.solve_polarization_source(_zero_order_x_source(simulation))
     else:
         simulation.solve_global_smatrix()
     result = _base_result(

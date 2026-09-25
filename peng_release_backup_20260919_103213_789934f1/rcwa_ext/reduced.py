@@ -395,18 +395,11 @@ class _ReducedScatteringMixin:
             [amplitudes @ source_projection for amplitudes in backward_reduced],
         ]
 
-    def solve_polarization_source(self, source: torch.Tensor, *, release_operators=False):
+    def solve_polarization_source(self, source: torch.Tensor):
         """Return (transmitted, reflected) E vectors without expanding S.
 
         Requires a source in the configured symmetry sector, fields disabled,
         and half/full scattering. Public S is empty for this vector-only solve.
-
-        release_operators=True discards the stored full-space P/Q operators
-        before cascading. Their list slots become None; subsequent use must
-        stay on the reduced, fields-disabled path (rebuild for other uses).
-        Reduced modes, ports and autograd graphs are preserved. Autograd or
-        external references can retain storage, so byte counts are not a
-        measurement of released device memory. Default preserves operators.
         """
         if self.store_mode_couplings or self.smatrix_size == "quarter":
             raise UnsupportedCombinationError("Source response requires fields disabled and half/full scattering.")
@@ -423,23 +416,7 @@ class _ReducedScatteringMixin:
         tolerance = 2e-5 if self._dtype == torch.complex64 else 1e-9
         if _as_float(residual / scale) > tolerance:
             raise UnsupportedCombinationError("Source lies outside the selected symmetry sector.")
-        if not self._polarized_layers or len(self._polarized_layers) != self.layer_N:
-            raise UnsupportedCombinationError("Every internal layer must participate in polarization reduction.")
-        discarded_bytes = 0
-        if release_operators:
-            # Only P/Q are discarded: reduced cascades use reduced E/H/kz,
-            # and power observables still need the original input/output ports.
-            # Replace list slots rather than clearing lists to preserve indices.
-            for name in ("P", "Q"):
-                operators = getattr(self, name)
-                for index in range(len(operators)):
-                    if operators[index] is not None:
-                        discarded_bytes += operators[index].numel() * operators[index].element_size()
-                        operators[index] = None
-        response = self._solve_polarization_reduced_smatrix(incident_source=source)
-        self.cascade_diagnostics["release_operators"] = bool(release_operators)
-        self.cascade_diagnostics["discarded_operator_bytes"] = discarded_bytes
-        return response
+        return self._solve_polarization_reduced_smatrix(incident_source=source)
 
     def _solve_polarization_reduced_smatrix(self, *, incident_source=None):
         if not self._polarized_layers or self._polarization_bases is None:
