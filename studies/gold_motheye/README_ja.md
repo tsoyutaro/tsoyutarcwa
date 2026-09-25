@@ -184,3 +184,29 @@ python studies/gold_motheye/validation/validate.py --integration --device cuda
 周期200 nmは400–700 nmより短いため、空気側の遠方回折次数はゼロ次だけである。ただし金属
 境界近傍のevanescent Fourier成分は吸収と場分布へ寄与するため、Fourier次数の収束確認は
 省略できない。
+
+## 7. 既存結果の図とTSUBAME 4.0での再計算
+
+既存の `results/gold_motheye_convergence.json` は
+`candidate_range_insufficient` であり、`M=7, Nz=48, grid=256` は収束値ではない。
+既存スペクトルは400、550、700 nmの3点のみ。図では補間せず点で示す。
+
+```bash
+python3 studies/gold_motheye/plot_results.py \
+  --report studies/gold_motheye/results/gold_motheye_convergence.json \
+  --output-dir studies/gold_motheye/results/figures
+```
+
+`plot_results.py` は標準ライブラリのみを使用して `convergence.svg` と `spectrum.svg` を
+生成する。密な `*_spectrum.csv` が存在し、採用した `M,Nz,grid` と一致すれば曲線を描く。
+
+TSUBAME 4.0ではプロジェクトルートから次を投入する。PyTorch のCUDA動作環境を事前に用意する。
+
+```bash
+qsub -g YOUR_TSUBAME_GROUP studies/gold_motheye/tsubame4_gold_motheye.sh
+```
+
+このジョブは候補範囲を拡張し、収束したときのみ400–700 nmを5 nm刻みで計算する。
+`results/gold_motheye_extended*` と `results/figures_extended/` に保存する。
+未収束時もアンカー点と収束図を残し、終了コード2を返す。ジョブ構文と資源タイプは
+[TSUBAME 4.0利用の手引き](https://www.t4.cii.isct.ac.jp/docs/handbook.ja/jobs/)を参照。
