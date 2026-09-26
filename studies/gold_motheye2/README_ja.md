@@ -68,3 +68,38 @@ python3 studies/gold_motheye2/converge.py --plot-only \
 
 TSUBAMEの `gpu_1`、`qsub` の使い方は
 [公式のジョブ手引き](https://www.t4.cii.isct.ac.jp/docs/handbook.ja/jobs/)を参照。
+
+## 400～700 nm の101点反射スペクトル
+
+次数収束用の `converge.py` は複数次数で各波長を比較するためのスクリプトであり、
+波長を横軸にしたスペクトル図は作らない。単一次数のスペクトルには `spectrum.py` を使う。
+既定は `M=16`、`Nz=100`、`grid=256`、400～700 nm の101点（3 nm刻み）。
+TSUBAMEのプロジェクトルートから以下を投入する。
+
+```bash
+qsub -g YOUR_TSUBAME_GROUP studies/gold_motheye2/tsubame4_spectrum.sh
+```
+
+検証用に `M=20` のスペクトルを別ジョブで計算する場合は次の通り。
+
+```bash
+qsub -g YOUR_TSUBAME_GROUP -v SPECTRUM_ORDER=20 \
+  studies/gold_motheye2/tsubame4_spectrum.sh
+```
+
+出力は次数別ディレクトリの `reflectance_spectrum.csv` と
+`reflectance_spectrum.svg`。M=16なら
+`studies/gold_motheye2/results/spectrum_M16/` に保存される。
+各波長の終了時にcheckpoint・CSV・部分SVGを更新し、同条件で再実行すれば続きから計算する。
+既存CSVから図だけ再生成するには以下を実行する。
+
+```bash
+python3 studies/gold_motheye2/spectrum.py --order 16 --plot-only
+```
+
+対話的なGPU割当がある場合は、直接
+`python3 studies/gold_motheye2/spectrum.py --device cuda --order 16`
+でも実行できる。M=16の既存計測値は1波長あたり約103秒なので、101点の
+前進計算だけで概算約2時間55分を見込む。計算環境や波長により変動する。
+この図は固定次数のスペクトルであり、最適化した形状の次数・層数・gridの収束を
+自動的に保証するものではない。
