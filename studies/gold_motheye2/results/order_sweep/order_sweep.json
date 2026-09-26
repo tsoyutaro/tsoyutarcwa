@@ -1,0 +1,201 @@
+{
+  "study_version": "order_sweep_half_smatrix_v1",
+  "geometry": {
+    "period_nm": 200.0,
+    "height_nm": 500.0,
+    "tip_radius_nm": 5.0,
+    "base_radius_nm": 95.0,
+    "profile_power": 1.0,
+    "lattice": "triangular",
+    "substrate_mode": "semi-infinite",
+    "substrate_thickness_nm": 200.0,
+    "back_index": 1.0,
+    "asr_circle_g": 0.03
+  },
+  "orders": [
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20
+  ],
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "fixed_grid": 256,
+  "fixed_slices": 100,
+  "gold_csv_sha256": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99",
+  "solver_source_sha256": "09d331f5ef48f7fc3e50eeb4850dda4dcfe009caa9eb4569400186c3667dbbd4",
+  "cascade": "redheffer",
+  "dtype": "complex128",
+  "smatrix_size": "half",
+  "symmetry_reduction": "d6-source",
+  "status": "converged_within_tested_orders",
+  "completed_cases": 27,
+  "expected_cases": 27,
+  "per_wavelength_pass": {
+    "400": true,
+    "550": true,
+    "700": true
+  },
+  "adjacent_changes": {
+    "400": [
+      {
+        "coarse_order": 4,
+        "fine_order": 6,
+        "delta_reflectance": 0.00012015561892418776,
+        "delta_reflectance_pp": 0.012015561892418775
+      },
+      {
+        "coarse_order": 6,
+        "fine_order": 8,
+        "delta_reflectance": 9.358913547453747e-05,
+        "delta_reflectance_pp": 0.009358913547453747
+      },
+      {
+        "coarse_order": 8,
+        "fine_order": 10,
+        "delta_reflectance": 2.3359873060244655e-05,
+        "delta_reflectance_pp": 0.0023359873060244656
+      },
+      {
+        "coarse_order": 10,
+        "fine_order": 12,
+        "delta_reflectance": 1.1124406187986617e-05,
+        "delta_reflectance_pp": 0.0011124406187986617
+      },
+      {
+        "coarse_order": 12,
+        "fine_order": 14,
+        "delta_reflectance": 1.0202077825262681e-05,
+        "delta_reflectance_pp": 0.0010202077825262681
+      },
+      {
+        "coarse_order": 14,
+        "fine_order": 16,
+        "delta_reflectance": 9.851456805155291e-06,
+        "delta_reflectance_pp": 0.0009851456805155291
+      },
+      {
+        "coarse_order": 16,
+        "fine_order": 18,
+        "delta_reflectance": 1.0255901952101198e-05,
+        "delta_reflectance_pp": 0.0010255901952101198
+      },
+      {
+        "coarse_order": 18,
+        "fine_order": 20,
+        "delta_reflectance": 9.162780809861162e-06,
+        "delta_reflectance_pp": 0.0009162780809861162
+      }
+    ],
+    "550": [
+      {
+        "coarse_order": 4,
+        "fine_order": 6,
+        "delta_reflectance": 0.0024203981318883933,
+        "delta_reflectance_pp": 0.24203981318883933
+      },
+      {
+        "coarse_order": 6,
+        "fine_order": 8,
+        "delta_reflectance": 0.0016120299427398455,
+        "delta_reflectance_pp": 0.16120299427398455
+      },
+      {
+        "coarse_order": 8,
+        "fine_order": 10,
+        "delta_reflectance": 0.0011101159455539217,
+        "delta_reflectance_pp": 0.11101159455539217
+      },
+      {
+        "coarse_order": 10,
+        "fine_order": 12,
+        "delta_reflectance": 0.00286281330085382,
+        "delta_reflectance_pp": 0.286281330085382
+      },
+      {
+        "coarse_order": 12,
+        "fine_order": 14,
+        "delta_reflectance": 0.000619681244000872,
+        "delta_reflectance_pp": 0.0619681244000872
+      },
+      {
+        "coarse_order": 14,
+        "fine_order": 16,
+        "delta_reflectance": 0.0003585304774143677,
+        "delta_reflectance_pp": 0.03585304774143677
+      },
+      {
+        "coarse_order": 16,
+        "fine_order": 18,
+        "delta_reflectance": 0.00043668700489873924,
+        "delta_reflectance_pp": 0.043668700489873924
+      },
+      {
+        "coarse_order": 18,
+        "fine_order": 20,
+        "delta_reflectance": 0.0006969591835747357,
+        "delta_reflectance_pp": 0.06969591835747357
+      }
+    ],
+    "700": [
+      {
+        "coarse_order": 4,
+        "fine_order": 6,
+        "delta_reflectance": 0.036860184904092486,
+        "delta_reflectance_pp": 3.6860184904092486
+      },
+      {
+        "coarse_order": 6,
+        "fine_order": 8,
+        "delta_reflectance": 0.009860237766785906,
+        "delta_reflectance_pp": 0.9860237766785906
+      },
+      {
+        "coarse_order": 8,
+        "fine_order": 10,
+        "delta_reflectance": 0.005893696217362132,
+        "delta_reflectance_pp": 0.5893696217362132
+      },
+      {
+        "coarse_order": 10,
+        "fine_order": 12,
+        "delta_reflectance": 0.004837174052763293,
+        "delta_reflectance_pp": 0.48371740527632934
+      },
+      {
+        "coarse_order": 12,
+        "fine_order": 14,
+        "delta_reflectance": 0.0035897038699973516,
+        "delta_reflectance_pp": 0.35897038699973516
+      },
+      {
+        "coarse_order": 14,
+        "fine_order": 16,
+        "delta_reflectance": 0.009944368150907157,
+        "delta_reflectance_pp": 0.9944368150907157
+      },
+      {
+        "coarse_order": 16,
+        "fine_order": 18,
+        "delta_reflectance": 0.0005311971546383409,
+        "delta_reflectance_pp": 0.053119715463834094
+      },
+      {
+        "coarse_order": 18,
+        "fine_order": 20,
+        "delta_reflectance": 0.0017259984796320627,
+        "delta_reflectance_pp": 0.17259984796320627
+      }
+    ]
+  },
+  "gold_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye2/data/au_measured_nk.csv",
+  "tolerance": 0.005
+}
