@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -cwd
 #$ -l gpu_1=1
-#$ -l h_rt=06:00:00
+#$ -l h_rt=12:00:00
 #$ -N gold_motheye
 
 # Submit from the repository root with: qsub -g YOUR_TSUBAME_GROUP studies/gold_motheye/tsubame4_gold_motheye.sh
@@ -13,16 +13,17 @@ python3 -c 'import torch; print("PyTorch", torch.__version__, "CUDA", torch.cuda
 
 script=studies/gold_motheye/converge.py
 plotter=studies/gold_motheye/plot_results.py
-prefix=studies/gold_motheye/results/gold_motheye_extended
+prefix=studies/gold_motheye/results/gold_motheye_corrected
 report=${prefix}_convergence.json
-figures=studies/gold_motheye/results/figures_extended
+figures=studies/gold_motheye/results/figures_corrected
 
-# Extend all three axes because the existing 0.005 criterion was not met.
+# Use the user's expanded candidate axes.  The new prefix avoids mixing
+# checkpoints made when the forward S block was suppressed.
 args=(
   --device cuda
-  --orders 3,4,5,6,7,8,9,10
-  --slices 12,16,24,32,48,64,80,96
-  --grids 96,128,192,256,384,512
+  --orders 4,6,8,10,12,14,16,18,20
+  --slices 50,60,70,80,90,100
+  --grids 96,128,192,256
   --tolerance 0.005
   --max-cycles 3
   --output-prefix "$prefix"

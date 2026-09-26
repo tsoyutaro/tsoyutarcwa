@@ -2,9 +2,9 @@
 <rect width="100%" height="100%" fill="#ffffff"/>
 <g font-family="Arial, Helvetica, sans-serif">
 <text x="55.0" y="56.0" font-size="30" fill="#182235" text-anchor="start" font-weight="bold">Gold moth-eye | optical response</text>
-<text x="55.0" y="87.0" font-size="16" fill="#182235" text-anchor="start" font-weight="normal">Source: gold_motheye_anchor_spectrum.csv  |  3 wavelengths  |  M=7, Nz=48, grid=256</text>
+<text x="55.0" y="87.0" font-size="16" fill="#182235" text-anchor="start" font-weight="normal">Source: gold_motheye_anchor_spectrum.csv  |  3 wavelengths  |  M=10, Nz=100, grid=192</text>
 <text x="55.0" y="116.0" font-size="16" fill="#b45309" text-anchor="start" font-weight="normal">Anchor wavelengths only: points are not interpolated</text>
-<text x="55.0" y="144.0" font-size="16" fill="#b91c1c" text-anchor="start" font-weight="bold">PROVISIONAL: numerical convergence criterion has not been met</text>
+<text x="55.0" y="144.0" font-size="16" fill="#b91c1c" text-anchor="start" font-weight="bold">DIAGNOSTIC ONLY: substrate and moth-eye absorption are unavailable; rerun with half S matrix</text>
 <line x1="55.00" y1="178.00" x2="83.00" y2="178.00" stroke="#1d4ed8" stroke-width="3"/>
 <circle cx="69.00" cy="178.00" r="3.5" fill="#1d4ed8"/>
 <text x="91.0" y="183.0" font-size="15" fill="#182235" text-anchor="start" font-weight="normal">R</text>
@@ -14,12 +14,6 @@
 <line x1="491.00" y1="178.00" x2="519.00" y2="178.00" stroke="#dc2626" stroke-width="3"/>
 <circle cx="505.00" cy="178.00" r="3.5" fill="#dc2626"/>
 <text x="527.0" y="183.0" font-size="15" fill="#182235" text-anchor="start" font-weight="normal">A total</text>
-<line x1="709.00" y1="178.00" x2="737.00" y2="178.00" stroke="#ea580c" stroke-width="3"/>
-<circle cx="723.00" cy="178.00" r="3.5" fill="#ea580c"/>
-<text x="745.0" y="183.0" font-size="15" fill="#182235" text-anchor="start" font-weight="normal">A moth-eye</text>
-<line x1="927.00" y1="178.00" x2="955.00" y2="178.00" stroke="#16a34a" stroke-width="3"/>
-<circle cx="941.00" cy="178.00" r="3.5" fill="#16a34a"/>
-<text x="963.0" y="183.0" font-size="15" fill="#182235" text-anchor="start" font-weight="normal">A substrate</text>
 <line x1="105.00" y1="630.00" x2="1135.00" y2="630.00" stroke="#e2e8f0" stroke-width="1"/>
 <text x="91.0" y="635.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal">0%</text>
 <line x1="105.00" y1="545.00" x2="1135.00" y2="545.00" stroke="#e2e8f0" stroke-width="1"/>
@@ -40,22 +34,16 @@
 <text x="620.0" y="657.0" font-size="13" fill="#182235" text-anchor="middle" font-weight="normal">550</text>
 <line x1="1096.85" y1="630.00" x2="1096.85" y2="636.00" stroke="#64748b" stroke-width="1"/>
 <text x="1096.9" y="657.0" font-size="13" fill="#182235" text-anchor="middle" font-weight="normal">700</text>
-<circle cx="143.15" cy="629.97" r="5" fill="#1d4ed8"/>
-<circle cx="620.00" cy="615.08" r="5" fill="#1d4ed8"/>
-<circle cx="1096.85" cy="417.08" r="5" fill="#1d4ed8"/>
+<circle cx="143.15" cy="629.96" r="5" fill="#1d4ed8"/>
+<circle cx="620.00" cy="614.87" r="5" fill="#1d4ed8"/>
+<circle cx="1096.85" cy="400.62" r="5" fill="#1d4ed8"/>
 <circle cx="143.15" cy="630.00" r="5" fill="#64748b"/>
 <circle cx="620.00" cy="630.00" r="5" fill="#64748b"/>
 <circle cx="1096.85" cy="630.00" r="5" fill="#64748b"/>
-<circle cx="143.15" cy="205.03" r="5" fill="#dc2626"/>
-<circle cx="620.00" cy="219.92" r="5" fill="#dc2626"/>
-<circle cx="1096.85" cy="417.92" r="5" fill="#dc2626"/>
-<circle cx="143.15" cy="216.93" r="5" fill="#ea580c"/>
-<circle cx="620.00" cy="272.48" r="5" fill="#ea580c"/>
-<circle cx="1096.85" cy="463.54" r="5" fill="#ea580c"/>
-<circle cx="143.15" cy="618.10" r="5" fill="#16a34a"/>
-<circle cx="620.00" cy="577.44" r="5" fill="#16a34a"/>
-<circle cx="1096.85" cy="584.38" r="5" fill="#16a34a"/>
+<circle cx="143.15" cy="205.04" r="5" fill="#dc2626"/>
+<circle cx="620.00" cy="220.13" r="5" fill="#dc2626"/>
+<circle cx="1096.85" cy="434.38" r="5" fill="#dc2626"/>
 <text x="620.0" y="700.0" font-size="17" fill="#182235" text-anchor="middle" font-weight="normal">Wavelength (nm)</text>
-<text x="55.0" y="722.0" font-size="14" fill="#475569" text-anchor="start" font-weight="normal">For a semi-infinite Au substrate, T far = 0 and A total = A moth-eye + A substrate.</text>
+<text x="55.0" y="722.0" font-size="14" fill="#475569" text-anchor="start" font-weight="normal">Absorption split suppressed: forward transmission was not computed.</text>
 </g>
 </svg>

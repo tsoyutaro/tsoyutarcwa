@@ -209,7 +209,9 @@ def simulate_case(
         order=[numerical.order, numerical.order],
         lattice=_lattice(geometry),
         cascade=cascade,
-        outputs=OutputSpec(smatrix_size="quarter", fields="none"),
+        # Both forward transmission and reflection are required for the
+        # moth-eye/substrate absorption split.
+        outputs=OutputSpec(smatrix_size="half", fields="none"),
         asr=ASROptions(
             circle_G=geometry.asr_circle_g,
             grid=(numerical.grid, numerical.grid),
@@ -254,6 +256,8 @@ def simulate_case(
             mu=1.0,
         )
     simulation.solve_global_smatrix()
+    if "Tf" not in simulation.computed_smatrix_blocks:
+        raise RuntimeError("Forward transmission S block was not computed.")
 
     incident = _zero_order_x_source(simulation)
     reflected = simulation.S[1] @ incident
@@ -267,6 +271,11 @@ def simulate_case(
         raise RuntimeError("Incident power flux is not positive.")
     reflectance = -reflected_flux / incident_flux
     output_flux = transmitted_flux / incident_flux
+    if semi_infinite and output_flux == 0.0:
+        raise RuntimeError(
+            "Power into the Au substrate is exactly zero; the absorption "
+            "split is unresolved. Check the forward S block and solver."
+        )
 
     if semi_infinite:
         # No asymptotic transmitted port exists beyond an infinite lossy metal.
@@ -372,11 +381,13 @@ def _choose_candidate(
                 "passed": maximum <= tolerance,
             }
         )
-    # Require two consecutive refinement steps below tolerance.  Recommend the
-    # middle value: it has both a converged incoming and outgoing comparison.
-    for first, second in zip(comparisons, comparisons[1:]):
-        if bool(first["passed"]) and bool(second["passed"]):
-            return int(first["fine"]), True, comparisons
+    # Two passing steps must reach the largest tested candidate.  An earlier
+    # quiet interval followed by a larger change is not convergence.
+    suffix_start = len(comparisons)
+    while suffix_start > 0 and bool(comparisons[suffix_start - 1]["passed"]):
+        suffix_start -= 1
+    if len(comparisons) - suffix_start >= 2:
+        return int(comparisons[suffix_start]["fine"]), True, comparisons
     return int(candidates[-1]), False, comparisons
 
 
@@ -558,7 +569,7 @@ def main() -> int:
     parser.add_argument(
         "--output-prefix",
         type=Path,
-        default=_PACKAGE_ROOT / "results" / "gold_motheye",
+        default=_PACKAGE_ROOT / "results" / "gold_motheye_corrected",
     )
     parser.add_argument("--run-final-spectrum", action="store_true")
     parser.add_argument("--spectrum-wavelengths", default="400:700:5")
@@ -621,6 +632,8 @@ def main() -> int:
         "use_symmetry": use_symmetry,
         "symmetry_reduction": args.symmetry_reduction,
         "dtype": "complex128",
+        "smatrix_size": "half",
+        "convergence_rule": "two_passing_steps_at_refinement_tail_v2",
     }
     signature = _configuration_signature(signature_payload)
     prefix = args.output_prefix
@@ -677,7 +690,7 @@ def main() -> int:
             "slices": slices,
             "grids": grids,
             "tolerance": args.tolerance,
-            "criterion": "two consecutive adjacent refinements below tolerance",
+            "criterion": "at least two consecutive adjacent refinements below tolerance at the tested upper end",
         },
         "recommendation": asdict(current),
         "history": history,
@@ -705,7 +718,7 @@ def main() -> int:
         prefix.with_name(prefix.name + "_anchor_spectrum.csv"), anchor_spectrum
     )
 
-    if args.run_final_spectrum:
+    if args.run_final_spectrum and all_converged:
         spectrum_wavelengths = _parse_wavelengths(args.spectrum_wavelengths)
         final_spectrum = study.spectrum(current, spectrum_wavelengths)
         _write_csv(
@@ -715,6 +728,8 @@ def main() -> int:
             json.dumps(final_spectrum, indent=2, ensure_ascii=False, allow_nan=False),
             encoding="utf-8",
         )
+    elif args.run_final_spectrum:
+        print("Final spectrum skipped: convergence criterion was not met.", file=sys.stderr)
 
     print(json.dumps({"status": report["status"], "recommendation": asdict(current)}, indent=2))
     print(f"report: {report_path.resolve()}")

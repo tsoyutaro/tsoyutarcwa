@@ -41,13 +41,13 @@ r(u)=r_{\rm tip}+(r_{\rm base}-r_{\rm tip})u^p,
 高さ方向の階段近似誤差、Fourier打切り誤差、ASR material tensorの数値Fourier積分誤差は
 独立でない。このため次の3軸を交互に更新する。
 
-1. 高さスライス数 `Nz = 12,16,24,32,48`
-2. Fourier次数 `M = 3,4,5,6,7`
+1. 高さスライス数 `Nz = 50,60,70,80,90,100`
+2. Fourier次数 `M = 4,6,8,10,12,14,16,18,20`
 3. ASR sampling grid `96,128,192,256`
 
 収束用波長は既定で400、550、700 nmである。ある候補と直前候補の最大絶対変化を、全波長と
 全収束量について計算する。連続する2回のrefinementがとも `0.005` 以下、すなわち0.5
-percentage point以下になった最小の中間候補を採用する。3軸の推奨値が変化しなくなるまで
+percentage point以下になり、さらに細かい候補で再び増えない場合に中間候補を採用する。3軸の推奨値が変化しなくなるまで
 最大3 cycle反復する。候補上限でも条件を満たさない場合は
 `candidate_range_insufficient` とし、最大値を最終解と誤認しない。
 
@@ -150,13 +150,13 @@ python studies/gold_motheye/converge.py \
 
 主な出力:
 
-既定prefixは `studies/gold_motheye/results/gold_motheye` です。
+既定prefixは `studies/gold_motheye/results/gold_motheye_corrected` です。
 
-- `gold_motheye_convergence.json`: 3軸収束履歴と推奨値
-- `gold_motheye_anchor_spectrum.csv`: 推奨値でのanchor波長R/T/A
-- `gold_motheye_all_cases.csv`: 実行済み全case
-- `gold_motheye_checkpoint.json`: 中断再開用cache
-- `gold_motheye_spectrum.csv/json`: `--run-final-spectrum` 指定時
+- `gold_motheye_corrected_convergence.json`: 3軸収束履歴と推奨値
+- `gold_motheye_corrected_anchor_spectrum.csv`: 推奨値でのanchor波長R/T/A
+- `gold_motheye_corrected_all_cases.csv`: 実行済み全case
+- `gold_motheye_corrected_checkpoint.json`: 中断再開用cache
+- `gold_motheye_corrected_spectrum.csv/json`: 収束後に `--run-final-spectrum` 指定時
 
 同じprefixのcheckpointと物理条件が一致しない場合は、古い結果を混ぜず停止する。
 
@@ -187,9 +187,17 @@ python studies/gold_motheye/validation/validate.py --integration --device cuda
 
 ## 7. 既存結果の図とTSUBAME 4.0での再計算
 
-既存の `results/gold_motheye_convergence.json` は
-`candidate_range_insufficient` であり、`M=7, Nz=48, grid=256` は収束値ではない。
-既存スペクトルは400、550、700 nmの3点のみ。図では補間せず点で示す。
+2026-09-26に更新された `results/gold_motheye_convergence.json` は
+`candidate_range_insufficient` であり、`M=10, Nz=100, grid=192` は収束値ではない。
+さらに、この結果では `Nz>=50` の全ケースで基板へ入るパワーが厳密に0になった。
+原因は当時の `converge.py` が反射だけを計算する `smatrix_size="quarter"` を選びながら、
+未計算の透過ブロック `S[0]` を使っていたことにある。旧checkpointは有効な旧ケースと
+無効な新ケースが混在するため、吸収分配と収束判定には使わない。
+
+現行 `converge.py` は透過・反射を計算する `smatrix_size="half"` に修正した。
+前方透過ブロックが未計算、または半無限金へのパワーが厳密に0なら停止する。
+checkpointの署名と出力prefixを変更し、旧結果を再利用しない。既存スペクトルは
+400、550、700 nmの3点のみ。診断図では補間せず点で示し、不正な吸収分配は表示しない。
 
 ```bash
 python3 studies/gold_motheye/plot_results.py \
@@ -206,7 +214,7 @@ TSUBAME 4.0ではプロジェクトルートから次を投入する。PyTorch �
 qsub -g YOUR_TSUBAME_GROUP studies/gold_motheye/tsubame4_gold_motheye.sh
 ```
 
-このジョブは候補範囲を拡張し、収束したときのみ400–700 nmを5 nm刻みで計算する。
-`results/gold_motheye_extended*` と `results/figures_extended/` に保存する。
+このジョブは修正済みsolverで全ケースを再計算し、収束したときのみ400–700 nmを5 nm刻みで計算する。
+`results/gold_motheye_corrected*` と `results/figures_corrected/` に保存する。
 未収束時もアンカー点と収束図を残し、終了コード2を返す。ジョブ構文と資源タイプは
 [TSUBAME 4.0利用の手引き](https://www.t4.cii.isct.ac.jp/docs/handbook.ja/jobs/)を参照。
