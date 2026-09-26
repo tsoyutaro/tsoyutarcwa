@@ -536,8 +536,8 @@ def main() -> int:
     parser.add_argument("--gold-model", choices=("rakic-ld", "csv"), default="rakic-ld")
     parser.add_argument("--gold-csv", type=Path)
     parser.add_argument("--anchor-wavelengths", default="400,550,700")
-    parser.add_argument("--orders", default="3,4,5,6,7")
-    parser.add_argument("--slices", default="12,16,24,32,48")
+    parser.add_argument("--orders", default="4,6,8,10,12,14,16,18,20")
+    parser.add_argument("--slices", default="50, 60, 70, 80, 90, 100")
     parser.add_argument("--grids", default="96,128,192,256")
     parser.add_argument(
         "--tolerance",

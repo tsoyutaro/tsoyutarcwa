@@ -29,18 +29,23 @@
   },
   "candidate_axes": {
     "orders": [
-      3,
       4,
-      5,
       6,
-      7
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      20
     ],
     "slices": [
-      12,
-      16,
-      24,
-      32,
-      48
+      50,
+      60,
+      70,
+      80,
+      90,
+      100
     ],
     "grids": [
       96,
@@ -52,144 +57,204 @@
     "criterion": "two consecutive adjacent refinements below tolerance"
   },
   "recommendation": {
-    "order": 7,
-    "slices": 48,
-    "grid": 256
+    "order": 10,
+    "slices": 100,
+    "grid": 192
   },
   "history": [
     {
       "axis": "slices",
       "fixed": {
-        "order": 4,
-        "slices": 24,
+        "order": 6,
+        "slices": 70,
         "grid": 128
       },
       "candidates": [
-        12,
-        16,
-        24,
-        32,
-        48
+        50,
+        60,
+        70,
+        80,
+        90,
+        100
       ],
       "comparisons": [
         {
-          "coarse": 12,
-          "fine": 16,
-          "max_abs_change": 0.039917272519295444,
+          "coarse": 50,
+          "fine": 60,
+          "max_abs_change": 0.0023636319966211516,
           "per_metric": {
-            "reflectance": 0.032498353234352295,
-            "power_into_substrate": 0.013135452905905079,
-            "motheye_absorptance": 0.039917272519295444
+            "reflectance": 0.0023636319966211516,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0023636319966211516
+          },
+          "passed": true
+        },
+        {
+          "coarse": 60,
+          "fine": 70,
+          "max_abs_change": 0.007368429676659072,
+          "per_metric": {
+            "reflectance": 0.007368429676659072,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.007368429676659072
           },
           "passed": false
         },
         {
-          "coarse": 16,
-          "fine": 24,
-          "max_abs_change": 0.08678335190260855,
+          "coarse": 70,
+          "fine": 80,
+          "max_abs_change": 0.003507901072180575,
           "per_metric": {
-            "reflectance": 0.07712751016322844,
-            "power_into_substrate": 0.009655841739380111,
-            "motheye_absorptance": 0.08678335190260855
+            "reflectance": 0.003507901072180575,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.003507901072180575
           },
-          "passed": false
+          "passed": true
         },
         {
-          "coarse": 24,
-          "fine": 32,
-          "max_abs_change": 0.009404562422107965,
+          "coarse": 80,
+          "fine": 90,
+          "max_abs_change": 0.0016070918876982532,
           "per_metric": {
-            "reflectance": 0.006801911858966947,
-            "power_into_substrate": 0.003455960963129945,
-            "motheye_absorptance": 0.009404562422107965
+            "reflectance": 0.0016070918876982532,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0016070918876982532
           },
-          "passed": false
+          "passed": true
         },
         {
-          "coarse": 32,
-          "fine": 48,
-          "max_abs_change": 0.04391506408655421,
+          "coarse": 90,
+          "fine": 100,
+          "max_abs_change": 0.0019295796256280084,
           "per_metric": {
-            "reflectance": 0.04078887232903622,
-            "power_into_substrate": 0.003226348062955575,
-            "motheye_absorptance": 0.04391506408655421
+            "reflectance": 0.0019295796256280084,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0019295796256280084
           },
-          "passed": false
+          "passed": true
         }
       ],
-      "selected": 48,
-      "converged": false,
+      "selected": 80,
+      "converged": true,
       "cycle": 1
     },
     {
       "axis": "order",
       "fixed": {
-        "order": 4,
-        "slices": 48,
+        "order": 6,
+        "slices": 80,
         "grid": 128
       },
       "candidates": [
-        3,
         4,
-        5,
         6,
-        7
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20
       ],
       "comparisons": [
         {
-          "coarse": 3,
-          "fine": 4,
-          "max_abs_change": 0.01080660169262651,
-          "per_metric": {
-            "reflectance": 0.01080660169262651,
-            "power_into_substrate": 0.005467958576647447,
-            "motheye_absorptance": 0.0053386431159789804
-          },
-          "passed": false
-        },
-        {
           "coarse": 4,
-          "fine": 5,
-          "max_abs_change": 0.009042877759180057,
+          "fine": 6,
+          "max_abs_change": 0.027019558602984106,
           "per_metric": {
-            "reflectance": 0.009042877759180057,
-            "power_into_substrate": 0.0018030571667759648,
-            "motheye_absorptance": 0.007703390771447438
+            "reflectance": 0.027019558602984106,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.027019558602984106
           },
           "passed": false
         },
         {
-          "coarse": 5,
-          "fine": 6,
-          "max_abs_change": 0.0016450587621388846,
+          "coarse": 6,
+          "fine": 8,
+          "max_abs_change": 0.007206859942581412,
           "per_metric": {
-            "reflectance": 0.0016450587621388846,
-            "power_into_substrate": 0.0005766922906877414,
-            "motheye_absorptance": 0.0010683664714510877
+            "reflectance": 0.007206859942581412,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.007206859942581412
+          },
+          "passed": false
+        },
+        {
+          "coarse": 8,
+          "fine": 10,
+          "max_abs_change": 0.0008687865650506277,
+          "per_metric": {
+            "reflectance": 0.0008687865650506277,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0008687865650506277
           },
           "passed": true
         },
         {
-          "coarse": 6,
-          "fine": 7,
-          "max_abs_change": 0.007185272000261311,
+          "coarse": 10,
+          "fine": 12,
+          "max_abs_change": 0.005647969019826449,
           "per_metric": {
-            "reflectance": 0.007185272000261311,
-            "power_into_substrate": 0.001215803632291193,
-            "motheye_absorptance": 0.005969468367970132
+            "reflectance": 0.005647969019826449,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.005647969019826449
           },
           "passed": false
+        },
+        {
+          "coarse": 12,
+          "fine": 14,
+          "max_abs_change": 0.011157189890314667,
+          "per_metric": {
+            "reflectance": 0.011157189890314667,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.011157189890314667
+          },
+          "passed": false
+        },
+        {
+          "coarse": 14,
+          "fine": 16,
+          "max_abs_change": 0.007596801969367295,
+          "per_metric": {
+            "reflectance": 0.007596801969367295,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.007596801969367295
+          },
+          "passed": false
+        },
+        {
+          "coarse": 16,
+          "fine": 18,
+          "max_abs_change": 0.0033600217673415145,
+          "per_metric": {
+            "reflectance": 0.0033600217673415145,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0033600217673415145
+          },
+          "passed": true
+        },
+        {
+          "coarse": 18,
+          "fine": 20,
+          "max_abs_change": 0.004006973356605603,
+          "per_metric": {
+            "reflectance": 0.004006973356605603,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.004006973356605603
+          },
+          "passed": true
         }
       ],
-      "selected": 7,
-      "converged": false,
+      "selected": 18,
+      "converged": true,
       "cycle": 1
     },
     {
       "axis": "grid",
       "fixed": {
-        "order": 7,
-        "slices": 48,
+        "order": 18,
+        "slices": 80,
         "grid": 128
       },
       "candidates": [
@@ -202,35 +267,35 @@
         {
           "coarse": 96,
           "fine": 128,
-          "max_abs_change": 0.0036098738312572154,
+          "max_abs_change": 0.40925365498852606,
           "per_metric": {
-            "reflectance": 0.001564925930188532,
-            "power_into_substrate": 0.0020449479010686555,
-            "motheye_absorptance": 0.0036098738312572154
+            "reflectance": 0.409253654988526,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.40925365498852606
           },
-          "passed": true
+          "passed": false
         },
         {
           "coarse": 128,
           "fine": 192,
-          "max_abs_change": 0.005175302669983006,
+          "max_abs_change": 0.02254854627321312,
           "per_metric": {
-            "reflectance": 0.004244915352013323,
-            "power_into_substrate": 0.0009303873179696276,
-            "motheye_absorptance": 0.005175302669983006
+            "reflectance": 0.02254854627321312,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.02254854627321312
           },
           "passed": false
         },
         {
           "coarse": 192,
           "fine": 256,
-          "max_abs_change": 0.0021512818236046893,
+          "max_abs_change": 0.022229721713734052,
           "per_metric": {
-            "reflectance": 0.0021512818236046893,
-            "power_into_substrate": 0.00011077932362488219,
-            "motheye_absorptance": 0.0020405024999797794
+            "reflectance": 0.02222972171373403,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.022229721713734052
           },
-          "passed": true
+          "passed": false
         }
       ],
       "selected": 256,
@@ -240,136 +305,196 @@
     {
       "axis": "slices",
       "fixed": {
-        "order": 7,
-        "slices": 48,
+        "order": 18,
+        "slices": 80,
         "grid": 256
       },
       "candidates": [
-        12,
-        16,
-        24,
-        32,
-        48
+        50,
+        60,
+        70,
+        80,
+        90,
+        100
       ],
       "comparisons": [
         {
-          "coarse": 12,
-          "fine": 16,
-          "max_abs_change": 0.03993062720870405,
+          "coarse": 50,
+          "fine": 60,
+          "max_abs_change": 0.01964581575455393,
           "per_metric": {
-            "reflectance": 0.03993062720870405,
-            "power_into_substrate": 0.024954192898885286,
-            "motheye_absorptance": 0.03642848432918455
+            "reflectance": 0.01964581575455393,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.01964581575455393
           },
           "passed": false
         },
         {
-          "coarse": 16,
-          "fine": 24,
-          "max_abs_change": 0.06919279117552957,
+          "coarse": 60,
+          "fine": 70,
+          "max_abs_change": 0.01074678413019814,
           "per_metric": {
-            "reflectance": 0.06351690451076952,
-            "power_into_substrate": 0.019411947214580255,
-            "motheye_absorptance": 0.06919279117552957
+            "reflectance": 0.01074678413019814,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.01074678413019814
           },
           "passed": false
         },
         {
-          "coarse": 24,
-          "fine": 32,
-          "max_abs_change": 0.03966984049780703,
+          "coarse": 70,
+          "fine": 80,
+          "max_abs_change": 0.004791809609163922,
           "per_metric": {
-            "reflectance": 0.03614993594855703,
-            "power_into_substrate": 0.006500126170392806,
-            "motheye_absorptance": 0.03966984049780703
+            "reflectance": 0.004791809609163922,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.004791809609163922
           },
-          "passed": false
+          "passed": true
         },
         {
-          "coarse": 32,
-          "fine": 48,
-          "max_abs_change": 0.03088962190402006,
+          "coarse": 80,
+          "fine": 90,
+          "max_abs_change": 0.004236970747457103,
           "per_metric": {
-            "reflectance": 0.029353707361502,
-            "power_into_substrate": 0.004335854157567293,
-            "motheye_absorptance": 0.03088962190402006
+            "reflectance": 0.004236970747457103,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.004236970747457103
           },
-          "passed": false
+          "passed": true
+        },
+        {
+          "coarse": 90,
+          "fine": 100,
+          "max_abs_change": 0.0046086254634430945,
+          "per_metric": {
+            "reflectance": 0.0046086254634430945,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0046086254634430945
+          },
+          "passed": true
         }
       ],
-      "selected": 48,
-      "converged": false,
+      "selected": 80,
+      "converged": true,
       "cycle": 2
     },
     {
       "axis": "order",
       "fixed": {
-        "order": 7,
-        "slices": 48,
+        "order": 18,
+        "slices": 80,
         "grid": 256
       },
       "candidates": [
-        3,
         4,
-        5,
         6,
-        7
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20
       ],
       "comparisons": [
         {
-          "coarse": 3,
-          "fine": 4,
-          "max_abs_change": 0.010481821797603853,
-          "per_metric": {
-            "reflectance": 0.010481821797603853,
-            "power_into_substrate": 0.006031217146217932,
-            "motheye_absorptance": 0.007221331842622525
-          },
-          "passed": false
-        },
-        {
           "coarse": 4,
-          "fine": 5,
-          "max_abs_change": 0.015406610266488707,
+          "fine": 6,
+          "max_abs_change": 0.03701053823469558,
           "per_metric": {
-            "reflectance": 0.015406610266488707,
-            "power_into_substrate": 0.0016581846184636484,
-            "motheye_absorptance": 0.014143802011857609
+            "reflectance": 0.03701053823469558,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.03701053823469558
           },
           "passed": false
         },
         {
-          "coarse": 5,
-          "fine": 6,
-          "max_abs_change": 0.0009152593809241272,
+          "coarse": 6,
+          "fine": 8,
+          "max_abs_change": 0.007121532187014501,
           "per_metric": {
-            "reflectance": 0.0009087076933049776,
-            "power_into_substrate": 0.0009152593809241272,
-            "motheye_absorptance": 0.0002603184662749447
+            "reflectance": 0.007121532187014501,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.007121532187014501
+          },
+          "passed": false
+        },
+        {
+          "coarse": 8,
+          "fine": 10,
+          "max_abs_change": 0.0029675848080971123,
+          "per_metric": {
+            "reflectance": 0.0029675848080971123,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0029675848080971123
           },
           "passed": true
         },
         {
-          "coarse": 6,
-          "fine": 7,
-          "max_abs_change": 0.0035705697154760907,
+          "coarse": 10,
+          "fine": 12,
+          "max_abs_change": 0.003330671384871864,
           "per_metric": {
-            "reflectance": 0.0019203950326006636,
-            "power_into_substrate": 0.0016501746828754132,
-            "motheye_absorptance": 0.0035705697154760907
+            "reflectance": 0.003330671384871864,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.003330671384871864
+          },
+          "passed": true
+        },
+        {
+          "coarse": 12,
+          "fine": 14,
+          "max_abs_change": 0.010768377704933219,
+          "per_metric": {
+            "reflectance": 0.010768377704933219,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.010768377704933219
+          },
+          "passed": false
+        },
+        {
+          "coarse": 14,
+          "fine": 16,
+          "max_abs_change": 0.0071722808978503805,
+          "per_metric": {
+            "reflectance": 0.0071722808978503805,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0071722808978503805
+          },
+          "passed": false
+        },
+        {
+          "coarse": 16,
+          "fine": 18,
+          "max_abs_change": 0.002361158095320892,
+          "per_metric": {
+            "reflectance": 0.002361158095320892,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.002361158095320892
+          },
+          "passed": true
+        },
+        {
+          "coarse": 18,
+          "fine": 20,
+          "max_abs_change": 0.0017427897417774396,
+          "per_metric": {
+            "reflectance": 0.0017427897417774396,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0017427897417774396
           },
           "passed": true
         }
       ],
-      "selected": 6,
+      "selected": 10,
       "converged": true,
       "cycle": 2
     },
     {
       "axis": "grid",
       "fixed": {
-        "order": 6,
-        "slices": 48,
+        "order": 10,
+        "slices": 80,
         "grid": 256
       },
       "candidates": [
@@ -382,175 +507,235 @@
         {
           "coarse": 96,
           "fine": 128,
-          "max_abs_change": 0.0014881798723834772,
+          "max_abs_change": 0.006247754553618923,
           "per_metric": {
-            "reflectance": 0.0006799761368546722,
-            "power_into_substrate": 0.0011035899889589862,
-            "motheye_absorptance": 0.0014881798723834772
+            "reflectance": 0.006247754553618923,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.006247754553618923
           },
-          "passed": true
+          "passed": false
         },
         {
           "coarse": 128,
           "fine": 192,
-          "max_abs_change": 0.0011089333698252601,
+          "max_abs_change": 0.0033336644649168967,
           "per_metric": {
-            "reflectance": 0.0003291898618999478,
-            "power_into_substrate": 0.0007797435079252568,
-            "motheye_absorptance": 0.0011089333698252601
+            "reflectance": 0.0033336644649168967,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0033336644649168967
           },
           "passed": true
         },
         {
           "coarse": 192,
           "fine": 256,
-          "max_abs_change": 0.0034331662833086973,
+          "max_abs_change": 0.0013688458560927597,
           "per_metric": {
-            "reflectance": 0.00303865971914391,
-            "power_into_substrate": 0.0003945065641647316,
-            "motheye_absorptance": 0.0034331662833086973
+            "reflectance": 0.0013688458560927597,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0013688458560927597
           },
           "passed": true
         }
       ],
-      "selected": 128,
+      "selected": 192,
       "converged": true,
       "cycle": 2
     },
     {
       "axis": "slices",
       "fixed": {
-        "order": 6,
-        "slices": 48,
-        "grid": 128
+        "order": 10,
+        "slices": 80,
+        "grid": 192
       },
       "candidates": [
-        12,
-        16,
-        24,
-        32,
-        48
+        50,
+        60,
+        70,
+        80,
+        90,
+        100
       ],
       "comparisons": [
         {
-          "coarse": 12,
-          "fine": 16,
-          "max_abs_change": 0.032580847931014234,
+          "coarse": 50,
+          "fine": 60,
+          "max_abs_change": 0.007755451485378373,
           "per_metric": {
-            "reflectance": 0.010747787791883023,
-            "power_into_substrate": 0.021833060139131208,
-            "motheye_absorptance": 0.032580847931014234
+            "reflectance": 0.007755451485378373,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.007755451485378373
           },
           "passed": false
         },
         {
-          "coarse": 16,
-          "fine": 24,
-          "max_abs_change": 0.09589458154185548,
+          "coarse": 60,
+          "fine": 70,
+          "max_abs_change": 0.007422892270083414,
           "per_metric": {
-            "reflectance": 0.09004969411596292,
-            "power_into_substrate": 0.01620466766645226,
-            "motheye_absorptance": 0.09589458154185548
+            "reflectance": 0.007422892270083414,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.007422892270083414
           },
           "passed": false
         },
         {
-          "coarse": 24,
-          "fine": 32,
-          "max_abs_change": 0.03673959117233783,
+          "coarse": 70,
+          "fine": 80,
+          "max_abs_change": 0.007000526808701002,
           "per_metric": {
-            "reflectance": 0.033583514220477784,
-            "power_into_substrate": 0.004859928725821569,
-            "motheye_absorptance": 0.03673959117233783
+            "reflectance": 0.007000526808701002,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.007000526808701002
           },
           "passed": false
         },
         {
-          "coarse": 32,
-          "fine": 48,
-          "max_abs_change": 0.038349609545781316,
+          "coarse": 80,
+          "fine": 90,
+          "max_abs_change": 0.004861969281600653,
           "per_metric": {
-            "reflectance": 0.03461864607987092,
-            "power_into_substrate": 0.0040860742578134185,
-            "motheye_absorptance": 0.038349609545781316
+            "reflectance": 0.004861969281600653,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.004861969281600653
+          },
+          "passed": true
+        },
+        {
+          "coarse": 90,
+          "fine": 100,
+          "max_abs_change": 0.005463221098444548,
+          "per_metric": {
+            "reflectance": 0.005463221098444548,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.005463221098444548
           },
           "passed": false
         }
       ],
-      "selected": 48,
+      "selected": 100,
       "converged": false,
       "cycle": 3
     },
     {
       "axis": "order",
       "fixed": {
-        "order": 6,
-        "slices": 48,
-        "grid": 128
+        "order": 10,
+        "slices": 100,
+        "grid": 192
       },
       "candidates": [
-        3,
         4,
-        5,
         6,
-        7
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20
       ],
       "comparisons": [
         {
-          "coarse": 3,
-          "fine": 4,
-          "max_abs_change": 0.01080660169262651,
-          "per_metric": {
-            "reflectance": 0.01080660169262651,
-            "power_into_substrate": 0.005467958576647447,
-            "motheye_absorptance": 0.0053386431159789804
-          },
-          "passed": false
-        },
-        {
           "coarse": 4,
-          "fine": 5,
-          "max_abs_change": 0.009042877759180057,
+          "fine": 6,
+          "max_abs_change": 0.026207388301199508,
           "per_metric": {
-            "reflectance": 0.009042877759180057,
-            "power_into_substrate": 0.0018030571667759648,
-            "motheye_absorptance": 0.007703390771447438
+            "reflectance": 0.026207388301199508,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.026207388301199508
           },
           "passed": false
         },
         {
-          "coarse": 5,
-          "fine": 6,
-          "max_abs_change": 0.0016450587621388846,
+          "coarse": 6,
+          "fine": 8,
+          "max_abs_change": 0.00965233791701181,
           "per_metric": {
-            "reflectance": 0.0016450587621388846,
-            "power_into_substrate": 0.0005766922906877414,
-            "motheye_absorptance": 0.0010683664714510877
+            "reflectance": 0.00965233791701181,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.00965233791701181
+          },
+          "passed": false
+        },
+        {
+          "coarse": 8,
+          "fine": 10,
+          "max_abs_change": 0.0008977456048736565,
+          "per_metric": {
+            "reflectance": 0.0008977456048735802,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0008977456048736565
           },
           "passed": true
         },
         {
-          "coarse": 6,
-          "fine": 7,
-          "max_abs_change": 0.007185272000261311,
+          "coarse": 10,
+          "fine": 12,
+          "max_abs_change": 0.0031759048336327256,
           "per_metric": {
-            "reflectance": 0.007185272000261311,
-            "power_into_substrate": 0.001215803632291193,
-            "motheye_absorptance": 0.005969468367970132
+            "reflectance": 0.0031759048336327256,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0031759048336327256
+          },
+          "passed": true
+        },
+        {
+          "coarse": 12,
+          "fine": 14,
+          "max_abs_change": 0.006920369761990508,
+          "per_metric": {
+            "reflectance": 0.006920369761990508,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.006920369761990508
+          },
+          "passed": false
+        },
+        {
+          "coarse": 14,
+          "fine": 16,
+          "max_abs_change": 0.05259338727970897,
+          "per_metric": {
+            "reflectance": 0.05259338727970897,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.05259338727970897
+          },
+          "passed": false
+        },
+        {
+          "coarse": 16,
+          "fine": 18,
+          "max_abs_change": 0.05520560716945111,
+          "per_metric": {
+            "reflectance": 0.05520560716945111,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.05520560716945111
+          },
+          "passed": false
+        },
+        {
+          "coarse": 18,
+          "fine": 20,
+          "max_abs_change": 0.015192835939018545,
+          "per_metric": {
+            "reflectance": 0.015192835939018545,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.015192835939018545
           },
           "passed": false
         }
       ],
-      "selected": 7,
-      "converged": false,
+      "selected": 10,
+      "converged": true,
       "cycle": 3
     },
     {
       "axis": "grid",
       "fixed": {
-        "order": 7,
-        "slices": 48,
-        "grid": 128
+        "order": 10,
+        "slices": 100,
+        "grid": 192
       },
       "candidates": [
         96,
@@ -562,123 +747,123 @@
         {
           "coarse": 96,
           "fine": 128,
-          "max_abs_change": 0.0036098738312572154,
+          "max_abs_change": 0.0058254443165032255,
           "per_metric": {
-            "reflectance": 0.001564925930188532,
-            "power_into_substrate": 0.0020449479010686555,
-            "motheye_absorptance": 0.0036098738312572154
-          },
-          "passed": true
-        },
-        {
-          "coarse": 128,
-          "fine": 192,
-          "max_abs_change": 0.005175302669983006,
-          "per_metric": {
-            "reflectance": 0.004244915352013323,
-            "power_into_substrate": 0.0009303873179696276,
-            "motheye_absorptance": 0.005175302669983006
+            "reflectance": 0.0058254443165032255,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0058254443165032255
           },
           "passed": false
         },
         {
+          "coarse": 128,
+          "fine": 192,
+          "max_abs_change": 0.0005152714729169672,
+          "per_metric": {
+            "reflectance": 0.0005152714729169672,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0005152714729169672
+          },
+          "passed": true
+        },
+        {
           "coarse": 192,
           "fine": 256,
-          "max_abs_change": 0.0021512818236046893,
+          "max_abs_change": 0.0014076237638295241,
           "per_metric": {
-            "reflectance": 0.0021512818236046893,
-            "power_into_substrate": 0.00011077932362488219,
-            "motheye_absorptance": 0.0020405024999797794
+            "reflectance": 0.0014076237638295241,
+            "power_into_substrate": 0.0,
+            "motheye_absorptance": 0.0014076237638295241
           },
           "passed": true
         }
       ],
-      "selected": 256,
-      "converged": false,
+      "selected": 192,
+      "converged": true,
       "cycle": 3
     }
   ],
   "anchor_spectrum": [
     {
       "wavelength_nm": 400.0,
-      "order": 7,
-      "slices": 48,
-      "grid": 256,
+      "order": 10,
+      "slices": 100,
+      "grid": 192,
       "epsilon_gold_real": -1.0611633694991678,
       "epsilon_gold_imag": 4.9206873818569425,
-      "reflectance": 7.332787719674819e-05,
+      "reflectance": 9.449687667006523e-05,
       "transmittance_far": 0.0,
-      "absorptance_total": 0.9999266721228033,
-      "motheye_absorptance": 0.971919773908628,
-      "substrate_absorptance": 0.028006898214175253,
-      "power_into_substrate": 0.028006898214175253,
+      "absorptance_total": 0.9999055031233299,
+      "motheye_absorptance": 0.9999055031233299,
+      "substrate_absorptance": 0.0,
+      "power_into_substrate": 0.0,
       "convergence_metrics": {
-        "reflectance": 7.332787719674819e-05,
-        "power_into_substrate": 0.028006898214175253,
-        "motheye_absorptance": 0.971919773908628
+        "reflectance": 9.449687667006523e-05,
+        "power_into_substrate": 0.0,
+        "motheye_absorptance": 0.9999055031233299
       },
       "passivity_warning": false,
-      "reduced_dimension": 57,
-      "full_dimension": 450,
+      "reduced_dimension": 111,
+      "full_dimension": 882,
       "symmetry_reduction": "D6-E1-source-row",
       "symmetry_irrep": "E1",
-      "runtime_seconds": 9.916720929992152
+      "runtime_seconds": 40.887982432032004
     },
     {
       "wavelength_nm": 550.0,
-      "order": 7,
-      "slices": 48,
-      "grid": 256,
+      "order": 10,
+      "slices": 100,
+      "grid": 192,
       "epsilon_gold_real": -5.371371338856619,
       "epsilon_gold_imag": 2.3581635829859637,
-      "reflectance": 0.03510372298420866,
+      "reflectance": 0.03559773629518707,
       "transmittance_far": 0.0,
-      "absorptance_total": 0.9648962770157914,
-      "motheye_absorptance": 0.8412146502920248,
-      "substrate_absorptance": 0.12368162672376663,
-      "power_into_substrate": 0.12368162672376663,
+      "absorptance_total": 0.964402263704813,
+      "motheye_absorptance": 0.964402263704813,
+      "substrate_absorptance": 0.0,
+      "power_into_substrate": 0.0,
       "convergence_metrics": {
-        "reflectance": 0.03510372298420866,
-        "power_into_substrate": 0.12368162672376663,
-        "motheye_absorptance": 0.8412146502920248
+        "reflectance": 0.03559773629518707,
+        "power_into_substrate": 0.0,
+        "motheye_absorptance": 0.964402263704813
       },
       "passivity_warning": false,
-      "reduced_dimension": 57,
-      "full_dimension": 450,
+      "reduced_dimension": 111,
+      "full_dimension": 882,
       "symmetry_reduction": "D6-E1-source-row",
       "symmetry_irrep": "E1",
-      "runtime_seconds": 9.48902811500011
+      "runtime_seconds": 41.21356802387163
     },
     {
       "wavelength_nm": 700.0,
-      "order": 7,
-      "slices": 48,
-      "grid": 256,
+      "order": 10,
+      "slices": 100,
+      "grid": 192,
       "epsilon_gold_real": -13.754263491271207,
       "epsilon_gold_imag": 1.9104862668338753,
-      "reflectance": 0.5009917291437547,
+      "reflectance": 0.5397245615850861,
       "transmittance_far": 0.0,
-      "absorptance_total": 0.49900827085624533,
-      "motheye_absorptance": 0.39167596167739915,
-      "substrate_absorptance": 0.10733230917884617,
-      "power_into_substrate": 0.10733230917884617,
+      "absorptance_total": 0.4602754384149139,
+      "motheye_absorptance": 0.4602754384149139,
+      "substrate_absorptance": 0.0,
+      "power_into_substrate": 0.0,
       "convergence_metrics": {
-        "reflectance": 0.5009917291437547,
-        "power_into_substrate": 0.10733230917884617,
-        "motheye_absorptance": 0.39167596167739915
+        "reflectance": 0.5397245615850861,
+        "power_into_substrate": 0.0,
+        "motheye_absorptance": 0.4602754384149139
       },
       "passivity_warning": false,
-      "reduced_dimension": 57,
-      "full_dimension": 450,
+      "reduced_dimension": 111,
+      "full_dimension": 882,
       "symmetry_reduction": "D6-E1-source-row",
       "symmetry_irrep": "E1",
-      "runtime_seconds": 9.666691445978358
+      "runtime_seconds": 41.15174940112047
     }
   ],
   "interpretation": "For a semi-infinite Au substrate, transmittance_far=0, absorptance_total=1-R, power_into_substrate is eventually absorbed in the substrate, and motheye_absorptance=1-R-power_into_substrate.",
   "integration": {
     "torch": "2.6.0+cu124",
     "device": "cuda",
-    "completed_cases": 78
+    "completed_cases": 222
   }
 }
