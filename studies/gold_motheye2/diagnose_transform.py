@@ -202,8 +202,6 @@ def main() -> int:
     from studies.gold_motheye.converge import GeometryConfig, _slice_radius_nm
     from studies.shared.gold_dispersion import build_gold_model
 
-    torch.set_grad_enabled(False)
-
     gold_csv = args.gold_csv.resolve()
     if not gold_csv.is_file():
         raise FileNotFoundError(f"Measured gold CSV not found: {gold_csv}")
@@ -242,10 +240,11 @@ def main() -> int:
         saved = json.loads(metadata_path.read_text(encoding="utf-8"))
         if saved.get("signature") != signature:
             raise RuntimeError("Diagnostic settings differ; choose a new --output-dir.")
-        if not csv_path.exists():
-            raise RuntimeError("Diagnostic metadata exists without its CSV.")
-        with csv_path.open(newline="", encoding="utf-8-sig") as handle:
-            rows = list(csv.DictReader(handle))
+        if csv_path.exists():
+            with csv_path.open(newline="", encoding="utf-8-sig") as handle:
+                rows = list(csv.DictReader(handle))
+        elif saved.get("completed_orders") != 0:
+            raise RuntimeError("Diagnostic metadata reports completed orders without its CSV.")
     elif csv_path.exists():
         raise RuntimeError("Diagnostic CSV exists without metadata.")
     else:
