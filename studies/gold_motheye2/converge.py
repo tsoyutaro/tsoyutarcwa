@@ -50,6 +50,12 @@ def file_hash(path: Path) -> str:
     return digest.hexdigest()
 
 
+def configuration_signature(config: dict[str, object]) -> str:
+    return hashlib.sha256(
+        json.dumps(config, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+
+
 def write_json_atomic(path: Path, payload: object) -> None:
     temporary = path.with_name(path.name + ".tmp")
     temporary.write_text(
@@ -124,7 +130,10 @@ def assess(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--orders", default="4,6,8,10,12,14,16,18,20")
+    default_orders = "4,6,8,10,12,14,16,18,20"
+    parser.add_argument("--orders", default=default_orders)
+    parser.add_argument("--append-orders",
+                        help="Append larger orders to an existing sweep, e.g. 22,24.")
     parser.add_argument("--slices", type=int, default=DEFAULT_SLICES,
                         help="Fixed number of height slices; default: 100.")
     parser.add_argument("--wavelengths", default="400,550,700",
@@ -141,10 +150,8 @@ def main() -> int:
     parser.add_argument("--plot-only", action="store_true",
                         help="Regenerate graphs from saved CSV without importing PyTorch.")
     args = parser.parse_args()
-    orders = parse_positive_list(args.orders, integer=True)
-    wavelengths = parse_positive_list(args.wavelengths, integer=False)
-    if len(orders) < 3:
-        parser.error("At least three orders are needed for two adjacent comparisons.")
+    if args.append_orders and args.orders != default_orders:
+        parser.error("Use either --orders or --append-orders, not both.")
     if args.slices < 1:
         parser.error("--slices must be positive.")
     if not math.isfinite(args.tolerance) or args.tolerance <= 0:
@@ -156,6 +163,25 @@ def main() -> int:
     csv_path = output_dir / "order_sweep.csv"
     metadata_path = output_dir / "order_sweep.json"
     checkpoint_path = output_dir / "order_checkpoint.json"
+    try:
+        orders = parse_positive_list(args.orders, integer=True)
+        wavelengths = parse_positive_list(args.wavelengths, integer=False)
+        if args.append_orders:
+            if not metadata_path.exists():
+                parser.error("--append-orders needs an existing order_sweep.json.")
+            previous = json.loads(metadata_path.read_text(encoding="utf-8"))
+            old_orders = tuple(int(value) for value in previous["orders"])
+            added = parse_positive_list(args.append_orders, integer=True)
+            if set(added).issubset(old_orders):
+                orders = old_orders  # Resume an interrupted extension.
+            elif added[0] > old_orders[-1]:
+                orders = old_orders + added
+            else:
+                parser.error("New orders must all exceed the previous maximum M.")
+    except (ValueError, KeyError) as error:
+        parser.error(str(error))
+    if len(orders) < 3:
+        parser.error("At least three orders are needed for two adjacent comparisons.")
 
     if args.plot_only:
         from studies.gold_motheye2.plot_order import render
@@ -196,18 +222,38 @@ def main() -> int:
         "smatrix_size": "half",
         "symmetry_reduction": "d6-source",
     }
-    signature = hashlib.sha256(
-        json.dumps(config, sort_keys=True).encode("utf-8")
-    ).hexdigest()
+    signature = configuration_signature(config)
     cases: dict[str, dict[str, object]] = {}
     if checkpoint_path.exists():
         checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
         if checkpoint.get("signature") != signature:
-            raise RuntimeError(
-                f"Checkpoint settings differ: {checkpoint_path}. "
-                "Choose a new --output-dir to keep studies separate."
-            )
+            if not args.append_orders or not metadata_path.exists():
+                raise RuntimeError(
+                    f"Checkpoint settings differ: {checkpoint_path}. "
+                    "Choose a new --output-dir to keep studies separate."
+                )
+            previous = json.loads(metadata_path.read_text(encoding="utf-8"))
+            old_orders = tuple(int(value) for value in previous["orders"])
+            old_config = {**config, "orders": old_orders}
+            if not (len(orders) > len(old_orders)
+                    and orders[:len(old_orders)] == old_orders
+                    and checkpoint.get("signature") == configuration_signature(old_config)):
+                raise RuntimeError(
+                    "Checkpoint settings differ. Only higher orders may be "
+                    "appended; otherwise choose a new --output-dir."
+                )
+            print(f"extend order sweep: M={old_orders[-1]} -> {orders[-1]}; "
+                  "reuse saved cases", flush=True)
         cases = checkpoint.get("cases", {})
+        if not isinstance(cases, dict):
+            raise ValueError("Invalid cases in order checkpoint.")
+        for key, row in cases.items():
+            order, wavelength = int(row["order"]), float(row["wavelength_nm"])
+            if (key != case_key(order, wavelength) or order not in orders
+                    or wavelength not in wavelengths
+                    or int(row["slices"]) != args.slices
+                    or int(row["grid"]) != GRID):
+                raise ValueError(f"Case outside the requested order sweep: {key}")
 
     for order in orders:
         numerical = NumericalConfig(order=order, slices=args.slices, grid=GRID)

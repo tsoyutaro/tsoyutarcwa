@@ -77,6 +77,34 @@ python3 studies/gold_motheye2/converge.py --plot-only \
 全波長のスペクトルや層数・gridの収束を保証しない。時間は1ケースのsolver実行時間で、
 ジョブ待ち時間や図作成時間は含まない。
 
+## 15層の高次側と変換行列の条件数
+
+15層の既存次数掃引は700 nmでM=18から20への反射率差が約12.14 percentage points
+あり、`not_converged`。追加次数を最終結果とみなす前に、次の診断を行う。
+
+```bash
+python3 studies/gold_motheye2/diagnose_transform.py --device cuda \
+  --slices 15 --orders 16,18,20 --wavelength-nm 700
+```
+
+別ディレクトリ `results/transform_condition_Nz15_700nm/` の
+`transform_condition_numbers.csv` に各層の変換行列の2ノルム条件数を記録する。
+`transform_condition_summary.csv` は次数ごとの最大条件数と、その層番号、
+再計算した反射率・計算時間をまとめる。
+これはD6計算で逆行列を取る三角格子star上の横方向ASR変換行列であり、
+各次数の最大値・診断に追加したSVD時間も標準出力に表示する。
+条件数の大きさだけでは、反射率の収束・非収束や原因を確定できない。
+この診断は計算済みの `order_sweep_Nz15` を変更せず、対象のケースを再計算する。
+条件数と反射率を見た後で高次側を調べる場合は、既存27ケースを再計算せずに
+次数22と24を追加できる:
+
+```bash
+python3 studies/gold_motheye2/converge.py --device cuda --slices 15 \
+  --append-orders 22,24
+```
+
+追加後も700 nmの反射率が大きく変わるなら、15層での次数収束は未確認のままとする。
+
 TSUBAMEの `gpu_1`、`qsub` の使い方は
 [公式のジョブ手引き](https://www.t4.cii.isct.ac.jp/docs/handbook.ja/jobs/)を参照。
 
