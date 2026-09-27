@@ -1,7 +1,8 @@
 """Fixed-grid, fixed-slice Fourier-order study for the gold moth-eye model.
 
 The electromagnetic model is shared with studies.gold_motheye.converge.
-This driver varies only Fourier order M.  Grid=256 and Nz=100 are fixed.
+This driver varies only Fourier order M. Grid=256 is fixed, and Nz is
+fixed within a run (100 by default, configurable with --slices).
 Results are checkpointed after each wavelength/order solve and plotted as SVG.
 """
 
@@ -22,7 +23,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 GRID = 256
-SLICES = 100
+DEFAULT_SLICES = 100
 DEFAULT_GOLD_CSV = HERE / "data" / "au_measured_nk.csv"
 DEFAULT_RESULTS = HERE / "results" / "order_sweep"
 CASE_COLUMNS = (
@@ -124,11 +125,14 @@ def assess(
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--orders", default="4,6,8,10,12,14,16,18,20")
+    parser.add_argument("--slices", type=int, default=DEFAULT_SLICES,
+                        help="Fixed number of height slices; default: 100.")
     parser.add_argument("--wavelengths", default="400,550,700",
                         help="Comma-separated vacuum wavelengths in nm.")
     parser.add_argument("--gold-csv", type=Path, default=DEFAULT_GOLD_CSV,
                         help="Combined wavelength_nm,n,k CSV.")
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_RESULTS)
+    parser.add_argument("--output-dir", type=Path,
+                        help="Result directory; defaults to order_sweep_NzN for Nz != 100.")
     parser.add_argument("--tolerance", type=float, default=0.005,
                         help="Absolute reflectance change; 0.005 = 0.5 percentage point.")
     parser.add_argument("--device", choices=("cuda", "cpu", "auto"), default="cuda")
@@ -141,9 +145,13 @@ def main() -> int:
     wavelengths = parse_positive_list(args.wavelengths, integer=False)
     if len(orders) < 3:
         parser.error("At least three orders are needed for two adjacent comparisons.")
+    if args.slices < 1:
+        parser.error("--slices must be positive.")
     if not math.isfinite(args.tolerance) or args.tolerance <= 0:
         parser.error("--tolerance must be finite and positive.")
-    output_dir = args.output_dir.resolve()
+    default_results = (DEFAULT_RESULTS if args.slices == DEFAULT_SLICES else
+                       DEFAULT_RESULTS.with_name(f"order_sweep_Nz{args.slices}"))
+    output_dir = (args.output_dir or default_results).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     csv_path = output_dir / "order_sweep.csv"
     metadata_path = output_dir / "order_sweep.json"
@@ -180,7 +188,7 @@ def main() -> int:
         "orders": orders,
         "wavelengths_nm": wavelengths,
         "fixed_grid": GRID,
-        "fixed_slices": SLICES,
+        "fixed_slices": args.slices,
         "gold_csv_sha256": file_hash(gold_csv),
         "solver_source_sha256": file_hash(solver_source),
         "cascade": args.cascade,
@@ -202,12 +210,12 @@ def main() -> int:
         cases = checkpoint.get("cases", {})
 
     for order in orders:
-        numerical = NumericalConfig(order=order, slices=SLICES, grid=GRID)
+        numerical = NumericalConfig(order=order, slices=args.slices, grid=GRID)
         for wavelength in wavelengths:
             key = case_key(order, wavelength)
             if key in cases:
                 continue
-            print(f"solve: M={order}, Nz={SLICES}, grid={GRID}, "
+            print(f"solve: M={order}, Nz={args.slices}, grid={GRID}, "
                   f"wavelength={wavelength:g} nm", flush=True)
             result = simulate_case(
                 wavelength, numerical, geometry, gold_model,

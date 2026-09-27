@@ -15,8 +15,8 @@ TSUBAME 上でプロジェクトルート（`rcwa_solver_auto.py` があるデ�
 
 ## 固定する数値条件と図
 
-`converge.py` は `grid=256`、高さ分割数 `Nz=100` を固定し、
-Fourier次数 `M=4,6,8,10,12,14,16,18,20` だけを変える。
+`converge.py` は `grid=256` と1回の実行中の高さ分割数を固定し、
+Fourier次数 `M=4,6,8,10,12,14,16,18,20` だけを変える。層数の既定値は `Nz=100`。
 波長は既定で400、550、700 nm。形状・入射条件は `studies/gold_motheye/converge.py` の
 既定値（周期200 nm、高さ500 nm、三角配列、半無限金基板、正入射x偏光）を使う。
 
@@ -45,6 +45,17 @@ qstat
 ```bash
 python3 studies/gold_motheye2/converge.py --device cuda
 ```
+
+15層に固定して次数ごとの反射率と計算時間を調べる場合:
+
+```bash
+python3 studies/gold_motheye2/converge.py --device cuda --slices 15
+```
+
+既定の次数・波長を使い、結果は `results/order_sweep_Nz15/` に保存する。
+反射率は `reflectance_vs_order.svg`、各波長および3波長合計の時間は
+`runtime_vs_order.svg` で確認できる。同条件の再実行ではcheckpointから再開する。
+15層での次数収束が確認できても、140層など最終層数における次数収束を保証するものではない。
 
 波長・次数を変更する例:
 
