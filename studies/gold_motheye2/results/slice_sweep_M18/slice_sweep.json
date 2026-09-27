@@ -25,7 +25,11 @@
     70,
     80,
     90,
-    100
+    100,
+    110,
+    120,
+    130,
+    140
   ],
   "wavelengths_nm": [
     400.0,
@@ -38,13 +42,13 @@
   "dtype": "complex128",
   "smatrix_size": "half",
   "symmetry_reduction": "d6-source",
-  "status": "not_converged",
-  "completed_cases": 33,
-  "expected_cases": 33,
+  "status": "converged_within_tested_slices",
+  "completed_cases": 45,
+  "expected_cases": 45,
   "per_wavelength_pass": {
     "400": true,
     "550": true,
-    "700": false
+    "700": true
   },
   "adjacent_changes": {
     "400": [
@@ -107,6 +111,30 @@
         "fine_slices": 100,
         "delta_reflectance": 2.95506762679578e-06,
         "delta_reflectance_pp": 0.000295506762679578
+      },
+      {
+        "coarse_slices": 100,
+        "fine_slices": 110,
+        "delta_reflectance": 1.3322453175911584e-06,
+        "delta_reflectance_pp": 0.00013322453175911584
+      },
+      {
+        "coarse_slices": 110,
+        "fine_slices": 120,
+        "delta_reflectance": 3.4167202918569304e-06,
+        "delta_reflectance_pp": 0.00034167202918569304
+      },
+      {
+        "coarse_slices": 120,
+        "fine_slices": 130,
+        "delta_reflectance": 3.4476599310579977e-07,
+        "delta_reflectance_pp": 3.447659931057998e-05
+      },
+      {
+        "coarse_slices": 130,
+        "fine_slices": 140,
+        "delta_reflectance": 1.6239307268730348e-06,
+        "delta_reflectance_pp": 0.00016239307268730348
       }
     ],
     "550": [
@@ -169,6 +197,30 @@
         "fine_slices": 100,
         "delta_reflectance": 0.00041428028628739955,
         "delta_reflectance_pp": 0.041428028628739955
+      },
+      {
+        "coarse_slices": 100,
+        "fine_slices": 110,
+        "delta_reflectance": 0.0002850064936317509,
+        "delta_reflectance_pp": 0.02850064936317509
+      },
+      {
+        "coarse_slices": 110,
+        "fine_slices": 120,
+        "delta_reflectance": 0.0008269112800132622,
+        "delta_reflectance_pp": 0.08269112800132622
+      },
+      {
+        "coarse_slices": 120,
+        "fine_slices": 130,
+        "delta_reflectance": 3.273953021465381e-05,
+        "delta_reflectance_pp": 0.003273953021465381
+      },
+      {
+        "coarse_slices": 130,
+        "fine_slices": 140,
+        "delta_reflectance": 0.000432883926493835,
+        "delta_reflectance_pp": 0.0432883926493835
       }
     ],
     "700": [
@@ -231,6 +283,30 @@
         "fine_slices": 100,
         "delta_reflectance": 0.004407083378929366,
         "delta_reflectance_pp": 0.4407083378929366
+      },
+      {
+        "coarse_slices": 100,
+        "fine_slices": 110,
+        "delta_reflectance": 0.003966838234324754,
+        "delta_reflectance_pp": 0.39668382343247544
+      },
+      {
+        "coarse_slices": 110,
+        "fine_slices": 120,
+        "delta_reflectance": 0.002668391090332345,
+        "delta_reflectance_pp": 0.2668391090332345
+      },
+      {
+        "coarse_slices": 120,
+        "fine_slices": 130,
+        "delta_reflectance": 0.003040825975849315,
+        "delta_reflectance_pp": 0.3040825975849315
+      },
+      {
+        "coarse_slices": 130,
+        "fine_slices": 140,
+        "delta_reflectance": 0.00012723962677418932,
+        "delta_reflectance_pp": 0.012723962677418932
       }
     ]
   },
