@@ -23,7 +23,11 @@
     18,
     20,
     22,
-    24
+    24,
+    26,
+    28,
+    30,
+    32
   ],
   "wavelengths_nm": [
     400.0,
@@ -38,12 +42,12 @@
   "dtype": "complex128",
   "smatrix_size": "half",
   "symmetry_reduction": "d6-source",
-  "status": "not_converged",
-  "completed_cases": 33,
-  "expected_cases": 33,
+  "status": "incomplete",
+  "completed_cases": 42,
+  "expected_cases": 45,
   "per_wavelength_pass": {
-    "400": true,
-    "550": true,
+    "400": false,
+    "550": false,
     "700": false
   },
   "adjacent_changes": {
@@ -107,6 +111,24 @@
         "fine_order": 24,
         "delta_reflectance": 1.5474312133646588e-05,
         "delta_reflectance_pp": 0.0015474312133646588
+      },
+      {
+        "coarse_order": 24,
+        "fine_order": 26,
+        "delta_reflectance": 3.942293790479902e-05,
+        "delta_reflectance_pp": 0.003942293790479902
+      },
+      {
+        "coarse_order": 26,
+        "fine_order": 28,
+        "delta_reflectance": 1.0929203250520598e-05,
+        "delta_reflectance_pp": 0.0010929203250520598
+      },
+      {
+        "coarse_order": 28,
+        "fine_order": 30,
+        "delta_reflectance": 3.367615575863755e-05,
+        "delta_reflectance_pp": 0.003367615575863755
       }
     ],
     "550": [
@@ -169,6 +191,24 @@
         "fine_order": 24,
         "delta_reflectance": 0.0021811080651384165,
         "delta_reflectance_pp": 0.21811080651384165
+      },
+      {
+        "coarse_order": 24,
+        "fine_order": 26,
+        "delta_reflectance": 0.006880547984541855,
+        "delta_reflectance_pp": 0.6880547984541855
+      },
+      {
+        "coarse_order": 26,
+        "fine_order": 28,
+        "delta_reflectance": 3.106309547792549e-05,
+        "delta_reflectance_pp": 0.003106309547792549
+      },
+      {
+        "coarse_order": 28,
+        "fine_order": 30,
+        "delta_reflectance": 0.0014692161622924561,
+        "delta_reflectance_pp": 0.1469216162292456
       }
     ],
     "700": [
@@ -231,6 +271,24 @@
         "fine_order": 24,
         "delta_reflectance": 0.07310047486565607,
         "delta_reflectance_pp": 7.310047486565607
+      },
+      {
+        "coarse_order": 24,
+        "fine_order": 26,
+        "delta_reflectance": 0.04880157890724002,
+        "delta_reflectance_pp": 4.880157890724002
+      },
+      {
+        "coarse_order": 26,
+        "fine_order": 28,
+        "delta_reflectance": 0.026527571253096127,
+        "delta_reflectance_pp": 2.6527571253096127
+      },
+      {
+        "coarse_order": 28,
+        "fine_order": 30,
+        "delta_reflectance": 0.043186965169120684,
+        "delta_reflectance_pp": 4.318696516912068
       }
     ]
   },
