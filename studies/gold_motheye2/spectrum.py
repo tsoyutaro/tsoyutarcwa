@@ -1,8 +1,9 @@
 """Calculate and plot a fixed-order Au moth-eye reflectance spectrum.
 
-The numerical setup matches gold_motheye2/converge.py: grid=256, Nz=100,
-measured Au n,k, half S matrix, and the D6 source reduction. The default
-101 points cover 400..700 nm at exactly 3 nm spacing.
+The numerical setup matches gold_motheye2/converge.py: grid=256,
+measured Au n,k, half S matrix, and the D6 source reduction. Nz defaults
+to 100 and can be set with --slices. The default 101 points cover
+400..700 nm at exactly 3 nm spacing.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 GRID = 256
-SLICES = 100
+DEFAULT_SLICES = 100
 DEFAULT_GOLD_CSV = HERE / "data" / "au_measured_nk.csv"
 CSV_COLUMNS = (
     "wavelength_nm", "reflectance", "transmittance_far", "absorptance_total",
@@ -133,6 +134,7 @@ def plot(csv_path: Path, metadata_path: Path, destination: Path) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--order", type=int, default=16)
+    parser.add_argument("--slices", type=int, default=DEFAULT_SLICES)
     parser.add_argument("--start-nm", type=float, default=400.0)
     parser.add_argument("--stop-nm", type=float, default=700.0)
     parser.add_argument("--points", type=int, default=101)
@@ -143,12 +145,15 @@ def main() -> int:
                         default="redheffer")
     parser.add_argument("--plot-only", action="store_true")
     args = parser.parse_args()
-    if args.order < 1 or args.points < 2:
-        parser.error("--order must be positive and --points must be at least 2")
+    if args.order < 1 or args.slices < 1 or args.points < 2:
+        parser.error("--order and --slices must be positive and --points must be at least 2")
     if (not math.isfinite(args.start_nm) or not math.isfinite(args.stop_nm)
             or args.start_nm <= 0 or args.stop_nm <= args.start_nm):
         parser.error("Require 0 < --start-nm < --stop-nm")
-    output_dir = (args.output_dir or HERE / "results" / f"spectrum_M{args.order}").resolve()
+    default_name = f"spectrum_M{args.order}"
+    if args.slices != DEFAULT_SLICES:
+        default_name += f"_Nz{args.slices}"
+    output_dir = (args.output_dir or HERE / "results" / default_name).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     csv_path = output_dir / "reflectance_spectrum.csv"
     meta_path = output_dir / "spectrum_metadata.json"
@@ -179,7 +184,7 @@ def main() -> int:
     configuration = {
         "study_version": "fixed_order_spectrum_half_smatrix_v1",
         "geometry": asdict(geometry), "order": args.order,
-        "slices": SLICES, "grid": GRID, "wavelengths_nm": wavelengths,
+        "slices": args.slices, "grid": GRID, "wavelengths_nm": wavelengths,
         "gold_csv_sha256": sha256(gold_csv),
         "solver_source_sha256": sha256(HERE.parent / "gold_motheye" / "converge.py"),
         "cascade": args.cascade, "dtype": "complex128",
@@ -192,12 +197,12 @@ def main() -> int:
         if saved.get("signature") != signature:
             raise RuntimeError("Spectrum checkpoint settings differ; choose a new --output-dir")
         cases = saved.get("cases", {})
-    numerical = NumericalConfig(order=args.order, slices=SLICES, grid=GRID)
+    numerical = NumericalConfig(order=args.order, slices=args.slices, grid=GRID)
     for index, wavelength in enumerate(wavelengths, 1):
         key = f"{wavelength:.12g}"
         if key in cases:
             continue
-        print(f"spectrum {index}/{len(wavelengths)}: M={args.order}, "
+        print(f"spectrum {index}/{len(wavelengths)}: M={args.order}, Nz={args.slices}, "
               f"wavelength={wavelength:g} nm", flush=True)
         result = simulate_case(wavelength, numerical, geometry, gold_model,
                                cascade=args.cascade, use_symmetry=True,
