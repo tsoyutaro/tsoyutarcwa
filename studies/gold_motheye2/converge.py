@@ -13,6 +13,7 @@ import csv
 import hashlib
 import json
 import math
+import shutil
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -128,12 +129,89 @@ def assess(
     }
 
 
+def finalize_completed_order_prefix(
+    output_dir: Path, target_order: int, slices: int,
+) -> None:
+    """Remove only uncomputed trailing orders from a completed prefix."""
+    from studies.gold_motheye2.plot_order import render
+
+    csv_path = output_dir / "order_sweep.csv"
+    metadata_path = output_dir / "order_sweep.json"
+    checkpoint_path = output_dir / "order_checkpoint.json"
+    if not metadata_path.is_file() or not checkpoint_path.is_file():
+        raise FileNotFoundError("Finalization needs existing metadata and checkpoint files.")
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+    config_fields = (
+        "study_version", "geometry", "orders", "wavelengths_nm",
+        "fixed_grid", "fixed_slices", "gold_csv_sha256",
+        "solver_source_sha256", "cascade", "dtype", "smatrix_size",
+        "symmetry_reduction",
+    )
+    old_config = {name: metadata[name] for name in config_fields}
+    old_orders = tuple(int(value) for value in old_config["orders"])
+    wavelengths = tuple(float(value) for value in old_config["wavelengths_nm"])
+    if int(old_config["fixed_slices"]) != slices or int(old_config["fixed_grid"]) != GRID:
+        raise ValueError("Requested Nz/grid does not match the saved study.")
+    if target_order not in old_orders:
+        raise ValueError(f"M={target_order} is not in the saved order list.")
+    orders = tuple(order for order in old_orders if order <= target_order)
+    if len(orders) < 3:
+        raise ValueError("At least three orders are required for convergence assessment.")
+    config = {**old_config, "orders": orders}
+    old_signature = configuration_signature(old_config)
+    new_signature = configuration_signature(config)
+    if checkpoint.get("signature") not in {old_signature, new_signature}:
+        raise RuntimeError("Checkpoint settings do not match the saved study.")
+    cases = checkpoint.get("cases")
+    if not isinstance(cases, dict):
+        raise ValueError("Invalid cases in order checkpoint.")
+    expected = {case_key(order, wavelength)
+                for order in orders for wavelength in wavelengths}
+    if set(cases) != expected:
+        missing = sorted(expected - set(cases))
+        extra = sorted(set(cases) - expected)
+        raise ValueError(
+            f"Cannot finalize M={target_order}: {len(missing)} missing and "
+            f"{len(extra)} outside-prefix cases."
+        )
+    for key, row in cases.items():
+        if (key != case_key(int(row["order"]), float(row["wavelength_nm"]))
+                or int(row["slices"]) != slices or int(row["grid"]) != GRID):
+            raise ValueError(f"Invalid saved case: {key}")
+
+    if old_orders != orders and checkpoint["signature"] == old_signature:
+        backup_dir = output_dir / f"backup_before_finalize_M{old_orders[-1]}"
+        backup_dir.mkdir(exist_ok=True)
+        for path in (checkpoint_path, metadata_path, csv_path):
+            if path.exists():
+                backup = backup_dir / path.name
+                if not backup.exists():
+                    shutil.copy2(path, backup)
+    write_json_atomic(checkpoint_path, {"signature": new_signature, "cases": cases})
+    write_cases_csv(csv_path, cases)
+    tolerance = float(metadata["tolerance"])
+    assessment = assess(cases, orders, wavelengths, tolerance)
+    write_json_atomic(metadata_path, {
+        **config, **assessment,
+        "gold_csv": metadata.get("gold_csv"),
+        "tolerance": tolerance,
+    })
+    render(csv_path, metadata_path, output_dir)
+    print(f"finalized through M={target_order}: "
+          f"{assessment['completed_cases']}/{assessment['expected_cases']} cases, "
+          f"status={assessment['status']}")
+    print(f"results: {output_dir}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     default_orders = "4,6,8,10,12,14,16,18,20"
     parser.add_argument("--orders", default=default_orders)
     parser.add_argument("--append-orders",
                         help="Append larger orders to an existing sweep, e.g. 22,24.")
+    parser.add_argument("--finalize-through-order", type=int,
+                        help="Keep a complete prefix through M and drop only uncomputed trailing orders; no GPU solve.")
     parser.add_argument("--slices", type=int, default=DEFAULT_SLICES,
                         help="Fixed number of height slices; default: 100.")
     parser.add_argument("--wavelengths", default="400,550,700",
@@ -152,6 +230,10 @@ def main() -> int:
     args = parser.parse_args()
     if args.append_orders and args.orders != default_orders:
         parser.error("Use either --orders or --append-orders, not both.")
+    if args.finalize_through_order is not None and (
+        args.append_orders or args.orders != default_orders or args.plot_only
+    ):
+        parser.error("--finalize-through-order cannot be combined with order selection or --plot-only.")
     if args.slices < 1:
         parser.error("--slices must be positive.")
     if not math.isfinite(args.tolerance) or args.tolerance <= 0:
@@ -163,6 +245,11 @@ def main() -> int:
     csv_path = output_dir / "order_sweep.csv"
     metadata_path = output_dir / "order_sweep.json"
     checkpoint_path = output_dir / "order_checkpoint.json"
+    if args.finalize_through_order is not None:
+        finalize_completed_order_prefix(
+            output_dir, args.finalize_through_order, args.slices
+        )
+        return 0
     try:
         orders = parse_positive_list(args.orders, integer=True)
         wavelengths = parse_positive_list(args.wavelengths, integer=False)

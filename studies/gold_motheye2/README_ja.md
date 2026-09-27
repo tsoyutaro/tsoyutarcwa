@@ -105,6 +105,20 @@ python3 studies/gold_motheye2/converge.py --device cuda --slices 15 \
 
 追加後も700 nmの反射率が大きく変わるなら、15層での次数収束は未確認のままとする。
 
+M=32でGPUメモリ不足になり、M=30までの全波長が保存済みの場合は、
+計画から未計算のM=32だけを外してCSV・checkpoint・図を確定できる。
+GPUやPyTorchは不要で、M=30までの計算は繰り返さない。
+
+```bash
+python3 studies/gold_motheye2/converge.py --slices 15 \
+  --finalize-through-order 30
+```
+
+実行前にcheckpointの署名と、M=30までの全ケースがそろい、それより高い次数の
+計算済みケースがないことを確認する。元のcheckpoint・metadata・CSVは
+`results/order_sweep_Nz15/backup_before_finalize_M32/` に保存される。
+M=30までで反射率が安定しなければ判定は `not_converged` のまま。
+
 TSUBAMEの `gpu_1`、`qsub` の使い方は
 [公式のジョブ手引き](https://www.t4.cii.isct.ac.jp/docs/handbook.ja/jobs/)を参照。
 
