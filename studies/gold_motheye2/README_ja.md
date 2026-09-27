@@ -103,3 +103,48 @@ python3 studies/gold_motheye2/spectrum.py --order 16 --plot-only
 前進計算だけで概算約2時間55分を見込む。計算環境や波長により変動する。
 この図は固定次数のスペクトルであり、最適化した形状の次数・層数・gridの収束を
 自動的に保証するものではない。
+
+## 層数 Nz に対する反射率と計算時間
+
+`converge_slices.py` は測定金データ、形状、高さ500 nm、周期200 nm、
+ASR grid=256を固定し、層数だけを
+`10,15,20,30,40,50,60,70,80,90,100` に変える。
+既定次数はM=16。波長は400、550、700 nmで、別の波長を使う場合は
+`--wavelengths` にカンマ区切りで指定する。次数M=18も指定できる。
+
+GPU計算ノードを確保済みなら、プロジェクトルートで次を実行する。
+
+```bash
+python3 studies/gold_motheye2/converge_slices.py --device cuda --order 16
+python3 studies/gold_motheye2/converge_slices.py --device cuda --order 18
+```
+
+2行をそのまま入力すると順番に実行する。TSUBAMEのバッチジョブを投入するなら
+以下を利用できる。
+
+```bash
+qsub -g YOUR_TSUBAME_GROUP studies/gold_motheye2/tsubame4_slices.sh
+qsub -g YOUR_TSUBAME_GROUP -v SWEEP_ORDER=18 \
+  studies/gold_motheye2/tsubame4_slices.sh
+```
+
+各次数は独立して `results/slice_sweep_M16/` または
+`results/slice_sweep_M18/` に次を出力する。
+
+- `reflectance_vs_slices.svg`: 各波長の反射率対Nz。波長ごとに縦軸を調整する。
+- `runtime_vs_slices.svg`: 各波長の計算時間と、3波長の合計時間の対Nz。
+- `slice_sweep.csv`, `slice_sweep.json`, `slice_checkpoint.json`:
+  生の結果、条件・末尾2ステップの判定、再開用checkpoint。
+
+ケースごとにCSV・図・checkpointを更新するので、同条件で再実行すれば続きを計算できる。
+条件や金データを変更する場合は `--output-dir` で別の場所を指定する。
+図だけを再生成する場合は以下を実行する。
+
+```bash
+python3 studies/gold_motheye2/converge_slices.py --order 16 --plot-only
+```
+
+判定値は反射率の絶対変化0.005（0.5 percentage point）。Nz=80→90と90→100の
+両方が全波長でこれ以下なら `converged_within_tested_slices` と記録する。
+収束判定にかかわらず完了した図を出力する。次数・grid・全スペクトルの収束は
+この層数掃引とは別に確認する。
