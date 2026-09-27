@@ -148,3 +148,19 @@ python3 studies/gold_motheye2/converge_slices.py --order 16 --plot-only
 両方が全波長でこれ以下なら `converged_within_tested_slices` と記録する。
 収束判定にかかわらず完了した図を出力する。次数・grid・全スペクトルの収束は
 この層数掃引とは別に確認する。
+
+### 計算済みの層数に110～140層を追加する
+
+M=18の既存結果を残して上限を拡張するときは、更新版のスクリプトで
+次のコマンドを実行する。古い10～100層を指定し直す必要はない。
+
+```bash
+python3 studies/gold_motheye2/converge_slices.py --device cuda --order 18 \
+  --append-slices 110,120,130,140
+```
+
+同じ `results/slice_sweep_M18/` のcheckpointから、金データ、形状、次数、grid、
+波長、solver、cascadeの設定が一致することを確認し、計算済みのケースを再利用する。
+新しく追加したNzの3波長だけを解き、CSV・2枚のSVG・収束判定を更新する。
+中断した場合は同じコマンドで再開できる。新しい層数は既存最大Nzより大きい値に限る。
+最後の2段階の判定対象は、拡張後はNz=120→130と130→140に変わる。

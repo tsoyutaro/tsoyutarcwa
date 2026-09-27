@@ -30,6 +30,10 @@ DEFAULT_SLICES = "10,15,20,30,40,50,60,70,80,90,100"
 DEFAULT_GOLD_CSV = HERE / "data" / "au_measured_nk.csv"
 
 
+def configuration_signature(config: dict[str, object]) -> str:
+    return hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
+
+
 def case_key(slices: int, wavelength_nm: float) -> str:
     return f"Nz={slices}|wl={wavelength_nm:.12g}"
 
@@ -86,11 +90,57 @@ def assess(
             "adjacent_changes": changes}
 
 
+def load_cases(
+    checkpoint_path: Path,
+    metadata_path: Path,
+    config: dict[str, object],
+) -> dict[str, dict[str, object]]:
+    if not checkpoint_path.exists():
+        return {}
+    checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+    signature = configuration_signature(config)
+    if checkpoint.get("signature") != signature:
+        # Older runs included the original slice list in the signature.
+        # Permit a strict extension at the upper end only when every other
+        # setting still hashes to the original checkpoint signature.
+        if not metadata_path.exists():
+            raise RuntimeError("Checkpoint settings differ and metadata is missing; "
+                               "choose a new --output-dir.")
+        previous = json.loads(metadata_path.read_text(encoding="utf-8"))
+        old_slices = tuple(int(value) for value in previous["slice_counts"])
+        requested = tuple(int(value) for value in config["slice_counts"])
+        old_config = {**config, "slice_counts": old_slices}
+        if (len(old_slices) >= 3 and len(requested) > len(old_slices)
+                and requested[:len(old_slices)] == old_slices
+                and checkpoint.get("signature") == configuration_signature(old_config)):
+            print(f"extend slice sweep: {old_slices[-1]} -> {requested[-1]}; "
+                  "reuse saved cases", flush=True)
+        else:
+            raise RuntimeError("Checkpoint settings differ. Only higher Nz values "
+                               "may be appended; otherwise choose a new --output-dir.")
+    cases = checkpoint.get("cases", {})
+    if not isinstance(cases, dict):
+        raise ValueError("Invalid cases in slice checkpoint")
+    planned_slices = set(int(value) for value in config["slice_counts"])
+    planned_wavelengths = set(float(value) for value in config["wavelengths_nm"])
+    for key, row in cases.items():
+        nz = int(row["slices"])
+        wavelength = float(row["wavelength_nm"])
+        if (key != case_key(nz, wavelength) or nz not in planned_slices
+                or wavelength not in planned_wavelengths
+                or int(row["order"]) != config["fixed_order"]
+                or int(row["grid"]) != config["fixed_grid"]):
+            raise ValueError(f"Case outside the requested slice sweep: {key}")
+    return cases
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--order", type=int, choices=(16, 18), default=16)
     parser.add_argument("--slices", default=DEFAULT_SLICES,
                         help="Comma-separated number of equal-height slices.")
+    parser.add_argument("--append-slices",
+                        help="Append larger Nz values to an existing sweep, e.g. 110,120,130,140.")
     parser.add_argument("--wavelengths", default="400,550,700",
                         help="Comma-separated vacuum wavelengths in nm.")
     parser.add_argument("--gold-csv", type=Path, default=DEFAULT_GOLD_CSV)
@@ -104,21 +154,35 @@ def main() -> int:
     parser.add_argument("--plot-only", action="store_true",
                         help="Regenerate SVGs from saved results without importing PyTorch.")
     args = parser.parse_args()
+    if args.append_slices and args.slices != DEFAULT_SLICES:
+        parser.error("Use either --slices or --append-slices, not both.")
+    output_dir = (args.output_dir or HERE / "results" / f"slice_sweep_M{args.order}").resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = output_dir / "slice_sweep.csv"
+    metadata_path = output_dir / "slice_sweep.json"
+    checkpoint_path = output_dir / "slice_checkpoint.json"
     try:
         slices = parse_positive_list(args.slices, integer=True)
         wavelengths = parse_positive_list(args.wavelengths, integer=False)
+        if args.append_slices:
+            if not metadata_path.exists():
+                parser.error("--append-slices needs an existing slice_sweep.json in --output-dir.")
+            previous = json.loads(metadata_path.read_text(encoding="utf-8"))
+            old_slices = tuple(int(value) for value in previous["slice_counts"])
+            added = parse_positive_list(args.append_slices, integer=True)
+            if set(added).issubset(old_slices):
+                # A second identical invocation must resume an interrupted extension.
+                slices = old_slices
+            elif added[0] > old_slices[-1]:
+                slices = old_slices + added
+            else:
+                parser.error("New slice counts must all exceed the previous maximum Nz.")
     except ValueError as error:
         parser.error(str(error))
     if len(slices) < 3:
         parser.error("At least three slice counts are required for two adjacent comparisons.")
     if not math.isfinite(args.tolerance) or args.tolerance <= 0:
         parser.error("--tolerance must be finite and positive.")
-    output_dir = (args.output_dir or HERE / "results" / f"slice_sweep_M{args.order}").resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    csv_path = output_dir / "slice_sweep.csv"
-    metadata_path = output_dir / "slice_sweep.json"
-    checkpoint_path = output_dir / "slice_checkpoint.json"
-
     if args.plot_only:
         from studies.gold_motheye2.plot_slices import render
         render(csv_path, metadata_path, output_dir)
@@ -155,13 +219,8 @@ def main() -> int:
         "smatrix_size": "half",
         "symmetry_reduction": "d6-source",
     }
-    signature = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
-    cases: dict[str, dict[str, object]] = {}
-    if checkpoint_path.exists():
-        checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
-        if checkpoint.get("signature") != signature:
-            raise RuntimeError("Checkpoint settings differ; choose a new --output-dir.")
-        cases = checkpoint.get("cases", {})
+    signature = configuration_signature(config)
+    cases = load_cases(checkpoint_path, metadata_path, config)
 
     def persist() -> None:
         write_cases_csv(csv_path, cases)

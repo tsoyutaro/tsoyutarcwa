@@ -91,10 +91,16 @@ def reflectance_figure(rows: list[dict[str, float]], meta: dict,
             ))
         parts.extend((segment(left, top, left, bottom, color="#64748b"),
                       segment(left, bottom, right, bottom, color="#64748b")))
+        last_label_x = float("-inf")
+        last_label_width = 0.0
         for nz in slices:
             x = x_for(nz)
-            parts.extend((segment(x, bottom, x, bottom + 5, color="#64748b"),
-                          label(x, bottom + 23, nz, size=11, anchor="middle")))
+            parts.append(segment(x, bottom, x, bottom + 5, color="#64748b"))
+            label_width = 6.5 * len(str(nz))
+            if x - last_label_x >= (last_label_width + label_width) / 2 + 4:
+                parts.append(label(x, bottom + 23, nz, size=11, anchor="middle"))
+                last_label_x = x
+                last_label_width = label_width
         points = [(x_for(row["slices"]), y_for(100 * row["reflectance"]))
                   for row in selected]
         parts.append(polyline(points, color))
