@@ -1,0 +1,71 @@
+{
+  "geometry_nm": {
+    "period": 200.0,
+    "height": 500.0,
+    "pmma_tip_diameter": 10.0,
+    "pmma_base_diameter": 130.0,
+    "gold_radial_shell_thickness": 30.0,
+    "gold_top_disk_thickness": 30.0,
+    "gold_top_disk_diameter": 70.0,
+    "minimum_base_gap_between_gold_shells": 10.0,
+    "gold_on_flat_valleys": true,
+    "gold_valley_thickness": 30.0,
+    "profile_power": 1.0,
+    "substrate": "semi-infinite PMMA"
+  },
+  "numerics": {
+    "orders": [
+      14
+    ],
+    "profile_slices": 32,
+    "patterned_layers": 33,
+    "asr_grid": [
+      256,
+      256
+    ],
+    "radial_mapping": "outer",
+    "polarization": "x",
+    "incidence": "normal from air",
+    "lattice": "triangular",
+    "cascade": "redheffer",
+    "symmetry_reduction": "d6-source",
+    "dtype": "complex128",
+    "tolerance": 0.005,
+    "device_request": "auto"
+  },
+  "material_csv": {
+    "pmma": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_gold_motheye\\data\\Szczurowski.csv",
+    "pmma_sha256": "13b75b257c1499df18339829ef0d7bc95e48c1af478ad00f33aff7a9fc5b83f0",
+    "gold": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_gold_motheye\\data\\au_measured_nk.csv",
+    "gold_sha256": "46830fb82a04122263c2099f5839e8efaf83751f8b7a4c60f80a27ba0912f6b5",
+    "wavelength_unit_in_input": "micrometre",
+    "interpolation": "linear in n and k; no extrapolation"
+  },
+  "materials_at_wavelengths": [
+    {
+      "wavelength_nm": 450.0,
+      "pmma_n": 1.4997556950509559,
+      "gold_n": 1.3830882352941176,
+      "gold_k": 1.9155,
+      "gold_epsilon_real": -1.7562071833910033,
+      "gold_epsilon_imag": 5.298611029411765
+    },
+    {
+      "wavelength_nm": 550.0,
+      "pmma_n": 1.492401592592772,
+      "gold_n": 0.4241492537313434,
+      "gold_k": 2.4720507462686565,
+      "gold_epsilon_real": -5.931132302686566,
+      "gold_epsilon_imag": 2.097036958431722
+    },
+    {
+      "wavelength_nm": 700.0,
+      "pmma_n": 1.4868514449253294,
+      "gold_n": 0.131,
+      "gold_k": 4.0624,
+      "gold_epsilon_real": -16.48593276,
+      "gold_epsilon_imag": 1.0643488
+    }
+  ],
+  "solver_root": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs"
+}

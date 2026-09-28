@@ -28,6 +28,7 @@ if str(_OUTPUTS_ROOT) not in sys.path:
 
 from studies.shared.gold_dispersion import build_gold_model
 from rcwa_solver_auto import ASROptions, AutoRCWA, GroupTheoryOptions, Lattice, OutputSpec
+from .geometry_preview import build_profile_layers
 
 
 @dataclass(frozen=True)
@@ -160,6 +161,7 @@ def simulate_case(
     symmetry_reduction: str = "d6-source",
     factorization_rules: bool = True,
     device: torch.device,
+    valley_gold_thickness_nm: float = 0.0,
 ) -> dict[str, object]:
     """Evaluate R, T and A for one wavelength and discretization."""
     started = time.perf_counter()
@@ -168,6 +170,11 @@ def simulate_case(
         raise ValueError("order, slices and grid must be positive.")
     if numerical.radial_mapping not in {"outer", "double"}:
         raise ValueError("radial_mapping must be outer or double.")
+    if (
+        not math.isfinite(valley_gold_thickness_nm)
+        or not 0.0 <= valley_gold_thickness_nm <= geometry.height_nm
+    ):
+        raise ValueError("valley_gold_thickness_nm must lie within [0, height_nm].")
 
     period = geometry.period_nm
     epsilon_gold = gold_epsilon(wavelength_nm)
@@ -220,22 +227,42 @@ def simulate_case(
             factorization_rules=factorization_rules,
         )
 
-    layer_thickness = geometry.height_nm / numerical.slices / period
-    for layer in range(numerical.slices):
-        core_radius = slice_core_radius_nm(geometry, layer, numerical.slices)
-        outer_radius = core_radius + geometry.gold_thickness_nm
-        simulation.add_layer_circle_shell_asr(
-            layer_thickness,
-            core_radius / period,
-            outer_radius / period,
-            1.0,
-            epsilon_gold,
-            epsilon_pmma,
-            nx=numerical.grid,
-            ny=numerical.grid,
-            factorization_rules=factorization_rules,
-            radial_mapping=numerical.radial_mapping,
-        )
+    profile_layers = build_profile_layers(
+        height_nm=geometry.height_nm,
+        tip_radius_nm=geometry.tip_radius_nm,
+        base_radius_nm=geometry.base_radius_nm,
+        gold_thickness_nm=geometry.gold_thickness_nm,
+        profile_power=geometry.profile_power,
+        slices=numerical.slices,
+        valley_gold_thickness_nm=valley_gold_thickness_nm,
+    )
+    for layer in profile_layers:
+        thickness = (layer.bottom_depth_nm - layer.top_depth_nm) / period
+        if layer.kind == "valley":
+            # Au covers exposed PMMA valleys, but not beneath the PMMA core.
+            simulation.add_layer_circle_asr(
+                thickness,
+                layer.core_radius_nm / period,
+                epsilon_gold,
+                epsilon_pmma,
+                nx=numerical.grid,
+                ny=numerical.grid,
+                factorization_rules=factorization_rules,
+            )
+        else:
+            assert layer.outer_radius_nm is not None
+            simulation.add_layer_circle_shell_asr(
+                thickness,
+                layer.core_radius_nm / period,
+                layer.outer_radius_nm / period,
+                1.0,
+                epsilon_gold,
+                epsilon_pmma,
+                nx=numerical.grid,
+                ny=numerical.grid,
+                factorization_rules=factorization_rules,
+                radial_mapping=numerical.radial_mapping,
+            )
 
     simulation.solve_global_smatrix()
     incident = _zero_order_x_source(simulation)
@@ -297,7 +324,8 @@ def simulate_case(
         "wavelength_nm": wavelength_nm,
         "order": numerical.order,
         "profile_slices": numerical.slices,
-        "total_pattern_layers": numerical.slices + int(geometry.include_top_cap),
+        "total_pattern_layers": len(profile_layers) + int(geometry.include_top_cap),
+        "valley_gold_thickness_nm": valley_gold_thickness_nm,
         "grid": numerical.grid,
         "radial_mapping": numerical.radial_mapping,
         "factorization_rules": factorization_rules,

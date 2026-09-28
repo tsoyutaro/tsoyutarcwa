@@ -222,3 +222,11 @@ python studies/pmma_gold_motheye/validation/validate.py --integration --device c
 金モデルの出典は A. D. Rakić et al., *Applied Optics* 37, 5271–5283 (1998),
 DOI 10.1364/AO.37.005271、および P. B. Johnson and R. W. Christy,
 *Physical Review B* 6, 4370–4379 (1972), DOI 10.1103/PhysRevB.6.4370 です。
+
+## 7. 添付CSVを使う金30 nm蒸着モデル
+
+底面直径130 nm、頂部直径10 nmのPMMAモスアイと、側面・頂部・平坦な谷部の
+金膜を扱う別設定を `run_pmma_gold_30nm.py` に追加しました。材料表は `data/` に
+保存しています。詳しい形状と実行方法は `README_measured_30nm_ja.md` を参照してください。
+谷部金膜は `--valley-gold-nm` で0 nm（従来形状）または指定した厚さにできます。
+`--preview-only` でRCWA計算前に断面・上面図と層ごとの数値表を出力できます。

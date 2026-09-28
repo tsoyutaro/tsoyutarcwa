@@ -1,0 +1,62 @@
+# PMMAモスアイ＋金30 nm：添付CSVを使う計算
+
+`run_pmma_gold_30nm.py` は、このstudyのRCWA実装を呼び出す実行ファイルです。入力は `data/Szczurowski.csv`（PMMAの `wl,n`）と `data/au_measured_nk.csv`（金の `wl,n` ブロックと `wl,k` ブロック）です。`wl` はµmからnmへ変換し、各計算波長で `n` と `k` を線形補間します。表の範囲外には外挿しません。
+
+## 既定の構造
+
+| 項目 | 値 |
+|---|---:|
+| 三角格子周期、モスアイ高さ | 200 nm、500 nm |
+| PMMA円錐の底面／頂部直径 | 130 nm／10 nm |
+| 金の側面半径方向厚さ | 30 nm |
+| 頂部の金円板 | 厚さ30 nm、直径70 nm |
+| 平坦な谷部上の金 | 厚さ30 nm |
+| 出力側 | 半無限PMMA基板 |
+| 入射 | 空気側から垂直、x偏光 |
+
+谷部上の金は底側30 nmの範囲で**PMMA円錐の外側**に置きます。PMMA円錐の下には金を挟みません。厚さ0 nmを指定すると、以前の「谷部は空気」の形状に戻ります。側面・谷部・頂部がすべて30 nmというのは比較用の理想化です。蒸着方向と遮蔽を考慮した実試料では厚さがそれぞれ異なる可能性があります。
+
+## 実行
+
+`outputs` ディレクトリで、`torch`・`torcwa`を利用できるPython環境から実行します。CSVと形状の事前確認はRCWAライブラリなしでできます。
+
+```bash
+python studies/pmma_gold_motheye/run_pmma_gold_30nm.py --check-only
+```
+
+**計算前に構造を図で確認**するには次を実行します。これは `torch` や `torcwa` を読み込まず、光学計算もしません。
+
+```bash
+python studies/pmma_gold_motheye/run_pmma_gold_30nm.py --preview-only
+```
+
+既定の `results/measured_30nm/` に `geometry_preview.svg`（断面図・底側と中間高さの上面図）、
+`geometry_layers.csv`（RCWAへ渡す各層の高さ・半径・材料区分）、`settings.json` を保存します。
+Pillowが使える場合は同じ図を `geometry_preview.png` にも保存します。
+通常の光学計算でも、これらを**計算開始前**に同じ出力先へ保存します。谷部金なしの図は
+`--valley-gold-nm 0 --preview-only --output-dir studies/pmma_gold_motheye/results/measured_30nm_no_valley`
+で作成できます。谷部金の有無にかかわらず、PMMA形状32層＋頂部金円板1層の計33層です。既定の谷部金30 nmでは上側の殻30層と谷部2層に分け、層の厚さを調整して30 nmの境界に一致させます。
+
+既定のM=14、PMMA形状32分割、ASR格子256×256、`outer` 写像、波長450/550/700 nmで計算します。
+
+```bash
+python studies/pmma_gold_motheye/run_pmma_gold_30nm.py --device cuda
+```
+
+谷部なしとの比較には、出力先も変えてください。
+
+```bash
+python studies/pmma_gold_motheye/run_pmma_gold_30nm.py \
+  --valley-gold-nm 0 --output-dir studies/pmma_gold_motheye/results/measured_30nm_no_valley \
+  --device cuda
+```
+
+次数収束を試す場合：
+
+```bash
+python studies/pmma_gold_motheye/run_pmma_gold_30nm.py \
+  --orders 10,12,14,16,18,20,22 --device cuda \
+  --output-dir studies/pmma_gold_motheye/results/measured_30nm_order
+```
+
+結果は指定先の `report.json`、`spectrum.csv`、再開用 `checkpoint.json` です。単一Mの結果は `single_order_unverified` で、収束済みを意味しません。次数収束が通っても形状分割数とASR格子の収束確認が別途必要です。PMMA表の開始波長は404.7 nmのため、従来の400 nm点はこの表だけでは計算できません。
