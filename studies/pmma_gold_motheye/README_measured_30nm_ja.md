@@ -60,3 +60,15 @@ python studies/pmma_gold_motheye/run_pmma_gold_30nm.py \
 ```
 
 結果は指定先の `report.json`、`spectrum.csv`、再開用 `checkpoint.json` です。単一Mの結果は `single_order_unverified` で、収束済みを意味しません。次数収束が通っても形状分割数とASR格子の収束確認が別途必要です。PMMA表の開始波長は404.7 nmのため、従来の400 nm点はこの表だけでは計算できません。
+
+## 高次数でOOMになった場合
+
+`show_checkpoint_results.py` は保存済みの `checkpoint.json` だけを読み、指定した次数までのR・T・Aと次数間の差を表示します。再計算や `torch` の読み込みは行いません。出力パスが既定と異なる場合は、実際のチェックポイントを第1引数に指定してください。
+
+```bash
+python3 studies/pmma_gold_motheye/show_checkpoint_results.py \
+  studies/pmma_gold_motheye/results/measured_30nm_Nz100_order/checkpoint.json \
+  --max-order 20
+```
+
+判定欄は、保存済みの全波長でR・T・Aの変化がそれぞれ許容値以下かを示します。次数収束の候補は連続する2段階で条件を満たしたときだけ表示します。不完全な次数は判定から除外します。
