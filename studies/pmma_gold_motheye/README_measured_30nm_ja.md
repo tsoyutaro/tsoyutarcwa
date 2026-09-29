@@ -71,4 +71,37 @@ python3 studies/pmma_gold_motheye/show_checkpoint_results.py \
   --max-order 20
 ```
 
-判定欄は、保存済みの全波長でR・T・Aの変化がそれぞれ許容値以下かを示します。次数収束の候補は連続する2段階で条件を満たしたときだけ表示します。不完全な次数は判定から除外します。
+判定欄は、保存済みの全波長でR・T・Aの変化がそれぞれ許容値以下かを示します。次数収束の候補は高次数側の連続する2段階以上で条件を満たしたときだけ表示します。不完全な次数は判定から除外します。
+
+## 次数収束の図
+
+`plot_order_convergence.py` は計算済みのチェックポイントから、波長別のR・T対Mと、隣接次数間の絶対変化を示す図を作ります。100層でM=22がOOMになった場合は、次のようにM=20までを指定します。
+
+```bash
+python3 studies/pmma_gold_motheye/plot_order_convergence.py \
+  studies/pmma_gold_motheye/results/measured_30nm_Nz100_order/checkpoint.json \
+  --max-order 20
+```
+
+チェックポイントと同じディレクトリに `order_convergence_M20_values.svg` と `order_convergence_M20_deltas.svg` を出力します。PillowがあればPNGも同時に作成します。SVGの作成には追加ライブラリは不要です。不完全な次数は図から除外します。
+
+M=4,6,8を追加する場合、既存のチェックポイントと同じ出力先で `--orders` だけを変更すると署名不一致になります。低次数を別の出力先で計算し、図作成時に2つのチェックポイントを指定してください。以下は `studies/pmma_gold_motheye` を作業ディレクトリとした例です。
+
+```bash
+python3 run_pmma_gold_30nm.py --slices 100 --orders 4,6,8 --device cuda \
+  --output-dir results/measured_30nm_Nz100_order_4_6_8
+python3 plot_order_convergence.py \
+  results/measured_30nm_Nz100_order/checkpoint.json \
+  results/measured_30nm_Nz100_order_4_6_8/checkpoint.json \
+  --max-order 20 --output-prefix results/order_convergence_M4_M20
+```
+
+図示スクリプトは両実行の設定が次数リスト以外で一致することを確認し、設定が異なる結果の混合を拒否します。元の `converge_order.py` は旧来の別モデル用です。
+M=4,6,8だけの `report.json` の収束判定は全次数を含まないため、全範囲の判定には用いないでください。
+全次数の数値表は次で表示できます。
+
+```bash
+python3 show_checkpoint_results.py \
+  results/measured_30nm_Nz100_order/checkpoint.json \
+  results/measured_30nm_Nz100_order_4_6_8/checkpoint.json --max-order 20
+```

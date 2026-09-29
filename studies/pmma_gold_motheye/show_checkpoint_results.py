@@ -1,6 +1,6 @@
 """Show completed RCWA order results after a later order runs out of memory.
 
-Usage: python3 show_checkpoint_results.py [checkpoint.json] [--max-order 20]
+Usage: python3 show_checkpoint_results.py [checkpoint.json ...] [--max-order 20]
 Only the Python standard library is required; no optical solve is started.
 """
 
@@ -24,60 +24,69 @@ METRICS = ("reflectance", "transmittance", "absorptance")
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "checkpoint", nargs="?", type=Path, default=DEFAULT_CHECKPOINT,
-        help="Checkpoint from run_pmma_gold_30nm.py (default: Nz100 output beside this script)",
+        "checkpoints", nargs="*", type=Path,
+        help="One or more checkpoints from matching runs (default: Nz100 output beside this script)",
     )
     parser.add_argument("--max-order", type=int, default=20)
     parser.add_argument("--tolerance", type=float, default=0.005)
     args = parser.parse_args()
     if args.max_order <= 0 or not math.isfinite(args.tolerance) or args.tolerance <= 0:
         parser.error("--max-order and --tolerance must be positive")
-    try:
-        payload = json.loads(args.checkpoint.read_text(encoding="utf-8"))
-        cases = payload["cases"]
-    except (OSError, ValueError, KeyError, TypeError) as exc:
-        parser.error(f"cannot read checkpoint {args.checkpoint}: {exc}")
-    if not isinstance(cases, dict):
-        parser.error("checkpoint 'cases' must be a JSON object")
-
+    checkpoints = args.checkpoints or [DEFAULT_CHECKPOINT]
     results: dict[tuple[int, float], dict] = {}
-    for key, case in cases.items():
+    expected_orders: set[int] = set()
+    expected_wavelengths = None
+    common_settings = None
+    for checkpoint_path in checkpoints:
         try:
-            order = int(case["order"])
-            wavelength = float(case["wavelength_nm"])
-            values = {name: float(case[name]) for name in METRICS}
-        except (KeyError, TypeError, ValueError) as exc:
-            parser.error(f"invalid saved case {key}: {exc}")
-        if order > args.max_order:
-            continue
-        if not math.isfinite(wavelength) or not all(math.isfinite(v) for v in values.values()):
-            parser.error(f"non-finite result in saved case {key}")
-        identity = (order, wavelength)
-        if identity in results:
-            parser.error(f"duplicate result for M={order}, wavelength={wavelength:g} nm")
-        results[identity] = {
-            **case, **values, "order": order, "wavelength_nm": wavelength
-        }
+            payload = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+            cases = payload["cases"]
+            if not isinstance(cases, dict):
+                raise TypeError("checkpoint 'cases' must be a JSON object")
+            settings_path = checkpoint_path.with_name("settings.json")
+            if settings_path.is_file():
+                settings = json.loads(settings_path.read_text(encoding="utf-8"))
+                expected_orders.update(int(x) for x in settings["numerics"]["orders"])
+                wavelengths_here = sorted(
+                    float(item["wavelength_nm"])
+                    for item in settings["materials_at_wavelengths"]
+                )
+                if expected_wavelengths is None:
+                    expected_wavelengths = wavelengths_here
+                elif wavelengths_here != expected_wavelengths:
+                    raise ValueError("checkpoints have different wavelength lists")
+                comparable = json.loads(json.dumps(settings))
+                comparable["numerics"].pop("orders")
+                if common_settings is None:
+                    common_settings = comparable
+                elif comparable != common_settings:
+                    raise ValueError("checkpoints have different settings besides Fourier orders")
+            elif len(checkpoints) > 1:
+                raise ValueError(f"missing companion settings.json for {checkpoint_path}")
+            for key, case in cases.items():
+                order = int(case["order"])
+                if order > args.max_order:
+                    continue
+                wavelength = float(case["wavelength_nm"])
+                values = {name: float(case[name]) for name in METRICS}
+                if not math.isfinite(wavelength) or not all(math.isfinite(v) for v in values.values()):
+                    raise ValueError(f"non-finite result in saved case {key}")
+                identity = (order, wavelength)
+                if identity in results:
+                    if any(results[identity][name] != value for name, value in values.items()):
+                        raise ValueError(f"conflicting result for M={order}, wavelength={wavelength:g} nm")
+                    continue
+                results[identity] = {
+                    **case, **values, "order": order, "wavelength_nm": wavelength
+                }
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            parser.error(f"cannot read checkpoint {checkpoint_path}: {exc}")
     if not results:
         parser.error(f"no completed cases through M={args.max_order}")
 
-    wavelengths = sorted({wavelength for _, wavelength in results})
-    orders = sorted({order for order, _ in results})
-    settings_path = args.checkpoint.with_name("settings.json")
-    if settings_path.is_file():
-        try:
-            settings = json.loads(settings_path.read_text(encoding="utf-8"))
-            wavelengths = sorted(
-                float(item["wavelength_nm"])
-                for item in settings["materials_at_wavelengths"]
-            )
-            orders = sorted(
-                int(order) for order in settings["numerics"]["orders"]
-                if int(order) <= args.max_order
-            )
-        except (OSError, ValueError, KeyError, TypeError) as exc:
-            parser.error(f"cannot read companion settings {settings_path}: {exc}")
-    print(f"Checkpoint: {args.checkpoint}")
+    wavelengths = expected_wavelengths or sorted({wavelength for _, wavelength in results})
+    orders = sorted(x for x in (expected_orders or {order for order, _ in results}) if x <= args.max_order)
+    print("Checkpoints: " + ", ".join(str(path) for path in checkpoints))
     print(f"Saved results through M={args.max_order}; values are fractions, not percent.")
     print(
         f"{'wavelength_nm':>13} {'M':>3} {'R':>12} {'T':>12} {'A':>12} "
@@ -128,17 +137,17 @@ def main() -> int:
             f"{deltas['transmittance']:12.6g} {deltas['absorptance']:12.6g} "
             f"{str(passed):>6}"
         )
-    candidate = next(
-        (
-            first[1] for first, second in zip(comparisons, comparisons[1:])
-            if first[2] and second[2] and first[1] == second[0]
-        ),
-        None,
-    )
+    # An early low-order plateau does not establish convergence if later orders fail.
+    passing_tail = []
+    for pair in reversed(comparisons):
+        if not pair[2] or (passing_tail and pair[1] != passing_tail[-1][0]):
+            break
+        passing_tail.append(pair)
+    candidate = passing_tail[-1][1] if len(passing_tail) >= 2 else None
     if candidate is None:
-        print("Convergence: not confirmed by two consecutive passing steps.")
+        print("Convergence: not confirmed by two consecutive passing steps at the high-order end.")
     else:
-        print(f"Convergence candidate: M={candidate} (two consecutive steps passed).")
+        print(f"Convergence candidate: M={candidate} (high-order passing sequence).")
     return 0
 
 
