@@ -1,0 +1,249 @@
+{
+  "status": "candidate_range_insufficient",
+  "order_convergence_only": true,
+  "layer_and_grid_convergence_checked": false,
+  "selected_order": 20,
+  "comparisons": [
+    {
+      "coarse": 10,
+      "fine": 12,
+      "max_abs_change": 0.09720288055674042,
+      "per_metric": {
+        "reflectance": 0.09720288055674042,
+        "transmittance": 0.01423925390749571,
+        "absorptance": 0.08296362664924467
+      },
+      "nonpassive_candidate": false,
+      "passed": false
+    },
+    {
+      "coarse": 12,
+      "fine": 14,
+      "max_abs_change": 0.01198860671535592,
+      "per_metric": {
+        "reflectance": 0.010716251255575404,
+        "transmittance": 0.01198860671535592,
+        "absorptance": 0.003296438265609769
+      },
+      "nonpassive_candidate": false,
+      "passed": false
+    },
+    {
+      "coarse": 14,
+      "fine": 16,
+      "max_abs_change": 0.043909931928914236,
+      "per_metric": {
+        "reflectance": 0.03544273661188313,
+        "transmittance": 0.008467195317031086,
+        "absorptance": 0.043909931928914236
+      },
+      "nonpassive_candidate": false,
+      "passed": false
+    },
+    {
+      "coarse": 16,
+      "fine": 18,
+      "max_abs_change": 0.05038203485321996,
+      "per_metric": {
+        "reflectance": 0.04435792389828286,
+        "transmittance": 0.006024110954937108,
+        "absorptance": 0.05038203485321996
+      },
+      "nonpassive_candidate": false,
+      "passed": false
+    },
+    {
+      "coarse": 18,
+      "fine": 20,
+      "max_abs_change": 0.01461746092737315,
+      "per_metric": {
+        "reflectance": 0.01461746092737315,
+        "transmittance": 0.003011759731659673,
+        "absorptance": 0.01160570119571347
+      },
+      "nonpassive_candidate": false,
+      "passed": false
+    }
+  ],
+  "settings": {
+    "geometry_nm": {
+      "period": 200.0,
+      "height": 500.0,
+      "pmma_tip_diameter": 10.0,
+      "pmma_base_diameter": 130.0,
+      "gold_radial_shell_thickness": 30.0,
+      "gold_top_disk_thickness": 30.0,
+      "gold_top_disk_diameter": 70.0,
+      "minimum_base_gap_between_gold_shells": 10.0,
+      "gold_on_flat_valleys": true,
+      "gold_valley_thickness": 30.0,
+      "profile_power": 1.0,
+      "substrate": "semi-infinite PMMA"
+    },
+    "numerics": {
+      "orders": [
+        10,
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "profile_slices": 100,
+      "patterned_layers": 101,
+      "asr_grid": [
+        256,
+        256
+      ],
+      "radial_mapping": "outer",
+      "polarization": "x",
+      "incidence": "normal from air",
+      "lattice": "triangular",
+      "cascade": "redheffer",
+      "symmetry_reduction": "d6-source",
+      "dtype": "complex128",
+      "tolerance": 0.005,
+      "device_request": "cuda",
+      "device_used": "cuda"
+    },
+    "material_csv": {
+      "pmma": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_gold_motheye/data/Szczurowski.csv",
+      "pmma_sha256": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+      "gold": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_gold_motheye/data/au_measured_nk.csv",
+      "gold_sha256": "8fab57700f1d2ba3571e916fb6ecebe6e960a8dc35a9261bfd8dadd86e78255a",
+      "wavelength_unit_in_input": "micrometre",
+      "interpolation": "linear in n and k; no extrapolation"
+    },
+    "materials_at_wavelengths": [
+      {
+        "wavelength_nm": 450.0,
+        "pmma_n": 1.4997556950509559,
+        "gold_n": 1.3830882352941176,
+        "gold_k": 1.9155,
+        "gold_epsilon_real": -1.7562071833910033,
+        "gold_epsilon_imag": 5.298611029411765
+      },
+      {
+        "wavelength_nm": 550.0,
+        "pmma_n": 1.492401592592772,
+        "gold_n": 0.4241492537313434,
+        "gold_k": 2.4720507462686565,
+        "gold_epsilon_real": -5.931132302686566,
+        "gold_epsilon_imag": 2.097036958431722
+      },
+      {
+        "wavelength_nm": 700.0,
+        "pmma_n": 1.4868514449253294,
+        "gold_n": 0.131,
+        "gold_k": 4.0624,
+        "gold_epsilon_real": -16.48593276,
+        "gold_epsilon_imag": 1.0643488
+      }
+    ],
+    "solver_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa"
+  },
+  "selected_spectrum": [
+    {
+      "wavelength_nm": 450.0,
+      "order": 20,
+      "profile_slices": 100,
+      "total_pattern_layers": 101,
+      "valley_gold_thickness_nm": 30.0,
+      "grid": 256,
+      "radial_mapping": "outer",
+      "factorization_rules": true,
+      "factorization_schemes": [
+        "weiss-symmetric-29-36"
+      ],
+      "double_mapping_effective_slope_min": null,
+      "double_mapping_effective_slope_max": null,
+      "double_mapping_central_slope_min": null,
+      "double_mapping_boundary_slope_min": null,
+      "double_mapping_minimum_radial_secant": null,
+      "double_mapping_minimum_jacobian": null,
+      "epsilon_gold_real": -1.7562071833910033,
+      "epsilon_gold_imag": 5.298611029411765,
+      "epsilon_pmma": 2.2492671448377757,
+      "reflectance": 0.0084261362159275,
+      "transmittance": 0.020534718389523848,
+      "absorptance": 0.9710391453945487,
+      "passivity_warning": false,
+      "symmetry_reduction": "D6-E1-source-row",
+      "symmetry_irrep": "E1",
+      "reduced_dimension": 421,
+      "full_dimension": 3362,
+      "runtime_seconds": 192.82157340901904,
+      "pmma_n": 1.4997556950509559,
+      "gold_n": 1.3830882352941176,
+      "gold_k": 1.9155
+    },
+    {
+      "wavelength_nm": 550.0,
+      "order": 20,
+      "profile_slices": 100,
+      "total_pattern_layers": 101,
+      "valley_gold_thickness_nm": 30.0,
+      "grid": 256,
+      "radial_mapping": "outer",
+      "factorization_rules": true,
+      "factorization_schemes": [
+        "weiss-symmetric-29-36"
+      ],
+      "double_mapping_effective_slope_min": null,
+      "double_mapping_effective_slope_max": null,
+      "double_mapping_central_slope_min": null,
+      "double_mapping_boundary_slope_min": null,
+      "double_mapping_minimum_radial_secant": null,
+      "double_mapping_minimum_jacobian": null,
+      "epsilon_gold_real": -5.931132302686566,
+      "epsilon_gold_imag": 2.097036958431722,
+      "epsilon_pmma": 2.2272625135734425,
+      "reflectance": 0.01982613909299298,
+      "transmittance": 0.03832635272469063,
+      "absorptance": 0.9418475081823163,
+      "passivity_warning": false,
+      "symmetry_reduction": "D6-E1-source-row",
+      "symmetry_irrep": "E1",
+      "reduced_dimension": 421,
+      "full_dimension": 3362,
+      "runtime_seconds": 219.3690257850103,
+      "pmma_n": 1.492401592592772,
+      "gold_n": 0.4241492537313434,
+      "gold_k": 2.4720507462686565
+    },
+    {
+      "wavelength_nm": 700.0,
+      "order": 20,
+      "profile_slices": 100,
+      "total_pattern_layers": 101,
+      "valley_gold_thickness_nm": 30.0,
+      "grid": 256,
+      "radial_mapping": "outer",
+      "factorization_rules": true,
+      "factorization_schemes": [
+        "weiss-symmetric-29-36"
+      ],
+      "double_mapping_effective_slope_min": null,
+      "double_mapping_effective_slope_max": null,
+      "double_mapping_central_slope_min": null,
+      "double_mapping_boundary_slope_min": null,
+      "double_mapping_minimum_radial_secant": null,
+      "double_mapping_minimum_jacobian": null,
+      "epsilon_gold_real": -16.48593276,
+      "epsilon_gold_imag": 1.0643488,
+      "epsilon_pmma": 2.21072721927654,
+      "reflectance": 0.6163426593646072,
+      "transmittance": 0.052763718951854735,
+      "absorptance": 0.3308936216835381,
+      "passivity_warning": false,
+      "symmetry_reduction": "D6-E1-source-row",
+      "symmetry_irrep": "E1",
+      "reduced_dimension": 421,
+      "full_dimension": 3362,
+      "runtime_seconds": 202.30424301116727,
+      "pmma_n": 1.4868514449253294,
+      "gold_n": 0.131,
+      "gold_k": 4.0624
+    }
+  ]
+}
