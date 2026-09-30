@@ -27,6 +27,16 @@ from studies.gold_motheye2 import optimize_adam as shared
 VERSION = "au_adam_fullband_variable_endpoints_v1"
 DEFAULT_OUTPUT = HERE / "results" / "adam_fullband_Nz100_M8"
 
+# The row-recomputation fix changes storage, not the optical model or gradient.
+# Only this known predecessor may migrate across an ASR source change.
+_PRE_RECOMPUTE_ASR_HASHES = {
+    "8298b6c6d2a21fa88befdb41c1754583f1b46d7c993df536fcf6da9ba395d70f",
+    "1c1e4787dbf6bdf8343fee1c082658b263def9c88b69ce567eca37f26b3fc590",
+}
+_RECOMPUTE_ASR_SHA256_LF = (
+    "523b717b182e28b12fd44ef286092b50247b544a5379519c53bb19bc84b1aa4e"
+)
+
 
 def _signature(config: dict) -> str:
     fixed = {key: value for key, value in config.items()
@@ -55,7 +65,9 @@ def _source_hash_matches(saved_hash: str, path: Path) -> bool:
 
 def _can_migrate_checkpoint(checkpoint: dict, saved: dict | None,
                             current: dict) -> bool:
-    if saved is None or checkpoint.get("signature") != _previous_signature(saved):
+    if saved is None or checkpoint.get("signature") not in {
+        _signature(saved), _previous_signature(saved)
+    }:
         return False
     source_paths = {
         "core_sha256": ROOT / "studies" / "gold_motheye" / "converge.py",
@@ -63,7 +75,11 @@ def _can_migrate_checkpoint(checkpoint: dict, saved: dict | None,
         "auto_sha256": ROOT / "rcwa_ext" / "auto.py",
     }
     for key, path in source_paths.items():
-        if not _source_hash_matches(saved.get(key, ""), path):
+        saved_hash = saved.get(key, "")
+        storage_only_fix = (key == "asr_sha256" and
+                            saved_hash in _PRE_RECOMPUTE_ASR_HASHES and
+                            _source_hash_matches(_RECOMPUTE_ASR_SHA256_LF, path))
+        if not (_source_hash_matches(saved_hash, path) or storage_only_fix):
             return False
     ignored = {"requested_steps", "verify_order", "gold_csv", "eval_every",
                "profile_source_sha256", *source_paths}
@@ -119,6 +135,8 @@ def _full_gradient_step(output: Path, checkpoint: dict, config: dict,
     for index in range(partial["next_index"], len(wavelengths)):
         wavelength = wavelengths[index]
         weight = config["weights"][index]
+        if device.type == "cuda":
+            torch.cuda.reset_peak_memory_stats(device)
         parameters = torch.tensor(partial["logits"], dtype=torch.float64,
                                   device=device, requires_grad=True)
         radii = shared.radius_tensor(parameters, config["slices"], config, torch)
@@ -135,10 +153,12 @@ def _full_gradient_step(output: Path, checkpoint: dict, config: dict,
         partial["band_mean"] += weight*value
         partial["next_index"] = index+1
         shared.write_json(output / "checkpoint.json", checkpoint)
-        print(f"step {step}/{config['requested_steps']}: {wavelength:g} nm "
-              f"R={value:.7f} ({index+1}/{len(wavelengths)})", flush=True)
         del result, radii, parameters
         gc.collect()
+        memory = (f", CUDA peak={torch.cuda.max_memory_allocated(device)/2**30:.2f} GiB"
+                  if device.type == "cuda" else "")
+        print(f"step {step}/{config['requested_steps']}: {wavelength:g} nm "
+              f"R={value:.7f} ({index+1}/{len(wavelengths)}){memory}", flush=True)
 
     gradient = partial["gradient"]
     norm = math.sqrt(sum(value*value for value in gradient))
@@ -306,7 +326,7 @@ def main() -> int:
                 raise RuntimeError("Checkpoint settings differ. Use a new --output-dir.")
             checkpoint["signature"] = signature
             shared.write_json(checkpoint_path, checkpoint)
-            print("Updated the checkpoint signature for the ASR evaluation fix.", flush=True)
+            print("Updated the checkpoint signature for compatible ASR fixes.", flush=True)
         if args.steps < checkpoint["step"] and not args.prepare_only:
             raise RuntimeError("--steps is below the completed update count.")
     else:
@@ -336,6 +356,7 @@ def main() -> int:
     shared.write_json(checkpoint_path, checkpoint)
     print(f"Full-band Adam: {len(wavelengths)} wavelengths per update, "
           f"{args.steps} updates, M={args.order}, Nz={args.slices}", flush=True)
+    print("Differentiable ASR conversion: recompute FFT rows during backward.", flush=True)
 
     cone = shared.find_evaluation(checkpoint, "cone", args.order, cone_logits)
     if cone is None:

@@ -7,6 +7,7 @@ import warnings
 import numpy as np
 
 import torch
+from torch.utils.checkpoint import checkpoint as _activation_checkpoint
 
 from .asr_maps import ASRMapping, CircleASRMapping, _ASRMappingMixin
 from .config import (
@@ -507,28 +508,49 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
             ),
             dim=0,
         ).to(self._dtype) / area_ratio
-        blocks = torch.zeros(
-            (5, self.order_N, self.order_N),
-            dtype=self._dtype,
-            device=self._device,
-        )
         column_x = torch.remainder(self.order_x, nx).to(torch.int64)
         column_y = torch.remainder(self.order_y, ny).to(torch.int64)
         kx_rows = self.Kx_norm_dn.reshape(-1)
         ky_rows = self.Ky_norm_dn.reshape(-1)
-        for row in range(self.order_N):
+
+        def conversion_row(weights, computational_bloch, x_grid, y_grid,
+                           omega, kx, ky):
+            # Only the selected modal coefficients leave this function. The
+            # much larger grid-sized phase/FFT intermediates are recomputed
+            # for one row at a time during backward, rather than retained for
+            # every row of every differentiable layer. Pass wave numbers as
+            # inputs: capturing the loop's row would change them at backward.
             physical_phase = torch.exp(
                 -1.0j
                 * omega
-                * (kx_rows[row] * x_grid + ky_rows[row] * y_grid)
+                * (kx * x_grid + ky * y_grid)
             )
             spectra = torch.fft.ifft2(
                 weights * (computational_bloch * physical_phase)[None, :, :],
                 dim=(-2, -1),
             )
-            blocks[:, row, :] = spectra[
+            return spectra[
                 :, column_x[:, None], column_y[None, :]
-            ].reshape(5, self.order_N)
+            ].reshape(5, mx * my)
+
+        recompute = torch.is_grad_enabled() and any(
+            value.requires_grad for value in
+            (weights, computational_bloch, x_grid, y_grid, omega, kx_rows, ky_rows)
+        )
+        rows = []
+        for row in range(self.order_N):
+            inputs = (weights, computational_bloch, x_grid, y_grid,
+                      omega, kx_rows[row], ky_rows[row])
+            if recompute:
+                coefficients = _activation_checkpoint(
+                    conversion_row, *inputs, use_reentrant=False,
+                    preserve_rng_state=False,
+                )
+            else:
+                coefficients = conversion_row(*inputs)
+            rows.append(coefficients)
+        # Stacking also avoids a long chain of in-place CopySlices nodes.
+        blocks = torch.stack(rows, dim=1)
 
         transform_xy = torch.cat(
             (
