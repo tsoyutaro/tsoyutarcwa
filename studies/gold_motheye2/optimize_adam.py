@@ -271,7 +271,9 @@ def evaluate(output: Path, checkpoint: dict, label: str, order: int,
         wl_key = f"{wavelength:g}"
         if wl_key in pending["values"]:
             continue
-        with torch.no_grad():
+        # Matched-ASR differentiates its coordinate map internally even for a
+        # fixed profile. no_grad() disables that Jacobian and breaks the solve.
+        with torch.enable_grad():
             tensor = torch.tensor(logits, dtype=torch.float64, device=device)
             radii = radius_tensor(tensor, config["slices"], config, torch)
             result = reflectance_tensor(wavelength, radii, local_config,

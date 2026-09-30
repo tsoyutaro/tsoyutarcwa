@@ -30,8 +30,47 @@ DEFAULT_OUTPUT = HERE / "results" / "adam_fullband_Nz100_M8"
 
 def _signature(config: dict) -> str:
     fixed = {key: value for key, value in config.items()
+             if key not in {"requested_steps", "verify_order", "gold_csv", "eval_every",
+                            "profile_source_sha256"}}
+    return hashlib.sha256(json.dumps(fixed, sort_keys=True).encode()).hexdigest()
+
+
+def _previous_signature(config: dict) -> str:
+    """Signature used before fixing the ASR evaluation grad context."""
+    fixed = {key: value for key, value in config.items()
              if key not in {"requested_steps", "verify_order", "gold_csv", "eval_every"}}
     return hashlib.sha256(json.dumps(fixed, sort_keys=True).encode()).hexdigest()
+
+
+def _source_hash_matches(saved_hash: str, path: Path) -> bool:
+    """Accept a source file copied between LF and CRLF file systems."""
+    raw = path.read_bytes()
+    normalized = raw.replace(b"\r\n", b"\n")
+    return saved_hash in {
+        hashlib.sha256(raw).hexdigest(),
+        hashlib.sha256(normalized).hexdigest(),
+        hashlib.sha256(normalized.replace(b"\n", b"\r\n")).hexdigest(),
+    }
+
+
+def _can_migrate_checkpoint(checkpoint: dict, saved: dict | None,
+                            current: dict) -> bool:
+    if saved is None or checkpoint.get("signature") != _previous_signature(saved):
+        return False
+    source_paths = {
+        "core_sha256": ROOT / "studies" / "gold_motheye" / "converge.py",
+        "asr_sha256": ROOT / "rcwa_ext" / "asr.py",
+        "auto_sha256": ROOT / "rcwa_ext" / "auto.py",
+    }
+    for key, path in source_paths.items():
+        if not _source_hash_matches(saved.get(key, ""), path):
+            return False
+    ignored = {"requested_steps", "verify_order", "gold_csv", "eval_every",
+               "profile_source_sha256", *source_paths}
+    saved_fixed = {key: value for key, value in saved.items() if key not in ignored}
+    current_fixed = {key: value for key, value in current.items() if key not in ignored}
+    return (json.dumps(saved_fixed, sort_keys=True) ==
+            json.dumps(current_fixed, sort_keys=True))
 
 
 def _finish_evaluation(output: Path, checkpoint: dict, config: dict,
@@ -158,7 +197,9 @@ def _dense_validation(output: Path, checkpoint: dict, config: dict,
             if label == "best" and best["logits"] == cone:
                 value = document["cases"]["cone"][key]
             else:
-                with torch.no_grad():
+                # The ASR map needs autograd for its spatial Jacobian even
+                # though these profile parameters are held fixed.
+                with torch.enable_grad():
                     parameters = torch.tensor(logits, dtype=torch.float64, device=device)
                     radii = shared.radius_tensor(parameters, config["slices"], config, torch)
                     result = shared.reflectance_tensor(wavelength, radii, local_config,
@@ -258,7 +299,14 @@ def main() -> int:
     if checkpoint_path.exists():
         checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
         if checkpoint.get("signature") != signature:
-            raise RuntimeError("Checkpoint settings differ. Use a new --output-dir.")
+            saved_config_path = output / "config.json"
+            saved_config = (json.loads(saved_config_path.read_text(encoding="utf-8"))
+                            if saved_config_path.exists() else None)
+            if not _can_migrate_checkpoint(checkpoint, saved_config, config):
+                raise RuntimeError("Checkpoint settings differ. Use a new --output-dir.")
+            checkpoint["signature"] = signature
+            shared.write_json(checkpoint_path, checkpoint)
+            print("Updated the checkpoint signature for the ASR evaluation fix.", flush=True)
         if args.steps < checkpoint["step"] and not args.prepare_only:
             raise RuntimeError("--steps is below the completed update count.")
     else:

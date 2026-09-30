@@ -13,6 +13,13 @@ python3 studies/gold_motheye2/optimize_adam_fullband.py --prepare-only
 python3 studies/gold_motheye2/optimize_adam_fullband.py --device cuda
 ```
 
+`torch.autograd.grad` が `does not require grad` で停止した場合は、
+`optimize_adam.py` と `optimize_adam_fullband.py` の修正版を両方配置し、
+同じ出力先・同じ計算条件で上記の計算コマンドを再実行する。
+円形 matched-ASR は固定形状の評価中も座標変換の微分を必要とするため、
+修正版はその評価中に `torch.enable_grad()` を使う。
+既存の `checkpoint.json` は削除せず、その続きから再開できる。
+
 既定の28更新は、**7波長それぞれを28回**使う（計196回の学習用波長計算）。
 4更新ごとに7点平均を評価して最良形状を選び、最後に円錐と最良形状をM=16で比較する。
 平均が終盤も低下するなら `--steps 56` で同じチェックポイントから延長する。
