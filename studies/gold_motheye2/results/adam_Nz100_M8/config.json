@@ -1,0 +1,43 @@
+{
+  "version": "au_adam_monotone_v1",
+  "geometry": {
+    "period_nm": 200.0,
+    "height_nm": 500.0,
+    "tip_radius_nm": 5.0,
+    "base_radius_nm": 95.0,
+    "lattice": "triangular",
+    "substrate_mode": "semi-infinite",
+    "asr_circle_g": 0.03
+  },
+  "slices": 100,
+  "order": 8,
+  "verify_order": 16,
+  "grid": 256,
+  "segments": 8,
+  "wavelengths_nm": [
+    400.0,
+    450.0,
+    500.0,
+    550.0,
+    600.0,
+    650.0,
+    700.0
+  ],
+  "weights": [
+    0.08333333333333333,
+    0.16666666666666666,
+    0.16666666666666666,
+    0.16666666666666666,
+    0.16666666666666666,
+    0.16666666666666666,
+    0.08333333333333333
+  ],
+  "gold_csv": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\gold_motheye2\\data\\au_measured_nk.csv",
+  "gold_csv_sha256_lf": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99",
+  "core_sha256": "09d331f5ef48f7fc3e50eeb4850dda4dcfe009caa9eb4569400186c3667dbbd4",
+  "asr_sha256": "c6abd55ef016dc3f2e30e9391bfd106623a6aa854f63b10e45ed461cd596e2af",
+  "auto_sha256": "b6e5298ce50afced3c7b3e30291248418bd83716f15b2e4a4c270ec08b9b1dd4",
+  "learning_rate": 0.05,
+  "objective": "normal-incidence x-polarized total reflectance, trapezoidal band mean",
+  "requested_steps": 28
+}

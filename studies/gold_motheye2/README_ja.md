@@ -1,5 +1,103 @@
 # gold_motheye2: 測定金データによる Fourier 次数掃引
 
+## 推奨: 7波長平均の勾配を使うAdam
+
+`optimize_adam_fullband.py` は400–700 nmの7波長の反射率を台形則で平均し、
+**各波長の重み付き勾配をすべて足してから**Adamを1回更新する。
+7波長は1つずつRCWA計算と逆伝播を行うので、7波長分の計算時間は必要だが、
+7つの計算グラフを同時にGPUメモリへ保持しない。途中の勾配も波長ごとに保存して再開できる。
+形状・測定金CSV・100層・M=8学習/M=16比較は下記の逐次更新版と共通。
+
+```bash
+python3 studies/gold_motheye2/optimize_adam_fullband.py --prepare-only
+python3 studies/gold_motheye2/optimize_adam_fullband.py --device cuda
+```
+
+既定の28更新は、**7波長それぞれを28回**使う（計196回の学習用波長計算）。
+4更新ごとに7点平均を評価して最良形状を選び、最後に円錐と最良形状をM=16で比較する。
+平均が終盤も低下するなら `--steps 56` で同じチェックポイントから延長する。
+出力先は `results/adam_fullband_Nz100_M8`。`band_mean_history.svg` で経過を確認できる。
+M=16での比較は最適化形状の次数収束を証明しない。必要なら同じチェックポイントで
+`--verify-order 18` または20を指定して再評価する。
+
+7波長だけで連続した400–700 nm全体の低反射は保証できない。
+学習に用いなかった中間波長を含む10 nm刻みの独立確認は、最適化完了後に
+同じコマンドへ次を追加して再実行する。学習は再実行されず、M=16で円錐と
+最良形状の両方を計算し、`dense_validation_*.json` と `.svg` に保存する。
+
+```bash
+python3 studies/gold_motheye2/optimize_adam_fullband.py --device cuda --validation-wavelengths 400:700:10
+```
+
+## 軽量な1波長逐次更新（比較用）
+
+`optimize_adam.py` は Optuna を使わず、既存の金モスアイモデルで全反射率の
+400–700 nm 帯域平均を下げる。まず計算前に形状を確認できる。
+
+```bash
+python3 studies/gold_motheye2/optimize_adam.py --prepare-only
+```
+
+`results/adam_variable_endpoints_Nz100_M8/cone_profile.svg` は軸方向断面、
+`cone_profile.csv` は上から下への100層の半径を示す。初期形状は直線円錐。
+旧 `results/adam_Nz100_M8` は端点固定版の準備結果として残し、
+端点可変版は別の出力先に保存する。
+周期200 nm、構造高さ500 nm、三角格子、金柱と半無限金基板、
+空気中からの正入射x偏光を固定する。先端直径10 nm、底面直径190 nmは
+**初期形状**だけの値で、両方をAdamで最適化する。
+金の複素誘電率は `data/au_measured_nk.csv` から読む。
+先端、底面、中間の半径分布を合わせて最適化する。
+既定の直径探索範囲は `0.1 < D_tip < D_base < 199.9 nm`。
+`--diameter-margin-nm` で両端の数値上の余裕を変えられる。
+厳密な直径0および周期と一致する直径200 nmは、現行の円形matched-ASR計算では
+扱えないため探索範囲に含めない。
+形状は上から下へ**厳密に半径が増加**する8区間の折れ線で、
+softmaxによる正の区間増分に小さな下限を付ける。
+実際のRCWA計算はその曲線を高さ方向100層の円柱で近似する。
+`cone_geometry.json` と `best_geometry.json` に実際の端点直径と単調性判定を保存する。
+
+CUDA版PyTorchを使えるLinux環境で、プロジェクトルートから実行する。
+
+```bash
+python3 studies/gold_motheye2/optimize_adam.py --device cuda
+```
+
+既定では7波長（400, 450, ..., 700 nm）を順に1波長ずつAdamで140回更新する
+（20巡）。7点全体の評価は2巡ごと（14更新ごと）に行う。
+学習率は0.05固定、Adamの β1=0.9、β2=0.999、ε=1e-8、勾配ノルム上限1。
+平均は波長に関する台形則で、数値は0–1の分率。
+140回も収束を保証する回数ではないため、`evaluations.csv` の帯域平均が終盤も
+改善し続ける場合は更新を増やす。
+学習次数は M=8、高さ分割 Nz=100、ASR grid=256、complex128。
+最後に最良形状と直線円錐の両方を M=16 で同じ7点について比較する。
+学習中の最良形状は M=8 の全7点平均で選ぶ。
+中断時は同じコマンドで `checkpoint.json` から再開する。
+短い動作確認だけなら `--steps 28 --verify-order 0` を指定し、その後に
+既定の140回まで継続できる。さらに更新するには `--steps 280` などと指定する。
+設定を変える場合は別の `--output-dir` を指定する。
+
+`summary.json` に両次数での平均反射率と、高次数での差
+`cone_mean_M_verify - best_mean_M_verify` が保存される。
+正なら最適化形状の反射率が低い。`comparison.svg` は各波長の比較、
+`band_mean_history.svg` は更新回数に対する帯域平均と最良値の推移、
+`best_profile.svg` と `.csv` は最良形状、`history.csv` と `evaluations.csv` は
+途中経過。最良形状が円錐のままの場合は、試した範囲で改善が見つからなかったことを示す。
+`summary.json` には最良形状の先端・底面直径も保存する。
+
+検証を別日に行う場合は最初に `--verify-order 0` を指定し、完了後、
+`--steps 140 --verify-order 16` で同じ出力先を再実行する。
+さらに M=18 や20でも同じ候補と円錐を比較できる。高次数での改善が
+見られても、その新形状の Fourier 次数収束までは保証されない。
+また7点の平均は連続帯域平均の近似なので、必要なら波長刻みを10 nmにした
+別の出力先で再試験する。高次数や細かい波長刻みは時間がかかる。
+100層の逆伝播でGPUメモリが足りない場合は、たとえば
+`--order 6 --output-dir studies/gold_motheye2/results/adam_variable_endpoints_Nz100_M6`
+を付けた別実験として試す。この場合も最終比較はM=16で行い、学習次数の結果だけで
+改善を確定しない。
+
+この設定は**金柱が金基板に連続するモデル**であり、PMMAモスアイ上の
+30 nm蒸着金膜とは別の物理構造である。
+
 ## 金の CSV を置く場所
 
 TSUBAME 上でプロジェクトルート（`rcwa_solver_auto.py` があるディレクトリ）から見た
