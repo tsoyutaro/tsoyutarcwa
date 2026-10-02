@@ -1,0 +1,1560 @@
+{
+  "identity": {
+    "schema": 1,
+    "training_signature": "f91c51c41845c87ee7a755beab7299b711d789c1984c8738a5ffed9c900306e2",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 95.0,
+      "lattice": "triangular",
+      "substrate_mode": "semi-infinite",
+      "asr_circle_g": 0.03
+    },
+    "segments": 8,
+    "diameter_margin_nm": 0.1,
+    "best_logits": [
+      -2.2016703419702055,
+      3.5256082525380257,
+      0.6846186484162899,
+      0.656510469940481,
+      0.5773675864350358,
+      0.5930727580518925,
+      -0.2515064245122242,
+      -0.9642751858037846,
+      0.6958202486443298,
+      -0.47429505132337924
+    ],
+    "cone_logits": [
+      -2.953962860677696,
+      2.9004220937496665,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gold_csv_sha256_lf": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99",
+    "solver_sources_sha256_lf": {
+      "rcwa_ext/reduced.py": "d4fc0ae2741ea844995f6e341f20ed8fa2827e5188c2ee97a6d2e77c8820f64c",
+      "rcwa_ext/symmetry.py": "2df62a24a2bddfa736e0e5fff6882ada4ba98b3a97b6ec50790a05d7f586bec2",
+      "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+      "rcwa_ext/nvm.py": "3663a7c23f64d2ed3a4a735e38a28c3fbab53294792c0c038fffa21a4e793fc7",
+      "rcwa_ext/auto.py": "c2e8115fdcda8ea01991728bd9425e8d8b772014e83ad259e63f7050152626fe",
+      "rcwa_ext/asr.py": "523b717b182e28b12fd44ef286092b50247b544a5379519c53bb19bc84b1aa4e",
+      "rcwa_ext/config.py": "7dd514744bb64c78aab0e9da42be1f5f60ea0066ba6921a59649972a5553b51a",
+      "rcwa_ext/fields.py": "4feb128535d8cc0db260083ff52fd0f4215b9abee1580a29fbe6ffbb0fa6db22",
+      "rcwa_ext/asr_maps.py": "552b3ef811e95bf03d25131ef82faba5071a45e64f56ba974dd684bf3f6749e4",
+      "rcwa_ext/scattering.py": "72fa7c523a84705b631a4264e235e6f874055d39c2bf4927387d388021a5de25",
+      "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+      "studies/gold_motheye2/optimize_adam.py": "34365c7b55f9691f1d0293af9c1b85ad01e993a4d10ec6c2c350ede533e08367",
+      "studies/gold_motheye/converge.py": "09d331f5ef48f7fc3e50eeb4850dda4dcfe009caa9eb4569400186c3667dbbd4",
+      "studies/shared/gold_dispersion.py": "9e2be950cc9ecc0bb02548e0b6035dc7648197507b238a4b4f40736ab43b8297"
+    }
+  },
+  "cases": {
+    "cone|M=16|Nz=100|grid=256|wl=400": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 400.0,
+      "reflectance": 0.0002795305605421465,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=410": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 410.0,
+      "reflectance": 0.00025851534646188524,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=420": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 420.0,
+      "reflectance": 0.00023979081864022175,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=430": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 430.0,
+      "reflectance": 0.0002342654162485423,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=440": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 440.0,
+      "reflectance": 0.00022915760435438236,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=450": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 450.0,
+      "reflectance": 0.0002362472840405149,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=460": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 460.0,
+      "reflectance": 0.00023854036897223455,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=470": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 470.0,
+      "reflectance": 0.0002462448772835345,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=480": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 480.0,
+      "reflectance": 0.00023828767748747585,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=490": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 490.0,
+      "reflectance": 0.0002238472444835344,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=500": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 500.0,
+      "reflectance": 0.0002388904207920118,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=510": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 510.0,
+      "reflectance": 0.0005106585864130201,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=520": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 520.0,
+      "reflectance": 0.002291816416583615,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=530": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 530.0,
+      "reflectance": 0.009978446987344748,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=540": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 540.0,
+      "reflectance": 0.030601595823122538,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=550": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 550.0,
+      "reflectance": 0.07029973382042666,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=560": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 560.0,
+      "reflectance": 0.1264055876953479,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=570": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 570.0,
+      "reflectance": 0.19530884232601947,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=580": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 580.0,
+      "reflectance": 0.27108573442345923,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=590": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 590.0,
+      "reflectance": 0.3433254372076647,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=600": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 600.0,
+      "reflectance": 0.4104588586475633,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=610": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 610.0,
+      "reflectance": 0.47304879979259196,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=620": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 620.0,
+      "reflectance": 0.529597355992911,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=630": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 630.0,
+      "reflectance": 0.5793420612760496,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=640": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 640.0,
+      "reflectance": 0.6247695500420128,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=650": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.6666750950278881,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=660": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 660.0,
+      "reflectance": 0.7044874423540838,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=670": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 670.0,
+      "reflectance": 0.7216772799663869,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=680": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 680.0,
+      "reflectance": 0.7369049946886379,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=690": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.7527409836537308,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=16|Nz=100|grid=256|wl=700": {
+      "label": "cone",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.7670142271811047,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=400": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 400.0,
+      "reflectance": 0.0012716447915834463,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=410": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 410.0,
+      "reflectance": 0.0014732702613554402,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=420": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 420.0,
+      "reflectance": 0.0016167408263383538,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=430": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 430.0,
+      "reflectance": 0.0017004314014835507,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=440": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 440.0,
+      "reflectance": 0.0016991193495590699,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=450": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 450.0,
+      "reflectance": 0.0016578779716209732,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=460": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 460.0,
+      "reflectance": 0.0015360674086753602,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=470": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 470.0,
+      "reflectance": 0.001383881473313933,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=480": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 480.0,
+      "reflectance": 0.0013100404355855335,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=490": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 490.0,
+      "reflectance": 0.001276686491590916,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=500": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 500.0,
+      "reflectance": 0.0015021497275565178,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=510": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 510.0,
+      "reflectance": 0.002566240370095535,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=520": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 520.0,
+      "reflectance": 0.005339382361181972,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=530": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 530.0,
+      "reflectance": 0.012666709647633593,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=540": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 540.0,
+      "reflectance": 0.030096878606839777,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=550": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 550.0,
+      "reflectance": 0.06296953344703984,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=560": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 560.0,
+      "reflectance": 0.10884626111333796,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=570": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 570.0,
+      "reflectance": 0.1644825419764022,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=580": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 580.0,
+      "reflectance": 0.22522586576678377,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=590": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 590.0,
+      "reflectance": 0.2815388473296423,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=600": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 600.0,
+      "reflectance": 0.33305720143432904,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=610": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 610.0,
+      "reflectance": 0.38016969820638685,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=620": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 620.0,
+      "reflectance": 0.421363994246512,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=630": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 630.0,
+      "reflectance": 0.45681639201806645,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=640": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 640.0,
+      "reflectance": 0.48957239107975387,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=650": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.520594229490072,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=660": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 660.0,
+      "reflectance": 0.5473092003432107,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=670": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 670.0,
+      "reflectance": 0.5462612762010225,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=680": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 680.0,
+      "reflectance": 0.5404768484854334,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=690": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.538476828434292,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=16|Nz=100|grid=256|wl=700": {
+      "label": "best",
+      "order": 16,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.5424435038487806,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=400": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 400.0,
+      "reflectance": 0.00028978646248705857,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=410": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 410.0,
+      "reflectance": 0.0002700399114512713,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=420": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 420.0,
+      "reflectance": 0.000252104550207854,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=430": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 430.0,
+      "reflectance": 0.000247025494568047,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=440": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 440.0,
+      "reflectance": 0.00024134732835918326,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=450": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 450.0,
+      "reflectance": 0.00024777800333459333,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=460": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 460.0,
+      "reflectance": 0.0002488848208211168,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=470": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 470.0,
+      "reflectance": 0.0002554331884433498,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=480": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 480.0,
+      "reflectance": 0.0002460703304724461,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=490": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 490.0,
+      "reflectance": 0.00023024299339774817,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=500": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 500.0,
+      "reflectance": 0.0002446329028435576,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=510": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 510.0,
+      "reflectance": 0.0005170222826068445,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=520": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 520.0,
+      "reflectance": 0.0022999095319903066,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=530": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 530.0,
+      "reflectance": 0.01001681982373787,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=540": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 540.0,
+      "reflectance": 0.030745439019479823,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=550": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 550.0,
+      "reflectance": 0.07073642082593798,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=560": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 560.0,
+      "reflectance": 0.12747400998138034,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=570": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 570.0,
+      "reflectance": 0.1973720829594339,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=580": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 580.0,
+      "reflectance": 0.2743886344666841,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=590": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 590.0,
+      "reflectance": 0.3481480325455104,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=600": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 600.0,
+      "reflectance": 0.4168627557307049,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=610": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 610.0,
+      "reflectance": 0.48018263089597535,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=620": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 620.0,
+      "reflectance": 0.5370719341225412,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=630": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 630.0,
+      "reflectance": 0.5866731979839074,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=640": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 640.0,
+      "reflectance": 0.6311413998445533,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=650": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.6717821592041288,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=660": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 660.0,
+      "reflectance": 0.7088670927773857,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=670": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 670.0,
+      "reflectance": 0.7280756759962819,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=680": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 680.0,
+      "reflectance": 0.7442245679607067,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=690": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.7560501013187952,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=100|grid=256|wl=700": {
+      "label": "cone",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.7664830299974303,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=400": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 400.0,
+      "reflectance": 0.0012680388356993396,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=410": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 410.0,
+      "reflectance": 0.0014700978762322626,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=420": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 420.0,
+      "reflectance": 0.001614182469495388,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=430": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 430.0,
+      "reflectance": 0.0016985899003593386,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=440": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 440.0,
+      "reflectance": 0.0016972310000113635,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=450": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 450.0,
+      "reflectance": 0.0016559138957987331,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=460": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 460.0,
+      "reflectance": 0.0015339864623296394,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=470": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 470.0,
+      "reflectance": 0.0013818281213922123,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=480": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 480.0,
+      "reflectance": 0.001306696365408442,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=490": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 490.0,
+      "reflectance": 0.00127140153556249,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=500": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 500.0,
+      "reflectance": 0.0014916676300864194,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=510": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 510.0,
+      "reflectance": 0.002537753893714774,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=520": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 520.0,
+      "reflectance": 0.005261760183956734,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=530": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 530.0,
+      "reflectance": 0.012477149849497132,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=540": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 540.0,
+      "reflectance": 0.029689621071370246,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=550": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 550.0,
+      "reflectance": 0.0622834562203901,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=560": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 560.0,
+      "reflectance": 0.107954642162275,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=570": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 570.0,
+      "reflectance": 0.1635824739851251,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=580": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 580.0,
+      "reflectance": 0.2245652512989131,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=590": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 590.0,
+      "reflectance": 0.2811917594260518,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=600": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 600.0,
+      "reflectance": 0.3326074869878523,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=610": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 610.0,
+      "reflectance": 0.3795155478465443,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=620": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 620.0,
+      "reflectance": 0.42127826688401476,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=630": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 630.0,
+      "reflectance": 0.45740211144062043,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=640": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 640.0,
+      "reflectance": 0.4892688747630507,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=650": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.5179180954318143,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=660": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 660.0,
+      "reflectance": 0.5436538317203221,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=670": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 670.0,
+      "reflectance": 0.5439290399124573,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=680": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 680.0,
+      "reflectance": 0.5422286961331466,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=690": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.5417221434961695,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "best|M=18|Nz=100|grid=256|wl=700": {
+      "label": "best",
+      "order": 18,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.5451502345245485,
+      "origin": "training dense validation",
+      "seconds": null
+    },
+    "cone|M=8|Nz=100|grid=256|wl=400": {
+      "label": "cone",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 400.0,
+      "reflectance": 0.00022499274665656132,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "cone|M=8|Nz=100|grid=256|wl=450": {
+      "label": "cone",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 450.0,
+      "reflectance": 0.00019456338321525285,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "cone|M=8|Nz=100|grid=256|wl=500": {
+      "label": "cone",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 500.0,
+      "reflectance": 0.00028654247087559463,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "cone|M=8|Nz=100|grid=256|wl=550": {
+      "label": "cone",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 550.0,
+      "reflectance": 0.07453381383353175,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "cone|M=8|Nz=100|grid=256|wl=600": {
+      "label": "cone",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 600.0,
+      "reflectance": 0.40920486974654835,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "cone|M=8|Nz=100|grid=256|wl=650": {
+      "label": "cone",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.6517724237089133,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "cone|M=8|Nz=100|grid=256|wl=700": {
+      "label": "cone",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.754536677307087,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "best|M=8|Nz=100|grid=256|wl=400": {
+      "label": "best",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 400.0,
+      "reflectance": 0.0014776928324827707,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "best|M=8|Nz=100|grid=256|wl=450": {
+      "label": "best",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 450.0,
+      "reflectance": 0.001664773652201822,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "best|M=8|Nz=100|grid=256|wl=500": {
+      "label": "best",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 500.0,
+      "reflectance": 0.001422854472851862,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "best|M=8|Nz=100|grid=256|wl=550": {
+      "label": "best",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 550.0,
+      "reflectance": 0.06453888787848006,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "best|M=8|Nz=100|grid=256|wl=600": {
+      "label": "best",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 600.0,
+      "reflectance": 0.3210563363819489,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "best|M=8|Nz=100|grid=256|wl=650": {
+      "label": "best",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.495612951306864,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "best|M=8|Nz=100|grid=256|wl=700": {
+      "label": "best",
+      "order": 8,
+      "slices": 100,
+      "grid": 256,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.5436502765446888,
+      "origin": "training evaluation",
+      "seconds": null
+    },
+    "cone|M=18|Nz=140|grid=384|wl=650": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.6708220098011093,
+      "origin": "fixed-profile solve",
+      "seconds": 256.07036263821647
+    },
+    "cone|M=18|Nz=140|grid=384|wl=690": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.7612997938648253,
+      "origin": "fixed-profile solve",
+      "seconds": 237.12403450906277
+    },
+    "cone|M=18|Nz=140|grid=384|wl=700": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.774277918271839,
+      "origin": "fixed-profile solve",
+      "seconds": 235.15987689606845
+    },
+    "cone|M=18|Nz=140|grid=512|wl=650": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.6781254284607328,
+      "origin": "fixed-profile solve",
+      "seconds": 238.66849553305656
+    },
+    "cone|M=18|Nz=140|grid=512|wl=690": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.7625068456260655,
+      "origin": "fixed-profile solve",
+      "seconds": 236.5617148182355
+    },
+    "cone|M=18|Nz=140|grid=512|wl=700": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.7747194285741298,
+      "origin": "fixed-profile solve",
+      "seconds": 234.03048830199987
+    },
+    "best|M=18|Nz=140|grid=384|wl=650": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.46409607015333626,
+      "origin": "fixed-profile solve",
+      "seconds": 233.74764868803322
+    },
+    "best|M=18|Nz=140|grid=384|wl=690": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.4016098824913956,
+      "origin": "fixed-profile solve",
+      "seconds": 239.5406172410585
+    },
+    "best|M=18|Nz=140|grid=384|wl=700": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.3722202019464954,
+      "origin": "fixed-profile solve",
+      "seconds": 234.07867631409317
+    },
+    "best|M=18|Nz=140|grid=512|wl=650": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.5290264577222218,
+      "origin": "fixed-profile solve",
+      "seconds": 199.25434351433069
+    },
+    "best|M=18|Nz=140|grid=512|wl=690": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.5556986063703634,
+      "origin": "fixed-profile solve",
+      "seconds": 199.91252539819106
+    },
+    "best|M=18|Nz=140|grid=512|wl=700": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.5596793149023072,
+      "origin": "fixed-profile solve",
+      "seconds": 199.19267796631902
+    }
+  }
+}
