@@ -1,0 +1,180 @@
+{
+  "identity": {
+    "schema": 1,
+    "training_signature": "f91c51c41845c87ee7a755beab7299b711d789c1984c8738a5ffed9c900306e2",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 95.0,
+      "lattice": "triangular",
+      "substrate_mode": "semi-infinite",
+      "asr_circle_g": 0.03
+    },
+    "segments": 8,
+    "diameter_margin_nm": 0.1,
+    "best_logits": [
+      -2.2016703419702055,
+      3.5256082525380257,
+      0.6846186484162899,
+      0.656510469940481,
+      0.5773675864350358,
+      0.5930727580518925,
+      -0.2515064245122242,
+      -0.9642751858037846,
+      0.6958202486443298,
+      -0.47429505132337924
+    ],
+    "cone_logits": [
+      -2.953962860677696,
+      2.9004220937496665,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gold_csv_sha256_lf": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99",
+    "solver_sources_sha256_lf": {
+      "rcwa_ext/reduced.py": "d4fc0ae2741ea844995f6e341f20ed8fa2827e5188c2ee97a6d2e77c8820f64c",
+      "rcwa_ext/symmetry.py": "2df62a24a2bddfa736e0e5fff6882ada4ba98b3a97b6ec50790a05d7f586bec2",
+      "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+      "rcwa_ext/nvm.py": "3663a7c23f64d2ed3a4a735e38a28c3fbab53294792c0c038fffa21a4e793fc7",
+      "rcwa_ext/auto.py": "c2e8115fdcda8ea01991728bd9425e8d8b772014e83ad259e63f7050152626fe",
+      "rcwa_ext/asr.py": "523b717b182e28b12fd44ef286092b50247b544a5379519c53bb19bc84b1aa4e",
+      "rcwa_ext/config.py": "7dd514744bb64c78aab0e9da42be1f5f60ea0066ba6921a59649972a5553b51a",
+      "rcwa_ext/fields.py": "4feb128535d8cc0db260083ff52fd0f4215b9abee1580a29fbe6ffbb0fa6db22",
+      "rcwa_ext/asr_maps.py": "3dd35a4714a0f3e1eb2785b2e588464263c2692300c5545e19684049fde23ed4",
+      "rcwa_ext/scattering.py": "72fa7c523a84705b631a4264e235e6f874055d39c2bf4927387d388021a5de25",
+      "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+      "studies/gold_motheye2/optimize_adam.py": "34365c7b55f9691f1d0293af9c1b85ad01e993a4d10ec6c2c350ede533e08367",
+      "studies/gold_motheye/converge.py": "09d331f5ef48f7fc3e50eeb4850dda4dcfe009caa9eb4569400186c3667dbbd4",
+      "studies/shared/gold_dispersion.py": "9e2be950cc9ecc0bb02548e0b6035dc7648197507b238a4b4f40736ab43b8297"
+    }
+  },
+  "cases": {
+    "cone|M=18|Nz=140|grid=384|wl=650": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.6794977629238775,
+      "origin": "fixed-profile solve",
+      "seconds": 209.93188713071868
+    },
+    "cone|M=18|Nz=140|grid=384|wl=690": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.764005603683291,
+      "origin": "fixed-profile solve",
+      "seconds": 200.26830337708816
+    },
+    "cone|M=18|Nz=140|grid=384|wl=700": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.776255580785615,
+      "origin": "fixed-profile solve",
+      "seconds": 198.10918396292254
+    },
+    "cone|M=18|Nz=140|grid=512|wl=650": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.6781254284607328,
+      "origin": "fixed-profile solve",
+      "seconds": 202.43010259233415
+    },
+    "cone|M=18|Nz=140|grid=512|wl=690": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.7625068456260655,
+      "origin": "fixed-profile solve",
+      "seconds": 200.46011412609369
+    },
+    "cone|M=18|Nz=140|grid=512|wl=700": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.7747194285741298,
+      "origin": "fixed-profile solve",
+      "seconds": 199.95054754894227
+    },
+    "best|M=18|Nz=140|grid=384|wl=650": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.5317756165131554,
+      "origin": "fixed-profile solve",
+      "seconds": 195.43790683988482
+    },
+    "best|M=18|Nz=140|grid=384|wl=690": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.561630502202202,
+      "origin": "fixed-profile solve",
+      "seconds": 195.54220131784678
+    },
+    "best|M=18|Nz=140|grid=384|wl=700": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 384,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.5660024944342479,
+      "origin": "fixed-profile solve",
+      "seconds": 196.15690094791353
+    },
+    "best|M=18|Nz=140|grid=512|wl=650": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.5290264577222218,
+      "origin": "fixed-profile solve",
+      "seconds": 199.36215230682865
+    },
+    "best|M=18|Nz=140|grid=512|wl=690": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.5556986063703634,
+      "origin": "fixed-profile solve",
+      "seconds": 200.13682514894754
+    },
+    "best|M=18|Nz=140|grid=512|wl=700": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 512,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.5596793149023072,
+      "origin": "fixed-profile solve",
+      "seconds": 199.40034144977108
+    }
+  }
+}
