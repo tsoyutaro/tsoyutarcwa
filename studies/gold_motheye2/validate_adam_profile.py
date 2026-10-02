@@ -29,6 +29,22 @@ def source_matches(saved, path):
                      for value in (raw, lf, lf.replace(b"\n", b"\r\n"))}
 
 
+def memory_only_identity_upgrade(previous, current):
+    """Accept only the tested auxiliary-retention change, with all else equal."""
+    path = "studies/gold_motheye2/optimize_adam.py"
+    before = "34365c7b55f9691f1d0293af9c1b85ad01e993a4d10ec6c2c350ede533e08367"
+    after = "57544287841e1a229808eb8d884fd65e0407b021ae53ab7820f3d4430ace5831"
+    if not isinstance(previous, dict):
+        return False
+    if previous.get("solver_sources_sha256_lf", {}).get(path) != before:
+        return False
+    if current.get("solver_sources_sha256_lf", {}).get(path) != after:
+        return False
+    upgraded = json.loads(json.dumps(previous))
+    upgraded["solver_sources_sha256_lf"][path] = after
+    return upgraded == current
+
+
 def integer_list(text, minimum):
     values = sorted(set(int(item) for item in text.split(",")))
     if not values or values[0] < minimum:
@@ -94,6 +110,8 @@ def main():
     parser.add_argument("--mean-tolerance", type=float, default=0.001, help="Absolute reflectance fraction, on the requested wavelength range")
     parser.add_argument("--max-tolerance", type=float, default=0.005, help="Absolute reflectance fraction at each sampled wavelength")
     parser.add_argument("--prepare-only", action="store_true")
+    parser.add_argument("--retain-auxiliary", action="store_true",
+                        help="Keep per-layer diagnostic/field arrays for comparison (uses more memory)")
     args = parser.parse_args()
     root = args.root.resolve()
     if not (root/"rcwa_solver_auto.py").is_file():
@@ -139,7 +157,16 @@ def main():
     if checkpoint_path.exists():
         document = json.loads(checkpoint_path.read_text(encoding="utf-8"))
         if document.get("identity") != identity:
-            raise RuntimeError("Validation profile, material or solver differs. Use a new --output-dir.")
+            if not memory_only_identity_upgrade(document.get("identity"), identity):
+                raise RuntimeError("Validation profile, material or solver differs. Use a new --output-dir.")
+            document.setdefault("compatible_source_upgrades", []).append({
+                "reason": "tested reflection-only auxiliary-memory release",
+                "before": document["identity"]["solver_sources_sha256_lf"][
+                    "studies/gold_motheye2/optimize_adam.py"],
+                "after": identity["solver_sources_sha256_lf"][
+                    "studies/gold_motheye2/optimize_adam.py"]})
+            document["identity"] = identity
+            print("Reusing cached optical values after the verified memory-only source change.", flush=True)
     else:
         document = {"identity": identity, "cases": {}}
     cases = document["cases"]
@@ -197,6 +224,7 @@ def main():
     persist()
     print(f"Fixed best profile: step={best['step']}; {len(planned)} requested cases, {len(missing)} new solves; {len(cases)-seeded_before} imported cases.", flush=True)
     print(f"Results: {output}", flush=True)
+    print(f"Retain auxiliary arrays: {args.retain_auxiliary}", flush=True)
     if args.prepare_only:
         return 0
     if not missing:
@@ -212,13 +240,20 @@ def main():
     for label,m,n,g,w in missing:
         print(f"solve: {case_key(label,m,n,g,w)}", flush=True)
         started = time.perf_counter()
+        if device.type == "cuda":
+            torch.cuda.reset_peak_memory_stats(device)
         local = {**config, "order": m, "slices": n, "grid": g}
         logits = best_logits if label == "best" else cone_logits
         with torch.enable_grad():
             parameters = torch.tensor(logits, dtype=torch.float64, device=device)
             radii = shared.radius_tensor(parameters, n, local, torch)
-            reflectance = shared.reflectance_tensor(w, radii, local, gold_model, device, torch)
+            reflectance = shared.reflectance_tensor(
+                w, radii, local, gold_model, device, torch,
+                discard_auxiliary=not args.retain_auxiliary)
             value = float(reflectance.detach().cpu())
+        if device.type == "cuda":
+            print(f"CUDA peak: allocated={torch.cuda.max_memory_allocated(device)/2**30:.3f} GiB; "
+                  f"reserved={torch.cuda.max_memory_reserved(device)/2**30:.3f} GiB", flush=True)
         del parameters, radii, reflectance
         gc.collect()
         add(label,m,n,g,w,value,"fixed-profile solve",time.perf_counter()-started)

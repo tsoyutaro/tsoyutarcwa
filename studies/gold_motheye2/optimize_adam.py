@@ -206,7 +206,26 @@ def save_profile(output: Path, name: str, logits: list[float], config: dict) -> 
     (output / f"{name}_profile.svg").write_text("\n".join(lines), encoding="utf-8")
 
 
-def reflectance_tensor(wavelength_nm, radii, config, gold_model, device, torch):
+def _discard_reflectance_auxiliary(simulation):
+    """Release diagnostics and field-reconstruction data in an R-only solve.
+
+    Keep Cartesian/reduced modes, propagation and cascade state. Autograd
+    keeps any tensors needed by a differentiable objective independently of
+    these diagnostic containers.
+    """
+    if simulation.store_mode_couplings or simulation.field_regions != "none":
+        raise RuntimeError("Cannot discard auxiliary data in a field-enabled solve.")
+    for name in ("asr_mappings", "asr_material_tensors", "asr_T_matrices",
+                 "asr_Tz_matrices", "asr_condition_numbers", "E_eigvec_uv",
+                 "H_eigvec_uv"):
+        getattr(simulation, name).clear()
+    simulation._asr_slot_by_layer.clear()
+    simulation._asr_field_context_by_layer.clear()
+    simulation._physical_material_by_layer.clear()
+
+
+def reflectance_tensor(wavelength_nm, radii, config, gold_model, device, torch,
+                       *, discard_auxiliary=False):
     """Same measured-Au RCWA and flux definition as converge.py, with gradients."""
     from rcwa_solver_auto import (ASROptions, AutoRCWA, Circle, GroupTheoryOptions,
                                   Lattice, LayerSpec, Material, OutputSpec)
@@ -236,6 +255,8 @@ def reflectance_tensor(wavelength_nm, radii, config, gold_model, device, torch):
             method="matched-asr", factorization_rules=True,
             label=f"moth-eye-{index:03d}",
         ))
+        if discard_auxiliary:
+            _discard_reflectance_auxiliary(simulation)
     simulation.solve_global_smatrix()
     incident = _zero_order_x_source(simulation)
     reflected = simulation.S[1] @ incident
