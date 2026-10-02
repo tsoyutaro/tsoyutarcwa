@@ -50,7 +50,7 @@
       "rcwa_ext/asr_maps.py": "3dd35a4714a0f3e1eb2785b2e588464263c2692300c5545e19684049fde23ed4",
       "rcwa_ext/scattering.py": "72fa7c523a84705b631a4264e235e6f874055d39c2bf4927387d388021a5de25",
       "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
-      "studies/gold_motheye2/optimize_adam.py": "34365c7b55f9691f1d0293af9c1b85ad01e993a4d10ec6c2c350ede533e08367",
+      "studies/gold_motheye2/optimize_adam.py": "57544287841e1a229808eb8d884fd65e0407b021ae53ab7820f3d4430ace5831",
       "studies/gold_motheye/converge.py": "09d331f5ef48f7fc3e50eeb4850dda4dcfe009caa9eb4569400186c3667dbbd4",
       "studies/shared/gold_dispersion.py": "9e2be950cc9ecc0bb02548e0b6035dc7648197507b238a4b4f40736ab43b8297"
     }
@@ -175,6 +175,73 @@
       "reflectance": 0.5596793149023072,
       "origin": "fixed-profile solve",
       "seconds": 199.40034144977108
+    },
+    "cone|M=18|Nz=140|grid=768|wl=650": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 768,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.6797437085554753,
+      "origin": "fixed-profile solve",
+      "seconds": 272.7520735198632
+    },
+    "cone|M=18|Nz=140|grid=768|wl=690": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 768,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.7645405417309353,
+      "origin": "fixed-profile solve",
+      "seconds": 254.35490665398538
+    },
+    "cone|M=18|Nz=140|grid=768|wl=700": {
+      "label": "cone",
+      "order": 18,
+      "slices": 140,
+      "grid": 768,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.7770234230323043,
+      "origin": "fixed-profile solve",
+      "seconds": 248.6788606471382
+    },
+    "best|M=18|Nz=140|grid=768|wl=650": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 768,
+      "wavelength_nm": 650.0,
+      "reflectance": 0.5298977706060379,
+      "origin": "fixed-profile solve",
+      "seconds": 253.94557225890458
+    },
+    "best|M=18|Nz=140|grid=768|wl=690": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 768,
+      "wavelength_nm": 690.0,
+      "reflectance": 0.5587510788616417,
+      "origin": "fixed-profile solve",
+      "seconds": 249.92293190490454
+    },
+    "best|M=18|Nz=140|grid=768|wl=700": {
+      "label": "best",
+      "order": 18,
+      "slices": 140,
+      "grid": 768,
+      "wavelength_nm": 700.0,
+      "reflectance": 0.5651493447190058,
+      "origin": "fixed-profile solve",
+      "seconds": 256.43625204078853
     }
-  }
+  },
+  "compatible_source_upgrades": [
+    {
+      "reason": "tested reflection-only auxiliary-memory release",
+      "before": "34365c7b55f9691f1d0293af9c1b85ad01e993a4d10ec6c2c350ede533e08367",
+      "after": "57544287841e1a229808eb8d884fd65e0407b021ae53ab7820f3d4430ace5831"
+    }
+  ]
 }

@@ -1,5 +1,58 @@
 {
   "mean_tolerance": 0.001,
   "max_tolerance": 0.005,
-  "comparisons": []
+  "comparisons": [
+    {
+      "label": "cone",
+      "axis": "grid",
+      "before": {
+        "order": 18,
+        "slices": 140,
+        "grid": 512
+      },
+      "after": {
+        "order": 18,
+        "slices": 140,
+        "grid": 768
+      },
+      "wavelengths_nm": [
+        650.0,
+        690.0,
+        700.0
+      ],
+      "max_absolute_delta": 0.0023039944581745297,
+      "max_delta_wavelength_nm": 700.0,
+      "band_mean_before": 0.7299755370547389,
+      "band_mean_after": 0.7318700965908883,
+      "band_mean_delta": 0.001894559536149365,
+      "complete_requested_wavelengths": true,
+      "within_requested_tolerance_at_sampled_wavelengths": false
+    },
+    {
+      "label": "best",
+      "axis": "grid",
+      "before": {
+        "order": 18,
+        "slices": 140,
+        "grid": 512
+      },
+      "after": {
+        "order": 18,
+        "slices": 140,
+        "grid": 768
+      },
+      "wavelengths_nm": [
+        650.0,
+        690.0,
+        700.0
+      ],
+      "max_absolute_delta": 0.0054700298166986405,
+      "max_delta_wavelength_nm": 700.0,
+      "band_mean_before": 0.5454278177643012,
+      "band_mean_after": 0.5478495821451365,
+      "band_mean_delta": 0.0024217643808353007,
+      "complete_requested_wavelengths": true,
+      "within_requested_tolerance_at_sampled_wavelengths": false
+    }
+  ]
 }
