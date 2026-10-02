@@ -154,7 +154,10 @@ def main():
 
     predecessor_sources = {"core_sha256": root/"studies/gold_motheye/converge.py",
                            "asr_sha256": root/"rcwa_ext/asr.py", "auto_sha256": root/"rcwa_ext/auto.py",
+                           "asr_maps_sha256": root/"rcwa_ext/asr_maps.py",
                            "profile_source_sha256": root/"studies/gold_motheye2/optimize_adam.py"}
+    # Older training configs did not fingerprint the coordinate-map module.
+    # Their optical values cannot be reused safely after a map correction.
     seed_compatible = all(source_matches(config.get(key, ""), path) for key,path in predecessor_sources.items())
     seeded_before = len(cases)
     if seed_compatible:

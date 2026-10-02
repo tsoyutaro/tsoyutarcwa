@@ -1225,10 +1225,21 @@ class _ASRMappingMixin:
 
         # h(q)=L/2 is exactly the Wigner--Seitz boundary.  It is invariant
         # under all six rotations and six reflections of D6.
-        hex_radius = torch.maximum(
-            torch.maximum(torch.abs(q1 + 0.5 * q2), torch.abs(0.5 * q1 + q2)),
-            torch.abs(0.5 * (q1 - q2)),
+        support_values = torch.stack(
+            (torch.abs(q1 + 0.5 * q2), torch.abs(0.5 * q1 + q2),
+             torch.abs(0.5 * (q1 - q2))), dim=0
         )
+        hex_radius = torch.amax(support_values, dim=0)
+        # On a hexagonal sector boundary the maximum has multiple slopes.
+        # Mathematically tied supports can differ by roundoff on grids such
+        # as 384, causing maximum's winning-branch derivative to break D6.
+        # Use the symmetric subgradient for ties within cell-scale roundoff;
+        # retain the exact forward maximum and the mixed radius derivatives.
+        tie_tolerance = 64.0 * torch.finfo(torch.float64).eps * lx
+        ties = (hex_radius.unsqueeze(0) - support_values <= tie_tolerance).detach()
+        weights = ties.to(support_values.dtype) / ties.sum(dim=0, keepdim=True)
+        averaged_radius = torch.sum(weights * support_values, dim=0)
+        hex_radius = hex_radius.detach() + (averaged_radius - averaged_radius.detach())
         rho = hex_radius / radius
         active = rho > 64.0 * torch.finfo(torch.float64).eps
         safe_rho = torch.clamp(rho, min=64.0 * torch.finfo(torch.float64).eps)

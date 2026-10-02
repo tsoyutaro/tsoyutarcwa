@@ -35,12 +35,12 @@ def numpy_reference(n, radius, slope):
     gradients = [np.stack([np.sign(t)*a, np.sign(t)*b])
                  for t,(a,b) in zip(terms, derivatives)]
 
-    def maximum(a, da, b, db):
-        return np.maximum(a,b), np.where(
-            (a>b)[None], da, np.where((a<b)[None], db, .5*(da+db)))
-
-    h, dh = maximum(values[0], gradients[0], values[1], gradients[1])
-    h, dh = maximum(h, dh, values[2], gradients[2])
+    # Independently evaluate the symmetric sector-boundary subgradient.
+    # The coordinates still use the exact support maximum.
+    h = np.maximum.reduce(values)
+    ties = h[None]-np.stack(values) <= 64*np.finfo(np.float64).eps
+    weights = ties/ties.sum(axis=0, keepdims=True)
+    dh = np.sum(weights[:,None]*np.stack(gradients), axis=0)
     floor = 64*np.finfo(np.float64).eps
     norm = np.sqrt(np.maximum(q1*q1+q2*q2+q1*q2, floor**2))
     dn = np.stack([(q1+.5*q2)/norm, (q2+.5*q1)/norm])
