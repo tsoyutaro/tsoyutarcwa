@@ -89,6 +89,45 @@ def _can_migrate_checkpoint(checkpoint: dict, saved: dict | None,
             json.dumps(current_fixed, sort_keys=True))
 
 
+def _load_initial_profile(run: Path, current: dict) -> dict:
+    """Load parameters only; optical values and Adam moments are not reused."""
+    run = run.resolve()
+    saved = json.loads((run / "config.json").read_text(encoding="utf-8"))
+    checkpoint = json.loads((run / "checkpoint.json").read_text(encoding="utf-8"))
+    if saved.get("version") != VERSION or saved.get("training_mode") != "full-band-gradient":
+        raise ValueError("--initial-run-dir must be a saved full-band Adam run.")
+    if checkpoint.get("signature") not in {_signature(saved), _previous_signature(saved)}:
+        raise ValueError("The initial run's config and checkpoint do not match.")
+    for key in ("geometry", "segments", "diameter_margin_nm", "logit_limit", "gold_csv_sha256_lf"):
+        if saved.get(key) != current.get(key):
+            raise ValueError(f"Initial profile has incompatible {key}.")
+    # Both known versions use the same radius parameterization. Their only
+    # difference is the optional release of reflection-only auxiliary data.
+    known_profile_sources = {
+        "34365c7b55f9691f1d0293af9c1b85ad01e993a4d10ec6c2c350ede533e08367",
+        "57544287841e1a229808eb8d884fd65e0407b021ae53ab7820f3d4430ace5831",
+    }
+    if (not _source_hash_matches(saved.get("profile_source_sha256", ""), HERE / "optimize_adam.py")
+            and not (saved.get("profile_source_sha256") in known_profile_sources
+                     and shared.csv_data_hash(HERE / "optimize_adam.py") in known_profile_sources)):
+        raise ValueError("Initial profile parameterization source differs.")
+    best = checkpoint.get("best")
+    if best is None:
+        raise ValueError("The initial run has no saved best profile.")
+    logits = [float(value) for value in best["logits"]]
+    if (len(logits) != current["segments"] + 2 or
+            any(not math.isfinite(value) or abs(value) > current["logit_limit"] for value in logits)):
+        raise ValueError("The initial run has invalid profile parameters.")
+    return {"source_run_dir": str(run), "source_training_signature": checkpoint["signature"],
+            "source_best_step": best["step"], "logits": logits}
+
+
+def _initial_checkpoint(signature: str, logits: list[float]) -> dict:
+    return {"signature": signature, "step": 0, "logits": list(logits),
+            "m": [0.0] * len(logits), "v": [0.0] * len(logits), "best": None,
+            "history": [], "evaluations": [], "pending": None, "pending_update": None}
+
+
 def _finish_evaluation(output: Path, checkpoint: dict, config: dict,
                        gold_model, device, torch) -> None:
     pending = checkpoint.get("pending")
@@ -254,6 +293,8 @@ def main() -> int:
     parser.add_argument("--device", choices=("cuda", "cpu", "auto"), default="cuda")
     parser.add_argument("--gold-csv", type=Path, default=shared.DEFAULT_GOLD_CSV)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--initial-run-dir", type=Path,
+                        help="Start a new run from this full-band run's best shape, with fresh Adam state")
     parser.add_argument("--wavelengths", default="400:700:50")
     parser.add_argument("--slices", type=int, default=100)
     parser.add_argument("--order", type=int, default=8)
@@ -312,6 +353,23 @@ def main() -> int:
         "requested_steps": args.steps, "eval_every": args.eval_every,
     }
     output = args.output_dir.resolve()
+    if args.initial_run_dir is not None:
+        if output == args.initial_run_dir.resolve():
+            parser.error("Use a separate --output-dir for a run initialized from a saved profile.")
+        try:
+            config["initial_profile"] = _load_initial_profile(args.initial_run_dir, config)
+        except (ValueError, KeyError, OSError) as error:
+            parser.error(str(error))
+        # New stages fingerprint the coordinate map and all solver modules,
+        # in addition to the legacy compatibility fields above.
+        source_paths = sorted((ROOT / "rcwa_ext").glob("*.py")) + [
+            ROOT / "rcwa_solver_auto.py", HERE / "optimize_adam.py",
+            ROOT / "studies/gold_motheye/converge.py",
+            ROOT / "studies/shared/gold_dispersion.py"]
+        config["solver_sources_sha256_lf"] = {
+            str(path.relative_to(ROOT)).replace("\\", "/"): shared.csv_data_hash(path)
+            for path in source_paths}
+        config["optimizer_source_sha256_lf"] = shared.csv_data_hash(Path(__file__))
     output.mkdir(parents=True, exist_ok=True)
     checkpoint_path = output / "checkpoint.json"
     signature = _signature(config)
@@ -330,13 +388,13 @@ def main() -> int:
         if args.steps < checkpoint["step"] and not args.prepare_only:
             raise RuntimeError("--steps is below the completed update count.")
     else:
-        checkpoint = {"signature": signature, "step": 0,
-                      "logits": cone_logits, "m": [0.0]*len(cone_logits),
-                      "v": [0.0]*len(cone_logits), "best": None,
-                      "history": [], "evaluations": [], "pending": None,
-                      "pending_update": None}
+        initial_logits = config.get("initial_profile", {}).get("logits", cone_logits)
+        checkpoint = _initial_checkpoint(signature, initial_logits)
     shared.write_json(output / "config.json", config)
     shared.save_profile(output, "cone", cone_logits, config)
+    if "initial_profile" in config:
+        shared.save_profile(output, "initial", config["initial_profile"]["logits"], config)
+    shared.write_json(checkpoint_path, checkpoint)
     if args.prepare_only:
         print(f"Prepared full-band run in {output}")
         return 0
@@ -367,6 +425,10 @@ def main() -> int:
                               "mean_reflectance": cone["mean_reflectance"]}
         shared.write_json(checkpoint_path, checkpoint)
     _finish_evaluation(output, checkpoint, config, gold_model, device, torch)
+    if "initial_profile" in config and checkpoint["step"] == 0 and checkpoint["logits"] != cone_logits:
+        # Re-evaluate the starting shape with this stage's wavelength weights
+        # before any update, so it remains eligible as the best candidate.
+        _candidate(output, checkpoint, config, gold_model, device, torch)
     if checkpoint["step"] > 0 and (
             checkpoint["step"] % args.eval_every == 0 or checkpoint["step"] == args.steps):
         _candidate(output, checkpoint, config, gold_model, device, torch)
