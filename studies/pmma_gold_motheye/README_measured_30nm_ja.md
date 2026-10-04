@@ -59,7 +59,7 @@ python studies/pmma_gold_motheye/run_pmma_gold_30nm.py \
   --output-dir studies/pmma_gold_motheye/results/measured_30nm_order
 ```
 
-結果は指定先の `report.json`、`spectrum.csv`、再開用 `checkpoint.json` です。単一Mの結果は `single_order_unverified` で、収束済みを意味しません。次数収束が通っても形状分割数とASR格子の収束確認が別途必要です。PMMA表の開始波長は404.7 nmのため、従来の400 nm点はこの表だけでは計算できません。
+結果は指定先の `report.json`、`spectrum.csv`、再開用 `checkpoint.json` です。単一Mの結果は `single_order_unverified` で、収束済みを意味しません。次数収束が通っても形状分割数とASR格子の収束確認が別途必要です。PMMA表の開始波長は404.7 nmのため、従来の400 nm点はこの表だけでは計算できません。M=20、100層、400–700 nmの101点を計算する場合は、400 nm付近の短い外挿を明示的に行う `run_spectrum_M20_400_700_101.py` を使います。条件と所要時間は `README_spectrum_M20_101_ja.md` を参照してください。
 
 ## 高次数でOOMになった場合
 

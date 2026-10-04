@@ -1,0 +1,855 @@
+{
+  "geometry_nm": {
+    "period": 200.0,
+    "height": 500.0,
+    "pmma_tip_diameter": 10.0,
+    "pmma_base_diameter": 130.0,
+    "gold_radial_shell_thickness": 30.0,
+    "gold_top_disk_thickness": 30.0,
+    "gold_top_disk_diameter": 70.0,
+    "minimum_base_gap_between_gold_shells": 10.0,
+    "gold_on_flat_valleys": true,
+    "gold_valley_thickness": 30.0,
+    "profile_power": 1.0,
+    "substrate": "semi-infinite PMMA"
+  },
+  "numerics": {
+    "orders": [
+      20
+    ],
+    "profile_slices": 100,
+    "patterned_layers": 101,
+    "asr_grid": [
+      256,
+      256
+    ],
+    "radial_mapping": "outer",
+    "polarization": "x",
+    "incidence": "normal from air",
+    "lattice": "triangular",
+    "cascade": "redheffer",
+    "symmetry_reduction": "d6-source",
+    "dtype": "complex128",
+    "tolerance": 0.005,
+    "device_request": "cuda"
+  },
+  "material_csv": {
+    "pmma": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_gold_motheye\\results\\measured_30nm_Nz100_M20_400_700_101pt\\Szczurowski_linear_to_400nm.csv",
+    "pmma_sha256": "1e0915404a0dc05ce4ff273f210e1061216375691d53b439465b060a17864c82",
+    "gold": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_gold_motheye\\data\\au_measured_nk.csv",
+    "gold_sha256": "46830fb82a04122263c2099f5839e8efaf83751f8b7a4c60f80a27ba0912f6b5",
+    "wavelength_unit_in_input": "micrometre",
+    "interpolation": "linear in n and k; no extrapolation"
+  },
+  "materials_at_wavelengths": [
+    {
+      "wavelength_nm": 400.0,
+      "pmma_n": 1.50583864071948,
+      "gold_n": 1.4683647798742139,
+      "gold_k": 1.9529811320754717,
+      "gold_epsilon_real": -1.6580401754677423,
+      "gold_epsilon_imag": 5.735377420196986
+    },
+    {
+      "wavelength_nm": 403.0,
+      "pmma_n": 1.5054225699025992,
+      "gold_n": 1.4664779874213836,
+      "gold_k": 1.9541132075471699,
+      "gold_epsilon_real": -1.6680007403188166,
+      "gold_epsilon_imag": 5.7313280075946365
+    },
+    {
+      "wavelength_nm": 406.0,
+      "pmma_n": 1.5050064990857177,
+      "gold_n": 1.4645911949685535,
+      "gold_k": 1.9552452830188678,
+      "gold_epsilon_real": -1.6779567483881168,
+      "gold_epsilon_imag": 5.727270051026462
+    },
+    {
+      "wavelength_nm": 409.0,
+      "pmma_n": 1.5045904282688354,
+      "gold_n": 1.4627044025157232,
+      "gold_k": 1.956377358490566,
+      "gold_epsilon_real": -1.6879081996756455,
+      "gold_epsilon_imag": 5.723203550492464
+    },
+    {
+      "wavelength_nm": 412.0,
+      "pmma_n": 1.50417804113785,
+      "gold_n": 1.4608176100628931,
+      "gold_k": 1.957509433962264,
+      "gold_epsilon_real": -1.697855094181401,
+      "gold_epsilon_imag": 5.719128505992643
+    },
+    {
+      "wavelength_nm": 415.0,
+      "pmma_n": 1.50378407243635,
+      "gold_n": 1.4590116279069767,
+      "gold_k": 1.9570116279069767,
+      "gold_epsilon_real": -1.7011795813953485,
+      "gold_epsilon_imag": 5.710605442130881
+    },
+    {
+      "wavelength_nm": 418.0,
+      "pmma_n": 1.50339010373485,
+      "gold_n": 1.457267441860465,
+      "gold_k": 1.955267441860465,
+      "gold_epsilon_real": -1.699442372093023,
+      "gold_epsilon_imag": 5.69869516630611
+    },
+    {
+      "wavelength_nm": 421.0,
+      "pmma_n": 1.5030144739361746,
+      "gold_n": 1.4555232558139535,
+      "gold_k": 1.9535232558139535,
+      "gold_epsilon_real": -1.6977051627906974,
+      "gold_epsilon_imag": 5.686797059221201
+    },
+    {
+      "wavelength_nm": 424.0,
+      "pmma_n": 1.5026408817933687,
+      "gold_n": 1.4537790697674418,
+      "gold_k": 1.9517790697674418,
+      "gold_epsilon_real": -1.6959679534883718,
+      "gold_epsilon_imag": 5.674911120876149
+    },
+    {
+      "wavelength_nm": 427.0,
+      "pmma_n": 1.5022799252813648,
+      "gold_n": 1.4520348837209303,
+      "gold_k": 1.9500348837209303,
+      "gold_epsilon_real": -1.6942307441860467,
+      "gold_epsilon_imag": 5.663037351270957
+    },
+    {
+      "wavelength_nm": 430.0,
+      "pmma_n": 1.5019252865847617,
+      "gold_n": 1.4502906976744185,
+      "gold_k": 1.9482906976744185,
+      "gold_epsilon_real": -1.6924935348837211,
+      "gold_epsilon_imag": 5.651175750405624
+    },
+    {
+      "wavelength_nm": 433.0,
+      "pmma_n": 1.501577762263694,
+      "gold_n": 1.441421568627451,
+      "gold_k": 1.9438333333333333,
+      "gold_epsilon_real": -1.7007918892733564,
+      "gold_epsilon_imag": 5.60376658496732
+    },
+    {
+      "wavelength_nm": 436.0,
+      "pmma_n": 1.5012409095059294,
+      "gold_n": 1.4311274509803922,
+      "gold_k": 1.9388333333333332,
+      "gold_epsilon_real": -1.7109489134948088,
+      "gold_epsilon_imag": 5.549435212418301
+    },
+    {
+      "wavelength_nm": 439.0,
+      "pmma_n": 1.5009062680287117,
+      "gold_n": 1.4208333333333334,
+      "gold_k": 1.9338333333333333,
+      "gold_epsilon_real": -1.7209439999999998,
+      "gold_epsilon_imag": 5.495309722222222
+    },
+    {
+      "wavelength_nm": 442.0,
+      "pmma_n": 1.50058599987505,
+      "gold_n": 1.4105392156862746,
+      "gold_k": 1.9288333333333334,
+      "gold_epsilon_real": -1.7307771487889274,
+      "gold_epsilon_imag": 5.441390114379086
+    },
+    {
+      "wavelength_nm": 445.0,
+      "pmma_n": 1.5002657317213883,
+      "gold_n": 1.4002450980392156,
+      "gold_k": 1.9238333333333333,
+      "gold_epsilon_real": -1.7404483598615919,
+      "gold_epsilon_imag": 5.387676388888888
+    },
+    {
+      "wavelength_nm": 448.0,
+      "pmma_n": 1.4999588838552793,
+      "gold_n": 1.3899509803921568,
+      "gold_k": 1.9188333333333334,
+      "gold_epsilon_real": -1.7499576332179934,
+      "gold_epsilon_imag": 5.334168545751634
+    },
+    {
+      "wavelength_nm": 451.0,
+      "pmma_n": 1.499654100648794,
+      "gold_n": 1.379658536585366,
+      "gold_k": 1.9136829268292683,
+      "gold_epsilon_real": -1.7587246668649612,
+      "gold_epsilon_imag": 5.280457972635337
+    },
+    {
+      "wavelength_nm": 454.0,
+      "pmma_n": 1.499358003408406,
+      "gold_n": 1.3694146341463416,
+      "gold_k": 1.904170731707317,
+      "gold_epsilon_real": -1.750569735276621,
+      "gold_epsilon_imag": 5.215198531826294
+    },
+    {
+      "wavelength_nm": 457.0,
+      "pmma_n": 1.4990676968120824,
+      "gold_n": 1.3591707317073172,
+      "gold_k": 1.8946585365853659,
+      "gold_epsilon_real": -1.742385892325996,
+      "gold_epsilon_imag": 5.150328859012493
+    },
+    {
+      "wavelength_nm": 460.0,
+      "pmma_n": 1.4987818752372448,
+      "gold_n": 1.3489268292682928,
+      "gold_k": 1.8851463414634146,
+      "gold_epsilon_real": -1.7341731380130874,
+      "gold_epsilon_imag": 5.085848954193932
+    },
+    {
+      "wavelength_nm": 463.0,
+      "pmma_n": 1.4985050237053792,
+      "gold_n": 1.3386829268292684,
+      "gold_k": 1.8756341463414634,
+      "gold_epsilon_real": -1.7259314723378938,
+      "gold_epsilon_imag": 5.021758817370613
+    },
+    {
+      "wavelength_nm": 466.0,
+      "pmma_n": 1.4982294334701838,
+      "gold_n": 1.328439024390244,
+      "gold_k": 1.8661219512195122,
+      "gold_epsilon_real": -1.717660895300416,
+      "gold_epsilon_imag": 4.958058448542534
+    },
+    {
+      "wavelength_nm": 469.0,
+      "pmma_n": 1.497965194905022,
+      "gold_n": 1.3181951219512196,
+      "gold_k": 1.856609756097561,
+      "gold_epsilon_real": -1.709361406900654,
+      "gold_epsilon_imag": 4.894747847709697
+    },
+    {
+      "wavelength_nm": 472.0,
+      "pmma_n": 1.4977009563398602,
+      "gold_n": 1.3033877551020405,
+      "gold_k": 1.8486081632653062,
+      "gold_epsilon_real": -1.718532501141192,
+      "gold_epsilon_imag": 4.818906487963348
+    },
+    {
+      "wavelength_nm": 475.0,
+      "pmma_n": 1.4974466548937058,
+      "gold_n": 1.2703265306122449,
+      "gold_k": 1.8466489795918366,
+      "gold_epsilon_real": -1.7963829594502285,
+      "gold_epsilon_imag": 4.69169438300708
+    },
+    {
+      "wavelength_nm": 478.0,
+      "pmma_n": 1.4971943408713528,
+      "gold_n": 1.237265306122449,
+      "gold_k": 1.8446897959183672,
+      "gold_epsilon_real": -1.8720550054310698,
+      "gold_epsilon_imag": 4.564741370095793
+    },
+    {
+      "wavelength_nm": 481.0,
+      "pmma_n": 1.496948373146,
+      "gold_n": 1.2042040816326531,
+      "gold_k": 1.8427306122448979,
+      "gold_epsilon_real": -1.9455486390837144,
+      "gold_epsilon_imag": 4.4380474492294875
+    },
+    {
+      "wavelength_nm": 484.0,
+      "pmma_n": 1.4967072584712942,
+      "gold_n": 1.1711428571428573,
+      "gold_k": 1.8407714285714285,
+      "gold_epsilon_real": -2.0168638604081623,
+      "gold_epsilon_imag": 4.311612620408163
+    },
+    {
+      "wavelength_nm": 487.0,
+      "pmma_n": 1.4964693025740368,
+      "gold_n": 1.1380816326530614,
+      "gold_k": 1.8388122448979591,
+      "gold_epsilon_real": -2.086000669404414,
+      "gold_epsilon_imag": 4.18543688363182
+    },
+    {
+      "wavelength_nm": 490.0,
+      "pmma_n": 1.4962387171574927,
+      "gold_n": 1.1050204081632655,
+      "gold_k": 1.8368530612244898,
+      "gold_epsilon_real": -2.1529590660724693,
+      "gold_epsilon_imag": 4.0595202389004585
+    },
+    {
+      "wavelength_nm": 493.0,
+      "pmma_n": 1.4960084620490044,
+      "gold_n": 1.0719591836734697,
+      "gold_k": 1.8348938775510204,
+      "gold_epsilon_real": -2.2177390504123276,
+      "gold_epsilon_imag": 3.9338626862140784
+    },
+    {
+      "wavelength_nm": 496.0,
+      "pmma_n": 1.4957877858741366,
+      "gold_n": 1.0383200000000006,
+      "gold_k": 1.8339919999999996,
+      "gold_epsilon_real": -2.2854182336639974,
+      "gold_epsilon_imag": 3.8085411468800014
+    },
+    {
+      "wavelength_nm": 499.0,
+      "pmma_n": 1.495567109699269,
+      "gold_n": 0.9879200000000005,
+      "gold_k": 1.8637519999999996,
+      "gold_epsilon_real": -2.4975855911039977,
+      "gold_epsilon_imag": 3.682475751680001
+    },
+    {
+      "wavelength_nm": 502.0,
+      "pmma_n": 1.4953535396079045,
+      "gold_n": 0.9375200000000004,
+      "gold_k": 1.8935119999999999,
+      "gold_epsilon_real": -2.7064439437439987,
+      "gold_epsilon_imag": 3.550410740480001
+    },
+    {
+      "wavelength_nm": 505.0,
+      "pmma_n": 1.495142132237606,
+      "gold_n": 0.8871200000000002,
+      "gold_k": 1.9232719999999999,
+      "gold_epsilon_real": -2.9119932915839994,
+      "gold_epsilon_imag": 3.412346113280001
+    },
+    {
+      "wavelength_nm": 508.0,
+      "pmma_n": 1.4949353873436941,
+      "gold_n": 0.8367200000000001,
+      "gold_k": 1.9530319999999999,
+      "gold_epsilon_real": -3.114233634623999,
+      "gold_epsilon_imag": 3.2682818700800005
+    },
+    {
+      "wavelength_nm": 511.0,
+      "pmma_n": 1.4947327221166207,
+      "gold_n": 0.78632,
+      "gold_k": 1.9827919999999999,
+      "gold_epsilon_real": -3.3131649728639996,
+      "gold_epsilon_imag": 3.1182180108799997
+    },
+    {
+      "wavelength_nm": 514.0,
+      "pmma_n": 1.4945322739513236,
+      "gold_n": 0.7359199999999999,
+      "gold_k": 2.012552,
+      "gold_epsilon_real": -3.5087873063039994,
+      "gold_epsilon_imag": 2.9621545356799994
+    },
+    {
+      "wavelength_nm": 517.0,
+      "pmma_n": 1.4943379227059117,
+      "gold_n": 0.6855199999999998,
+      "gold_k": 2.042312,
+      "gold_epsilon_real": -3.7011006349439994,
+      "gold_epsilon_imag": 2.800091444479999
+    },
+    {
+      "wavelength_nm": 520.0,
+      "pmma_n": 1.4941435714605,
+      "gold_n": 0.6351199999999997,
+      "gold_k": 2.0720720000000004,
+      "gold_epsilon_real": -3.8901049587840015,
+      "gold_epsilon_imag": 2.6320287372799993
+    },
+    {
+      "wavelength_nm": 523.0,
+      "pmma_n": 1.4939570734536176,
+      "gold_n": 0.6055956678700359,
+      "gold_k": 2.1093537906137185,
+      "gold_epsilon_real": -4.082627301033509,
+      "gold_epsilon_imag": 2.5548310352018135
+    },
+    {
+      "wavelength_nm": 526.0,
+      "pmma_n": 1.4937705754467354,
+      "gold_n": 0.5850180505415161,
+      "gold_k": 2.1498592057761736,
+      "gold_epsilon_real": -4.2796484852011645,
+      "gold_epsilon_imag": 2.5154128830038185
+    },
+    {
+      "wavelength_nm": 529.0,
+      "pmma_n": 1.4935895219338529,
+      "gold_n": 0.5644404332129963,
+      "gold_k": 2.1903646209386283,
+      "gold_epsilon_real": -4.4791041700139465,
+      "gold_epsilon_imag": 2.4726607110740395
+    },
+    {
+      "wavelength_nm": 532.0,
+      "pmma_n": 1.4934104482369706,
+      "gold_n": 0.5438628158844765,
+      "gold_k": 2.230870036101083,
+      "gold_epsilon_real": -4.680994355471855,
+      "gold_epsilon_imag": 2.4265745194124775
+    },
+    {
+      "wavelength_nm": 535.0,
+      "pmma_n": 1.493234652666894,
+      "gold_n": 0.5232851985559567,
+      "gold_k": 2.271375451263538,
+      "gold_epsilon_real": -4.885319041574895,
+      "gold_epsilon_imag": 2.3771543080191324
+    },
+    {
+      "wavelength_nm": 538.0,
+      "pmma_n": 1.493062603527453,
+      "gold_n": 0.5027075812274369,
+      "gold_k": 2.3118808664259927,
+      "gold_epsilon_real": -5.092078228323058,
+      "gold_epsilon_imag": 2.324400076894004
+    },
+    {
+      "wavelength_nm": 541.0,
+      "pmma_n": 1.492891875270494,
+      "gold_n": 0.48212996389891705,
+      "gold_k": 2.3523862815884478,
+      "gold_epsilon_real": -5.301271915716352,
+      "gold_epsilon_imag": 2.2683118260370922
+    },
+    {
+      "wavelength_nm": 544.0,
+      "pmma_n": 1.4927264305434642,
+      "gold_n": 0.46155234657039723,
+      "gold_k": 2.3928916967509024,
+      "gold_epsilon_real": -5.512900103754773,
+      "gold_epsilon_imag": 2.2088895554483967
+    },
+    {
+      "wavelength_nm": 547.0,
+      "pmma_n": 1.4925609858164344,
+      "gold_n": 0.4409747292418774,
+      "gold_k": 2.433397111913357,
+      "gold_epsilon_real": -5.72696279243832,
+      "gold_epsilon_imag": 2.146133265127918
+    },
+    {
+      "wavelength_nm": 550.0,
+      "pmma_n": 1.492401592592772,
+      "gold_n": 0.4241492537313434,
+      "gold_k": 2.4720507462686565,
+      "gold_epsilon_real": -5.931132302686566,
+      "gold_epsilon_imag": 2.097036958431722
+    },
+    {
+      "wavelength_nm": 553.0,
+      "pmma_n": 1.4922424080416397,
+      "gold_n": 0.4116119402985075,
+      "gold_k": 2.5085880597014927,
+      "gold_epsilon_real": -6.1235896638805976,
+      "gold_epsilon_imag": 2.0651295973267993
+    },
+    {
+      "wavelength_nm": 556.0,
+      "pmma_n": 1.4920874110758322,
+      "gold_n": 0.39907462686567163,
+      "gold_k": 2.5451253731343284,
+      "gold_epsilon_real": -6.31840260716418,
+      "gold_epsilon_imag": 2.0313899172198706
+    },
+    {
+      "wavelength_nm": 559.0,
+      "pmma_n": 1.4919342087894498,
+      "gold_n": 0.38653731343283576,
+      "gold_k": 2.5816626865671646,
+      "gold_epsilon_real": -6.515571132537316,
+      "gold_epsilon_imag": 1.995817918110938
+    },
+    {
+      "wavelength_nm": 562.0,
+      "pmma_n": 1.4917834666384,
+      "gold_n": 0.3739999999999999,
+      "gold_k": 2.6182000000000003,
+      "gold_epsilon_real": -6.715095240000002,
+      "gold_epsilon_imag": 1.9584135999999996
+    },
+    {
+      "wavelength_nm": 565.0,
+      "pmma_n": 1.4916359415874,
+      "gold_n": 0.361462686567164,
+      "gold_k": 2.654737313432836,
+      "gold_epsilon_real": -6.916974929552239,
+      "gold_epsilon_imag": 1.9191769628870565
+    },
+    {
+      "wavelength_nm": 568.0,
+      "pmma_n": 1.491489315123878,
+      "gold_n": 0.34892537313432814,
+      "gold_k": 2.691274626865672,
+      "gold_epsilon_real": -7.1212102011940335,
+      "gold_epsilon_imag": 1.8781080067721088
+    },
+    {
+      "wavelength_nm": 571.0,
+      "pmma_n": 1.4913471815977455,
+      "gold_n": 0.3363880597014923,
+      "gold_k": 2.727811940298508,
+      "gold_epsilon_real": -7.327801054925376,
+      "gold_epsilon_imag": 1.8352067316551561
+    },
+    {
+      "wavelength_nm": 574.0,
+      "pmma_n": 1.4912050480716132,
+      "gold_n": 0.3238507462686564,
+      "gold_k": 2.764349253731344,
+      "gold_epsilon_real": -7.536747490746274,
+      "gold_epsilon_imag": 1.7904731375361984
+    },
+    {
+      "wavelength_nm": 577.0,
+      "pmma_n": 1.4910675258427633,
+      "gold_n": 0.3113134328358206,
+      "gold_k": 2.80088656716418,
+      "gold_epsilon_real": -7.748049508656721,
+      "gold_epsilon_imag": 1.7439072244152358
+    },
+    {
+      "wavelength_nm": 580.0,
+      "pmma_n": 1.490930515980278,
+      "gold_n": 0.2987761194029847,
+      "gold_k": 2.837423880597016,
+      "gold_epsilon_real": -7.961707108656722,
+      "gold_epsilon_imag": 1.6955089922922686
+    },
+    {
+      "wavelength_nm": 583.0,
+      "pmma_n": 1.4907965699650851,
+      "gold_n": 0.2879250720461093,
+      "gold_k": 2.8736080691642663,
+      "gold_epsilon_real": -8.174722488053225,
+      "gold_epsilon_imag": 1.6547676206928048
+    },
+    {
+      "wavelength_nm": 586.0,
+      "pmma_n": 1.4906643977562195,
+      "gold_n": 0.28100864553314103,
+      "gold_k": 2.9089682997118165,
+      "gold_epsilon_real": -8.383130709863886,
+      "gold_epsilon_imag": 1.6348904836017235
+    },
+    {
+      "wavelength_nm": 589.0,
+      "pmma_n": 1.4905340672952647,
+      "gold_n": 0.2740922190201728,
+      "gold_k": 2.9443285302593667,
+      "gold_epsilon_real": -8.59394394957188,
+      "gold_epsilon_imag": 1.6140350807663875
+    },
+    {
+      "wavelength_nm": 592.0,
+      "pmma_n": 1.4904064994561765,
+      "gold_n": 0.26717579250720447,
+      "gold_k": 2.979688760806917,
+      "gold_epsilon_real": -8.807162207177207,
+      "gold_epsilon_imag": 1.592201412186796
+    },
+    {
+      "wavelength_nm": 595.0,
+      "pmma_n": 1.4902795206202117,
+      "gold_n": 0.2602593659942362,
+      "gold_k": 3.015048991354467,
+      "gold_epsilon_real": -9.022785482679868,
+      "gold_epsilon_imag": 1.56938947786295
+    },
+    {
+      "wavelength_nm": 598.0,
+      "pmma_n": 1.49015637030455,
+      "gold_n": 0.25334293948126796,
+      "gold_k": 3.0504092219020174,
+      "gold_epsilon_real": -9.240813776079861,
+      "gold_epsilon_imag": 1.5455992777948488
+    },
+    {
+      "wavelength_nm": 601.0,
+      "pmma_n": 1.4900332199888882,
+      "gold_n": 0.2464265129682997,
+      "gold_k": 3.0857694524495676,
+      "gold_epsilon_real": -9.461247087377188,
+      "gold_epsilon_imag": 1.520830811982493
+    },
+    {
+      "wavelength_nm": 604.0,
+      "pmma_n": 1.4899137171218442,
+      "gold_n": 0.23951008645533142,
+      "gold_k": 3.121129682997118,
+      "gold_epsilon_real": -9.684085416571849,
+      "gold_epsilon_imag": 1.4950840804258816
+    },
+    {
+      "wavelength_nm": 607.0,
+      "pmma_n": 1.4897947754007412,
+      "gold_n": 0.23259365994236314,
+      "gold_k": 3.156489913544668,
+      "gold_epsilon_real": -9.909328763663842,
+      "gold_epsilon_imag": 1.4683590831250155
+    },
+    {
+      "wavelength_nm": 610.0,
+      "pmma_n": 1.4896782408147413,
+      "gold_n": 0.22567723342939489,
+      "gold_k": 3.1918501440922182,
+      "gold_epsilon_real": -10.136977128653168,
+      "gold_epsilon_imag": 1.4406558200798945
+    },
+    {
+      "wavelength_nm": 613.0,
+      "pmma_n": 1.4895633109854767,
+      "gold_n": 0.21876080691642663,
+      "gold_k": 3.2272103746397685,
+      "gold_epsilon_real": -10.367030511539829,
+      "gold_epsilon_imag": 1.4119742912905184
+    },
+    {
+      "wavelength_nm": 616.0,
+      "pmma_n": 1.4894496566748294,
+      "gold_n": 0.21184438040345835,
+      "gold_k": 3.262570605187319,
+      "gold_epsilon_real": -10.599488912323825,
+      "gold_epsilon_imag": 1.3823144967568874
+    },
+    {
+      "wavelength_nm": 619.0,
+      "pmma_n": 1.4893385534014176,
+      "gold_n": 0.20639344262295092,
+      "gold_k": 3.293896955503512,
+      "gold_epsilon_real": -10.807158900317553,
+      "gold_epsilon_imag": 1.3596774645832537
+    },
+    {
+      "wavelength_nm": 622.0,
+      "pmma_n": 1.4892276918453209,
+      "gold_n": 0.20147540983606566,
+      "gold_k": 3.32375644028103,
+      "gold_epsilon_real": -11.006764533541013,
+      "gold_epsilon_imag": 1.3393103820017662
+    },
+    {
+      "wavelength_nm": 625.0,
+      "pmma_n": 1.4891202143316342,
+      "gold_n": 0.19655737704918042,
+      "gold_k": 3.353615925058547,
+      "gold_epsilon_real": -11.208104970333842,
+      "gold_epsilon_imag": 1.3183558997197375
+    },
+    {
+      "wavelength_nm": 628.0,
+      "pmma_n": 1.4890127368179478,
+      "gold_n": 0.19163934426229517,
+      "gold_k": 3.383475409836065,
+      "gold_epsilon_real": -11.411180210696044,
+      "gold_epsilon_imag": 1.2968140177371679
+    },
+    {
+      "wavelength_nm": 631.0,
+      "pmma_n": 1.4889081449705075,
+      "gold_n": 0.1867213114754099,
+      "gold_k": 3.4133348946135826,
+      "gold_epsilon_real": -11.61599025462762,
+      "gold_epsilon_imag": 1.2746847360540565
+    },
+    {
+      "wavelength_nm": 634.0,
+      "pmma_n": 1.4888041302563162,
+      "gold_n": 0.18180327868852467,
+      "gold_k": 3.4431943793911004,
+      "gold_epsilon_real": -11.822535102128567,
+      "gold_epsilon_imag": 1.251968054670404
+    },
+    {
+      "wavelength_nm": 637.0,
+      "pmma_n": 1.48870200446505,
+      "gold_n": 0.1768852459016394,
+      "gold_k": 3.4730538641686177,
+      "gold_epsilon_real": -12.030814753198884,
+      "gold_epsilon_imag": 1.2286639735862097
+    },
+    {
+      "wavelength_nm": 640.0,
+      "pmma_n": 1.4886013231442559,
+      "gold_n": 0.17196721311475416,
+      "gold_k": 3.5029133489461355,
+      "gold_epsilon_real": -12.240829207838576,
+      "gold_epsilon_imag": 1.2047724928014745
+    },
+    {
+      "wavelength_nm": 643.0,
+      "pmma_n": 1.4885015976586808,
+      "gold_n": 0.16704918032786892,
+      "gold_k": 3.5327728337236532,
+      "gold_epsilon_real": -12.452578466047639,
+      "gold_epsilon_imag": 1.180293612316198
+    },
+    {
+      "wavelength_nm": 646.0,
+      "pmma_n": 1.4884041024552839,
+      "gold_n": 0.16213114754098365,
+      "gold_k": 3.5626323185011706,
+      "gold_epsilon_real": -12.66606252782607,
+      "gold_epsilon_imag": 1.1552273321303799
+    },
+    {
+      "wavelength_nm": 649.0,
+      "pmma_n": 1.4883067088135866,
+      "gold_n": 0.15721311475409838,
+      "gold_k": 3.5924918032786883,
+      "gold_epsilon_real": -12.881281393173877,
+      "gold_epsilon_imag": 1.1295736522440205
+    },
+    {
+      "wavelength_nm": 652.0,
+      "pmma_n": 1.4882122604611896,
+      "gold_n": 0.15229508196721314,
+      "gold_k": 3.622351288056206,
+      "gold_epsilon_real": -13.098235062091057,
+      "gold_epsilon_imag": 1.10333257265712
+    },
+    {
+      "wavelength_nm": 655.0,
+      "pmma_n": 1.4881178121087926,
+      "gold_n": 0.1473770491803279,
+      "gold_k": 3.6522107728337234,
+      "gold_epsilon_real": -13.316923534577603,
+      "gold_epsilon_imag": 1.0765040933696781
+    },
+    {
+      "wavelength_nm": 658.0,
+      "pmma_n": 1.488025598643531,
+      "gold_n": 0.14245901639344263,
+      "gold_k": 3.682070257611241,
+      "gold_epsilon_real": -13.537346810633524,
+      "gold_epsilon_imag": 1.0490882143816946
+    },
+    {
+      "wavelength_nm": 661.0,
+      "pmma_n": 1.4879340653613102,
+      "gold_n": 0.1396666666666667,
+      "gold_k": 3.7105333333333332,
+      "gold_epsilon_real": -13.748550839999998,
+      "gold_epsilon_imag": 1.0364756444444445
+    },
+    {
+      "wavelength_nm": 664.0,
+      "pmma_n": 1.4878439172574462,
+      "gold_n": 0.139,
+      "gold_k": 3.7376,
+      "gold_epsilon_real": -13.95033276,
+      "gold_epsilon_imag": 1.0390528
+    },
+    {
+      "wavelength_nm": 667.0,
+      "pmma_n": 1.4877551543319387,
+      "gold_n": 0.13833333333333334,
+      "gold_k": 3.764666666666667,
+      "gold_epsilon_real": -14.153579,
+      "gold_epsilon_imag": 1.0415577777777778
+    },
+    {
+      "wavelength_nm": 670.0,
+      "pmma_n": 1.4876670990142764,
+      "gold_n": 0.1376666666666667,
+      "gold_k": 3.791733333333333,
+      "gold_epsilon_real": -14.358289559999998,
+      "gold_epsilon_imag": 1.0439905777777778
+    },
+    {
+      "wavelength_nm": 673.0,
+      "pmma_n": 1.4875809896181882,
+      "gold_n": 0.137,
+      "gold_k": 3.8188,
+      "gold_epsilon_real": -14.564464439999998,
+      "gold_epsilon_imag": 1.0463512000000001
+    },
+    {
+      "wavelength_nm": 676.0,
+      "pmma_n": 1.4874948802221,
+      "gold_n": 0.13633333333333333,
+      "gold_k": 3.8458666666666668,
+      "gold_epsilon_real": -14.772103640000001,
+      "gold_epsilon_imag": 1.0486396444444446
+    },
+    {
+      "wavelength_nm": 679.0,
+      "pmma_n": 1.4874113324080853,
+      "gold_n": 0.13566666666666669,
+      "gold_k": 3.872933333333333,
+      "gold_epsilon_real": -14.981207159999997,
+      "gold_epsilon_imag": 1.050855911111111
+    },
+    {
+      "wavelength_nm": 682.0,
+      "pmma_n": 1.4873277845940707,
+      "gold_n": 0.135,
+      "gold_k": 3.9,
+      "gold_epsilon_real": -15.191775,
+      "gold_epsilon_imag": 1.053
+    },
+    {
+      "wavelength_nm": 685.0,
+      "pmma_n": 1.4872460372356295,
+      "gold_n": 0.13433333333333333,
+      "gold_k": 3.9270666666666667,
+      "gold_epsilon_real": -15.40380716,
+      "gold_epsilon_imag": 1.055071911111111
+    },
+    {
+      "wavelength_nm": 688.0,
+      "pmma_n": 1.487164944588306,
+      "gold_n": 0.13366666666666668,
+      "gold_k": 3.954133333333333,
+      "gold_epsilon_real": -15.617303639999998,
+      "gold_epsilon_imag": 1.0570716444444446
+    },
+    {
+      "wavelength_nm": 691.0,
+      "pmma_n": 1.4870849505464088,
+      "gold_n": 0.133,
+      "gold_k": 3.9812,
+      "gold_epsilon_real": -15.832264439999998,
+      "gold_epsilon_imag": 1.0589992
+    },
+    {
+      "wavelength_nm": 694.0,
+      "pmma_n": 1.4870062120535705,
+      "gold_n": 0.13233333333333333,
+      "gold_k": 4.008266666666667,
+      "gold_epsilon_real": -16.04868956,
+      "gold_epsilon_imag": 1.0608545777777778
+    },
+    {
+      "wavelength_nm": 697.0,
+      "pmma_n": 1.486927925203638,
+      "gold_n": 0.13166666666666668,
+      "gold_k": 4.035333333333333,
+      "gold_epsilon_real": -16.266579,
+      "gold_epsilon_imag": 1.0626377777777778
+    },
+    {
+      "wavelength_nm": 700.0,
+      "pmma_n": 1.4868514449253294,
+      "gold_n": 0.131,
+      "gold_k": 4.0624,
+      "gold_epsilon_real": -16.48593276,
+      "gold_epsilon_imag": 1.0643488
+    }
+  ],
+  "solver_root": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs"
+}
