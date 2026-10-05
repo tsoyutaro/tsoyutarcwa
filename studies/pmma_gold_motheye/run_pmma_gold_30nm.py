@@ -148,6 +148,8 @@ def main() -> int:
                         help="Au height on exposed PMMA valleys; 0 reproduces the earlier bare valleys")
     parser.add_argument("--device", default="auto", help="auto, cpu, or cuda")
     parser.add_argument("--tolerance", type=float, default=0.005)
+    parser.add_argument("--retain-auxiliary", action="store_true",
+                        help="Keep field-reconstruction tensors for memory/speed comparison")
     parser.add_argument("--check-only", action="store_true", help="Validate geometry/CSV without RCWA")
     parser.add_argument("--preview-only", action="store_true",
                         help="Write geometry SVG/CSV and exit before loading RCWA")
@@ -233,6 +235,8 @@ def main() -> int:
         "materials_at_wavelengths": material_values,
         "solver_root": str(args.solver_root.resolve()),
     }
+    if args.retain_auxiliary:
+        settings["numerics"]["retain_auxiliary"] = True
     if args.check_only:
         print(json.dumps(settings, indent=2, ensure_ascii=False))
         return 0
@@ -356,6 +360,7 @@ def main() -> int:
                     factorization_rules=True,
                     device=device,
                     valley_gold_thickness_nm=args.valley_gold_nm,
+                    discard_auxiliary=not args.retain_auxiliary,
                 )
                 result.update({"pmma_n": material["pmma_n"], "gold_n": material["gold_n"], "gold_k": material["gold_k"]})
                 cases[key] = result

@@ -1,5 +1,8 @@
 # 三角格子 matched-ASR・単一偏光短縮 実装／数式レポート
 
+> 2026-10-05修正版：現行の因数分解・磁場変換・内部場復元は `NV_ASR_CORRECTIONS_ja.md` を参照。本文中の以前の数値表は旧版の記録であり、新版の検証結果は `reports/` に分けています。
+
+
 ## 1. 達成内容
 
 `rcwa_solver_auto.py` に次を実装した。
@@ -110,7 +113,8 @@ h(\mathbf q)=R
 s_c(\hat{\mathbf q})=rac{R}{\|\mathbf q_0\|_g}.
 \]
 
-これにより、(ho=1) で
+これにより、(
+ho=1) で
 
 \[
 \|s_c\mathbf q_0\|_g=R

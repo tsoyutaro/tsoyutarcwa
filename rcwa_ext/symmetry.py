@@ -857,6 +857,7 @@ class _SymmetryReductionMixin:
         p_star: torch.Tensor,
         q_star: torch.Tensor,
         transform_star: torch.Tensor,
+        magnetic_transform_star: torch.Tensor | None = None,
     ):
         """Return fully Reynolds-averaged Cartesian operators on the D6 star."""
         if getattr(self, "lattice_kind", "rectangular") != "triangular":
@@ -872,8 +873,10 @@ class _SymmetryReductionMixin:
         transform_inverse = self._solve(
             transform_star, self._eye(star_dimension)
         )
-        p_cart = transform_star @ p_star @ transform_inverse
-        q_cart = transform_star @ q_star @ transform_inverse
+        magnetic_transform_star = transform_star if magnetic_transform_star is None else magnetic_transform_star
+        magnetic_inverse = self._solve(magnetic_transform_star, self._eye(star_dimension))
+        p_cart = transform_star @ p_star @ magnetic_inverse
+        q_cart = magnetic_transform_star @ q_star @ transform_inverse
 
         p_symmetric = torch.zeros_like(p_cart)
         q_symmetric = torch.zeros_like(q_cart)
@@ -920,6 +923,7 @@ class _SymmetryReductionMixin:
         *,
         layer_index: int,
         backend: str,
+        magnetic_transform_star: torch.Tensor | None = None,
     ) -> tuple[
         torch.Tensor,
         torch.Tensor,
@@ -938,7 +942,7 @@ class _SymmetryReductionMixin:
             tiny,
             tolerance,
         ) = self._d6_symmetrized_cartesian_pq(
-            p_star, q_star, transform_star
+            p_star, q_star, transform_star, magnetic_transform_star
         )
         star_dimension = vector_embedding.shape[1]
         identity = self._eye(star_dimension)
@@ -1180,6 +1184,7 @@ class _SymmetryReductionMixin:
         *,
         layer_index: int,
         backend: str,
+        magnetic_transform_star: torch.Tensor | None = None,
     ) -> tuple[
         torch.Tensor,
         torch.Tensor,
@@ -1203,7 +1208,7 @@ class _SymmetryReductionMixin:
             tiny,
             tolerance,
         ) = self._d6_symmetrized_cartesian_pq(
-            p_star, q_star, transform_star
+            p_star, q_star, transform_star, magnetic_transform_star
         )
         star_dimension = vector_embedding.shape[1]
         row = 0 if polarization == "x" else 1
@@ -1657,7 +1662,8 @@ class _SymmetryReductionMixin:
                 transform_sym - transform_star
             ) / torch.maximum(torch.linalg.vector_norm(transform_star), tiny)
             electric_cart_star = torch.matmul(transform_sym, electric_star)
-            magnetic_cart_star = torch.matmul(transform_sym, magnetic_star)
+            magnetic_sym = transform_sym if magnetic_transform is None else self._flux_dual_transform(transform_sym)
+            magnetic_cart_star = torch.matmul(magnetic_sym, magnetic_star)
             electric_cart_sub = torch.matmul(
                 electric_cart_basis_star.mH, electric_cart_star
             )
@@ -1737,6 +1743,20 @@ class _SymmetryReductionMixin:
             )
             electric_cart_sub = torch.matmul(electric_basis.mH, electric_cart_raw)
             magnetic_cart_sub = torch.matmul(magnetic_basis.mH, magnetic_cart_raw)
+            if backend == 'matched-ASR' and magnetic_transform is not None:
+                # Restrict BEFORE the inverse-adjoint solve. At large orders
+                # the dense dual transform amplifies tiny off-sector FFT
+                # roundoff; projecting its already inverted result is unstable.
+                # In this invariant sector TE^H Ceh TH=Ceh/sin(zeta).
+                te_sub = electric_basis.mH @ transform @ electric_uv_basis
+                count = self.order_N
+                eye,zero = self._eye(count),torch.zeros_like(self._eye(count))
+                c = torch.cat((torch.cat((zero,eye),1),torch.cat((-eye,zero),1)),0)
+                pairing = electric_basis.mH @ c @ magnetic_basis
+                th_sub = self._solve(pairing,self._solve(
+                    te_sub.mH,pairing/float(getattr(self,'sin_zeta',1.))))
+                magnetic_cart_sub = th_sub @ magnetic_sub
+                magnetic_cart_raw = magnetic_basis @ magnetic_cart_sub
             electric_cart_full = torch.matmul(electric_basis, electric_cart_sub)
             magnetic_cart_full = torch.matmul(magnetic_basis, magnetic_cart_sub)
             conversion_residual = torch.maximum(

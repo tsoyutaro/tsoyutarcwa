@@ -1,5 +1,8 @@
 # modular RCWA 実装：ファイル構成と数式導出
 
+> 2026-10-05修正版：現行の因数分解・磁場変換・内部場復元は `NV_ASR_CORRECTIONS_ja.md` を参照。本文中の以前の数値表は旧版の記録であり、新版の検証結果は `reports/` に分けています。
+
+
 ## 1. 分割が必要だった理由
 
 旧 `rcwa_solver_auto.py` は約 5,600 行あり、次の独立した変更理由を一つのファイルに
@@ -427,7 +430,8 @@ h(\mathbf q)=\max\left(
 \mathbf q_I=\frac{\mathbf q}{\rho}
 \]
 
-とし、(ho=1) の computational hexagon を物理円へ送る scale を
+とし、(
+ho=1) の computational hexagon を物理円へ送る scale を
 
 \[
 c(\hat{\mathbf q})=rac{R}{\|\mathbf q_I\|}
@@ -768,7 +772,7 @@ N_\star=E_v^\dagger N E_v
 \[
 \mathcal E_{t,\star}
 =I_2\otimes\epsilon_\star
-+\{I_2\otimes(\eta_\star^{-1}-\epsilon_\star)\}N_\star
++\tfrac12\left(\Delta_\star^{(2)}N_\star+N_\star\Delta_\star^{(2)}\right),\quad\Delta_\star^{(2)}=I_2\otimes(\eta_\star^{-1}-\epsilon_\star)
 \]
 
 としてstar内で作る。longitudinal inverseも (\epsilon_\star^{-1}) としてstar内で計算し、
@@ -992,7 +996,7 @@ E_i=[1/\epsilon]^{-1}
 を法線方向だけへ適用し、
 
 \[
-\mathcal E_t=(I_2\otimes E)+(I_2\otimes\Delta)\mathcal P
+\mathcal E_t=(I_2\otimes E)+\tfrac12\left[(I_2\otimes\Delta)\mathcal P+\mathcal P(I_2\otimes\Delta)\right]
 \]
 
 を作る。法線成分には inverse rule、接線成分には Laurent rule を使う構成であり、曲面

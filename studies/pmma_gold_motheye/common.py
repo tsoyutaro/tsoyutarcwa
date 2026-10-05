@@ -150,6 +150,23 @@ def _mean_poynting_z(
     return float(flux.detach().cpu())
 
 
+def _discard_flux_only_auxiliary(simulation: AutoRCWA) -> None:
+    """Release layer data unused by an R/T-only solve after each layer.
+
+    Modal/cascade tensors and autograd's saved tensors remain available for
+    the solve and, if requested by a caller, reverse-mode differentiation.
+    """
+    if simulation.store_mode_couplings or simulation.field_regions != "none":
+        raise RuntimeError("Cannot discard auxiliary data in a field-enabled solve.")
+    for name in ("asr_mappings", "asr_material_tensors", "asr_T_matrices",
+                 "asr_Tz_matrices", "asr_condition_numbers", "E_eigvec_uv",
+                 "H_eigvec_uv"):
+        getattr(simulation, name).clear()
+    simulation._asr_slot_by_layer.clear()
+    simulation._asr_field_context_by_layer.clear()
+    simulation._physical_material_by_layer.clear()
+
+
 def simulate_case(
     wavelength_nm: float,
     numerical: NumericalConfig,
@@ -162,6 +179,7 @@ def simulate_case(
     factorization_rules: bool = True,
     device: torch.device,
     valley_gold_thickness_nm: float = 0.0,
+    discard_auxiliary: bool = True,
 ) -> dict[str, object]:
     """Evaluate R, T and A for one wavelength and discretization."""
     started = time.perf_counter()
@@ -226,6 +244,8 @@ def simulate_case(
             ny=numerical.grid,
             factorization_rules=factorization_rules,
         )
+        if discard_auxiliary:
+            _discard_flux_only_auxiliary(simulation)
 
     profile_layers = build_profile_layers(
         height_nm=geometry.height_nm,
@@ -263,6 +283,8 @@ def simulate_case(
                 factorization_rules=factorization_rules,
                 radial_mapping=numerical.radial_mapping,
             )
+        if discard_auxiliary:
+            _discard_flux_only_auxiliary(simulation)
 
     simulation.solve_global_smatrix()
     incident = _zero_order_x_source(simulation)

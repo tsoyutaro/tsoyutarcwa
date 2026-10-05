@@ -208,13 +208,14 @@ def _static_checks(package_root: Path, outputs_root: Path) -> list[Check]:
     conversion_tokens = (
         "self._build_conversion_matrix_T(",
         "w_cartesian = torch.matmul(transform, w_uv)",
-        "v_cartesian = torch.matmul(transform, v_uv)",
+        "magnetic_transform = self._flux_dual_transform(transform)",
+        "v_cartesian = torch.matmul(magnetic_transform, v_uv)",
     )
     record(
         checks,
-        "layer-to-Cartesian modal conversion T",
+        "layer-to-Cartesian electric and magnetic trace conversion",
         all(token in asr_source for token in conversion_tokens),
-        "ASR modal bases are converted before S-matrix assembly",
+        "ASR uses electric T and flux-dual magnetic T before S-matrix assembly; numerical power checks are in validate_nv_asr_physics.py",
     )
     stable_mode_tokens = (
         "V=Q W Γ^-1",

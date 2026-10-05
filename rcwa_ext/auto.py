@@ -66,6 +66,7 @@ class AutoRCWA(CustomRCWA_NVM):
     _build_circle_conversion_matrices = (
         CustomRCWA_ASR_FR._build_circle_conversion_matrices
     )
+    _flux_dual_transform = CustomRCWA_ASR_FR._flux_dual_transform
     _build_circle_asr_pq = CustomRCWA_ASR_FR._build_circle_asr_pq
     _piecewise_rectangular_conv = CustomRCWA_ASR_FR._piecewise_rectangular_conv
     _peng_weighted_convolutions = CustomRCWA_ASR_FR._peng_weighted_convolutions

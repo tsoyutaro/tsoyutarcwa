@@ -143,11 +143,15 @@ class _FieldRecoveryMixin:
             )
             eu, ev = electric_uv[: self.order_N], electric_uv[self.order_N :]
             hu, hv = magnetic_uv[: self.order_N], magnetic_uv[self.order_N :]
-            electric_rhs = torch.matmul(self.Ky_norm, hu) - torch.matmul(
-                self.Kx_norm, hv
+            # These are covariant fields in primitive-cell coordinates.
+            # Cartesian Kx/Ky coincide only for an orthogonal cell.
+            ku = getattr(self, "K1_norm", self.Kx_norm)
+            kv = getattr(self, "K2_norm", self.Ky_norm)
+            electric_rhs = torch.matmul(kv, hu) - torch.matmul(
+                ku, hv
             )
-            magnetic_rhs = torch.matmul(self.Kx_norm, ev) - torch.matmul(
-                self.Ky_norm, eu
+            magnetic_rhs = torch.matmul(ku, ev) - torch.matmul(
+                kv, eu
             )
             scalar_embedding = context.get("scalar_embedding")
             if scalar_embedding is None:
@@ -170,7 +174,7 @@ class _FieldRecoveryMixin:
             magnetic_modes_cartesian = context.get("magnetic_modes_cartesian")
             if electric_modes_cartesian is None:
                 electric_xy = torch.matmul(context["transform_xy"], electric_uv)
-                magnetic_xy = torch.matmul(context["transform_xy"], magnetic_uv)
+                magnetic_xy = torch.matmul(context.get("transform_h_xy", context["transform_xy"]), magnetic_uv)
             else:
                 electric_xy = electric_modes_cartesian @ electric_amplitude
                 magnetic_xy = magnetic_modes_cartesian @ magnetic_amplitude

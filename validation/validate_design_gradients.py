@@ -18,6 +18,8 @@ from pathlib import Path
 import torch
 import torcwa
 
+DEVICE = "cuda"
+
 _OUTPUTS_ROOT = Path(__file__).resolve().parent.parent
 if str(_OUTPUTS_ROOT) not in sys.path:
     sys.path.insert(0, str(_OUTPUTS_ROOT))
@@ -112,7 +114,7 @@ def objective(
         ),
         verify_cascade=False,
         dtype=torch.complex128,
-        device="cuda",
+        device=DEVICE,
     )
     sim.add_input_layer(eps=1.0)
     sim.add_output_layer(eps=1.0)
@@ -167,7 +169,7 @@ def internal_field_objective(
         ),
         verify_cascade=True,
         dtype=torch.complex128,
-        device="cuda",
+        device=DEVICE,
     )
     sim.add_input_layer(eps=1.0)
     sim.add_output_layer(eps=1.0)
@@ -186,7 +188,7 @@ def internal_field_objective(
     zero_y = int(torch.nonzero(sim.order_y == 0)[0])
     harmonic = zero_x * len(sim.order_y) + zero_y
     source = torch.zeros(
-        (2 * sim.order_N, 1), dtype=torch.complex128, device="cuda"
+        (2 * sim.order_N, 1), dtype=torch.complex128, device=DEVICE
     )
     source[harmonic, 0] = 1.0
     sim.E_i = source
@@ -358,7 +360,7 @@ def check_geometry_contract(grid: int, order: int) -> dict[str, object]:
         asr=ASROptions(grid=(grid, grid)),
         verify_cascade=False,
         dtype=torch.complex128,
-        device="cuda",
+        device=DEVICE,
     )
     sim.add_input_layer()
     sim.add_output_layer()
@@ -383,13 +385,16 @@ def check_geometry_contract(grid: int, order: int) -> dict[str, object]:
 
 
 def main() -> None:
+    global DEVICE
     parser = argparse.ArgumentParser()
+    parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--grid", type=int, default=64)
     parser.add_argument("--order", type=int, default=1)
     parser.add_argument("--step", type=float, default=1.0e-5)
     parser.add_argument("--tolerance", type=float, default=3.0e-6)
     parser.add_argument("--json", type=Path)
     args = parser.parse_args()
+    DEVICE = args.device
 
     torch.set_default_dtype(torch.float64)
     torch.set_num_threads(1)
@@ -428,6 +433,7 @@ def main() -> None:
     )
     payload = {
         "status": "passed" if passed else "failed",
+        "device": DEVICE,
         "torch_version": torch.__version__,
         "torcwa_version": getattr(torcwa, "__version__", "unknown"),
         "grid": args.grid,

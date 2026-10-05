@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "description": "Physical checks independent of paper_reproductions; quick low-order diagnostics, not convergence proof.",
+  "geometry_nm": {
+    "period": 200.0,
+    "height": 500.0,
+    "pmma_tip_radius": 5.0,
+    "pmma_base_radius": 65.0,
+    "au_radial_thickness": 30.0,
+    "au_valley_thickness": 30.0
+  },
+  "numerics": {
+    "fourier_order": 2,
+    "profile_slices": 4,
+    "asr_grid": 96,
+    "mapping": "outer",
+    "dtype": "complex128"
+  },
+  "cases": [
+    {"id": "air_to_pmma_550", "kind": "fresnel", "wavelength_nm": 550.0},
+    {"id": "lossless_relief_550", "kind": "lossless_relief", "wavelength_nm": 550.0},
+    {"id": "au_coated_relief_550", "kind": "passive_relief", "wavelength_nm": 550.0},
+    {"id": "au_coated_relief_700", "kind": "passive_relief", "wavelength_nm": 700.0},
+    {"id": "auxiliary_parity_rt_550", "kind": "auxiliary_parity", "wavelength_nm": 550.0},
+    {"id": "symmetry_parity_rt_550", "kind": "symmetry_parity", "wavelength_nm": 550.0},
+    {"id": "auxiliary_parity_gradient_550", "kind": "gradient_parity", "wavelength_nm": 550.0}
+  ]
+}

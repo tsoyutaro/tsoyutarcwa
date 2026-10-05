@@ -740,7 +740,16 @@ def integration_checks(order: int, grid: int) -> tuple[list[Check], dict[str, ob
     kz = base._positive_kz(kz2)
     h_uv = base._magnetic_eigenvectors(p_star, q_star, w_uv, kz)
     t_star = vector_embedding.mH @ base.asr_T_matrices[0] @ vector_embedding
-    w_cart, h_cart = t_star @ w_uv, t_star @ h_uv
+    # Independent weak-trace conversion: solve TE^H C TH=C/sin(zeta),
+    # rather than using the electric map for both E and H.  Keep this reference
+    # independent of the solver's _flux_dual_transform implementation.
+    size_star = t_star.shape[0] // 2
+    eye_star = base._eye(size_star)
+    zero_star = torch.zeros_like(eye_star)
+    c_star = torch.cat((torch.cat((zero_star, eye_star), 1),
+                        torch.cat((-eye_star, zero_star), 1)), 0)
+    h_transform_star = torch.linalg.solve(t_star.mH @ c_star, c_star / base.sin_zeta)
+    w_cart, h_cart = t_star @ w_uv, h_transform_star @ h_uv
     v_star = vector_embedding.mH @ base.Vf @ vector_embedding
     base._polarization_reference_v = v_star
     interface_in = base._reduced_interface_s(v_star, v_star, input_side=True)

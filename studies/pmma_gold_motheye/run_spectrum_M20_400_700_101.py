@@ -61,6 +61,8 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--prepare-only", action="store_true",
                         help="Write material/geometry previews without an RCWA calculation")
+    parser.add_argument("--retain-auxiliary", action="store_true",
+                        help="Keep auxiliary tensors for comparison; use a separate output directory")
     args = parser.parse_args()
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -84,6 +86,8 @@ def main() -> int:
     ]
     if args.prepare_only:
         command.append("--preview-only")
+    if args.retain_auxiliary:
+        command.append("--retain-auxiliary")
     return subprocess.run(command, check=False).returncode
 
 

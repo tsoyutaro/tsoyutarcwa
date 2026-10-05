@@ -1,5 +1,8 @@
 # 円形NVMに対するASR導入：実装結果と数式根拠
 
+> 2026-10-05修正版：現行の因数分解・磁場変換・内部場復元は `NV_ASR_CORRECTIONS_ja.md` を参照。本文中の以前の数値表は旧版の記録であり、新版の検証結果は `reports/` に分けています。
+
+
 ## 結論
 
 円形に対するASRは実装できた。ただし、実装した厳密な経路は「Cartesian NVM行列を作った後でASR行列を掛ける」方式ではなく、円周に一致する座標系でNVMと同じ法線・接線の界面条件をFourier因子分解する **matched-coordinate ASR-FR** である。APIでは誤解を避けるため `method="matched-asr"` とした。
@@ -114,21 +117,25 @@ A_{11}&=[\Delta_\varepsilon/\varepsilon^{22}]_v
 \end{aligned}
 \]
 
-次に (u) 方向へ
-
+次に (u) 方向でSchur逆則を適用する。U方向の再構成は全4ブロックを完成させる。
 \[
-\varepsilon^F_{11}=[A_{11}^{-1}]_u^{-1},\qquad
-\varepsilon^F_{12}=\varepsilon^F_{11}[A_{11}^{-1}A_{12}]_u.
+U_{11}=[A_{11}^{-1}]_u^{-1},\quad
+U_{12}=U_{11}[A_{11}^{-1}A_{12}]_u,\quad
+U_{21}=[A_{21}A_{11}^{-1}]_uU_{11},
 \]
-
-軸を交換した構成から
-
 \[
-\varepsilon^F_{22}=[B_{22}^{-1}]_v^{-1},\qquad
-\varepsilon^F_{21}=\varepsilon^F_{22}[B_{22}^{-1}B_{21}]_v
+U_{22}=[A_{22}-A_{21}A_{11}^{-1}A_{12}]_u
+       +[A_{21}A_{11}^{-1}]_uU_{12}.
 \]
-
-を作る。これはWeiss論文の式(29)–(36)を有限BTTB行列として実装したもので、(u\to v) だけを優先して生じる人工的な偏光非対称性を避ける。基礎となる積の因子分解則は [Li, JOSA A 13, 1870–1876 (1996)](https://doi.org/10.1364/JOSAA.13.001870) である。
+軸を交換したV方向の構成も全4ブロックを再構成し、
+\[
+\varepsilon^F_{ab}=\tfrac12(U_{ab}+V_{ab})
+\]
+とする。旧版はUの上段とVの下段を混ぜていたが、それでは有限次数で実材質の
+Hermiticityが壊れる。ここで平均するのは完全な二つのSchur構成であり、材料tensorの
+複素共役は取らない。複素誘電率の損失を消す後処理も行わない。
+方向別構成はWeiss論文式(29)–(36)を基にするが、この有限行列の完全構成平均を
+論文の式そのものと同一とは扱わない。結果は独立したパワー検査で確認する。
 
 ## 4. 一般異方性P/Q行列
 
@@ -195,8 +202,17 @@ e^{i[\mathbf k_{pq}\cdot(u,v)-\mathbf k_{mn}\cdot(X,Y)]},du,dv.
 を使う。固定したCartesian行ごとに2次元IFFTを用い、全変換次数を同時に求めるため、直接積分の (O(N^2N_g)) ではなく概ね (O(NN_g\log N_g)) で構築する。モードは
 
 \[
-W_{xy}=TW_{uv},\qquad V_{xy}=TV_{uv}
+W_{xy}=T_EW_{uv},\qquad V_{xy}=T_HV_{uv},\quad T_E=T
 \]
+
+有限Fourier空間では磁場側にflux-dual変換を使う。
+\[
+C=\begin{bmatrix}0&I\\-I&0\end{bmatrix},\qquad
+T_E^\dagger C T_H=C/\sin\zeta.
+\]
+直交格子では \(\sin\zeta=1\)。これは弱い界面パワーの双対条件であり、連続座標の
+電場・磁場が異なる物理量へ変更されたという意味ではない。D6/C2v sectorでは先に
+変換を制限してから逆随伴を解く。変換全体を逆にした後のsector切出しは使わない。
 
 として通常のCartesian境界条件へ戻る。その後は既存のRedheffer star productまたは [Liのstable S-matrix algorithm](https://doi.org/10.1364/JOSAA.13.001024) をそのまま使う。
 

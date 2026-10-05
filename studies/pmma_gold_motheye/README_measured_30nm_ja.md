@@ -2,6 +2,10 @@
 
 `run_pmma_gold_30nm.py` は、このstudyのRCWA実装を呼び出す実行ファイルです。入力は `data/Szczurowski.csv`（PMMAの `wl,n`）と `data/au_measured_nk.csv`（金の `wl,n` ブロックと `wl,k` ブロック）です。`wl` はµmからnmへ変換し、各計算波長で `n` と `k` を線形補間します。表の範囲外には外挿しません。
 
+R/T計算では、電磁場再構成に使わないASR補助テンソルを各層の後で解放する。
+比較のため保持する場合は `--retain-auxiliary` と**別の出力先**を指定する。
+この切替はFourier次数・ASR格子・材料値・倍精度設定を変えない。
+
 ## 既定の構造
 
 | 項目 | 値 |

@@ -155,11 +155,12 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
         tensor21: torch.Tensor,
         tensor22: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Weiss et al. symmetric factorization, Eqs. (29)-(36).
+        """Average two COMPLETE directional Schur factorizations.
 
-        The 2->1 construction supplies (11,12); the symmetry-related 1->2
-        construction supplies (21,22).  This avoids the polarization asymmetry
-        caused by choosing only one directional factorization order.
+        Splicing the upper row of 2->1 with the lower row of 1->2 breaks
+        Hermiticity at finite truncation, even for real material tensors.
+        Complete each Schur reconstruction before averaging. No conjugate of
+        the material tensor is used, so physical complex loss is retained.
         """
         determinant = tensor11 * tensor22 - tensor12 * tensor21
         my = len(self.order_y)
@@ -189,12 +190,15 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
         result11 = self._solve(
             outer_11_inverse, self._eye(self.order_N)
         )
-        result12 = torch.matmul(
-            result11,
-            self._assemble_matrix_valued_toeplitz(
-                torch.matmul(effective_11_v_inverse, effective_12_v), "u"
-            ),
-        )
+        upper_right_u = self._assemble_matrix_valued_toeplitz(
+            effective_11_v_inverse @ effective_12_v, "u")
+        lower_left_u = self._assemble_matrix_valued_toeplitz(
+            effective_21_v @ effective_11_v_inverse, "u")
+        result12 = result11 @ upper_right_u
+        result21_u = lower_left_u @ result11
+        result22_u = self._assemble_matrix_valued_toeplitz(
+            effective_22_v - effective_21_v @ effective_11_v_inverse @ effective_12_v, "u"
+        ) + lower_left_u @ result12
 
         mx = len(self.order_x)
         identity_u = torch.eye(
@@ -222,13 +226,17 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
         result22 = self._solve(
             outer_22_inverse, self._eye(self.order_N)
         )
-        result21 = torch.matmul(
-            result22,
-            self._assemble_matrix_valued_toeplitz(
-                torch.matmul(effective_22_u_inverse, effective_21_u), "v"
-            ),
-        )
-        return result11, result12, result21, result22
+        lower_left_v = self._assemble_matrix_valued_toeplitz(
+            effective_22_u_inverse @ effective_21_u, "v")
+        upper_right_v = self._assemble_matrix_valued_toeplitz(
+            effective_12_u @ effective_22_u_inverse, "v")
+        result21 = result22 @ lower_left_v
+        result12_v = upper_right_v @ result22
+        result11_v = self._assemble_matrix_valued_toeplitz(
+            effective_11_u - effective_12_u @ effective_22_u_inverse @ effective_21_u, "v"
+        ) + upper_right_v @ result21
+        return ((result11 + result11_v)*.5, (result12 + result12_v)*.5,
+                (result21_u + result21)*.5, (result22_u + result22)*.5)
 
     def _generalized_li_factorized_transverse_tensor(
         self,
@@ -455,6 +463,19 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
         center_weight = smoothstep(radius_nearest, center_width)
         seam_weight = smoothstep(radius_second - radius_nearest, 3.0 * resolution)
         return normal_u, normal_v, center_weight * seam_weight
+
+    def _flux_dual_transform(self, electric_transform: torch.Tensor) -> torch.Tensor:
+        """Weak H trace dual to the projected covariant E trace.
+
+        For C=[[0,I],[-I,0]], TE^H C TH = C/sin(zeta).  The cell-area
+        factor is necessary in oblique coordinates. This changes the discrete
+        interface matching, never the calculated powers or material loss.
+        """
+        n = electric_transform.shape[0] // 2
+        eye = self._eye(n)
+        zero = torch.zeros_like(eye)
+        c = torch.cat((torch.cat((zero, eye), 1), torch.cat((-eye, zero), 1)), 0)
+        return -c @ self._solve(electric_transform.mH, c / float(getattr(self, "sin_zeta", 1.0)))
 
     def _build_circle_conversion_matrices(
         self, mapping: CircleASRMapping
@@ -1409,6 +1430,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
             factorization_normals=factorization_normals,
         )
         transform, transform_z_all = self._build_circle_conversion_matrices(mapping)
+        magnetic_transform = self._flux_dual_transform(transform)
         layer_index = self.layer_N
         complete_d6 = (
             bool(getattr(self, "use_group_theory", False))
@@ -1438,6 +1460,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
             )
             vector_embedding, _, _, _, _ = self._triangular_star_operators()
             transform_star = vector_embedding.mH @ transform @ vector_embedding
+            magnetic_transform_star = self._flux_dual_transform(transform_star)
             (
                 kz,
                 w_cartesian_star,
@@ -1449,12 +1472,13 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                 transform_star,
                 layer_index=layer_index,
                 backend="matched-ASR",
+                magnetic_transform_star=magnetic_transform_star,
             )
             w_uv = vector_embedding @ (
                 transform_inverse_star @ w_cartesian_star
             )
             v_uv = vector_embedding @ (
-                transform_inverse_star @ v_cartesian_star
+                self._solve(magnetic_transform_star, v_cartesian_star)
             )
             w_cartesian = vector_embedding @ w_cartesian_star
             v_cartesian = vector_embedding @ v_cartesian_star
@@ -1482,6 +1506,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
             )
             vector_embedding, _, _, _, _ = self._triangular_star_operators()
             transform_star = vector_embedding.mH @ transform @ vector_embedding
+            magnetic_transform_star = self._flux_dual_transform(transform_star)
             (
                 kz,
                 w_cartesian_star,
@@ -1493,12 +1518,13 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                 transform_star,
                 layer_index=layer_index,
                 backend="matched-ASR",
+                magnetic_transform_star=magnetic_transform_star,
             )
             w_uv = vector_embedding @ (
                 transform_inverse_star @ w_cartesian_star
             )
             v_uv = vector_embedding @ (
-                transform_inverse_star @ v_cartesian_star
+                self._solve(magnetic_transform_star, v_cartesian_star)
             )
             w_cartesian = vector_embedding @ w_cartesian_star
             v_cartesian = vector_embedding @ v_cartesian_star
@@ -1529,6 +1555,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                     transform,
                     layer_index=layer_index,
                     triangular_star_pq=triangular_star_pq,
+                    magnetic_transform=magnetic_transform,
                 )
             )
         elif getattr(self, "use_group_theory", False):
@@ -1545,13 +1572,13 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                 kz, w_uv = grouped
             v_uv = self._magnetic_eigenvectors(p, q, w_uv, kz)
             w_cartesian = torch.matmul(transform, w_uv)
-            v_cartesian = torch.matmul(transform, v_uv)
+            v_cartesian = torch.matmul(magnetic_transform, v_uv)
         else:
             kz_squared, w_uv = self._eig(torch.matmul(p, q))
             kz = self._positive_kz(kz_squared)
             v_uv = self._magnetic_eigenvectors(p, q, w_uv, kz)
             w_cartesian = torch.matmul(transform, w_uv)
-            v_cartesian = torch.matmul(transform, v_uv)
+            v_cartesian = torch.matmul(magnetic_transform, v_uv)
         transform_z = transform_z_all if self.store_mode_couplings else None
 
         self.layer_N += 1
@@ -1598,6 +1625,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                 "electric_modes_cartesian": w_cartesian,
                 "magnetic_modes_cartesian": v_cartesian,
                 "transform_xy": transform,
+                "transform_h_xy": magnetic_transform,
                 "transform_z": transform_z,
                 "eps33_conv": eps33_conv,
                 "mu33_conv": mu33_conv,
@@ -2700,13 +2728,14 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
         v_uv = self._magnetic_eigenvectors(p, q, w_uv, kz)
 
         transform = self._build_conversion_matrix_T(quadrature_mapping)
+        magnetic_transform = self._flux_dual_transform(transform)
         transform_z = (
             self._build_conversion_matrix_Tz(quadrature_mapping)
             if self.store_mode_couplings
             else None
         )
         w_cartesian = torch.matmul(transform, w_uv)
-        v_cartesian = torch.matmul(transform, v_uv)
+        v_cartesian = torch.matmul(magnetic_transform, v_uv)
 
         self.layer_N += 1
         self.thickness.append(thickness_tensor)
@@ -2747,6 +2776,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                 "electric_modes_cartesian": w_cartesian,
                 "magnetic_modes_cartesian": v_cartesian,
                 "transform_xy": transform,
+                "transform_h_xy": magnetic_transform,
                 "transform_z": transform_z,
                 "eps33_conv": eps33_conv,
                 "mu33_conv": mu33_conv,

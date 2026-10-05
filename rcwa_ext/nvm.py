@@ -392,6 +392,29 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
             dim=0,
         )
 
+    @staticmethod
+    def _symmetric_nvm_tensor(eps_zz, delta, projection):
+        """Symmetric normal-vector factorization (Weismann et al., Eq. 6).
+
+        With delta = inverse([1/eps]) - [eps] and P_ab = [n_a*n_b],
+        epsilon_ab = delta_ab*[eps] + (delta@P_ab + P_ab@delta)/2.
+        The old one-sided delta@P_ab is not Hermitian for real eps at finite
+        truncation and permits artificial gain/loss. The anticommutator is
+        Hermitian for lossless materials and keeps COMPLEX material loss:
+        no adjoint of delta and no post-hoc averaging with epsilon.mH is used.
+
+        Reference: https://arxiv.org/pdf/1507.06364, Section 3, Eq. (6).
+        Assemble scalar blocks to avoid allocating a dense block-diagonal delta.
+        """
+        n = eps_zz.shape[0]
+        tensor = eps_zz.new_empty((2*n, 2*n))
+        for a in range(2):
+            for b in range(2):
+                block = projection[a*n:(a+1)*n, b*n:(b+1)*n]
+                correction = 0.5*(delta@block + block@delta)
+                tensor[a*n:(a+1)*n, b*n:(b+1)*n] = correction + eps_zz if a == b else correction
+        return tensor
+
     def _build_triangular_nvm_star_pq(
         self,
         eps_zz: torch.Tensor,
@@ -429,22 +452,7 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
         )
 
         delta = effective_inverse_rule - eps_zz_star
-        zero = torch.zeros_like(delta)
-        delta_2s = torch.cat(
-            (
-                torch.cat((delta, zero), dim=1),
-                torch.cat((zero, delta), dim=1),
-            ),
-            dim=0,
-        )
-        eps_2s = torch.cat(
-            (
-                torch.cat((eps_zz_star, zero), dim=1),
-                torch.cat((zero, eps_zz_star), dim=1),
-            ),
-            dim=0,
-        )
-        eps_tensor = eps_2s + torch.matmul(delta_2s, projection_star)
+        eps_tensor = self._symmetric_nvm_tensor(eps_zz_star, delta, projection_star)
         eps_xx = eps_tensor[:star_count, :star_count]
         eps_xy = eps_tensor[:star_count, star_count:]
         eps_yx = eps_tensor[star_count:, :star_count]
@@ -631,14 +639,7 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
         )
         delta = inverse_inverse_eps - eps_zz
         n = self.order_N
-        # diag(eps_zz, eps_zz) + diag(delta, delta) @ projection,
-        # assembled one block at a time. Do not materialize the two large
-        # block-diagonal intermediates or a full-sized product temporary.
-        self._nvm_eps_tensor = eps_zz.new_empty((2 * n, 2 * n))
-        self._nvm_eps_tensor[:n, :n] = eps_zz + delta @ projection[:n, :n]
-        self._nvm_eps_tensor[:n, n:] = delta @ projection[:n, n:]
-        self._nvm_eps_tensor[n:, :n] = delta @ projection[n:, :n]
-        self._nvm_eps_tensor[n:, n:] = eps_zz + delta @ projection[n:, n:]
+        self._nvm_eps_tensor = self._symmetric_nvm_tensor(eps_zz, delta, projection)
         # Release assembly inputs before allocating P, not after P and Q.
         # Autograd retains any tensors it needs when inputs require gradients.
         del delta, inverse_inverse_eps
@@ -955,6 +956,8 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
                         if core_shell
                         else "normal-vector"
                     ),
+                    "factorization_rule": "symmetric-nv-anticommutator",
+                    "factorization_reference": "https://arxiv.org/pdf/1507.06364#page=6",
                     "group_theory": dict(self.group_theory_diagnostics[-1]),
                 },
             )

@@ -351,43 +351,90 @@ class _ReducedScatteringMixin:
         tf, rf, rb, tb = full_scattering
         forward_state = input_basis @ torch.cat((identity, rf), dim=0)
         backward_state = output_basis @ torch.cat((rb, identity), dim=0)
-        forward_reduced: list[torch.Tensor] = []
-        for layer_index in range(len(layers)):
-            amplitudes = self._solve(
-                left_boundaries[layer_index], forward_state
-            )
-            forward_reduced.append(amplitudes)
-            forward_state = right_boundaries[layer_index] @ amplitudes
-        backward_reduced: list[torch.Tensor] = [
-            torch.empty(0, dtype=self._dtype, device=self._device)
-            for _ in layers
-        ]
-        for layer_index in range(len(layers) - 1, -1, -1):
-            amplitudes = self._solve(
-                right_boundaries[layer_index], backward_state
-            )
-            backward_reduced[layer_index] = amplitudes
-            backward_state = left_boundaries[layer_index] @ amplitudes
+        # Recover couplings by Redheffer composition. Inverting a boundary
+        # matrix with diag(exp(i*kz*d)) divides by exponentially small phases
+        # and turns evanescent roundoff into a growing wave in thick/metals.
+        reference_v = self._polarization_reference_v
+        zero = torch.zeros_like(identity)
+        scattering = self._reduced_interface_s(reference_v, input_v, input_side=True)
+        forward_reduced, backward_reduced = [], []
 
-        forward_target = output_basis @ torch.cat((tf, torch.zeros_like(tf)), dim=0)
-        backward_target = input_basis @ torch.cat((torch.zeros_like(tb), tb), dim=0)
-        tiny = torch.as_tensor(
-            torch.finfo(forward_state.real.dtype).tiny,
-            dtype=forward_state.real.dtype,
-            device=self._device,
-        )
-        boundary_residual = torch.maximum(
-            torch.linalg.vector_norm(forward_state - forward_target)
-            / torch.maximum(torch.linalg.vector_norm(forward_target), tiny),
-            torch.linalg.vector_norm(backward_state - backward_target)
-            / torch.maximum(torch.linalg.vector_norm(backward_target), tiny),
-        )
-        tolerance = 2.0e-4 if self._dtype == torch.complex64 else 2.0e-9
+        def coupling_solve(matrix, rhs):
+            # Mode norms can span many decades after strong ASR compression.
+            # Row/column equilibration preserves the linear system and avoids
+            # treating a very small mode column as floating-point noise.
+            a,b = matrix.to(torch.complex128),rhs.to(torch.complex128)
+            floor = torch.finfo(a.real.dtype).tiny
+            rows = a.abs().amax(1).clamp_min(floor)
+            row_scaled = a/rows[:,None]
+            columns = row_scaled.abs().amax(0).clamp_min(floor)
+            scaled = row_scaled/columns[None,:]
+            def solve(value):
+                return torch.linalg.solve(scaled,value/rows[:,None])/columns[:,None]
+            value = solve(b)
+            for _ in range(2):
+                value = value+solve(b-a@value)
+            return value.to(self._dtype)
+
+        def connect(right, cf=None, cb=None):
+            nonlocal scattering, forward_reduced, backward_reduced
+            tf_l, rf_l, rb_l, tb_l = scattering
+            tf_r, rf_r, rb_r, tb_r = right
+            lr = self._solve(identity-rb_l@rf_r, identity)
+            rl = self._solve(identity-rf_r@rb_l, identity)
+            new_f = [a+b@rl@rf_r@tf_l for a,b in zip(forward_reduced,backward_reduced)]
+            new_b = [b@rl@tb_r for b in backward_reduced]
+            if cf is not None:
+                new_f.append(cf@lr@tf_l)
+                new_b.append(cb+cf@lr@rb_l@tb_r)
+            forward_reduced, backward_reduced = new_f, new_b
+            scattering = [tf_r@lr@tf_l, rf_l+tb_l@rl@rf_r@tf_l,
+                          rb_r+tf_r@lr@rb_l@tb_r, tb_l@rl@tb_r]
+
+        for layer, thickness in zip(layers, self.thickness):
+            e,h = layer["electric"],layer["magnetic"]
+            phase = torch.diag(torch.exp(1j*self.omega*layer["kz"]*thickness))
+            vh = self._solve(reference_v,h)
+            plus,minus = e+vh,e-vh
+            boundary = torch.cat((torch.cat((plus,minus@phase),1),
+                                  torch.cat((minus@phase,plus),1)),0)
+            all_c = coupling_solve(boundary,2*self._eye(2*size))
+            cf,cb = all_c[:,:size],all_c[:,size:]
+            ep = e@phase
+            right = [ep@cf[:size]+e@cf[size:], e@cf[:size]+ep@cf[size:]-identity,
+                     ep@cb[:size]+e@cb[size:]-identity, e@cb[:size]+ep@cb[size:]]
+            connect(right,cf,cb)
+        connect(self._reduced_interface_s(reference_v,output_v,input_side=False))
+
+        # Check BOTH sides and every layer boundary. This check never uses
+        # propagation by an inverse decaying phase.
+        # Use the scattering blocks from this SAME coupling cascade. Two
+        # algebraically equivalent layer formulas can differ substantially
+        # for ill-conditioned, evanescent high-order ports. Mixing them makes
+        # the field boundary check compare two different numerical solutions.
+        self._reduced_coupling_smatrix = scattering
+        tf,rf,rb,tb = scattering
+        forward_state = input_basis@torch.cat((identity,rf),0)
+        backward_state = output_basis@torch.cat((rb,identity),0)
+        forward_target = output_basis@torch.cat((tf,zero),0)
+        backward_target = input_basis@torch.cat((zero,tb),0)
+        comparisons = [(left_boundaries[0]@forward_reduced[0],forward_state),
+                       (right_boundaries[-1]@forward_reduced[-1],forward_target),
+                       (right_boundaries[-1]@backward_reduced[-1],backward_state),
+                       (left_boundaries[0]@backward_reduced[0],backward_target)]
+        for i in range(len(layers)-1):
+            comparisons.extend((
+                (right_boundaries[i]@forward_reduced[i],left_boundaries[i+1]@forward_reduced[i+1]),
+                (right_boundaries[i]@backward_reduced[i],left_boundaries[i+1]@backward_reduced[i+1])))
+        residuals = [torch.linalg.vector_norm(a-b)/torch.maximum(
+                    torch.maximum(torch.linalg.vector_norm(a),torch.linalg.vector_norm(b)),
+                    torch.as_tensor(torch.finfo(a.real.dtype).tiny,dtype=a.real.dtype,device=a.device))
+                    for a,b in comparisons]
+        boundary_residual = torch.stack(residuals).max()
+        tolerance = 2e-4 if self._dtype == torch.complex64 else 2e-9
         if _as_float(boundary_residual) > tolerance:
-            raise RuntimeError(
-                "Reduced internal-field boundary reconstruction failed: "
-                f"{_as_float(boundary_residual):.3e}."
-            )
+            raise RuntimeError("Reduced internal-field boundary reconstruction failed: "
+                               f"{_as_float(boundary_residual):.3e}.")
         source_projection = electric_embedding.mH
         self._reduced_field_boundary_residual = boundary_residual.detach()
         return [
@@ -536,7 +583,6 @@ class _ReducedScatteringMixin:
             )
 
         if need_field_data:
-            self._field_smatrix = [expand(block) for block in redheffer]
             self.C = self._reduced_internal_couplings(
                 self._polarized_layers,
                 input_v,
@@ -544,6 +590,10 @@ class _ReducedScatteringMixin:
                 redheffer,
                 electric_basis,
             )
+            redheffer = self._reduced_coupling_smatrix
+            self._field_smatrix = [expand(block) for block in redheffer]
+            if self.smatrix_algorithm == 'redheffer':
+                reduced_scattering = redheffer
         else:
             self.C = [[], []]
 

@@ -1,5 +1,8 @@
 # 三角格子円形NVMのx/y偏光セクター短縮
 
+> 2026-10-05修正版：現行の因数分解・磁場変換・内部場復元は `NV_ASR_CORRECTIONS_ja.md` を参照。本文中の以前の数値表は旧版の記録であり、新版の検証結果は `reports/` に分けています。
+
+
 ## 1. 適用範囲
 
 対象は、等長の基本並進ベクトルが60度をなす三角Bravais格子、primitive-cell中心の
@@ -64,8 +67,8 @@ N_\star=E_v^\dagger N E_v
 \[
 \mathcal E_{t,\star}
 =I_2\otimes\epsilon_\star
-+\left\{I_2\otimes
-(\eta_\star^{-1}-\epsilon_\star)\right\}N_\star
++\tfrac12\left(\Delta_\star^{(2)}N_\star+N_\star\Delta_\star^{(2)}\right),
+\qquad\Delta_\star^{(2)}=I_2\otimes(\eta_\star^{-1}-\epsilon_\star)
 \]
 
 である。longitudinal inverseも \(\epsilon_\star^{-1}\) を使う。斜交座標の波数行列

@@ -225,7 +225,7 @@ def _discard_reflectance_auxiliary(simulation):
 
 
 def reflectance_tensor(wavelength_nm, radii, config, gold_model, device, torch,
-                       *, discard_auxiliary=False):
+                       *, discard_auxiliary=True):
     """Same measured-Au RCWA and flux definition as converge.py, with gradients."""
     from rcwa_solver_auto import (ASROptions, AutoRCWA, Circle, GroupTheoryOptions,
                                   Lattice, LayerSpec, Material, OutputSpec)

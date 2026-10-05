@@ -1,5 +1,8 @@
 # native-star 完全D6 solverと理論計算量
 
+> 2026-10-05修正版：現行の因数分解・磁場変換・内部場復元は `NV_ASR_CORRECTIONS_ja.md` を参照。本文中の以前の数値表は旧版の記録であり、新版の検証結果は `reports/` に分けています。
+
+
 ## 1. 実装範囲
 
 三角Bravais格子、正入射、primitive-cell中心の単一円について、NVMとmatched-ASRの双方に
