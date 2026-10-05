@@ -93,6 +93,36 @@ python3 studies/gold_motheye3/run_next.py --report-only
 `--add-grids 640,704` のように、さらに大きなgridを指定することもできる。
 この判定はM=16でのgrid確認なので、最終的に採用するMでもgridを再確認する。
 
+## grid=576でも700 nmの振動が減らない場合
+
+gridを増やしても約1 percentage pointの反射率の振動が残る場合は、
+ASRの座標変換と変換行列を先に診断する。
+
+```bash
+python3 studies/gold_motheye3/diagnose_grid_700.py --device cuda --transforms
+```
+
+既存のgrid checkpointから形状・M・Nz・材料CSVを読み取り、
+grid=448,512,576の各々で1,50,100層目の実装中の座標変換を調べる。
+座標変換のJacobianが正か、60度回転・鏡映に整合するか、金領域の面積の
+積分が解析的な円の面積に近いか、材料ラベルに対称性のずれがあるかを出力する。
+`--transforms` はD6計算が使用する `T_star = E^H T E` の特異値と
+2ノルム条件数も測定する。条件数が大きい場合、行列の誤差が増幅されやすい。
+これらの指標だけで反射率の誤差量や原因を断定することはできない。
+
+100層の光学計算・R/Tの再計算は行わず、指定した3層×3gridを診断する。
+SVDの時間はかかるため、座標変換のみを先に調べる場合は
+`--transforms` を省く。準備確認には `--prepare-only`、全層を調べるには
+`--layers all` を指定し、全層診断用に別の `--output-dir` を使う。
+
+出力先は `results/grid_diagnostics_700_transform/`、座標変換のみの場合は
+`results/grid_diagnostics_700_map/`。`diagnostics.json` に各診断値とエラー、
+`summary.csv` に一覧、`plan.json` に条件と未完了ケースを保存する。
+途中停止後は同じコマンドで未完了ケースを再開できる。
+既存のgrid計算とRCWAソース・材料CSVが一致していることを確認し、
+一致しない場合は別バージョンの結果を比較しないよう停止する。
+診断ファイルはソルバー自体を変更しないので、既存checkpointは継続使用できる。
+
 ## 出力
 
 各軸の結果は `results/order_Nz100_grid256/`、`results/slices_M16_grid256/`、
