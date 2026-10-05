@@ -74,6 +74,18 @@ python3 studies/gold_motheye3/converge.py --axis order \
 固定条件・材料・RCWAソースが変わった場合、既存checkpointとの混用を拒否する。
 別の `--output-dir` を指定して新しい掃引を開始する。
 
+## 最初の結果で700 nmのgrid収束が未確認だった場合
+
+既存の `grid_M16_Nz100/checkpoint.json` を残したまま、次のファイルを実行する。
+
+```bash
+python3 studies/gold_motheye3/run_next.py --device cuda
+```
+
+元の15ケースを再利用し、grid=384と448の各3波長、計6ケースだけを追加する。
+700 nmの末尾2段階の変化と判定を表示する。途中で停止しても同じコマンドで再開できる。
+この判定はM=16でのgrid確認なので、最終的に採用するMでもgridを再確認する。
+
 ## 出力
 
 各軸の結果は `results/order_Nz100_grid256/`、`results/slices_M16_grid256/`、
