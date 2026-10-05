@@ -1,9 +1,7 @@
-"""Extend the existing M=16 Au moth-eye grid sweep to 384 and 448.
+"""Inspect saved grid results or extend the Au moth-eye sweep to 512/576.
 
-Run from the project root with ``python3 studies/gold_motheye3/run_next.py
---device cuda``. This wrapper refuses to start a new sweep: the completed
-96..320 checkpoint must already be present. It does not replace model, Au CSV,
-or RCWA sources, and it keeps all previously computed cases.
+Use --report-only to print actual R/P/A and signed changes without a solve.
+The default solve adds grids 512 and 576 to the existing M=16, Nz=100 sweep.
 """
 
 from __future__ import annotations
@@ -16,87 +14,117 @@ from pathlib import Path
 
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 OUTPUT = HERE / "results" / "grid_M16_Nz100"
-OLD_VALUES = [96, 128, 192, 256, 320]
-NEW_VALUES = OLD_VALUES + [384, 448]
-WAVELENGTHS = [400.0, 550.0, 700.0]
+BASE_VALUES = [96, 128, 192, 256, 320, 384, 448]
 METRICS = ("reflectance", "power_into_substrate", "motheye_absorptance")
 
 
-def validate_checkpoint(path: Path) -> dict:
+def read_checkpoint() -> dict:
+    path = OUTPUT / "checkpoint.json"
     if not path.is_file():
-        raise FileNotFoundError(
-            f"Existing grid checkpoint is required: {path}. "
-            "Place run_next.py in the same gold_motheye3 folder used for the first run."
-        )
-    checkpoint = json.loads(path.read_text(encoding="utf-8"))
-    plan = checkpoint.get("plan", {})
-    values = plan.get("values")
-    expected = {f"{value}|{wavelength:g}"
-                for value in OLD_VALUES for wavelength in WAVELENGTHS}
-    cases = checkpoint.get("cases", {})
-    if not isinstance(cases, dict) or not expected.issubset(cases):
-        raise ValueError("The original 15 grid cases are not all saved in checkpoint.json.")
+        raise FileNotFoundError(f"Existing grid checkpoint is required: {path}")
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    plan, cases = saved.get("plan", {}), saved.get("cases", {})
     if (plan.get("axis") != "grid"
-            or values not in (OLD_VALUES, NEW_VALUES)
-            or plan.get("wavelengths_nm") != WAVELENGTHS
             or plan.get("fixed_numerics") != {"order": 16, "slices": 100, "grid": 256}
-            or plan.get("solver", {}).get("cascade") != "redheffer"
-            or plan.get("solver", {}).get("symmetry_reduction") != "d6-source"
-            or plan.get("tolerance") != 0.005):
-        raise ValueError("The saved grid sweep differs from the expected M=16, Nz=100 setup.")
-    return checkpoint
+            or plan.get("wavelengths_nm") != [400.0, 550.0, 700.0]
+            or not isinstance(cases, dict)):
+        raise ValueError("Expected the existing grid sweep at M=16, Nz=100, 400/550/700 nm.")
+    from studies.gold_motheye3.converge import _signature
+    if saved.get("signature") != _signature(plan):
+        raise ValueError("Checkpoint signature does not match its saved plan.")
+    return saved
 
 
-def command(device: str, action: str | None = None) -> list[str]:
-    values = ",".join(str(value) for value in NEW_VALUES)
+def extended_values(saved: dict, added: list[int]) -> list[int]:
+    current = saved["plan"]["values"]
+    expected = {f"{value}|{wavelength:g}" for value in BASE_VALUES
+                for wavelength in saved["plan"]["wavelengths_nm"]}
+    if not expected.issubset(saved["cases"]):
+        raise ValueError("The 21 cases through grid=448 must be completed before extension.")
+    missing = sorted(set(added) - set(current))
+    if missing and min(missing) <= max(current):
+        raise ValueError("New grid values must exceed the saved maximum grid.")
+    return sorted(set(current) | set(added))
+
+
+def command(saved: dict, values: list[int], device: str, prepare: bool) -> list[str]:
+    plan = saved["plan"]
+    fixed = plan["fixed_numerics"]
     result = [sys.executable, str(HERE / "converge.py"),
-              "--axis", "grid", "--values", values,
-              "--order", "16", "--slices", "100", "--grid", "256",
-              "--wavelengths", "400,550,700", "--tolerance", "0.005",
-              "--cascade", "redheffer", "--device", device]
-    if action:
-        result.append(action)
+              "--axis", "grid", "--values", ",".join(map(str, values)),
+              "--order", str(fixed["order"]), "--slices", str(fixed["slices"]),
+              "--grid", str(fixed["grid"]),
+              "--wavelengths", ",".join(f"{value:g}" for value in plan["wavelengths_nm"]),
+              "--tolerance", str(plan["tolerance"]),
+              "--cascade", plan["solver"]["cascade"], "--device", device,
+              "--gold-csv", plan["material"]["path"], "--output-dir", str(OUTPUT)]
+    if prepare:
+        result.append("--prepare-only")
     return result
 
 
-def show_result(report_path: Path) -> None:
-    report = json.loads(report_path.read_text(encoding="utf-8"))
+def show_result(saved: dict) -> None:
+    from studies.gold_motheye3.converge import assess
+    plan, cases = saved["plan"], saved["cases"]
+    report = assess(plan, cases)
     print(f"grid status: {report['status']} "
           f"({report['completed_cases']}/{report['expected_cases']} cases)")
-    entries = report["adjacent_changes"].get("700", [])
-    for entry in entries[-2:]:
-        changes = entry["absolute_changes"]
-        numbers = ", ".join(f"{name}={100 * changes[name]:.6g} pp"
-                            for name in METRICS)
-        print(f"700 nm, grid {entry['low']} -> {entry['high']}: {numbers}; "
-              f"pass={entry['passes_tolerance']}")
-    if report["status"] == "converged_within_tested_values":
-        print("M=16 grid criterion passed. Check grid again at the final Fourier order.")
-    elif report["status"] == "not_converged":
-        print("Grid convergence is still unconfirmed at 700 nm.")
+    print(f"Tolerance: {100 * plan['tolerance']:g} percentage points; M=16, Nz=100")
+    for wavelength in plan["wavelengths_nm"]:
+        print(f"\n{wavelength:g} nm: values in percent; changes in percentage points")
+        print(" grid       R(%)     P_sub(%)  A_pillar(%)    signed_dR     max_abs_change")
+        previous = None
+        for value in plan["values"]:
+            row = cases.get(f"{value}|{wavelength:.12g}")
+            if row is None:
+                print(f"{value:5d}  not calculated")
+                previous = None
+                continue
+            reflection, substrate, absorption = [100 * float(row[name]) for name in METRICS]
+            if previous is None:
+                change = "            -                  -"
+            else:
+                signed = 100 * (float(row["reflectance"]) - float(previous["reflectance"]))
+                maximum = 100 * max(abs(float(row[name]) - float(previous[name]))
+                                    for name in METRICS)
+                change = f"{signed:13.6g} {maximum:18.6g}"
+            print(f"{value:5d} {reflection:10.6f} {substrate:12.6f} {absorption:12.6f} {change}")
+            previous = row
+    print(f"\nSaved results: {OUTPUT}")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--device", choices=("cuda", "cpu", "auto"), default="cuda")
-    parser.add_argument("--prepare-only", action="store_true")
-    parser.add_argument("--report-only", action="store_true")
+    parser.add_argument("--device", choices=("cuda", "cpu", "auto"),
+                        help="Default: the device setting saved in the checkpoint.")
+    parser.add_argument("--add-grids", default="512,576")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--prepare-only", action="store_true")
+    mode.add_argument("--report-only", action="store_true")
     args = parser.parse_args()
-    if args.prepare_only and args.report_only:
-        parser.error("Choose only one of --prepare-only and --report-only.")
-    validate_checkpoint(OUTPUT / "checkpoint.json")
-    action = "--prepare-only" if args.prepare_only else "--report-only" if args.report_only else None
-    print("Extending the saved grid sweep from 320 to 384 and 448.", flush=True)
-    result = subprocess.run(command(args.device, action), check=False)
-    if result.returncode:
-        if not action:
-            print("Solve stopped; rebuilding a report from saved cases.", flush=True)
-            subprocess.run(command(args.device, "--report-only"), check=False)
-        return result.returncode
+    saved = read_checkpoint()
+    if args.report_only:
+        show_result(saved)
+        return 0
+    try:
+        added = sorted(set(int(item.strip()) for item in args.add_grids.split(",")))
+        if not added or any(value < 32 or value % 2 for value in added):
+            raise ValueError("Use comma-separated even grids >= 32.")
+        values = extended_values(saved, added)
+    except ValueError as error:
+        parser.error(str(error))
+    missing = sum(f"{value}|{wavelength:.12g}" not in saved["cases"]
+                  for value in values for wavelength in saved["plan"]["wavelengths_nm"])
+    device = args.device or saved["plan"]["solver"]["requested_device"]
+    print(f"Grid plan: {values}; {missing} cases to calculate.", flush=True)
+    result = subprocess.run(command(saved, values, device, args.prepare_only), check=False)
     if not args.prepare_only:
-        show_result(OUTPUT / "report.json")
-    return 0
+        show_result(read_checkpoint())
+    return result.returncode
 
 
 if __name__ == "__main__":

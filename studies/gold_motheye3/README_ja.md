@@ -82,8 +82,15 @@ python3 studies/gold_motheye3/converge.py --axis order \
 python3 studies/gold_motheye3/run_next.py --device cuda
 ```
 
-元の15ケースを再利用し、grid=384と448の各3波長、計6ケースだけを追加する。
-700 nmの末尾2段階の変化と判定を表示する。途中で停止しても同じコマンドで再開できる。
+更新版はgrid=448までの21ケースを再利用し、grid=512と576の各3波長、
+計6ケースだけを追加する。途中で停止しても同じコマンドで再開できる。
+保存済みの実値と符号付き反射率差を表示するだけなら、以下を実行する。
+
+```bash
+python3 studies/gold_motheye3/run_next.py --report-only
+```
+
+`--add-grids 640,704` のように、さらに大きなgridを指定することもできる。
 この判定はM=16でのgrid確認なので、最終的に採用するMでもgridを再確認する。
 
 ## 出力
