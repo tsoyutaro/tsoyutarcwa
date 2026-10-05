@@ -197,15 +197,15 @@ def simulate_case(
     period = geometry.period_nm
     epsilon_gold = gold_epsilon(wavelength_nm)
     epsilon_pmma = geometry.pmma_index**2
-    if symmetry_reduction not in {"d6-source", "cs-source"}:
-        raise ValueError("symmetry_reduction must be d6-source or cs-source.")
+    if symmetry_reduction not in {"d6-source", "d6-complete", "cs-source"}:
+        raise ValueError("symmetry_reduction must be d6-source, d6-complete or cs-source.")
     if (
         use_symmetry
-        and symmetry_reduction == "d6-source"
+        and symmetry_reduction in {"d6-source", "d6-complete"}
         and geometry.lattice != "triangular"
     ):
         raise ValueError(
-            "d6-source requires the triangular lattice; use cs-source for "
+            "D6 reduction requires the triangular lattice; use cs-source for "
             "the square-lattice C2v source sector."
         )
     simulation = AutoRCWA(
@@ -221,9 +221,9 @@ def simulate_case(
         ),
         group_theory=GroupTheoryOptions(
             enabled=use_symmetry,
-            symmetry="d6" if symmetry_reduction == "d6-source" else "auto",
+            symmetry="d6" if symmetry_reduction in {"d6-source", "d6-complete"} else "auto",
             strict=use_symmetry,
-            polarization="x" if use_symmetry else None,
+            polarization="x" if use_symmetry and symmetry_reduction != "d6-complete" else None,
         ),
         verify_cascade=False,
         dtype=torch.complex128,
@@ -618,10 +618,11 @@ def add_shared_arguments(parser) -> None:
     )
     parser.add_argument(
         "--symmetry-reduction",
-        choices=("d6-source", "cs-source"),
+        choices=("d6-source", "d6-complete", "cs-source"),
         default="d6-source",
         help=(
             "d6-source solves only the E1 matrix-unit row reached by x; "
+            "d6-complete solves every irrep on the same D6 star; "
             "cs-source retains the older D6-star/mirror-sector reduction."
         ),
     )

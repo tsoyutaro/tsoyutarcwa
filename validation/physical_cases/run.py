@@ -33,6 +33,25 @@ def _write_json(path: Path, payload: dict) -> None:
                                allow_nan=False) + "\n", encoding="utf-8")
 
 
+def _archive_previous_run(output: Path, signature: str) -> Path:
+    """Keep prior results when source or case settings change."""
+    label = signature[:12] if len(signature) == 64 and all(
+        character in "0123456789abcdef" for character in signature
+    ) else "unknown"
+    base = output / "history" / label
+    destination = base
+    suffix = 1
+    while destination.exists():
+        destination = output / "history" / f"{label}-{suffix}"
+        suffix += 1
+    destination.mkdir(parents=True)
+    for name in ("checkpoint.json", "report.json", "plan.json"):
+        source = output / name
+        if source.exists():
+            source.rename(destination / name)
+    return destination
+
+
 def _plan() -> dict:
     config = json.loads((HERE / "cases.json").read_text(encoding="utf-8"))
     if config.get("version") != 1:
@@ -130,11 +149,12 @@ def _run_case(case: dict, material: dict, config: dict, device, torch) -> dict:
         gold_thickness_nm=shape["au_radial_thickness"], pmma_index=pmma_n,
         lattice="triangular", include_top_cap=True, asr_circle_g=0.03)
 
-    def relief(*, epsilon=epsilon_gold, symmetry=True, discard=True):
+    def relief(*, epsilon=epsilon_gold, symmetry=True, discard=True,
+               reduction="d6-source"):
         return common.simulate_case(
             wavelength, numerical, geometry, lambda _w: epsilon,
             cascade="redheffer", use_symmetry=symmetry,
-            symmetry_reduction="d6-source", factorization_rules=True,
+            symmetry_reduction=reduction, factorization_rules=True,
             device=device, valley_gold_thickness_nm=shape["au_valley_thickness"],
             discard_auxiliary=discard)
 
@@ -213,14 +233,26 @@ def _run_case(case: dict, material: dict, config: dict, device, torch) -> dict:
 
     if kind == "symmetry_parity":
         reduced = relief(symmetry=True)
-        full = relief(symmetry=False)
+        complete = relief(symmetry=True, reduction="d6-complete")
+        rectangular = relief(symmetry=False)
         _check_passivity(reduced)
-        _check_passivity(full)
-        errors = {name: abs(reduced[name]-full[name])
+        _check_passivity(complete)
+        _check_passivity(rectangular)
+        if (reduced["symmetry_reduction"] != "D6-E1-source-row" or
+                complete["symmetry_reduction"] != "D6-complete-native-star"):
+            raise AssertionError("Requested D6 source/complete solvers were not applied.")
+        errors = {name: abs(reduced[name]-complete[name])
                   for name in ("reflectance", "transmittance", "absorptance")}
         if max(errors.values()) > 1e-6:
-            raise AssertionError(f"D6/full R/T/A mismatch: {errors}")
-        return {"d6": reduced, "full": full, "absolute_errors": errors}
+            raise AssertionError(f"D6 source/complete-star R/T/A mismatch: {errors}")
+        rectangular_differences = {
+            name: abs(reduced[name]-rectangular[name])
+            for name in ("reflectance", "transmittance", "absorptance")
+        }
+        return {"d6_source": reduced, "d6_complete_star": complete,
+                "same_star_absolute_errors": errors,
+                "rectangular_full_diagnostic_only": rectangular,
+                "different_truncation_absolute_differences": rectangular_differences}
 
     if kind == "gradient_parity":
         gold_config = {"geometry": {"period_nm": shape["period"],
@@ -266,12 +298,12 @@ def main() -> int:
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
     plan = _plan()
-    _write_json(output / "plan.json", plan)
     selected = [case for case in plan["configuration"]["cases"]
                 if args.case_ids is None or case["id"] in args.case_ids]
     if not selected or (args.case_ids and set(args.case_ids) != {c["id"] for c in selected}):
         parser.error("Unknown or empty --case selection.")
     if args.prepare_only:
+        _write_json(output / "plan.json", plan)
         print(f"Prepared {len(selected)} cases: {output / 'plan.json'}")
         return 0
 
@@ -288,9 +320,12 @@ def main() -> int:
     if checkpoint_path.exists():
         checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
         if checkpoint.get("signature") != signature:
-            raise RuntimeError("Existing checkpoint belongs to different settings or source code.")
+            previous = _archive_previous_run(output, str(checkpoint.get("signature", "")))
+            print(f"Archived previous results: {previous}", flush=True)
+            checkpoint = {"signature": signature, "device": str(device), "cases": {}}
     else:
         checkpoint = {"signature": signature, "device": str(device), "cases": {}}
+    _write_json(output / "plan.json", plan)
     for case in selected:
         if checkpoint["cases"].get(case["id"], {}).get("passed"):
             print(f"SKIP {case['id']} (saved pass)", flush=True)
