@@ -302,3 +302,61 @@ grid収束判定は同じ0.5 pp基準を使用する。条件数の診断とは�
 gridが通過しても次数・層数・他波長の収束を保証しない。
 作成環境では条件準備、保存、再開、追加計算の制御を検証した。
 PyTorchがないため、新しい実行ファイルでのCUDA光学計算・SVDは未実行。
+
+## CUDA OOMになるまで次数を増やす
+
+`run_until_oom.py` を既存の `studies/gold_motheye3/` に置いて実行する。
+既定では `results/order_700_Nz140_grid576_memory_safe/checkpoint.json` の
+保存済み結果を読み、完了済み最大次数の次から2ずつ増やす。
+M=34まで保存している場合は、M=36,38,40,...を試す。
+700 nm、140層、grid=576、元の金の形状・CSV・complex128・D6縮約と、
+同等性を確認済みの層データ解放方式を継承する。
+
+```bash
+python3 studies/gold_motheye3/run_until_oom.py --device cuda
+```
+
+各次数を別プロセスで計算し、その終了時にCUDAコンテキストごと解放する。
+CUDA OOMは予定された停止条件として扱う。成功済み結果を保存・作図し、
+tracebackで終了する代わりに `stopped_cuda_oom` を表示して終了コード0で終わる。
+RCWAの数式や既存の実行ファイル・基準checkpointは変更しない。
+OOM以外の計算エラーや、OS・ジョブ管理システムによる強制終了はOOMと区別する。
+その場合も成功済み結果を保存するが、終了コードは非ゼロになる。
+
+出力先は `results/order_700_Nz140_grid576_until_oom/`。
+
+- `checkpoint.json`：成功した次数の結果と、試行・停止情報。
+- `report.json`：成功した最大の試行次数、OOMになった次数、収束判定を別々に記録。
+- `cases.csv`：反射率、基板へ入る電力、モスアイ部分の吸収、時間、ピークメモリ。
+- `reflectance_vs_order_700nm.svg`：反射率R(%)と次数Mの関係。
+- `reflectance_order_changes_700nm.svg`：隣接次数間の反射率差と許容値。
+- `peak_memory_vs_order.svg`：CUDAテンソルのピークメモリと次数。
+- `convergence.svg`、`runtime.svg`：保存済みの3指標・計算時間の図。
+- `workers/`：各次数の条件・結果・ログ。OOMエラーの詳細も保存。
+- `seed_checkpoint.json`：開始時の基準checkpointのコピー。
+
+OOMになった次数の反射率を0や推定値として追加しない。
+図は成功した計算点だけを示し、未計算点を補間しない。
+表のメモリは `max_memory_allocated()` のGiBで、予約メモリやプロセス全体の
+GPU使用量とは異なる。以前の結果の計算時間・メモリは元の計測値を使う。
+新しい計算は次数ごとにプロセスを起動するため、CUDA初期化等の追加時間がある。
+
+再実行時は既存の出力checkpointを使用し、完了済み次数を再計算しない。
+OOM停止済みなら表・図を再出力して終了する。GPUの空きを増やした後に
+同じ失敗次数を再試行するには `--retry-oom` を付ける。
+
+```bash
+python3 studies/gold_motheye3/run_until_oom.py --device cuda --retry-oom
+```
+
+上限を設定して途中で止める場合は `--max-order 40`、1ずつ探索する場合は
+`--step 1 --output-dir studies/gold_motheye3/results/order_until_oom_step1` を指定する。
+`--start-order` は開始次数を指定する。既定は保存済み最大次数+step。
+step・開始次数を変更するときは別の出力先を使う。
+`--prepare-only` で計算せず条件を確認でき、`--report-only` で表と図だけを再出力できる。
+別の基準には `--seed-checkpoint` を指定する。再開後は出力に保存した条件を継続する。
+
+この探索は、固定条件とその時点のGPU空き状況で計算できる次数の確認であり、
+次数・層数・gridの収束や物理精度の保証ではない。
+作成環境ではOOM分岐・保存・再試行・異常終了の制御を検証し、低次数のCPU計算で
+別プロセス方式と直接計算のR/P_sub/A一致を確認した。実際のCUDA容量はLinux側で確認する。
