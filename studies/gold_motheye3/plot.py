@@ -85,27 +85,31 @@ def render(plan: dict, cases: dict[str, dict], report: dict, destination: Path) 
     wavelengths = tuple(float(value) for value in plan["wavelengths_nm"])
     width = max(760, 90 + 390 * len(wavelengths))
     height = 1000
+    numerical_labels = {"order": "M", "slices": "Nz", "grid": "grid"}
+    fixed_text = ", ".join(f"{numerical_labels[name]}={value}"
+                           for name, value in plan["fixed_numerics"].items()
+                           if name != plan["axis"])
+    geometry = plan["geometry"]
     items = [
-        _text(45, 45, f"Au moth-eye convergence vs {plan['axis']}", size=29),
-        _text(45, 76, f"200 nm period; 500 nm Au pillars; M/Nz/grid fixed at "
-              f"{plan['fixed_numerics']}; tolerance "
-              f"{100 * plan['tolerance']:g} percentage points", size=14,
+        _text(45, 45, f"Au moth-eye convergence vs {plan['axis']}", size=27),
+        _text(45, 76, f"Period={geometry['period_nm']:g} nm; height={geometry['height_nm']:g} nm; "
+              f"fixed {fixed_text}; tolerance={100 * plan['tolerance']:g} pp", size=14,
               color="#52657b"),
-        _text(width - 45, 46, report["status"], size=15,
+        _text(45, 102, report["status"], size=15,
               color="#15803d" if report["status"] == "converged_within_tested_values"
-              else "#a64b4b", anchor="end"),
+              else "#a64b4b"),
     ]
     for column, wavelength in enumerate(wavelengths):
         left = 82 + column * 390
         color = COLORS[column % len(COLORS)]
-        items.append(_text(left, 120, f"{wavelength:g} nm", size=20))
+        items.append(_text(left, 140, f"{wavelength:g} nm", size=20))
         for row_index, (metric, label) in enumerate(LABELS.items()):
-            top = 168 + row_index * 260
-            items.append(_text(left, top - 7, label, size=15, color=color))
+            top = 194 + row_index * 260
             points = [(value, 100 * float(cases[f"{value}|{wavelength:.12g}"][metric]))
                       for value in values if f"{value}|{wavelength:.12g}" in cases]
             _panel(items, left=left, top=top, width=300, height=170,
                    values=values, points=points, color=color)
+            items.append(_text(left, top - 7, label, size=15, color=color))
     items.append(_text(45, 972, "Each panel has its own y scale. Far-side T = 0 for the semi-infinite Au substrate.",
                        size=13, color="#52657b"))
     _svg(destination, width, height, items)

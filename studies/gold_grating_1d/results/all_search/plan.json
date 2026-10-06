@@ -1,0 +1,73 @@
+{
+  "config": {
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "top_width_nm": 10.0,
+      "bottom_width_nm": 190.0,
+      "profile_power": 1.0
+    },
+    "material": {
+      "gold_csv": "data/au_measured_nk.csv",
+      "resolved_path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\gold_grating_1d\\data\\au_measured_nk.csv"
+    },
+    "wavelengths_nm": [
+      400,
+      450,
+      500,
+      550,
+      600,
+      650,
+      700
+    ],
+    "solver": {
+      "fourier_coefficients": "sampled",
+      "dtype": "complex128",
+      "incidence": "normal"
+    },
+    "fixed_numerics": {
+      "order": 24,
+      "slices": 140,
+      "grid": 576
+    },
+    "search_values": {
+      "order": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32,
+        40
+      ],
+      "slices": [
+        20,
+        40,
+        60,
+        80,
+        100,
+        140,
+        180,
+        220
+      ],
+      "grid": [
+        192,
+        256,
+        384,
+        512,
+        768,
+        1024
+      ]
+    },
+    "tolerance": 0.005,
+    "passivity_tolerance": 1e-07
+  },
+  "reference_numerics": {
+    "grid": 1024,
+    "order": 40,
+    "slices": 220
+  },
+  "signature": "3aa0811ee1966258dcf7e633e18e1dbbe271c8d2cc60622899e2225ffe6aa4e0",
+  "max_verification_rounds": 6
+}
