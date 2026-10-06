@@ -258,3 +258,47 @@ JSONの `order_summary` の最大条件数は、選択した層での最大値�
 条件数が小さくてもFourier打ち切り・grid・層数の誤差や他の行列の問題は残り得る。
 `kappa*eps64` は丸め誤差への感度の目安で、反射率誤差の上限や収束判定ではない。
 現環境にはPyTorchがないため、実際のCUDA SVDはLinux側で確認する。
+
+## M=30・140層に固定してgridと変換行列の条件数を比較する
+
+`run_grid_memory_safe.py` は、保存済みM=30・Nz=140・grid=576・700 nmの
+光学結果を基準に、grid=640,704の2ケースを追加計算する。
+`run_memory_safe.py` で同等性を確認済みの層データ保持方法を使用する。
+このファイルを既存の `studies/gold_motheye3/` に置いて実行する。
+同じフォルダの `diagnose_order_700.py` と `diagnose_grid_700.py` も必要。
+
+```bash
+python3 /home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye3/run_grid_memory_safe.py --device cuda --transforms
+```
+
+`--transforms` を付けると、各gridで1,70,140層目のT_starを診断する。
+光学計算は2ケース、追加のSVD診断は3grid×3層の9ケース。
+grid=576の反射率は保存値を再利用し、条件数は新たに計算する。
+SVDの計算時間は光学計算に追加される。
+選択した3層の条件数は140層全体の最大条件数を保証しない。
+
+出力先は `results/grid_700_M30_Nz140_memory_safe_transform/`。
+`checkpoint.json`、`report.json`、`cases.csv`、`convergence.svg`、
+`runtime.svg` と、各層の `transform_conditions.csv` を保存する。
+条件数・座標変換の詳細はcheckpointの各gridケースにある
+`transform_diagnostics` に記録する。診断の時間と光学計算の時間は別に記録する。
+基準grid=576の光学計算時間は元の計測値であり、再計測ではない。
+ケースごとに保存し、同じコマンドで未完了の計算・診断を再開できる。
+
+計算前の条件確認には同じコマンドへ `--prepare-only`、保存結果の再表示には
+`--report-only` を追加する。gridをさらに増やす場合は、既存値を含む
+`--grids 576,640,704,768` のような上限側への追加のみ同じ出力先で再開できる。
+`--order`、`--layers`、`--transforms` などの条件を変更する場合は
+別の `--output-dir` を指定する。
+
+基準は既定で `results/order_700_Nz140_grid576_memory_safe/checkpoint.json`。
+別の保存ファイルには `--seed-checkpoint` を指定する。
+再開中は基準checkpointも同じものを使用する。次数掃引を延長して基準の
+signatureが変わった場合は、元の基準コピーを指定するか別の出力先を使用する。
+RCWAソース、材料CSV、PyTorch/CUDA/GPUが基準計算と一致していることを照合する。
+RCWA本体、既存 `run_memory_safe.py`、基準checkpointは変更しない。
+
+grid収束判定は同じ0.5 pp基準を使用する。条件数の診断とは別の判定であり、
+gridが通過しても次数・層数・他波長の収束を保証しない。
+作成環境では条件準備、保存、再開、追加計算の制御を検証した。
+PyTorchがないため、新しい実行ファイルでのCUDA光学計算・SVDは未実行。

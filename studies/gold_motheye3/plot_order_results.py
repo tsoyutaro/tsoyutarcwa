@@ -149,7 +149,7 @@ def main():
     print(f"figure: {reflectance}")
     if changes:
         differences = output / f"reflectance_order_changes_{suffix}.svg"
-        render(differences, "Absolute reflectance change between adjacent orders",
+        render(differences, f"Reflectance change between orders at {args.wavelength:g} nm",
                subtitle, orders, changes, "Absolute change in R (percentage points)",
                threshold=100 * saved["plan"]["tolerance"], zero_floor=True)
         print(f"changes: {differences}")
