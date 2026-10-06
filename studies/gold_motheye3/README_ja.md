@@ -198,3 +198,30 @@ python3 studies/gold_motheye3/run_memory_safe.py --device cuda --slices 140
 
 層数を100から140へ増やすこと自体はGPUメモリ不足の対策にはならない。
 層ごとの保存データを保持する元の方式では、その保存部分の量が約1.4倍になる。
+
+## 140層・700 nmの反射率と次数の関係を作図する
+
+`plot_order_results.py` は `show_results.py` と同じフォルダに置いて実行する。
+既定では `results/order_700_Nz140_grid576_memory_safe/checkpoint.json` を読み取る。
+
+```bash
+python3 /home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye3/plot_order_results.py
+```
+
+同じ結果フォルダへ `reflectance_vs_order_700nm.svg`（横軸M、縦軸Rの百分率）と
+`reflectance_order_changes_700nm.svg`（隣接次数間の反射率の絶対差、単位pp）を保存する。
+後者にはcheckpointに記録された許容値0.5 ppの線を表示する。
+図はブラウザで開けるSVG形式。標準ライブラリのみを使用し、RCWAの再計算は行わない。
+checkpoint、物理条件、ソルバーや既存の収束判定は変更しない。
+既存の `convergence.svg` と `runtime.svg` もそのまま利用できる。
+
+別の次数掃引はcheckpointの絶対パスを引数に指定できる。
+`--wavelength 700`、`--max-order 22`、`--output-dir` が使用できる。
+`--full-scale` は反射率の縦軸を0〜100%にする。既定では保存値に応じて縦軸を設定する。
+欠けた計算点を補間しない。この図は単一波長での次数比較であり、波長スペクトルではない。
+
+ログの `peak CUDA tensor memory` はケースごとにリセットした
+`torch.cuda.max_memory_allocated()` をGiB（bytes / 2**30）で表示した値。
+1 GiB = 1024 MiBで、12.030 GiBは約12,319 MiBに相当する。
+これは計算中にテンソルが同時に使用した最大量であり、GPU容量や使用上限ではない。
+PyTorchの予約済みメモリやCUDA等の追加使用量とは区別する。
