@@ -16,8 +16,10 @@ LABELS = {"reflectance": "R (%)", "power_into_substrate": "P_sub (%)",
 def subtitle(report):
     axis, values, fixed = report["axis"], report["values"], report["fixed_numerics"]
     labels = {"order": "M", "slices": "Nz", "grid": "grid_x"}
-    held = ", ".join(f"{labels[name]}={fixed[name]}" for name in ("order", "slices", "grid")
-                     if name != axis)
+    analytic = report.get("coefficient_method") == "analytic"
+    held = ", ".join("grid: unused (analytic)" if name == "grid" and analytic
+                     else f"{labels[name]}={fixed[name]}"
+                     for name in ("order", "slices", "grid") if name != axis)
     return (f"{labels[axis]}={values[0]}..{values[-1]} ({len(values)} points); "
             f"fixed: {held}; M_y=0; {report['status']}")
 
