@@ -1,0 +1,712 @@
+{
+  "signature": "a3a51f1f6f39ceea6656cc1e791b9da21229227720ff6640f73741c3204f3662",
+  "axis": "grid",
+  "values": [
+    192,
+    256,
+    384,
+    512,
+    768,
+    1024
+  ],
+  "fixed_numerics": {
+    "grid": 1024,
+    "order": 40,
+    "slices": 220
+  },
+  "coefficient_method": "sampled",
+  "wavelengths_nm": [
+    400,
+    450,
+    500,
+    550,
+    600,
+    650,
+    700
+  ],
+  "tolerance": 0.005,
+  "adjacent_changes": {
+    "400": [
+      {
+        "low": 192,
+        "high": 256,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 0.00010584750855498898,
+            "power_into_substrate": 2.1293882219987692e-11,
+            "relief_absorptance": -0.00010584752984887924
+          },
+          "TM": {
+            "reflectance": 5.281182354096117e-06,
+            "power_into_substrate": 0.0005465427709913998,
+            "relief_absorptance": -0.0005518239533455205
+          }
+        },
+        "max_absolute_change": 0.0005518239533455205,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 256,
+        "high": 384,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -0.00013521996764911254,
+            "power_into_substrate": -2.5414788023161022e-11,
+            "relief_absorptance": 0.0001352199930638731
+          },
+          "TM": {
+            "reflectance": 1.2277632725663738e-06,
+            "power_into_substrate": 0.000189060878922908,
+            "relief_absorptance": -0.00019028864219539088
+          }
+        },
+        "max_absolute_change": 0.00019028864219539088,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 384,
+        "high": 512,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 9.329470980676963e-05,
+            "power_into_substrate": 2.042197219997339e-12,
+            "relief_absorptance": -9.329471184893467e-05
+          },
+          "TM": {
+            "reflectance": 2.3119201558537486e-05,
+            "power_into_substrate": 0.0001315041664879113,
+            "relief_absorptance": -0.00015462336804639154
+          }
+        },
+        "max_absolute_change": 0.00015462336804639154,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 512,
+        "high": 768,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 1.8686141652700383e-05,
+            "power_into_substrate": 2.0701635075225547e-11,
+            "relief_absorptance": -1.8686162354342173e-05
+          },
+          "TM": {
+            "reflectance": -1.1600851125786885e-05,
+            "power_into_substrate": 3.9594448545135497e-05,
+            "relief_absorptance": -2.7993597419451177e-05
+          }
+        },
+        "max_absolute_change": 3.9594448545135497e-05,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 768,
+        "high": 1024,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -5.151992217052037e-05,
+            "power_into_substrate": -1.647788093108814e-11,
+            "relief_absorptance": 5.1519938648381114e-05
+          },
+          "TM": {
+            "reflectance": -8.056831779591268e-06,
+            "power_into_substrate": 4.292958294051935e-05,
+            "relief_absorptance": -3.487275116087485e-05
+          }
+        },
+        "max_absolute_change": 5.1519938648381114e-05,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      }
+    ],
+    "450": [
+      {
+        "low": 192,
+        "high": 256,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 0.00010843972473900676,
+            "power_into_substrate": -6.920189146976478e-11,
+            "relief_absorptance": -0.00010843965553708479
+          },
+          "TM": {
+            "reflectance": -1.7310457117637344e-06,
+            "power_into_substrate": 0.0005565639122059457,
+            "relief_absorptance": -0.0005548328664941593
+          }
+        },
+        "max_absolute_change": 0.0005565639122059457,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 256,
+        "high": 384,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -0.0001413683308104166,
+            "power_into_substrate": 4.6789184275408384e-11,
+            "relief_absorptance": 0.00014136828402122603
+          },
+          "TM": {
+            "reflectance": 7.645726055340442e-06,
+            "power_into_substrate": 0.0002068579175966076,
+            "relief_absorptance": -0.0002145036436520531
+          }
+        },
+        "max_absolute_change": 0.0002145036436520531,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 384,
+        "high": 512,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 8.791415659920032e-05,
+            "power_into_substrate": -3.9421379310495535e-11,
+            "relief_absorptance": -8.791411717778974e-05
+          },
+          "TM": {
+            "reflectance": 1.6953183147671615e-05,
+            "power_into_substrate": 0.00016023525469625877,
+            "relief_absorptance": -0.00017718843784386706
+          }
+        },
+        "max_absolute_change": 0.00017718843784386706,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 512,
+        "high": 768,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 2.8535140704180617e-05,
+            "power_into_substrate": -2.8929592409615853e-11,
+            "relief_absorptance": -2.8535111774585786e-05
+          },
+          "TM": {
+            "reflectance": -1.2351470642150866e-05,
+            "power_into_substrate": 2.7203693934139267e-05,
+            "relief_absorptance": -1.485222329200564e-05
+          }
+        },
+        "max_absolute_change": 2.8535140704180617e-05,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 768,
+        "high": 1024,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -5.4250890639685745e-05,
+            "power_into_substrate": 3.608652565205919e-11,
+            "relief_absorptance": 5.425085455312839e-05
+          },
+          "TM": {
+            "reflectance": -1.57750570245474e-09,
+            "power_into_substrate": 3.591278761797684e-05,
+            "relief_absorptance": -3.5911210112260505e-05
+          }
+        },
+        "max_absolute_change": 5.4250890639685745e-05,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      }
+    ],
+    "500": [
+      {
+        "low": 192,
+        "high": 256,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 0.00011940257734462112,
+            "power_into_substrate": -2.2320885586784653e-10,
+            "relief_absorptance": -0.00011940235413565592
+          },
+          "TM": {
+            "reflectance": -1.3715546711213274e-05,
+            "power_into_substrate": 0.0006368884360899371,
+            "relief_absorptance": -0.0006231728893787425
+          }
+        },
+        "max_absolute_change": 0.0006368884360899371,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 256,
+        "high": 384,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -0.0001592977358952502,
+            "power_into_substrate": 1.397537017065555e-10,
+            "relief_absorptance": 0.00015929759614152772
+          },
+          "TM": {
+            "reflectance": 2.559031395104358e-05,
+            "power_into_substrate": 0.0002964661849827119,
+            "relief_absorptance": -0.0003220564989337982
+          }
+        },
+        "max_absolute_change": 0.0003220564989337982,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 384,
+        "high": 512,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 4.321634158717391e-05,
+            "power_into_substrate": -2.6164029322205107e-11,
+            "relief_absorptance": -4.3216315423144636e-05
+          },
+          "TM": {
+            "reflectance": 1.6359368993394078e-05,
+            "power_into_substrate": 0.0003042406399549058,
+            "relief_absorptance": -0.00032060000894817975
+          }
+        },
+        "max_absolute_change": 0.00032060000894817975,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 512,
+        "high": 768,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 7.796250701211371e-05,
+            "power_into_substrate": -1.663854152637753e-10,
+            "relief_absorptance": -7.796234062673602e-05
+          },
+          "TM": {
+            "reflectance": -1.9284263941781246e-05,
+            "power_into_substrate": -4.9205238505611176e-05,
+            "relief_absorptance": 6.848950244731089e-05
+          }
+        },
+        "max_absolute_change": 7.796250701211371e-05,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 768,
+        "high": 1024,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -6.308750065676938e-05,
+            "power_into_substrate": 1.1321657047953394e-10,
+            "relief_absorptance": 6.308738744031928e-05
+          },
+          "TM": {
+            "reflectance": 1.1765232777464574e-05,
+            "power_into_substrate": 2.191213176073667e-05,
+            "relief_absorptance": -3.367736453818715e-05
+          }
+        },
+        "max_absolute_change": 6.308750065676938e-05,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      }
+    ],
+    "550": [
+      {
+        "low": 192,
+        "high": 256,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 0.0001390062884509824,
+            "power_into_substrate": 5.144705385688114e-11,
+            "relief_absorptance": -0.0001390063398979957
+          },
+          "TM": {
+            "reflectance": 0.0015737574721302536,
+            "power_into_substrate": 0.0050219896584252355,
+            "relief_absorptance": -0.0065957471305555515
+          }
+        },
+        "max_absolute_change": 0.0065957471305555515,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 256,
+        "high": 384,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -0.00020324874283650374,
+            "power_into_substrate": -4.794706433585263e-11,
+            "relief_absorptance": 0.00020324879078353897
+          },
+          "TM": {
+            "reflectance": 0.002816934512000019,
+            "power_into_substrate": -0.0004035025076039589,
+            "relief_absorptance": -0.0024134320043960322
+          }
+        },
+        "max_absolute_change": 0.002816934512000019,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 384,
+        "high": 512,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 0.00012233784524140479,
+            "power_into_substrate": 2.219505543488295e-11,
+            "relief_absorptance": -0.0001223378674364839
+          },
+          "TM": {
+            "reflectance": 0.0015644311256487464,
+            "power_into_substrate": 5.239553412555997e-05,
+            "relief_absorptance": -0.001616826659774362
+          }
+        },
+        "max_absolute_change": 0.001616826659774362,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 512,
+        "high": 768,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 5.085572520269199e-05,
+            "power_into_substrate": 3.1863709682600165e-11,
+            "relief_absorptance": -5.0855757066370355e-05
+          },
+          "TM": {
+            "reflectance": -0.0007600413011730686,
+            "power_into_substrate": 0.0007853768001750971,
+            "relief_absorptance": -2.5335499001966078e-05
+          }
+        },
+        "max_absolute_change": 0.0007853768001750971,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 768,
+        "high": 1024,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -9.015299930004161e-05,
+            "power_into_substrate": -3.416437611232586e-11,
+            "relief_absorptance": 9.015303346443515e-05
+          },
+          "TM": {
+            "reflectance": -2.5129085379431426e-05,
+            "power_into_substrate": 0.0008865675773823689,
+            "relief_absorptance": -0.0008614384920029305
+          }
+        },
+        "max_absolute_change": 0.0008865675773823689,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      }
+    ],
+    "600": [
+      {
+        "low": 192,
+        "high": 256,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 6.49239795157408e-05,
+            "power_into_substrate": 5.055190585228896e-12,
+            "relief_absorptance": -6.49239845709193e-05
+          },
+          "TM": {
+            "reflectance": 0.010460358130617853,
+            "power_into_substrate": 0.0038257855947472774,
+            "relief_absorptance": -0.014286143725365186
+          }
+        },
+        "max_absolute_change": 0.014286143725365186,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 256,
+        "high": 384,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -0.0001059915176643278,
+            "power_into_substrate": -5.319184698970081e-12,
+            "relief_absorptance": 0.00010599152298351733
+          },
+          "TM": {
+            "reflectance": 0.015951366343153806,
+            "power_into_substrate": 2.7636409804798756e-06,
+            "relief_absorptance": -0.015954129984134258
+          }
+        },
+        "max_absolute_change": 0.015954129984134258,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 384,
+        "high": 512,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 0.00011387396347550816,
+            "power_into_substrate": 1.5279045440528434e-12,
+            "relief_absorptance": -0.00011387396500342484
+          },
+          "TM": {
+            "reflectance": 0.004628341975383032,
+            "power_into_substrate": -0.0006427119823160798,
+            "relief_absorptance": -0.003985629993067008
+          }
+        },
+        "max_absolute_change": 0.004628341975383032,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 512,
+        "high": 768,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -8.337043354122997e-06,
+            "power_into_substrate": 3.656000581462406e-12,
+            "relief_absorptance": 8.337039698130821e-06
+          },
+          "TM": {
+            "reflectance": -0.0007390589247691093,
+            "power_into_substrate": 0.000874137883772802,
+            "relief_absorptance": -0.00013507895900372047
+          }
+        },
+        "max_absolute_change": 0.000874137883772802,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 768,
+        "high": 1024,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -5.366685893004597e-05,
+            "power_into_substrate": -3.2505581310693408e-12,
+            "relief_absorptance": 5.3666862180584696e-05
+          },
+          "TM": {
+            "reflectance": 0.0014672780616521996,
+            "power_into_substrate": 0.0013580518640435302,
+            "relief_absorptance": -0.002825329925695619
+          }
+        },
+        "max_absolute_change": 0.002825329925695619,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      }
+    ],
+    "650": [
+      {
+        "low": 192,
+        "high": 256,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 2.679640675329331e-05,
+            "power_into_substrate": 8.894956453362338e-13,
+            "relief_absorptance": -2.679640764279012e-05
+          },
+          "TM": {
+            "reflectance": -0.01150504191077073,
+            "power_into_substrate": 0.0009830911729636765,
+            "relief_absorptance": 0.01052195073780704
+          }
+        },
+        "max_absolute_change": 0.01150504191077073,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 256,
+        "high": 384,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -5.035068542191823e-05,
+            "power_into_substrate": -9.85777482185499e-13,
+            "relief_absorptance": 5.035068640769913e-05
+          },
+          "TM": {
+            "reflectance": 0.020400693082008092,
+            "power_into_substrate": -0.0009918912213939535,
+            "relief_absorptance": -0.01940880186061411
+          }
+        },
+        "max_absolute_change": 0.020400693082008092,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 384,
+        "high": 512,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 7.344417340759968e-05,
+            "power_into_substrate": 3.0574835589277636e-13,
+            "relief_absorptance": -7.34441737133551e-05
+          },
+          "TM": {
+            "reflectance": 0.01625414170739814,
+            "power_into_substrate": -0.0001929373411982127,
+            "relief_absorptance": -0.016061204366199955
+          }
+        },
+        "max_absolute_change": 0.01625414170739814,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 512,
+        "high": 768,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -1.7018266229462675e-05,
+            "power_into_substrate": 6.225041617761501e-13,
+            "relief_absorptance": 1.7018265606960625e-05
+          },
+          "TM": {
+            "reflectance": -0.007964745743464952,
+            "power_into_substrate": 0.0008133201304621474,
+            "relief_absorptance": 0.007151425613002804
+          }
+        },
+        "max_absolute_change": 0.007964745743464952,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 768,
+        "high": 1024,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -2.870326494208708e-05,
+            "power_into_substrate": -5.689119858028114e-13,
+            "relief_absorptance": 2.8703265511006992e-05
+          },
+          "TM": {
+            "reflectance": 0.0062704798087602764,
+            "power_into_substrate": 0.000925863289592363,
+            "relief_absorptance": -0.007196343098352653
+          }
+        },
+        "max_absolute_change": 0.007196343098352653,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      }
+    ],
+    "700": [
+      {
+        "low": 192,
+        "high": 256,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 1.476540041722707e-05,
+            "power_into_substrate": 3.0453718784580575e-13,
+            "relief_absorptance": -1.4765400721761246e-05
+          },
+          "TM": {
+            "reflectance": 0.018031869157836722,
+            "power_into_substrate": 0.0019474865454722906,
+            "relief_absorptance": -0.019979355703309026
+          }
+        },
+        "max_absolute_change": 0.019979355703309026,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 256,
+        "high": 384,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -3.217032010016663e-05,
+            "power_into_substrate": -3.4849332309683125e-13,
+            "relief_absorptance": 3.217032044865176e-05
+          },
+          "TM": {
+            "reflectance": 0.004496533351391219,
+            "power_into_substrate": -0.0016110517540254207,
+            "relief_absorptance": -0.002885481597365791
+          }
+        },
+        "max_absolute_change": 0.004496533351391219,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 384,
+        "high": 512,
+        "signed_changes": {
+          "TE": {
+            "reflectance": 5.663392916543941e-05,
+            "power_into_substrate": 1.23120445271621e-13,
+            "relief_absorptance": -5.6633929288563145e-05
+          },
+          "TM": {
+            "reflectance": 0.005784694824876535,
+            "power_into_substrate": -0.0007587208126616576,
+            "relief_absorptance": -0.005025974012214884
+          }
+        },
+        "max_absolute_change": 0.005784694824876535,
+        "passes_tolerance": false,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 512,
+        "high": 768,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -1.729494025970446e-05,
+            "power_into_substrate": 2.02430744234434e-13,
+            "relief_absorptance": 1.7294940057283048e-05
+          },
+          "TM": {
+            "reflectance": -0.0018866095083304169,
+            "power_into_substrate": 0.0006963977249422326,
+            "relief_absorptance": 0.0011902117833881842
+          }
+        },
+        "max_absolute_change": 0.0018866095083304169,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      },
+      {
+        "low": 768,
+        "high": 1024,
+        "signed_changes": {
+          "TE": {
+            "reflectance": -2.0124272937405152e-05,
+            "power_into_substrate": -1.9639603673170187e-13,
+            "relief_absorptance": 2.0124273133803605e-05
+          },
+          "TM": {
+            "reflectance": 0.0036920844905192762,
+            "power_into_substrate": 0.00037490220731466184,
+            "relief_absorptance": -0.004066986697833924
+          }
+        },
+        "max_absolute_change": 0.004066986697833924,
+        "passes_tolerance": true,
+        "passivity_bounds_pass": true
+      }
+    ]
+  },
+  "status": "not_converged",
+  "criterion": "Both final adjacent steps pass every R/P_sub/A_relief metric at every wavelength for TE and TM.",
+  "scope": "This axis at the stated fixed numerics; not absolute error or untested wavelengths."
+}

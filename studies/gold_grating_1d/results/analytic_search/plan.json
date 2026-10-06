@@ -1,4 +1,5 @@
 {
+  "driver": "analytic-two-axis",
   "config": {
     "geometry": {
       "period_nm": 200.0,
@@ -21,7 +22,7 @@
       700
     ],
     "solver": {
-      "fourier_coefficients": "sampled",
+      "fourier_coefficients": "analytic",
       "dtype": "complex128",
       "incidence": "normal"
     },
@@ -63,11 +64,29 @@
     "tolerance": 0.005,
     "passivity_tolerance": 1e-07
   },
-  "reference_numerics": {
-    "grid": 1024,
-    "order": 40,
-    "slices": 220
+  "search_values": {
+    "order": [
+      32,
+      40,
+      48,
+      56,
+      64,
+      72
+    ],
+    "slices": [
+      180,
+      220,
+      260,
+      300
+    ]
   },
-  "signature": "a3a51f1f6f39ceea6656cc1e791b9da21229227720ff6640f73741c3204f3662",
+  "reference_numerics": {
+    "order": 72,
+    "slices": 300,
+    "grid": 576
+  },
+  "grid_used": null,
+  "signature": "9faf31e695707911d49098018c149ad1bb679158669e87e2f0990f73e0be82ba",
+  "driver_sha256": "6a542f25f07192d7d7d906643849696e96de13d24f1158cf226cc4b3b626aaa8",
   "max_verification_rounds": 6
 }
