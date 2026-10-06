@@ -150,3 +150,51 @@ python3 studies/gold_motheye3/show_results.py
 ```bash
 python3 studies/gold_motheye3/show_results.py results/grid_M16_Nz100/checkpoint.json
 ```
+
+## M=22でGPUメモリを使い切った場合
+
+`run_memory_safe.py` は各層をD6 E1源の行列へ縮約した後に、最終的な
+R/P_sub計算で参照しないP/Q、材料畳み込み、元のモード行列、座標変換などの
+保持を終了する。縮約モード、厚さ、入出力のポート、カスケードに必要なデータは
+保持する。精度はcomplex128、物理条件とRCWAの演算式は元の計算と同じ。
+この実行ファイルは固定形状・電場出力なし・全層D6源縮約の計算に限定する。
+
+```bash
+python3 studies/gold_motheye3/run_memory_safe.py --device cuda
+```
+
+最初に、元の `results/order_700_Nz100_grid576/checkpoint.json` の最高計算済み次数
+（通常M=20）を新しい保持方法で再計算する。R/P_sub/A_pillarの絶対差が
+1e-8以下の場合にのみ、M=12～20の保存値を再利用してM=22,24の2点を計算する。
+差が大きい場合は照合結果を保存して停止する。GPUのピーク使用量も出力する。
+現環境にはPyTorchがないため、GPU上の同等性とメモリ量はこの照合で確認する。
+
+出力先は `results/order_700_Nz100_grid576_memory_safe/`。元のRCWAソースや
+計算ファイルを上書きせず、保持方法と新しい実行ファイルのSHA-256を計画に記録する。
+再利用したケースの時間は元の計測値で、checkpointの `reused_from` に記録する。
+新しいケースのピークGPUメモリはcheckpoint、M=20の照合結果は
+`storage_parity.json` に保存する。途中停止後は同じコマンドで再開できる。
+
+100層と140層の違いを調べる場合は、同じ保持方法で700 nm、grid=576、M=18に
+固定して100,120,140層を比較する。
+
+```bash
+python3 studies/gold_motheye3/run_memory_safe.py --device cuda --axis slices
+```
+
+100層の保存値を再利用し、120層と140層を追加する。出力先は
+`results/slices_700_M18_grid576_memory_safe/`。この層数掃引の判定は
+M=18・grid=576固定での結果であり、次数やgridの収束は別途確認する。
+140層に固定してM=16,18,20の次数依存を調べる場合は、以下を使う。
+
+```bash
+python3 studies/gold_motheye3/run_memory_safe.py --device cuda --slices 140
+```
+
+出力先は `results/order_700_Nz140_grid576_memory_safe/`。100層の値は140層の
+結果として再利用せず、140層の3次数を新たに計算する。
+`--prepare-only` はPyTorchなしで条件と新規ケース数を確認できる。
+`--values`、層数掃引の固定次数を指定する `--order`、`--output-dir` も使用できる。
+
+層数を100から140へ増やすこと自体はGPUメモリ不足の対策にはならない。
+層ごとの保存データを保持する元の方式では、その保存部分の量が約1.4倍になる。
