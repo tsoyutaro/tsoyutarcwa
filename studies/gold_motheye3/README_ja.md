@@ -133,3 +133,20 @@ SVDの時間はかかるため、座標変換のみを先に調べる場合は
 ソルバーソースのSHA-256を記録する。
 
 本環境にはPyTorchがなく、数値計算自体は未実行。Linuxで実際の収束判定を確認する。
+
+## 保存済みの実値と次数間の差を表示する
+
+700 nm、Nz=100、grid=576、M=12,14,16,18,20を計算した後は、以下で表を表示する。
+
+```bash
+python3 studies/gold_motheye3/show_results.py
+```
+
+標準ライブラリだけで `results/order_700_Nz100_grid576/checkpoint.json` を読み取り、
+各次数のR、基板へ入るパワー、柱領域の吸収率、実行秒数、隣接次数間の
+符号付き変化を表示する。保存データ・ソルバーソースを変更せず、光学計算は行わない。
+別の掃引のcheckpointは引数で指定できる。
+
+```bash
+python3 studies/gold_motheye3/show_results.py results/grid_M16_Nz100/checkpoint.json
+```
