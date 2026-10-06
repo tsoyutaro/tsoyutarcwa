@@ -14,6 +14,15 @@ from rcwa_ext.config import GroupTheoryOptions, Lattice, OutputSpec
 
 
 class Grating1D(AutoRCWA):
+    def _kvectors(self):
+        # This adapter has an orthogonal cell. math.cos(pi/2) leaves ~6e-17,
+        # which the oblique-cell formula amplifies by |m|*wavelength/period.
+        # Set the exact geometry BEFORE building wavevectors and port matrices.
+        if self.zeta_deg != 90.0:
+            raise ValueError("This 1D study requires an exactly orthogonal cell.")
+        self.cos_zeta, self.sin_zeta = 0.0, 1.0
+        return super()._kvectors()
+
     def ridge_convolutions(self, fill, epsilon, grid, *, analytic=False):
         if not 0 < fill < 1 or len(self.order_y) != 1:
             raise ValueError("Require 0 < width < period, M_y=0, and y-invariant material.")

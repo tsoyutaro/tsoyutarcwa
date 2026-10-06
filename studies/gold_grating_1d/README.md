@@ -79,6 +79,7 @@ python3 studies/gold_grating_1d/run_analytic.py --device cuda
 M=32,40,48,56、Nz=180,220,260,300 を比較し、候補の同じ組み合わせでも再確認します。grid は使いません。
 出力先は `results/analytic_search/`。解析的係数の保存済み結果は再開・延長で再利用されます。
 初回の結果の解釈と延長方法は [NEXT_ANALYTIC.md](NEXT_ANALYTIC.md) に記載しています。
+M=48・700 nm で `K_y=0 only` が出る旧版の丸め誤差と、保存済み結果を照合して再開する修正は [FIX_ORTHOGONAL.md](FIX_ORTHOGONAL.md) に記載しています。
 
 例えば、140 層・grid=576 で 700 nm の次数を比較する場合：
 

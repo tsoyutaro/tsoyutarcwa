@@ -1,6 +1,6 @@
 """Follow-up: exact rectangular Fourier coefficients; search M and Nz only.
 
-Uses the unchanged Li solver and checkpoint helpers from this study. The
+Uses the study's Li solver and checkpoint helpers. The
 original sampled-coefficient calculations remain in their own output folder.
 """
 from __future__ import annotations
@@ -10,6 +10,7 @@ import sys
 from common import (HERE, Study, compare, export_cases, geometry_svg, integers,
                     load_config, parser, read_json, validate_numbers, write_json)
 from run_all import stable_candidate
+from resume_checkpoint import resume_orthogonal_checkpoint
 
 SEARCH_AXES = ("order", "slices")
 DEFAULT_ORDERS = [32, 40, 48, 56]
@@ -102,7 +103,10 @@ def main():
         p.error("--max-rounds must be positive.")
     config, model = load_config(args.config)
     config["solver"]["fourier_coefficients"] = "analytic"
-    study = Study(config, model, args.output_dir or HERE/"results"/"analytic_search", args.device)
+    output = args.output_dir or HERE/"results"/"analytic_search"
+    resumed = resume_orthogonal_checkpoint(config, model, output, args.device,
+                                          calculate=not (args.prepare_only or args.report_only))
+    study = Study(config, model, output, args.device)
     old_plan_path = study.output/"plan.json"
     old_plan = read_json(old_plan_path) if old_plan_path.exists() else {}
     saved_values = old_plan.get("search_values", {}) if old_plan.get("driver") == "analytic-two-axis" else {}
@@ -135,6 +139,8 @@ def main():
         export_cases(study.checkpoint, study.output)
         raise
     report["driver_sha256"] = driver_sha
+    if resumed is not None:
+        report["orthogonal_checkpoint_resume"] = resumed
     write_json(study.output/"report.json", report)
     export_cases(study.checkpoint, study.output)
     if "selected_numerics" in report:
