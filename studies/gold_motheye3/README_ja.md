@@ -225,3 +225,36 @@ checkpoint、物理条件、ソルバーや既存の収束判定は変更しな�
 1 GiB = 1024 MiBで、12.030 GiBは約12,319 MiBに相当する。
 これは計算中にテンソルが同時に使用した最大量であり、GPU容量や使用上限ではない。
 PyTorchの予約済みメモリやCUDA等の追加使用量とは区別する。
+
+## 次数ごとの変換行列の条件数を確認する
+
+`diagnose_order_700.py` は140層・grid=576の保存済み次数比較を読み取り、
+既定ではM=16,18,20,22,24,26の各々で1,70,140層目を調べる。
+同じフォルダの既存 `diagnose_grid_700.py` の座標変換診断を再利用する。
+
+```bash
+python3 /home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye3/diagnose_order_700.py --device cuda
+```
+
+実装中のASR座標変換からTを構築し、D6源縮約前に実際に使用する
+`T_star = E^H T E` の特異値をcomplex128で計算する。
+CUDAでは `torch.linalg.svdvals(..., driver="gesvd")` を使用する。
+`sigma_max`、`sigma_min`、2ノルム条件数 `sigma_max/sigma_min`、
+`condition_times_float64_epsilon`、Jacobian最小値、面積誤差、回転・鏡映の整合性を記録する。
+SVDには追加の計算時間が必要だが、140層全体の光学固有値計算とR/P_sub計算は行わない。
+全18ケースを別フォルダへ逐次保存し、同じコマンドで未完了ケースを再開できる。
+
+出力先は `results/order_transform_diagnostics_700_Nz140_grid576/`。
+`diagnostics.json`、各層の `summary.csv`、診断条件の `plan.json` を保存する。
+JSONの `order_summary` の最大条件数は、選択した層での最大値。
+140層全体の最大値を表すには `--layers all` が必要で、SVDの回数が大きく増える。
+`--orders 22,24,26` なら9ケース、`--layers all --orders 26` なら140ケース。
+条件や対象次数・層を変える場合は別の `--output-dir` を指定する。
+`--prepare-only` で計算前の条件を確認でき、`--report-only` で診断表だけを再表示できる。
+
+元の光学計算のソース・材料CSVと一致していることを照合する。
+既存のRCWAソース、run_memory_safe.py、光学checkpointは変更しない。
+条件数の急増や最小特異値の低下は数値感度の兆候である。
+条件数が小さくてもFourier打ち切り・grid・層数の誤差や他の行列の問題は残り得る。
+`kappa*eps64` は丸め誤差への感度の目安で、反射率誤差の上限や収束判定ではない。
+現環境にはPyTorchがないため、実際のCUDA SVDはLinux側で確認する。
