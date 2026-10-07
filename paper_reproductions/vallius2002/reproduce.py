@@ -16,6 +16,7 @@ import numpy as np
 
 from .geometries import FIGURES, PAPER_DOI, geometry_for_figure, geometry_metadata
 from .solver import PreparedStack
+from .devices import resolve_execution
 
 
 ROOT = Path(__file__).resolve().parent
@@ -160,7 +161,7 @@ def run_figure(figure, args):
     destination.mkdir(parents=True, exist_ok=True)
     csvpath = destination / f"fig{figure}.csv"
     fields = ["figure", "method", "modes", "harmonics", "eigen_dimension", "quadrature_actual", "wavelength",
-              "evaluation_wavelength", "T0", "T", "R", "A", "max_boundary_condition"]
+              "evaluation_wavelength", "T0", "T", "R", "A", "max_boundary_condition", "device", "backend"]
     started = time.perf_counter()
     rows = []
     with csvpath.open("w", newline="", encoding="utf-8") as handle:
@@ -172,7 +173,9 @@ def run_figure(figure, args):
             stack = PreparedStack(layers, setting["polarization"], actual_method,
                                   harmonics=harmonics, quadrature=args.quadrature, G=args.G,
                                   oversampling=args.oversampling if actual_method == "asr" else 1,
-                                  retention=args.retention, q_projection=args.q_projection)
+                                  retention=args.retention, q_projection=args.q_projection,
+                                  device=args.execution["device"], backend=args.execution["backend"])
+            stack.execution.update(args.execution)
             series_wavelengths = wavelengths
             if method == "fmm_reference":
                 series_wavelengths = np.linspace(*setting["range"], args.reference_points)
@@ -188,6 +191,7 @@ def run_figure(figure, args):
                        "quadrature_actual": int(solution.get("quadrature_points_per_region", 0)),
                        "wavelength": float(wavelength),
                        "evaluation_wavelength": solution.get("evaluation_wavelength", float(wavelength)),
+                       "device": solution["device"], "backend": solution["backend"],
                        **{key: float(solution[key]) for key in ("T0", "T", "R", "A", "max_boundary_condition")}}
                 if not all(np.isfinite(row[key]) for key in ("T0", "T", "R", "A")):
                     raise FloatingPointError(f"Nonfinite spectrum at Fig {figure}, {method}, {m}, {wavelength}")
@@ -209,6 +213,7 @@ def run_figure(figure, args):
         "asr_eigen_oversampling": args.oversampling, "G": args.G, "quadrature_requested_minimum": args.quadrature,
         "quadrature_actual_maximum": max(r["quadrature_actual"] for r in rows),
         "retention": args.retention, "q_projection": args.q_projection,
+        "execution": args.execution,
         "include_reference_grid": args.include_reference_grid, "reference_modes": reference_modes,
         "reference_points_requested": args.reference_points,
         "cylinder_slices": args.slices, "geometry": geometry_metadata(layers),
@@ -245,6 +250,9 @@ def main():
     parser.add_argument("--include-reference-grid", action="store_true", help="Also solve at the original PDF vertices and markers.")
     parser.add_argument("--retention", choices=("smallest_abs", "physical"), default="smallest_abs")
     parser.add_argument("--q-projection", choices=("direct", "laurent"), default="direct")
+    parser.add_argument("--device", default="auto", help="auto (default), cpu, cuda, or cuda:<index>; explicit CUDA never falls back.")
+    parser.add_argument("--backend", choices=("auto", "scipy", "torch"), default="auto",
+                        help="auto: SciPy on CPU, PyTorch on CUDA; torch+cpu validates the CUDA tensor kernels on CPU.")
     args = parser.parse_args()
     if args.points is not None and args.points < 2:
         parser.error("--points must be >= 2")
@@ -254,6 +262,13 @@ def main():
         parser.error("mode settings must be nonnegative (oversampling >= 1)")
     if args.reference_points < 2:
         parser.error("--reference-points must be >= 2")
+    try:
+        args.execution = resolve_execution(args.device, args.backend)
+    except (ValueError, RuntimeError) as exc:
+        parser.error(str(exc))
+    print(f"Device: {args.execution['device']} ({args.execution['device_name']}), "
+          f"backend={args.execution['backend']}, dtype={args.execution['dtype']}; "
+          f"{args.execution['selection_reason']}", flush=True)
     figures = list(FIGURES) if args.study in ("all", "paper", "smoke") else [int(args.study[3:])]
     for figure in figures:
         run_figure(figure, args)

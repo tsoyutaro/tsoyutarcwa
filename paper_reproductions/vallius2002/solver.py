@@ -24,6 +24,8 @@ import numpy as np
 from scipy import linalg
 from scipy.special import roots_legendre
 
+from .devices import resolve_execution
+
 
 @dataclass(frozen=True)
 class LayerSpec:
@@ -120,7 +122,7 @@ class _PreparedLayer:
     """Wavelength-independent Laurent matrices and projection quadrature."""
 
     def __init__(self, spec: LayerSpec, method: str, count: int, internal_count: int,
-                 quadrature: int | None, G: float):
+                 quadrature: int | None, G: float, *, prepare_linear_algebra: bool = True):
         self.spec = spec
         self.method = method
         self.count = count
@@ -190,6 +192,8 @@ class _PreparedLayer:
             self.K0 = self._projection(0.0)
             self.KQ0 = self._projection(0.0, reciprocal=True)
 
+        if not prepare_linear_algebra:
+            return
         identity = np.eye(internal_count, dtype=np.complex128)
         self.inverse_f = linalg.solve(self.f, identity, assume_a="her")
         self.inverse_a = linalg.solve(self.a, identity, assume_a="her" if self.lossless else "gen")
@@ -347,6 +351,10 @@ class PreparedStack:
         angle: Incidence angle in radians.
         epsilon_in, epsilon_out: Homogeneous external permittivities.
         diagnostics: Estimate interface/star-product condition numbers.
+        device: ``auto`` chooses available CUDA, otherwise CPU; ``cpu``,
+            ``cuda`` or ``cuda:0`` overrides it. CUDA requires PyTorch.
+        backend: ``auto`` uses SciPy on CPU and PyTorch on CUDA. Explicit
+            ``torch`` also supports CPU for tensor-kernel validation.
         retention: ``"smallest_abs"`` is the paper's stated selection.
             ``"physical"`` is a diagnostic alternative selecting all real
             propagating modes from highest gamma squared, then evanescent
@@ -368,7 +376,8 @@ class PreparedStack:
                  G: float = 0.001, epsilon_in: complex = 1.0,
                  epsilon_out: complex = 1.0, angle: float = 0.0,
                  diagnostics: bool = True, retention: str = "smallest_abs",
-                 q_projection: str = "direct"):
+                 q_projection: str = "direct", device: str = "auto",
+                 backend: str = "auto"):
         self.layers = tuple(layers)
         if not self.layers:
             raise ValueError("at least one LayerSpec is required")
@@ -403,6 +412,13 @@ class PreparedStack:
             raise ValueError("oversampling must be finite and at least 1")
         self.oversampling = float(oversampling)
         self.internal_count = max(self.harmonics, int(round(self.oversampling * self.harmonics)))
+        self.execution = resolve_execution(device, backend)
+        self.device = self.execution["device"]
+        self.backend = self.execution["backend"]
+        layer_factory = _PreparedLayer
+        if self.backend == "torch":
+            from .torch_backend import TorchPreparedLayer
+            layer_factory = lambda *args: TorchPreparedLayer(*args, device=self.device)
         # Equal adjacent layers share prepared Fourier matrices.  This is
         # especially useful when a staircase representation repeats slices.
         cache: dict[tuple, _PreparedLayer] = {}
@@ -410,7 +426,7 @@ class PreparedStack:
         for layer in self.layers:
             key = (layer.breaks, layer.epsilon, layer.period)
             if key not in cache:
-                cache[key] = _PreparedLayer(layer, self.method, self.harmonics,
+                cache[key] = layer_factory(layer, self.method, self.harmonics,
                                            self.internal_count, quadrature, self.G)
             self.prepared_layers.append(cache[key])
 
@@ -421,7 +437,8 @@ class PreparedStack:
         V = np.diag(gamma if self.polarization == "TE" else gamma / epsilon)
         return W, V, gamma
 
-    def solve(self, wavelength: float, *, cutoff_shift: float = 1e-12) -> dict:
+    def _wavelength_parameters(self, wavelength: float, cutoff_shift: float) -> tuple:
+        """Shared host-side validation and identical Rayleigh limit on both backends."""
         wavelength = float(wavelength)
         if not np.isfinite(wavelength) or wavelength <= 0:
             raise ValueError("wavelength must be positive and finite")
@@ -438,6 +455,13 @@ class PreparedStack:
             wavelength *= 1 + float(cutoff_shift)
             k = 2 * np.pi / wavelength
             alpha0 = k * np.sqrt(self.epsilon_in) * np.sin(self.angle)
+        return requested_wavelength, wavelength, k, alpha0, at_cutoff
+
+    def solve(self, wavelength: float, *, cutoff_shift: float = 1e-12) -> dict:
+        if self.backend == "torch":
+            from .torch_backend import solve_stack
+            return solve_stack(self, wavelength, cutoff_shift=cutoff_shift)
+        requested_wavelength, wavelength, k, alpha0, at_cutoff = self._wavelength_parameters(wavelength, cutoff_shift)
 
         Wleft, Vleft, gamma_in = self._external_modes(k, alpha0, self.epsilon_in)
         Wout, Vout, gamma_out = self._external_modes(k, alpha0, self.epsilon_out)
@@ -491,6 +515,7 @@ class PreparedStack:
             "max_boundary_condition": diagnostics.max_condition,
             "linear_solves": diagnostics.solves,
             "quadrature_points_per_region": max(layer.quadrature_points for layer in self.prepared_layers),
+            "device": self.device, "backend": self.backend, "execution": self.execution.copy(),
         }
 
     def spectrum(self, wavelengths: Iterable[float], **solve_options) -> dict:
@@ -504,7 +529,7 @@ class PreparedStack:
         result = {key: np.asarray([value[key] for value in values]) for key in array_keys}
         result.update({key: values[0][key] for key in
                        ("orders", "polarization", "method", "retention", "q_projection", "retained_modes", "eigen_dimensions",
-                        "linear_solves", "quadrature_points_per_region")})
+                        "linear_solves", "quadrature_points_per_region", "device", "backend", "execution")})
         result["wavelengths"] = result["wavelength"]
         return result
 

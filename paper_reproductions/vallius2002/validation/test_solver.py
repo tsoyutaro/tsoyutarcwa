@@ -11,10 +11,14 @@ from __future__ import annotations
 import cmath
 import math
 import unittest
+from functools import partial
 
 import numpy as np
 
 from ..solver import LayerSpec, PreparedStack
+
+# This suite is the independent SciPy baseline even on GPU-equipped hosts.
+PreparedStack = partial(PreparedStack, device="cpu", backend="scipy")
 
 
 def slab_power(wavelength, thickness, epsilon, epsilon_in=1.0, epsilon_out=1.0):

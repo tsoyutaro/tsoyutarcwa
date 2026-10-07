@@ -1,0 +1,146 @@
+{
+  "paper_doi": "10.1364/OE.10.000024",
+  "figure": 9,
+  "polarization": "TM",
+  "normal_incidence": true,
+  "epsilon_in": 1,
+  "epsilon_out": 1,
+  "mode_convention": "order",
+  "harmonic_rule": "N=2M+1",
+  "asr_eigen_oversampling": 3,
+  "G": 0.001,
+  "quadrature_requested_minimum": 192,
+  "quadrature_actual_maximum": 616,
+  "retention": "smallest_abs",
+  "q_projection": "direct",
+  "execution": {
+    "requested_device": "auto",
+    "requested_backend": "auto",
+    "device": "cpu",
+    "backend": "scipy",
+    "dtype": "complex128",
+    "device_name": "CPU",
+    "torch_version": "2.8.0+cpu",
+    "cuda_version": null,
+    "condition_number_method": "LAPACK 1-norm estimate",
+    "selection_reason": "CUDA is unavailable; auto selected CPU/SciPy"
+  },
+  "include_reference_grid": false,
+  "reference_modes": 0,
+  "reference_points_requested": 51,
+  "cylinder_slices": 120,
+  "geometry": [
+    {
+      "thickness": 10.0,
+      "breaks": [
+        0.0,
+        0.5,
+        1.0
+      ],
+      "epsilon": [
+        {
+          "real": 25.0,
+          "imag": 0.0
+        },
+        {
+          "real": 2.25,
+          "imag": 0.0
+        }
+      ],
+      "period": 1.0,
+      "name": "checkerboard_lower"
+    },
+    {
+      "thickness": 10.0,
+      "breaks": [
+        0.0,
+        0.5,
+        1.0
+      ],
+      "epsilon": [
+        {
+          "real": 2.25,
+          "imag": 0.0
+        },
+        {
+          "real": 25.0,
+          "imag": 0.0
+        }
+      ],
+      "period": 1.0,
+      "name": "checkerboard_upper"
+    }
+  ],
+  "metal_dimensions": null,
+  "wavelengths": [
+    1.16,
+    1.17,
+    1.18
+  ],
+  "seconds": 1.3854111998807639,
+  "versions": {
+    "python": "3.13.5",
+    "numpy": "2.3.0"
+  },
+  "source_sha256": {
+    "__init__.py": "ff532e7b1bc3c8ccbfa1bcd1237278dfe29c246d83e3bde4221b019a15482752",
+    "devices.py": "7967e72f2cff054bc74d38f33a2bdeed48d9340a70d046f2e87c987e27ed574a",
+    "extract_reference.py": "5d3ed464ff392575f8e54e5efe8c57b17e638c1e7ba43b37764b01bb156c4fc8",
+    "geometries.py": "3ab2a5a4fbec721bf7a1b97857d368af97e91134daca9203d478b65f6988f026",
+    "reproduce.py": "64510edaeaaccb4fc2e3c26afef6f7b6de99fe2bff53a891c2bd8871c0cd3c6f",
+    "solver.py": "ef696f8f4a7fcfcdc7df0a5658253320cf171c21284abb3eb203717daaa9c9a2",
+    "torch_backend.py": "e6d9e4e1e37850dffee6fa54d27280aa0889ba392602e98b4147431593074e68"
+  },
+  "reference_comparison": {
+    "a": {
+      "reference": "fig9_a_solid.csv",
+      "modes": 19,
+      "samples": 49,
+      "mae": 0.3012425233462253,
+      "rmse": 0.40293455182379095,
+      "maximum_absolute_error": 0.936000632826431,
+      "assessment": "diagnostic only; no claim of exact reproduction"
+    },
+    "b": {
+      "reference": "fig9_b_solid.csv",
+      "modes": 19,
+      "samples": 50,
+      "mae": 0.31601282375007717,
+      "rmse": 0.4015217267682993,
+      "maximum_absolute_error": 0.8173520476469668,
+      "assessment": "diagnostic only; no claim of exact reproduction"
+    },
+    "a_high": {
+      "reference": "fig9_a_diamond.csv",
+      "modes": 38,
+      "samples": 50,
+      "mae": 0.3141016358963628,
+      "rmse": 0.39961656082494407,
+      "maximum_absolute_error": 0.8005928107251443,
+      "assessment": "diagnostic only; no claim of exact reproduction"
+    },
+    "b_high": {
+      "reference": "fig9_b_diamond.csv",
+      "modes": 38,
+      "samples": 50,
+      "mae": 0.3161373277692006,
+      "rmse": 0.4010836009362913,
+      "maximum_absolute_error": 0.8171376655417469,
+      "assessment": "diagnostic only; no claim of exact reproduction"
+    }
+  },
+  "max_abs_energy_residual": 6.3552496598617836e-12,
+  "maximum_T0": 0.9977833596093324,
+  "command": [
+    "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\paper_reproductions\\vallius2002\\reproduce.py",
+    "--study",
+    "smoke",
+    "--points",
+    "3",
+    "--device",
+    "auto",
+    "--output-dir",
+    "paper_reproductions/vallius2002/results/backend_smoke/auto"
+  ],
+  "completed": true
+}

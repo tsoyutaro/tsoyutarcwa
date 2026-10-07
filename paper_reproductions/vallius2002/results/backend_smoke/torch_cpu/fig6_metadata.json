@@ -1,0 +1,208 @@
+{
+  "paper_doi": "10.1364/OE.10.000024",
+  "figure": 6,
+  "polarization": "TE",
+  "normal_incidence": true,
+  "epsilon_in": 1,
+  "epsilon_out": 1,
+  "mode_convention": "order",
+  "harmonic_rule": "N=2M+1",
+  "asr_eigen_oversampling": 3,
+  "G": 0.001,
+  "quadrature_requested_minimum": 192,
+  "quadrature_actual_maximum": 192,
+  "retention": "smallest_abs",
+  "q_projection": "direct",
+  "execution": {
+    "requested_device": "cpu",
+    "requested_backend": "torch",
+    "device": "cpu",
+    "backend": "torch",
+    "dtype": "complex128",
+    "device_name": "CPU",
+    "torch_version": "2.8.0+cpu",
+    "cuda_version": null,
+    "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
+    "selection_reason": "PyTorch tensor backend on CPU"
+  },
+  "include_reference_grid": false,
+  "reference_modes": 0,
+  "reference_points_requested": 51,
+  "cylinder_slices": 120,
+  "geometry": [
+    {
+      "thickness": 0.125,
+      "breaks": [
+        0.0,
+        0.1,
+        0.4,
+        1.0
+      ],
+      "epsilon": [
+        {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        {
+          "real": -10.852760670000002,
+          "imag": 0.8023924400000001
+        },
+        {
+          "real": 1.0,
+          "imag": 0.0
+        }
+      ],
+      "period": 1.0,
+      "name": "metal_1"
+    },
+    {
+      "thickness": 0.125,
+      "breaks": [
+        0.0,
+        0.033333333333333326,
+        0.4666666666666667,
+        1.0
+      ],
+      "epsilon": [
+        {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        {
+          "real": -10.852760670000002,
+          "imag": 0.8023924400000001
+        },
+        {
+          "real": 1.0,
+          "imag": 0.0
+        }
+      ],
+      "period": 1.0,
+      "name": "metal_2"
+    },
+    {
+      "thickness": 0.125,
+      "breaks": [
+        0.0,
+        0.5333333333333333,
+        0.9666666666666667,
+        1.0
+      ],
+      "epsilon": [
+        {
+          "real": -10.852760670000002,
+          "imag": 0.8023924400000001
+        },
+        {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        {
+          "real": -10.852760670000002,
+          "imag": 0.8023924400000001
+        }
+      ],
+      "period": 1.0,
+      "name": "metal_3"
+    },
+    {
+      "thickness": 0.125,
+      "breaks": [
+        0.0,
+        0.6,
+        0.9,
+        1.0
+      ],
+      "epsilon": [
+        {
+          "real": -10.852760670000002,
+          "imag": 0.8023924400000001
+        },
+        {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        {
+          "real": -10.852760670000002,
+          "imag": 0.8023924400000001
+        }
+      ],
+      "period": 1.0,
+      "name": "metal_4"
+    }
+  ],
+  "metal_dimensions": "inferred from Fig. 5 vector drawing; not specified numerically in the paper",
+  "wavelengths": [
+    0.95,
+    1.0,
+    1.05
+  ],
+  "seconds": 2.3250671999994665,
+  "versions": {
+    "python": "3.13.5",
+    "numpy": "2.3.0"
+  },
+  "source_sha256": {
+    "__init__.py": "ff532e7b1bc3c8ccbfa1bcd1237278dfe29c246d83e3bde4221b019a15482752",
+    "devices.py": "7967e72f2cff054bc74d38f33a2bdeed48d9340a70d046f2e87c987e27ed574a",
+    "extract_reference.py": "5d3ed464ff392575f8e54e5efe8c57b17e638c1e7ba43b37764b01bb156c4fc8",
+    "geometries.py": "3ab2a5a4fbec721bf7a1b97857d368af97e91134daca9203d478b65f6988f026",
+    "reproduce.py": "64510edaeaaccb4fc2e3c26afef6f7b6de99fe2bff53a891c2bd8871c0cd3c6f",
+    "solver.py": "ef696f8f4a7fcfcdc7df0a5658253320cf171c21284abb3eb203717daaa9c9a2",
+    "torch_backend.py": "e6d9e4e1e37850dffee6fa54d27280aa0889ba392602e98b4147431593074e68"
+  },
+  "reference_comparison": {
+    "a": {
+      "reference": "fig6_a_solid.csv",
+      "modes": 5,
+      "samples": 49,
+      "mae": 0.025053067153019866,
+      "rmse": 0.027052804876974725,
+      "maximum_absolute_error": 0.04330844574171083,
+      "assessment": "diagnostic only; no claim of exact reproduction"
+    },
+    "b": {
+      "reference": "fig6_b_solid.csv",
+      "modes": 5,
+      "samples": 49,
+      "mae": 0.025700734873533953,
+      "rmse": 0.02785477915147601,
+      "maximum_absolute_error": 0.04485682655865292,
+      "assessment": "diagnostic only; no claim of exact reproduction"
+    },
+    "a_high": {
+      "reference": "fig6_a_diamond.csv",
+      "modes": 10,
+      "samples": 50,
+      "mae": 0.024988255953307316,
+      "rmse": 0.027111935048972562,
+      "maximum_absolute_error": 0.04399590182598728,
+      "assessment": "diagnostic only; no claim of exact reproduction"
+    },
+    "b_high": {
+      "reference": "fig6_b_diamond.csv",
+      "modes": 10,
+      "samples": 50,
+      "mae": 0.02515974508155335,
+      "rmse": 0.027293786964097882,
+      "maximum_absolute_error": 0.044251146629899596,
+      "assessment": "diagnostic only; no claim of exact reproduction"
+    }
+  },
+  "max_abs_energy_residual": null,
+  "maximum_T0": 0.2849449947044814,
+  "command": [
+    "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\paper_reproductions\\vallius2002\\reproduce.py",
+    "--study",
+    "smoke",
+    "--points",
+    "3",
+    "--device",
+    "cpu",
+    "--backend",
+    "torch",
+    "--output-dir",
+    "paper_reproductions/vallius2002/results/backend_smoke/torch_cpu"
+  ],
+  "completed": true
+}

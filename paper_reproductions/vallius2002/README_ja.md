@@ -22,11 +22,13 @@ Optics Express **10**, 24–34 (2002),
 | ファイル | 内容 |
 |---|---|
 | `solver.py` | 1次元TE/TM FMM・ASR、物理座標への射影、多層S行列 |
+| `devices.py` / `torch_backend.py` | CPU/CUDA選択、倍精度PyTorch計算経路 |
 | `geometries.py` | 論文の図5・8・10の形状、図別条件 |
 | `reproduce.py` | 図6・7・9・11の波長掃引、CSV・PNG・JSON出力 |
 | `extract_reference.py` | 添付PDF内の実際のベクトル曲線・マーカーの抽出 |
 | `reference/` | 元PDF座標・source hash付きの独立参照データ |
 | `validation/test_solver.py` | 解析解と物理的性質による10件の検証 |
+| `validation/test_backends.py` / `validation/check_backends.py` | デバイス選択・物理検証、CPUとCUDA計算経路の比較 |
 | `results/paper/` | 実際に計算した各図、比較図、条件と精度の記録 |
 | `results/ASSESSMENT_ja.md` | 保存済み計算の論文との比較と制約 |
 
@@ -34,12 +36,14 @@ Optics Express **10**, 24–34 (2002),
 
 既存リポジトリのルート（`rcwa_ext/` と `paper_reproductions/` がある `outputs/`）で
 実行します。Python 3.10以上とNumPy、SciPy、Matplotlibが必要です。
-ソルバーはCPUの倍精度計算です。
+既定の `--device auto` は、PyTorchでCUDAが利用できればGPUを選び、
+利用できなければ従来のSciPy/CPUを選びます。両方とも複素倍精度 `complex128` です。
+判定はCUDAの利用可否によるもので、計算速度のベンチマークによる判定ではありません。
 
 ```bash
 python -m pip install -r paper_reproductions/vallius2002/requirements.txt
-python -m unittest paper_reproductions.vallius2002.validation.test_solver -v
-python -m paper_reproductions.vallius2002.reproduce --study smoke
+python -m unittest paper_reproductions.vallius2002.validation.test_solver paper_reproductions.vallius2002.validation.test_backends -v
+python -m paper_reproductions.vallius2002.reproduce --study smoke --output-dir paper_reproductions/vallius2002/results/smoke
 ```
 
 論文のモード設定で4図を計算する例:
@@ -49,6 +53,60 @@ OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m paper_reproductions.vallius20
   --study all --overlay-reference --include-reference-grid \
   --output-dir paper_reproductions/vallius2002/results/paper
 ```
+
+## GPU・CPUの指定
+
+CUDA GPUにはCUDA対応のPyTorchが追加で必要です。CPU版PyTorchではGPU計算できません。
+GPU環境に合うインストールコマンドは [PyTorch公式](https://pytorch.org/get-started/locally/)
+でOSとCUDAを選択してください。CPU実行だけならPyTorchは不要です。
+
+まず使用中のPython環境からCUDAが見えるか確認できます。
+
+```bash
+python -c "import torch; print('torch=', torch.__version__, 'CUDA build=', torch.version.cuda, 'CUDA available=', torch.cuda.is_available(), 'GPUs=', torch.cuda.device_count())"
+```
+
+以下はリポジトリのルートで実行します。
+
+```bash
+# 利用可能ならGPU、なければCPU（既定動作）
+python -m paper_reproductions.vallius2002.reproduce --study all --device auto --overlay-reference --include-reference-grid --output-dir paper_reproductions/vallius2002/results/auto
+
+# GPUを明示指定。利用できなければエラーで終了
+python -m paper_reproductions.vallius2002.reproduce --study all --device cuda --overlay-reference --include-reference-grid --output-dir paper_reproductions/vallius2002/results/gpu
+
+# CPUを明示指定
+python -m paper_reproductions.vallius2002.reproduce --study all --device cpu --overlay-reference --include-reference-grid --output-dir paper_reproductions/vallius2002/results/cpu
+
+# GPU実機でCPUとの一致を検証（4図・FMM/ASR・両モード設定、48ケース）
+python -m paper_reproductions.vallius2002.validation.check_backends --device cuda --output paper_reproductions/vallius2002/results/diagnostics/cuda_parity.json
+```
+
+`--device cuda:0`、`cuda:1` で可視GPUの番号を指定できます。
+スケジューラなどが `CUDA_VISIBLE_DEVICES` を設定している場合、その環境内の番号です。
+開始時に選択したデバイス・GPU名・計算経路を表示し、各CSVに `device`、`backend`、
+metadata JSONに `execution`（PyTorch/CUDAの版、倍精度、選択理由）を保存します。
+明示指定したGPUが使えない場合やGPU計算が失敗した場合、CPUへ自動で切り替えません。
+
+GPU経路では形状・Gauss積分の係数を最初にCPUで組み立て、行列を一度転送します。
+波長掃引の逆行列・固有値計算・射影・S行列接続は指定デバイスのPyTorch APIを使います。
+無損失層の一般化Hermitian問題はCholesky変換を使って解きます。
+最終的なスペクトルと描画データはCPUへ戻します。低次数ではGPUの方が速いとは限りません。
+境界条件数はCPUのLAPACK推定値とGPUのLU逆行列からの厳密1ノルムで定義が異なるため、
+その差をスペクトルの不一致と解釈しないでください。定義も `execution` に記録します。
+
+Python APIでも `PreparedStack(..., device="auto")` / `device="cuda"` / `device="cpu"`
+で指定できます。検証用の `device="cpu", backend="torch"` とCLIの
+`--device cpu --backend torch` はGPUと同じテンソル計算経路をCPU上で実行します。
+
+今回の開発環境は `PyTorch 2.8.0+cpu` でCUDAが利用できません。
+同じテンソル経路をCPUで検証し、4図48ケースの電力値の最大絶対差は約 `1.08e-7` でした。
+18件の物理・選択テストが通り、CUDA実機用4件はスキップしました。
+[比較記録](results/diagnostics/torch_cpu_parity.json) を保存しています。
+GPU実機での実行確認は未実施です。以前の `results/paper/` はSciPy/CPUで計算した結果です。
+図6・7の高次数参照 `N=481` もTE/TMで別途比較し、電力値の最大絶対差は
+約 `1.20e-11` でした（[高次数比較](results/diagnostics/torch_cpu_high_reference.json)）。
+論文との未解決の差の評価は [精度評価](results/ASSESSMENT_ja.md) のままです。
 
 PowerShellでは、先に環境変数を指定します。
 
