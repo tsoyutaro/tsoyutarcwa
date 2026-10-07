@@ -1,0 +1,18 @@
+{
+  "date_JST": "2026-10-07",
+  "unit_test_command": "python -m unittest paper_reproductions.vallius2002.validation.test_solver -v",
+  "unit_tests": 10,
+  "failures": 0,
+  "errors": 0,
+  "independent_comparison_command": "python -m paper_reproductions.vallius2002.validation.compare_torcwa",
+  "native_torcwa_maximum_T0_T_R_difference": 2.877701466008631e-08,
+  "versions": {
+    "numpy": "2.3.0",
+    "scipy": "1.15.3",
+    "matplotlib": "3.10.3",
+    "torch": "2.8.0",
+    "torcwa": "0.1.4.2"
+  },
+  "solver_sha256": "e7604a1afdac1c318a13f05d027ece9b8269912f0ef400721d91ba8f4606c0bb",
+  "validation_scope": "Physics and independent numerical verification, not a claim that every published figure is quantitatively matched."
+}

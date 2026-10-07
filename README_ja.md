@@ -20,7 +20,8 @@ outputs/
 ├─ paper_reproductions/       # 論文ごとの再現実装
 │  ├─ wang2022_fig8/          # ASR-RCWA論文 Fig. 8
 │  ├─ weiss2009/              # 円形 matched-coordinate ASR、Fig. 2～5
-│  └─ peng2025/               # Ag–air–Ag円形構造
+│  ├─ peng2025/               # Ag–air–Ag円形構造
+│  └─ vallius2002/            # 1次元parametric ASR、Fig. 6・7・9・11
 ├─ validation/                # solver横断の独立検証
 ├─ docs/                      # 数式導出・設計資料
 └─ README_rcwa_extension_ja.md # APIと全機能の詳細
@@ -42,6 +43,10 @@ outputs/
 Weiss 2009 の再現は [専用ガイド](paper_reproductions/weiss2009/README_ja.md) に、
 保存済み計算の評価は [結果の評価](paper_reproductions/weiss2009/docs/RESULTS_ja.md) にまとめています。
 Fig. 4(a) の図との一致と、Fig. 3・4(b) の高次数で残る収束問題を区別して記載しています。
+
+Vallius & Honkanen (2002) の図6・7・9・11は
+[専用ガイド](paper_reproductions/vallius2002/README_ja.md)を参照してください。
+論文の未指定寸法などの仮定と、計算した曲線の一致範囲を保存しています。
 
 ## よく使うコマンド
 

@@ -136,7 +136,7 @@ Matplotlib が利用可能なら PNG も自動で出ます。Matplotlib が無�
 差から求めた A は、独立した吸収積分によるエネルギー検証ではありません。
 
 次数は `[M, 0]`、x 方向の Fourier 成分数は `2*M+1`、y 方向は 1 です。
-`solver.py` の一次元用アダプタが既存の固有値計算・ポート定義・S 行列接続を利用し、RCWA 本体は変更しません。
+`solver.py` の一次元用アダプタが既存の固有値計算・ポート定義を利用し、一次元の偏光分離で S 行列を接続します。共通の RCWA 本体は変更しません。
 座標変換は使わず、法線方向の誘電率は `[1/epsilon]^-1`、接線方向は `[epsilon]` という Li の因子分解を用います。
 
 grid 探索では各セルの中点で材料をサンプリングし、FFT で `epsilon` と `1/epsilon` の係数を求めます。
@@ -162,3 +162,47 @@ python3 studies/gold_grating_1d/validate.py --device cuda
 平坦な空気／金境界の Fresnel 解、均一金 30 nm 区間の伝搬、無損失一次元格子の R+T、偏光の分離、一次元因子分解と既存の一般式との一致、解析的係数と細かい grid の一致を確認します。
 この検証に合格しても、500 nm 高さの金台形格子の離散化が収束したことにはなりません。
 7 波長での合格は、その 7 点での判定です。広帯域スペクトルの精度確認には波長を追加し、同じ設定で再確認してください。
+
+## TE/TM の分離と層の逐次接続（2026-10-07）
+
+`solver.polarization_separated` は既定で `true` です。固有値計算、層の S 行列、Redheffer 接続、パワー計算を TE/TM ごとに行います。
+N=2*M+1 とすると、従来の 2N×2N の計算を二つの N×N の計算にします。M=80 では 322×322 から 161×161 を二つに分離します。
+
+各層を追加した時点で S 行列を接続し、その層のモード・S 行列を解放します。
+保持するのは接続済みの S 行列、最後の演算子と少量のメタデータです。全層の P/Q・固有ベクトルを保持するメモリ増加を除きます。
+通常の `port_results` は分離した N×N の行列を使います。従来の `sim.S` にアクセスしたときだけ、互換性のため Cartesian の 2N×2N ブロックを構成します。
+
+物理モデル、Fourier 係数、Li 因子分解、複素倍精度、R/P_sub/A の定義は同じです。
+選択層の条件数と固有値残差も保存し、偏光ごとの診断を追加しています。
+`cartesian_operators()` は演算子検証のために最後の P/Q を必要時だけ復元します。
+
+この最適化は y 一様・K_y=0・場の再構成なし・Redheffer の計算で使用します。
+場の再構成を指定したインスタンスや `polarization_separated=False` の場合は既存の Cartesian 経路を使います。
+均質層と矩形層の混在、PMMA 被覆一次元格子の派生クラスにも対応します。
+分離した矩形層の後に一般 raster 層を追加する場合は、最初から `polarization_separated=False` を指定してください。
+
+ソースが変わるため、既存 checkpoint と混在させず新しい出力先で実行してください。例えばリポジトリルートで：
+
+```bash
+python3 studies/gold_grating_1d/run_analytic.py --device cuda \
+  --output-dir studies/gold_grating_1d/results/analytic_search_polarization_separated
+```
+
+従来方式との比較は設定の `solver.polarization_separated` を `false` にするか、次の専用 benchmark を使います。
+この benchmark は設定にかかわらず両方式を解析的 Fourier 係数で比較し、各回を別プロセスで実行します。
+
+```bash
+python3 studies/gold_grating_1d/benchmark_polarization.py --device cuda \
+  --order 80 --slices 420 --wavelengths 550 --repeats 3
+```
+
+CPU では `--device cpu --threads 1` を指定できます。
+出力は両偏光込みの実測時間、終了時の保持テンソル容量、CPU プロセスのピーク working set、CUDA の場合はピークテンソルメモリ、物理量の一致です。
+CPU プロセスメモリには Python・ライブラリも含まれます。終了時の保持容量はピーク値ではありません。
+この benchmark は実装間の一致・性能を検証するもので、次数・層数の収束判定ではありません。
+
+```bash
+python3 -m unittest discover -s studies/gold_grating_1d -p 'test*.py'
+```
+
+回帰検証では全7波長・TE/TM・サンプリング／解析係数の一致、全 S ブロックの一致、均質／混在／無損失層、N×N の計算サイズと層ごとの中間行列解放を確認します。

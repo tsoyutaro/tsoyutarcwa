@@ -68,6 +68,8 @@ def load_config(path):
         raise ValueError("fourier_coefficients must be sampled or analytic.")
     if config["solver"]["dtype"] != "complex128" or config["solver"]["incidence"] != "normal":
         raise ValueError("This study supports complex128 and normal incidence only.")
+    if not isinstance(config["solver"].get("polarization_separated", True), bool):
+        raise ValueError("solver.polarization_separated must be a boolean.")
     for name in ("tolerance", "passivity_tolerance"):
         if not math.isfinite(config[name]) or config[name] <= 0:
             raise ValueError(f"{name} must be finite and positive.")

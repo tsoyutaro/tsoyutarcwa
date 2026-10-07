@@ -8,7 +8,7 @@
   },
   "material": {"gold_csv": "data/au_measured_nk.csv"},
   "wavelengths_nm": [400, 450, 500, 550, 600, 650, 700],
-  "solver": {"fourier_coefficients": "sampled", "dtype": "complex128", "incidence": "normal"},
+  "solver": {"fourier_coefficients": "sampled", "dtype": "complex128", "incidence": "normal", "polarization_separated": true},
   "fixed_numerics": {"order": 24, "slices": 140, "grid": 576},
   "search_values": {
     "order": [4, 8, 12, 16, 20, 24, 32, 40],

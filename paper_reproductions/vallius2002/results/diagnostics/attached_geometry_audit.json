@@ -1,0 +1,40 @@
+{
+  "audit_date_JST": "2026-10-07",
+  "attachment_sha256": {
+    "codex-clipboard-8c6876c9-71b4-42f1-9546-181ac381c6e5.png": "7131abeb49a05bd0aee8fac83398dc4748c8137ba81e33306a2ccbd86cdd4cdd",
+    "codex-clipboard-39a8d675-32fc-4666-9f95-4b01a6980f79.png": "e0bea43b4ec5e71088528e9b0c43d50b88af9bd6b483f72d5fc9dba2156d626d",
+    "codex-clipboard-7cc39abb-5d28-41f8-b9e1-f20532d44433.png": "7489775b816d7928e968229050135e686036780a7bfacbb51b4c3daabc1e7dd0"
+  },
+  "checks": [
+    {
+      "figure": 6,
+      "specified_materials_period_heights_match": true,
+      "saved_geometry_matches_implementation": true,
+      "layers": 4
+    },
+    {
+      "figure": 7,
+      "specified_materials_period_heights_match": true,
+      "saved_geometry_matches_implementation": true,
+      "layers": 4
+    },
+    {
+      "figure": 9,
+      "specified_materials_period_heights_match": true,
+      "saved_geometry_matches_implementation": true,
+      "layers": 2
+    },
+    {
+      "figure": 11,
+      "specified_materials_period_heights_match": true,
+      "saved_geometry_matches_implementation": true,
+      "layers": 120
+    }
+  ],
+  "numerical_setting_changes_required": false,
+  "assumptions": [
+    "Figure 5 lateral step positions have no numerical dimensions in the attachment. Widths .3, 13/30, 17/30, .7 remain explicitly inferred.",
+    "Figure 10 uses 120 midpoint slices; the attached caption specifies radius and heights, not the within-slice sampling convention."
+  ],
+  "result_scope": "Parameter consistency only; it does not resolve the previously recorded spectral discrepancies."
+}

@@ -1,0 +1,604 @@
+{
+  "source_file": "Reformulation of the Fourier modal method.pdf",
+  "source_sha256": "317f9a64b5ebcc3bdd2051c0716e308345ddaff0b8db6202fe496bee46e9bbd6",
+  "source_title": "Reformulation of the Fourier modal method with adaptive spatial resolution: application to multilevel profiles",
+  "source_authors": "T. Vallius and M. Honkanen",
+  "source_year": 2002,
+  "extraction": "Original PDF vector path vertices via pdfplumber; no raster digitization, no calculated results, no curve fitting. Linear axis calibration only.",
+  "limitations": [
+    "Coordinates have the rounding and polyline sampling resolution of the published PDF; they are not original numerical solver outputs.",
+    "Curves clipped by a plot border remain clipped. No missing peak points are reconstructed.",
+    "Digitized marker locations are bounding-box centers of original vector diamonds.",
+    "Figure 9b solid/dashed paths have the same extrema and vertex counts but different interior vertices; the high-mode dashed trace agrees with the diamond centers.",
+    "Figures 6/7 dashed reference curves are FMM 240 modes in both panels, as stated in the caption."
+  ],
+  "geometry_notes": {
+    "figure_5": {
+      "documented_parameters": {
+        "period": 1,
+        "z_interfaces": [
+          0,
+          0.125,
+          0.25,
+          0.375,
+          0.5
+        ],
+        "n_a": [
+          0.1217,
+          3.2966
+        ],
+        "n_b": 1,
+        "n_incident": 1,
+        "n_exit": 1
+      },
+      "horizontal_transitions_documented_numerically": false,
+      "source_pdf_page": 8,
+      "vector_domain_x_pt": [
+        248.579,
+        355.464
+      ],
+      "vector_metal_polygon_xy_from_top_pt": [
+        [
+          248.579,
+          86.568
+        ],
+        [
+          248.682,
+          115.417
+        ],
+        [
+          251.977,
+          115.417
+        ],
+        [
+          252.081,
+          129.841
+        ],
+        [
+          259.449,
+          129.841
+        ],
+        [
+          259.579,
+          144.291
+        ],
+        [
+          290.97,
+          144.291
+        ],
+        [
+          291.073,
+          129.841
+        ],
+        [
+          298.441,
+          129.841
+        ],
+        [
+          298.545,
+          115.417
+        ],
+        [
+          305.264,
+          115.417
+        ],
+        [
+          305.394,
+          100.992
+        ],
+        [
+          312.762,
+          100.992
+        ],
+        [
+          312.866,
+          86.568
+        ],
+        [
+          344.464,
+          86.568
+        ],
+        [
+          344.568,
+          100.992
+        ],
+        [
+          351.936,
+          100.992
+        ],
+        [
+          352.066,
+          115.417
+        ],
+        [
+          355.36,
+          115.417
+        ],
+        [
+          355.464,
+          86.568
+        ]
+      ],
+      "measured_metal_intervals_lower_to_upper_periodic": [
+        [
+          0.102,
+          0.397
+        ],
+        [
+          0.032,
+          0.467
+        ],
+        [
+          -0.031,
+          0.532
+        ],
+        [
+          -0.101,
+          0.601
+        ]
+      ],
+      "suggested_rational_approximation_lower_to_upper_periodic": [
+        [
+          0.1,
+          0.4
+        ],
+        [
+          0.03333333333333333,
+          0.4666666666666667
+        ],
+        [
+          -0.03333333333333333,
+          0.5333333333333333
+        ],
+        [
+          -0.1,
+          0.6
+        ]
+      ],
+      "suggested_center": 0.25,
+      "suggested_widths": [
+        0.3,
+        0.43333333333333335,
+        0.5666666666666667,
+        0.7
+      ],
+      "caution": "The figure is schematic. The suggested rational approximation is an explicit modeling assumption inferred from the PDF geometry, not a parameter quoted in the paper and not a fit to calculated efficiencies."
+    },
+    "figure_8": {
+      "source_pdf_page": 9,
+      "period": 1,
+      "z_interfaces": [
+        0,
+        10,
+        20
+      ],
+      "n_a": 5,
+      "n_b": 1.5,
+      "lower_a_interval": [
+        0,
+        0.5
+      ],
+      "upper_a_interval": [
+        0.5,
+        1
+      ],
+      "n_incident": 1,
+      "n_exit": 1
+    },
+    "figure_10": {
+      "source_pdf_page": 10,
+      "period": 1,
+      "total_thickness": 1,
+      "circle_radius": 0.25,
+      "circle_centers": [
+        [
+          0.25,
+          0.25
+        ],
+        [
+          0.75,
+          0.75
+        ]
+      ],
+      "circle_n_a": 1,
+      "background_n_b": 5,
+      "equal_z_slices": 120,
+      "n_incident": 1,
+      "n_exit": 1
+    },
+    "all_examples": {
+      "resolution_G": 0.001,
+      "G_source_pdf_page": 6,
+      "incidence_degrees": 0
+    }
+  },
+  "panels": [
+    {
+      "figure": 6,
+      "panel": "a",
+      "page": 8,
+      "method": "fmm",
+      "modes": 5,
+      "box": [
+        246.6213724,
+        201.5331676,
+        379.6714936,
+        261.7034331
+      ],
+      "wavelengths": [
+        0.95,
+        1.05
+      ],
+      "ypoints": [
+        248.3817235,
+        233.2712784,
+        218.1608333,
+        203.0503882
+      ],
+      "yvalues": [
+        0.2,
+        0.22,
+        0.24,
+        0.26
+      ],
+      "solid": [
+        12
+      ],
+      "dashed": [
+        63
+      ],
+      "diamond_modes": 10,
+      "dashed_modes": 240,
+      "filename": "figure_06_a_fmm.csv",
+      "y_slope": -0.0013235877479214674,
+      "y_intercept": 0.5287550060322177,
+      "tick_max_residual": 1.1102230246251565e-16,
+      "extracted_rows": {
+        "solid": 49,
+        "dashed": 50,
+        "diamond": 50
+      }
+    },
+    {
+      "figure": 6,
+      "panel": "b",
+      "page": 8,
+      "method": "asr",
+      "modes": 5,
+      "box": [
+        246.6213724,
+        283.964159,
+        379.6714936,
+        344.1017961
+      ],
+      "wavelengths": [
+        0.95,
+        1.05
+      ],
+      "ypoints": [
+        334.9273892,
+        318.9068448,
+        302.9189288,
+        286.9321781
+      ],
+      "yvalues": [
+        0.2,
+        0.22,
+        0.24,
+        0.26
+      ],
+      "solid": [
+        64
+      ],
+      "dashed": [
+        115
+      ],
+      "diamond_modes": 10,
+      "dashed_modes": 240,
+      "filename": "figure_06_b_asr.csv",
+      "y_slope": -0.001250206352950958,
+      "y_intercept": 0.6187158285662891,
+      "tick_max_residual": 1.646519778400468e-05,
+      "extracted_rows": {
+        "solid": 49,
+        "dashed": 49,
+        "diamond": 50
+      }
+    },
+    {
+      "figure": 7,
+      "panel": "a",
+      "page": 8,
+      "method": "fmm",
+      "modes": 12,
+      "box": [
+        246.6213724,
+        432.3790976,
+        379.6714936,
+        492.5843221
+      ],
+      "wavelengths": [
+        0.95,
+        1.05
+      ],
+      "ypoints": [
+        481.6899324,
+        470.761749,
+        459.8335656,
+        448.8727538,
+        437.9445704
+      ],
+      "yvalues": [
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5
+      ],
+      "solid": [
+        117
+      ],
+      "dashed": [
+        168,
+        169
+      ],
+      "diamond_modes": 24,
+      "dashed_modes": 240,
+      "filename": "figure_07_a_fmm.csv",
+      "y_slope": -0.009142460232649542,
+      "y_intercept": 4.503890765595661,
+      "tick_max_residual": 0.00011932153978316817,
+      "extracted_rows": {
+        "solid": 48,
+        "dashed": 51,
+        "diamond": 50
+      }
+    },
+    {
+      "figure": 7,
+      "panel": "b",
+      "page": 8,
+      "method": "asr",
+      "modes": 12,
+      "box": [
+        246.6213724,
+        514.8438827,
+        379.6714936,
+        574.9815198
+      ],
+      "wavelengths": [
+        0.95,
+        1.05
+      ],
+      "ypoints": [
+        564.0871301,
+        553.160112,
+        542.2319286,
+        531.3037452,
+        520.3755618
+      ],
+      "yvalues": [
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5
+      ],
+      "solid": [
+        170
+      ],
+      "dashed": [
+        221
+      ],
+      "diamond_modes": 24,
+      "dashed_modes": 240,
+      "filename": "figure_07_b_asr.csv",
+      "y_slope": -0.009150846850802587,
+      "y_intercept": 5.2618792035375535,
+      "tick_max_residual": 4.265483699222861e-06,
+      "extracted_rows": {
+        "solid": 49,
+        "dashed": 49,
+        "diamond": 50
+      }
+    },
+    {
+      "figure": 9,
+      "panel": "a",
+      "page": 9,
+      "method": "fmm",
+      "modes": 19,
+      "box": [
+        226.2946996,
+        322.15104,
+        403.7206042,
+        402.3912674
+      ],
+      "wavelengths": [
+        1.16,
+        1.18
+      ],
+      "ypoints": [
+        402.3912674,
+        322.15104
+      ],
+      "yvalues": [
+        0.0,
+        1.0
+      ],
+      "solid": [
+        5
+      ],
+      "dashed": [
+        6
+      ],
+      "diamond_modes": 38,
+      "dashed_modes": 38,
+      "filename": "figure_09_a_fmm.csv",
+      "y_slope": -0.012462576844591532,
+      "y_intercept": 5.014832091565081,
+      "tick_max_residual": 1.7763568394002505e-15,
+      "extracted_rows": {
+        "solid": 49,
+        "dashed": 50,
+        "diamond": 50
+      }
+    },
+    {
+      "figure": 9,
+      "panel": "b",
+      "page": 9,
+      "method": "asr",
+      "modes": 19,
+      "box": [
+        226.2946996,
+        432.0761196,
+        403.7206042,
+        512.2709003
+      ],
+      "wavelengths": [
+        1.16,
+        1.18
+      ],
+      "ypoints": [
+        512.2709003,
+        432.0761196
+      ],
+      "yvalues": [
+        0.0,
+        1.0
+      ],
+      "solid": [
+        57
+      ],
+      "dashed": [
+        58
+      ],
+      "diamond_modes": 38,
+      "dashed_modes": 38,
+      "filename": "figure_09_b_asr.csv",
+      "y_slope": -0.012469639436273192,
+      "y_intercept": 6.387833420436049,
+      "tick_max_residual": 3.552713678800501e-15,
+      "extracted_rows": {
+        "solid": 50,
+        "dashed": 50,
+        "diamond": 50
+      }
+    },
+    {
+      "figure": 11,
+      "panel": "a",
+      "page": 10,
+      "method": "fmm",
+      "modes": 7,
+      "box": [
+        234.3250515,
+        353.6099892,
+        383.7125145,
+        422.8794678
+      ],
+      "wavelengths": [
+        0.9,
+        0.96
+      ],
+      "ypoints": [
+        422.8794678,
+        392.071527,
+        361.3025328
+      ],
+      "yvalues": [
+        0.0,
+        0.2,
+        0.4
+      ],
+      "solid": [
+        15
+      ],
+      "dashed": [
+        16
+      ],
+      "diamond_modes": 14,
+      "dashed_modes": 14,
+      "filename": "figure_11_a_fmm.csv",
+      "y_slope": -0.006495937913463829,
+      "y_intercept": 2.7469566285941363,
+      "tick_max_residual": 8.43315651787857e-05,
+      "extracted_rows": {
+        "solid": 61,
+        "dashed": 61,
+        "diamond": 60
+      }
+    },
+    {
+      "figure": 11,
+      "panel": "b",
+      "page": 10,
+      "method": "asr",
+      "modes": 7,
+      "box": [
+        234.3250515,
+        448.4815464,
+        383.7125145,
+        517.751025
+      ],
+      "wavelengths": [
+        0.9,
+        0.96
+      ],
+      "ypoints": [
+        517.751025,
+        486.9430842,
+        456.17409
+      ],
+      "yvalues": [
+        0.0,
+        0.2,
+        0.4
+      ],
+      "solid": [
+        77
+      ],
+      "dashed": [
+        78
+      ],
+      "diamond_modes": 14,
+      "dashed_modes": 14,
+      "filename": "figure_11_b_asr.csv",
+      "y_slope": -0.006495937913463818,
+      "y_intercept": 3.363236373918963,
+      "tick_max_residual": 8.43315651787857e-05,
+      "extracted_rows": {
+        "solid": 61,
+        "dashed": 61,
+        "diamond": 60
+      }
+    }
+  ],
+  "original_content_operator_counts": {
+    "8": {
+      "m": 494,
+      "l": 1528,
+      "c": 0,
+      "S": 61,
+      "d": 5,
+      "cm": 60
+    },
+    "9": {
+      "m": 228,
+      "l": 747,
+      "c": 0,
+      "S": 40,
+      "d": 3,
+      "cm": 32
+    },
+    "10": {
+      "m": 222,
+      "l": 1588,
+      "c": 0,
+      "S": 28,
+      "d": 3,
+      "cm": 18
+    }
+  }
+}

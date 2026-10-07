@@ -78,7 +78,7 @@ def main():
         d = torch.diag(torch.cat((phase, phase)))
         errors = [float((torch.linalg.norm(actual-d @ generic @ d.mH)/
                          torch.linalg.norm(actual)).item())
-                  for actual, generic in ((sim.P[-1], p_generic), (sim.Q[-1], q_generic))]
+                  for actual, generic in zip(sim.cartesian_operators(), (p_generic, q_generic))]
         checks["one_dimensional_Li_operators_vs_generic_core"] = {
             "passed": max(errors) <= 1e-10, "maximum_relative_operator_error": max(errors),
             "runtime_seconds": time.perf_counter()-start}

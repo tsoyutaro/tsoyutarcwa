@@ -1,0 +1,21 @@
+{
+  "wavelength": 0.98371,
+  "before_seconds": 19.529104199958965,
+  "after_seconds": 3.7220547997858375,
+  "speedup": 5.246861008355558,
+  "T0_before": 0.2259352144908214,
+  "T0_after": 0.22593521448546697,
+  "T0_difference": -5.354439114313436e-12,
+  "R_difference": -1.359412582502273e-11,
+  "T_difference": -6.700973109730057e-12,
+  "A_difference": 2.0295098934752787e-11,
+  "maximum_transmitted_amplitude_difference": 7.383002819994034e-12,
+  "maximum_reflected_amplitude_difference": 1.8410474485595403e-11,
+  "linear_solves": 9,
+  "tests": "10/10 physical solver unittests passed",
+  "changes": [
+    "Use standard eig/eigh when FMM TE metric is exactly identity",
+    "Use exact diagonal-propagation star-product formula",
+    "Skip star product with initial identity scattering matrix"
+  ]
+}
