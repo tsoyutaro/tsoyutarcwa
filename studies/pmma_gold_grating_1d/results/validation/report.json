@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "cases": {
+    "air_to_pmma_fresnel": {
+      "passed": true,
+      "maximum_absolute_error": 3.3306690738754696e-16
+    },
+    "uniform_30nm_au_film_on_pmma": {
+      "passed": true,
+      "maximum_absolute_error": 5.551115123125783e-17,
+      "reference": {
+        "reflectance": 0.5027895849349414,
+        "transmittance": 0.2976431606742944,
+        "absorptance": 0.19956725439076417
+      },
+      "computed": {
+        "TE": {
+          "reflectance": 0.5027895849349414,
+          "transmittance": 0.29764316067429447,
+          "absorptance": 0.19956725439076411
+        },
+        "TM": {
+          "reflectance": 0.5027895849349414,
+          "transmittance": 0.29764316067429447,
+          "absorptance": 0.19956725439076411
+        }
+      }
+    },
+    "lossless_three_material_relief": {
+      "passed": true,
+      "maximum_energy_balance_error": 6.661338147750939e-16,
+      "maximum_cross_polarization_amplitude": 0.0
+    },
+    "three_material_coefficients_vs_fine_quadrature": {
+      "passed": true,
+      "maximum_relative_error": 6.417469198152172e-05,
+      "quadrature_points": 65536
+    },
+    "au_coated_pmma_passivity_and_eigen_residual": {
+      "passed": true,
+      "maximum_relative_eigen_residual": 2.7141955725765024e-15,
+      "computed": {
+        "TE": {
+          "reflectance": 0.5617716564489691,
+          "transmittance": 0.0006100392285870471,
+          "absorptance": 0.43761830432244386
+        },
+        "TM": {
+          "reflectance": 0.07344583060925983,
+          "transmittance": 0.1540376476081609,
+          "absorptance": 0.7725165217825793
+        }
+      }
+    }
+  },
+  "device": "cpu",
+  "runtime_seconds": 4.030149099882692,
+  "scope": "Small physical checks, not order/slices convergence or deposition morphology validation."
+}

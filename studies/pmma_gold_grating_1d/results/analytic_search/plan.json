@@ -1,0 +1,111 @@
+{
+  "driver": "analytic-two-axis-PMMA-Au",
+  "config": {
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "top_width_nm": 10.0,
+      "bottom_width_nm": 130.0,
+      "profile_power": 1.0,
+      "gold_side_thickness_x_nm": 30.0,
+      "gold_cap_thickness_nm": 30.0,
+      "gold_cap_width_nm": 70.0,
+      "gold_valley_thickness_nm": 30.0
+    },
+    "material": {
+      "gold_csv": "data/au_measured_nk.csv",
+      "pmma_csv": "data/Szczurowski.csv",
+      "pmma_shortwave_extension": "linear_to_400nm",
+      "resolved_gold_path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_gold_grating_1d\\data\\au_measured_nk.csv",
+      "resolved_pmma_path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_gold_grating_1d\\data\\Szczurowski.csv",
+      "metadata": {
+        "pmma_loss_assumption": "k=0",
+        "interpolation": "linear n,k, then epsilon=(n+ik)^2",
+        "original_pmma_range_nm": [
+          404.7,
+          1083.0
+        ],
+        "pmma_shortwave_extension": "linear_to_400nm",
+        "derived_point_nm_n": [
+          400.0,
+          1.5058386407194826
+        ],
+        "source_points_nm_n": [
+          [
+            404.7,
+            1.5051867964397
+          ],
+          [
+            411.5,
+            1.5042437025881
+          ]
+        ],
+        "method": "short linear edge extrapolation; original CSV unchanged"
+      }
+    },
+    "wavelengths_nm": [
+      400,
+      450,
+      500,
+      550,
+      600,
+      650,
+      700
+    ],
+    "solver": {
+      "fourier_coefficients": "analytic",
+      "dtype": "complex128",
+      "incidence": "normal"
+    },
+    "fixed_numerics": {
+      "order": 32,
+      "slices": 100
+    },
+    "search_values": {
+      "order": [
+        16,
+        24,
+        32,
+        40,
+        48,
+        56
+      ],
+      "slices": [
+        100,
+        140,
+        180,
+        220,
+        260,
+        300
+      ]
+    },
+    "tolerance": 0.005,
+    "passivity_tolerance": 1e-07
+  },
+  "search_values": {
+    "order": [
+      16,
+      24,
+      32,
+      40,
+      48,
+      56
+    ],
+    "slices": [
+      100,
+      140,
+      180,
+      220,
+      260,
+      300
+    ]
+  },
+  "reference_numerics": {
+    "order": 56,
+    "slices": 300
+  },
+  "grid_used": null,
+  "signature": "ca33b06029247c4b591ae268dfc74f099d8443d4dc87d0e360746540eceea4d7",
+  "driver_sha256": "60cedbc423948e49141c43aca1d271f89e5d309da12984dd4f5278094525146a",
+  "max_verification_rounds": 6
+}
