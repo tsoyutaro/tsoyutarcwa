@@ -1,0 +1,1443 @@
+{
+  "signature": "8f9df7e7644ef1c1edadfc06771911ca565866f2ed266f321a7611e2b0aed4d5",
+  "formulation": "1D Cartesian Li",
+  "coefficient_method": "analytic",
+  "grid_used": null,
+  "reference_numerics": {
+    "order": 80,
+    "slices": 300
+  },
+  "search_values": {
+    "order": [
+      64,
+      72,
+      80
+    ],
+    "slices": [
+      220,
+      260,
+      300
+    ]
+  },
+  "wavelengths_nm": [
+    400,
+    450,
+    500,
+    550,
+    600,
+    650,
+    700
+  ],
+  "material_assumptions": {
+    "pmma_loss_assumption": "k=0",
+    "interpolation": "linear n,k, then epsilon=(n+ik)^2",
+    "original_pmma_range_nm": [
+      404.7,
+      1083.0
+    ],
+    "pmma_shortwave_extension": "linear_to_400nm",
+    "derived_point_nm_n": [
+      400.0,
+      1.5058386407194826
+    ],
+    "source_points_nm_n": [
+      [
+        404.7,
+        1.5051867964397
+      ],
+      [
+        411.5,
+        1.5042437025881
+      ]
+    ],
+    "method": "short linear edge extrapolation; original CSV unchanged"
+  },
+  "tolerance": 0.005,
+  "initial_sweeps": {
+    "order": {
+      "signature": "8f9df7e7644ef1c1edadfc06771911ca565866f2ed266f321a7611e2b0aed4d5",
+      "axis": "order",
+      "values": [
+        64,
+        72,
+        80
+      ],
+      "fixed_numerics": {
+        "order": 80,
+        "slices": 300
+      },
+      "coefficient_method": "analytic",
+      "grid_used": null,
+      "wavelengths_nm": [
+        400,
+        450,
+        500,
+        550,
+        600,
+        650,
+        700
+      ],
+      "tolerance": 0.005,
+      "adjacent_changes": {
+        "400": [
+          {
+            "low": 64,
+            "high": 72,
+            "signed_changes": {
+              "TE": {
+                "reflectance": -3.178370538980957e-09,
+                "transmittance": 1.0728108041545758e-10,
+                "absorptance": 3.0710894938223987e-09
+              },
+              "TM": {
+                "reflectance": -7.358530866453938e-06,
+                "transmittance": -1.6668018083688257e-05,
+                "absorptance": 2.402654895017342e-05
+              }
+            },
+            "max_absolute_change": 2.402654895017342e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 72,
+            "high": 80,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 3.465500025834345e-09,
+                "transmittance": 6.174386886102431e-11,
+                "absorptance": -3.5272438303479703e-09
+              },
+              "TM": {
+                "reflectance": -2.771221748125441e-06,
+                "transmittance": -1.1612054407833527e-05,
+                "absorptance": 1.4383276155993663e-05
+              }
+            },
+            "max_absolute_change": 1.4383276155993663e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "450": [
+          {
+            "low": 64,
+            "high": 72,
+            "signed_changes": {
+              "TE": {
+                "reflectance": -8.775555837559068e-09,
+                "transmittance": 1.9581851872158603e-10,
+                "absorptance": 8.57973725398864e-09
+              },
+              "TM": {
+                "reflectance": -2.055073627307835e-05,
+                "transmittance": -2.6130875856705815e-05,
+                "absorptance": 4.6681612129728656e-05
+              }
+            },
+            "max_absolute_change": 4.6681612129728656e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 72,
+            "high": 80,
+            "signed_changes": {
+              "TE": {
+                "reflectance": -1.8104293897369672e-09,
+                "transmittance": 1.1286374416161812e-10,
+                "absorptance": 1.6975657546325351e-09
+              },
+              "TM": {
+                "reflectance": -6.850024558184564e-06,
+                "transmittance": -2.0370416738885178e-05,
+                "absorptance": 2.7220441297104436e-05
+              }
+            },
+            "max_absolute_change": 2.7220441297104436e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "500": [
+          {
+            "low": 64,
+            "high": 72,
+            "signed_changes": {
+              "TE": {
+                "reflectance": -2.356779912893181e-08,
+                "transmittance": 1.92405421759953e-09,
+                "absorptance": 2.164374479640685e-08
+              },
+              "TM": {
+                "reflectance": -4.256684050663734e-05,
+                "transmittance": -3.8349088605907355e-05,
+                "absorptance": 8.09159291126349e-05
+              }
+            },
+            "max_absolute_change": 8.09159291126349e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 72,
+            "high": 80,
+            "signed_changes": {
+              "TE": {
+                "reflectance": -1.1848857478513608e-08,
+                "transmittance": 1.1108957456186508e-09,
+                "absorptance": 1.0737961630979953e-08
+              },
+              "TM": {
+                "reflectance": -1.1617449664540203e-05,
+                "transmittance": -3.185135666985972e-05,
+                "absorptance": 4.346880633443462e-05
+              }
+            },
+            "max_absolute_change": 4.346880633443462e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "550": [
+          {
+            "low": 64,
+            "high": 72,
+            "signed_changes": {
+              "TE": {
+                "reflectance": -4.22985205750237e-08,
+                "transmittance": 1.9198903007753426e-09,
+                "absorptance": 4.0378630272730476e-08
+              },
+              "TM": {
+                "reflectance": -0.00029118411314330017,
+                "transmittance": -0.0003777434018291115,
+                "absorptance": 0.0006689275149724949
+              }
+            },
+            "max_absolute_change": 0.0006689275149724949,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 72,
+            "high": 80,
+            "signed_changes": {
+              "TE": {
+                "reflectance": -2.2223313744795803e-08,
+                "transmittance": 1.1086026867552015e-09,
+                "absorptance": 2.1114711090675087e-08
+              },
+              "TM": {
+                "reflectance": -0.00013630525737493016,
+                "transmittance": -0.0004859567623439476,
+                "absorptance": 0.0006222620197189332
+              }
+            },
+            "max_absolute_change": 0.0006222620197189332,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "600": [
+          {
+            "low": 64,
+            "high": 72,
+            "signed_changes": {
+              "TE": {
+                "reflectance": -3.8604106578077335e-09,
+                "transmittance": 1.0989123963556745e-10,
+                "absorptance": 3.75051942280713e-09
+              },
+              "TM": {
+                "reflectance": 0.0005273255071466358,
+                "transmittance": -0.0006702715925119285,
+                "absorptance": 0.00014294608536524755
+              }
+            },
+            "max_absolute_change": 0.0006702715925119285,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 72,
+            "high": 80,
+            "signed_changes": {
+              "TE": {
+                "reflectance": -5.936864333477843e-10,
+                "transmittance": 6.358082604244336e-11,
+                "absorptance": 5.301055983064629e-10
+              },
+              "TM": {
+                "reflectance": -0.0005003856744754363,
+                "transmittance": 0.0008524114669040128,
+                "absorptance": -0.00035202579242854526
+              }
+            },
+            "max_absolute_change": 0.0008524114669040128,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "650": [
+          {
+            "low": 64,
+            "high": 72,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 2.527800524454449e-09,
+                "transmittance": 1.293362210780496e-11,
+                "absorptance": -2.5407341508465464e-09
+              },
+              "TM": {
+                "reflectance": 0.0024832176012853924,
+                "transmittance": -0.004937265509540767,
+                "absorptance": 0.00245404790825543
+              }
+            },
+            "max_absolute_change": 0.004937265509540767,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 72,
+            "high": 80,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 2.4690547384409456e-09,
+                "transmittance": 7.494317739290316e-12,
+                "absorptance": -2.476549049168497e-09
+              },
+              "TM": {
+                "reflectance": 4.61383664769055e-05,
+                "transmittance": -0.0005740939963746472,
+                "absorptance": 0.0005279556298977139
+              }
+            },
+            "max_absolute_change": 0.0005740939963746472,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "700": [
+          {
+            "low": 64,
+            "high": 72,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 3.2803880722909184e-09,
+                "transmittance": 3.000587090265256e-12,
+                "absorptance": -3.283388658181785e-09
+              },
+              "TM": {
+                "reflectance": -0.004202391823210583,
+                "transmittance": 0.0012668144848876073,
+                "absorptance": 0.0029355773383229478
+              }
+            },
+            "max_absolute_change": 0.004202391823210583,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 72,
+            "high": 80,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 2.6662673180410934e-09,
+                "transmittance": 1.740445686143685e-12,
+                "absorptance": -2.668007766104541e-09
+              },
+              "TM": {
+                "reflectance": 0.0008920683454451961,
+                "transmittance": -0.002222908679369695,
+                "absorptance": 0.001330840333924499
+              }
+            },
+            "max_absolute_change": 0.002222908679369695,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ]
+      },
+      "status": "converged_within_tested_values",
+      "criterion": "Both final adjacent steps pass every R/T/A metric at every wavelength for TE and TM.",
+      "scope": "This axis at the stated fixed numerics; not absolute error or untested wavelengths."
+    },
+    "slices": {
+      "signature": "8f9df7e7644ef1c1edadfc06771911ca565866f2ed266f321a7611e2b0aed4d5",
+      "axis": "slices",
+      "values": [
+        220,
+        260,
+        300
+      ],
+      "fixed_numerics": {
+        "order": 80,
+        "slices": 300
+      },
+      "coefficient_method": "analytic",
+      "grid_used": null,
+      "wavelengths_nm": [
+        400,
+        450,
+        500,
+        550,
+        600,
+        650,
+        700
+      ],
+      "tolerance": 0.005,
+      "adjacent_changes": {
+        "400": [
+          {
+            "low": 220,
+            "high": 260,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 1.2169552976448728e-07,
+                "transmittance": 1.0066592292479692e-09,
+                "absorptance": -1.2270218896492935e-07
+              },
+              "TM": {
+                "reflectance": -7.2638461795990206e-06,
+                "transmittance": 1.9665718447244712e-05,
+                "absorptance": -1.2401872267697733e-05
+              }
+            },
+            "max_absolute_change": 1.9665718447244712e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 260,
+            "high": 300,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 7.823183950650403e-08,
+                "transmittance": 6.423312707803095e-10,
+                "absorptance": -7.887417075025382e-08
+              },
+              "TM": {
+                "reflectance": -5.12413871928824e-06,
+                "transmittance": 1.4078971352721181e-05,
+                "absorptance": -8.954832633412124e-06
+              }
+            },
+            "max_absolute_change": 1.4078971352721181e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "450": [
+          {
+            "low": 220,
+            "high": 260,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 3.2335414712481025e-07,
+                "transmittance": 1.7969591264071832e-09,
+                "absorptance": -3.2515110637287847e-07
+              },
+              "TM": {
+                "reflectance": 1.8210897893340683e-05,
+                "transmittance": 3.496167624375546e-05,
+                "absorptance": -5.3172574137061446e-05
+              }
+            },
+            "max_absolute_change": 5.3172574137061446e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 260,
+            "high": 300,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 2.0844990544777176e-07,
+                "transmittance": 1.1478144591747525e-09,
+                "absorptance": -2.095977198468546e-07
+              },
+              "TM": {
+                "reflectance": 1.2345248615111548e-05,
+                "transmittance": 2.488050072717296e-05,
+                "absorptance": -3.722574934228451e-05
+              }
+            },
+            "max_absolute_change": 3.722574934228451e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "500": [
+          {
+            "low": 220,
+            "high": 260,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 4.2664757343713333e-07,
+                "transmittance": 1.508563739682431e-08,
+                "absorptance": -4.417332107875538e-07
+              },
+              "TM": {
+                "reflectance": 2.476443661652422e-05,
+                "transmittance": 7.003121284021585e-05,
+                "absorptance": -9.479564945680252e-05
+              }
+            },
+            "max_absolute_change": 9.479564945680252e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 260,
+            "high": 300,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 2.757207276105067e-07,
+                "transmittance": 9.81703709404709e-09,
+                "absorptance": -2.8553776487694194e-07
+              },
+              "TM": {
+                "reflectance": 1.7525651188586566e-05,
+                "transmittance": 5.00085828345348e-05,
+                "absorptance": -6.753423402305891e-05
+              }
+            },
+            "max_absolute_change": 6.753423402305891e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "550": [
+          {
+            "low": 220,
+            "high": 260,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 2.4398537246117513e-07,
+                "transmittance": 1.206672368308289e-08,
+                "absorptance": -2.5605209613699387e-07
+              },
+              "TM": {
+                "reflectance": -4.088748449315727e-06,
+                "transmittance": -8.029893474773009e-05,
+                "absorptance": 8.438768319696255e-05
+              }
+            },
+            "max_absolute_change": 8.438768319696255e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 260,
+            "high": 300,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 1.5805605579899407e-07,
+                "transmittance": 8.340334790315172e-09,
+                "absorptance": -1.6639639061066802e-07
+              },
+              "TM": {
+                "reflectance": 4.918822660454625e-05,
+                "transmittance": -1.6265950364718895e-05,
+                "absorptance": -3.2922276239744086e-05
+              }
+            },
+            "max_absolute_change": 4.918822660454625e-05,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "600": [
+          {
+            "low": 220,
+            "high": 260,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 1.593698948365585e-07,
+                "transmittance": 7.939494230108221e-10,
+                "absorptance": -1.6016384427053332e-07
+              },
+              "TM": {
+                "reflectance": 0.0005398323902103506,
+                "transmittance": 0.0004837197651241243,
+                "absorptance": -0.0010235521553345617
+              }
+            },
+            "max_absolute_change": 0.0010235521553345617,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 260,
+            "high": 300,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 1.0267607897240794e-07,
+                "transmittance": 5.332872578321483e-10,
+                "absorptance": -1.032093662201028e-07
+              },
+              "TM": {
+                "reflectance": 0.0002736206373938413,
+                "transmittance": 0.0003103517759745489,
+                "absorptance": -0.0005839724133682722
+              }
+            },
+            "max_absolute_change": 0.0005839724133682722,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "650": [
+          {
+            "low": 220,
+            "high": 260,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 7.729600559613914e-08,
+                "transmittance": 1.052790084317824e-10,
+                "absorptance": -7.740128460387297e-08
+              },
+              "TM": {
+                "reflectance": 0.001826924837805971,
+                "transmittance": -0.0006797881303366449,
+                "absorptance": -0.001147136707469354
+              }
+            },
+            "max_absolute_change": 0.001826924837805971,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 260,
+            "high": 300,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 4.9851878736184574e-08,
+                "transmittance": 6.803899045055737e-11,
+                "absorptance": -4.991991772729243e-08
+              },
+              "TM": {
+                "reflectance": 0.001092746969899916,
+                "transmittance": -0.00016467506893297346,
+                "absorptance": -0.0009280719009669425
+              }
+            },
+            "max_absolute_change": 0.001092746969899916,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ],
+        "700": [
+          {
+            "low": 220,
+            "high": 260,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 4.9065202012421594e-08,
+                "transmittance": 2.625818219272307e-11,
+                "absorptance": -4.909146019554944e-08
+              },
+              "TM": {
+                "reflectance": 0.0009650242310047519,
+                "transmittance": 0.0005775280040440367,
+                "absorptance": -0.001542552235048733
+              }
+            },
+            "max_absolute_change": 0.001542552235048733,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          },
+          {
+            "low": 260,
+            "high": 300,
+            "signed_changes": {
+              "TE": {
+                "reflectance": 3.1653857535118846e-08,
+                "transmittance": 1.654953404569497e-11,
+                "absorptance": -3.1670407067696527e-08
+              },
+              "TM": {
+                "reflectance": 0.0005128394017155369,
+                "transmittance": 0.0007126357286850182,
+                "absorptance": -0.0012254751304006106
+              }
+            },
+            "max_absolute_change": 0.0012254751304006106,
+            "passes_tolerance": true,
+            "passivity_bounds_pass": true
+          }
+        ]
+      },
+      "status": "converged_within_tested_values",
+      "criterion": "Both final adjacent steps pass every R/T/A metric at every wavelength for TE and TM.",
+      "scope": "This axis at the stated fixed numerics; not absolute error or untested wavelengths."
+    }
+  },
+  "verification_rounds": [
+    {
+      "round": 1,
+      "numerics": {
+        "order": 80,
+        "slices": 300
+      },
+      "grid_used": null,
+      "axis_checks": {
+        "order": {
+          "signature": "8f9df7e7644ef1c1edadfc06771911ca565866f2ed266f321a7611e2b0aed4d5",
+          "axis": "order",
+          "values": [
+            64,
+            72,
+            80
+          ],
+          "fixed_numerics": {
+            "order": 80,
+            "slices": 300
+          },
+          "coefficient_method": "analytic",
+          "grid_used": null,
+          "wavelengths_nm": [
+            400,
+            450,
+            500,
+            550,
+            600,
+            650,
+            700
+          ],
+          "tolerance": 0.005,
+          "adjacent_changes": {
+            "400": [
+              {
+                "low": 64,
+                "high": 72,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": -3.178370538980957e-09,
+                    "transmittance": 1.0728108041545758e-10,
+                    "absorptance": 3.0710894938223987e-09
+                  },
+                  "TM": {
+                    "reflectance": -7.358530866453938e-06,
+                    "transmittance": -1.6668018083688257e-05,
+                    "absorptance": 2.402654895017342e-05
+                  }
+                },
+                "max_absolute_change": 2.402654895017342e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 72,
+                "high": 80,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 3.465500025834345e-09,
+                    "transmittance": 6.174386886102431e-11,
+                    "absorptance": -3.5272438303479703e-09
+                  },
+                  "TM": {
+                    "reflectance": -2.771221748125441e-06,
+                    "transmittance": -1.1612054407833527e-05,
+                    "absorptance": 1.4383276155993663e-05
+                  }
+                },
+                "max_absolute_change": 1.4383276155993663e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "450": [
+              {
+                "low": 64,
+                "high": 72,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": -8.775555837559068e-09,
+                    "transmittance": 1.9581851872158603e-10,
+                    "absorptance": 8.57973725398864e-09
+                  },
+                  "TM": {
+                    "reflectance": -2.055073627307835e-05,
+                    "transmittance": -2.6130875856705815e-05,
+                    "absorptance": 4.6681612129728656e-05
+                  }
+                },
+                "max_absolute_change": 4.6681612129728656e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 72,
+                "high": 80,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": -1.8104293897369672e-09,
+                    "transmittance": 1.1286374416161812e-10,
+                    "absorptance": 1.6975657546325351e-09
+                  },
+                  "TM": {
+                    "reflectance": -6.850024558184564e-06,
+                    "transmittance": -2.0370416738885178e-05,
+                    "absorptance": 2.7220441297104436e-05
+                  }
+                },
+                "max_absolute_change": 2.7220441297104436e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "500": [
+              {
+                "low": 64,
+                "high": 72,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": -2.356779912893181e-08,
+                    "transmittance": 1.92405421759953e-09,
+                    "absorptance": 2.164374479640685e-08
+                  },
+                  "TM": {
+                    "reflectance": -4.256684050663734e-05,
+                    "transmittance": -3.8349088605907355e-05,
+                    "absorptance": 8.09159291126349e-05
+                  }
+                },
+                "max_absolute_change": 8.09159291126349e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 72,
+                "high": 80,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": -1.1848857478513608e-08,
+                    "transmittance": 1.1108957456186508e-09,
+                    "absorptance": 1.0737961630979953e-08
+                  },
+                  "TM": {
+                    "reflectance": -1.1617449664540203e-05,
+                    "transmittance": -3.185135666985972e-05,
+                    "absorptance": 4.346880633443462e-05
+                  }
+                },
+                "max_absolute_change": 4.346880633443462e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "550": [
+              {
+                "low": 64,
+                "high": 72,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": -4.22985205750237e-08,
+                    "transmittance": 1.9198903007753426e-09,
+                    "absorptance": 4.0378630272730476e-08
+                  },
+                  "TM": {
+                    "reflectance": -0.00029118411314330017,
+                    "transmittance": -0.0003777434018291115,
+                    "absorptance": 0.0006689275149724949
+                  }
+                },
+                "max_absolute_change": 0.0006689275149724949,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 72,
+                "high": 80,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": -2.2223313744795803e-08,
+                    "transmittance": 1.1086026867552015e-09,
+                    "absorptance": 2.1114711090675087e-08
+                  },
+                  "TM": {
+                    "reflectance": -0.00013630525737493016,
+                    "transmittance": -0.0004859567623439476,
+                    "absorptance": 0.0006222620197189332
+                  }
+                },
+                "max_absolute_change": 0.0006222620197189332,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "600": [
+              {
+                "low": 64,
+                "high": 72,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": -3.8604106578077335e-09,
+                    "transmittance": 1.0989123963556745e-10,
+                    "absorptance": 3.75051942280713e-09
+                  },
+                  "TM": {
+                    "reflectance": 0.0005273255071466358,
+                    "transmittance": -0.0006702715925119285,
+                    "absorptance": 0.00014294608536524755
+                  }
+                },
+                "max_absolute_change": 0.0006702715925119285,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 72,
+                "high": 80,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": -5.936864333477843e-10,
+                    "transmittance": 6.358082604244336e-11,
+                    "absorptance": 5.301055983064629e-10
+                  },
+                  "TM": {
+                    "reflectance": -0.0005003856744754363,
+                    "transmittance": 0.0008524114669040128,
+                    "absorptance": -0.00035202579242854526
+                  }
+                },
+                "max_absolute_change": 0.0008524114669040128,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "650": [
+              {
+                "low": 64,
+                "high": 72,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 2.527800524454449e-09,
+                    "transmittance": 1.293362210780496e-11,
+                    "absorptance": -2.5407341508465464e-09
+                  },
+                  "TM": {
+                    "reflectance": 0.0024832176012853924,
+                    "transmittance": -0.004937265509540767,
+                    "absorptance": 0.00245404790825543
+                  }
+                },
+                "max_absolute_change": 0.004937265509540767,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 72,
+                "high": 80,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 2.4690547384409456e-09,
+                    "transmittance": 7.494317739290316e-12,
+                    "absorptance": -2.476549049168497e-09
+                  },
+                  "TM": {
+                    "reflectance": 4.61383664769055e-05,
+                    "transmittance": -0.0005740939963746472,
+                    "absorptance": 0.0005279556298977139
+                  }
+                },
+                "max_absolute_change": 0.0005740939963746472,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "700": [
+              {
+                "low": 64,
+                "high": 72,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 3.2803880722909184e-09,
+                    "transmittance": 3.000587090265256e-12,
+                    "absorptance": -3.283388658181785e-09
+                  },
+                  "TM": {
+                    "reflectance": -0.004202391823210583,
+                    "transmittance": 0.0012668144848876073,
+                    "absorptance": 0.0029355773383229478
+                  }
+                },
+                "max_absolute_change": 0.004202391823210583,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 72,
+                "high": 80,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 2.6662673180410934e-09,
+                    "transmittance": 1.740445686143685e-12,
+                    "absorptance": -2.668007766104541e-09
+                  },
+                  "TM": {
+                    "reflectance": 0.0008920683454451961,
+                    "transmittance": -0.002222908679369695,
+                    "absorptance": 0.001330840333924499
+                  }
+                },
+                "max_absolute_change": 0.002222908679369695,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ]
+          },
+          "status": "converged_within_tested_values",
+          "criterion": "Both final adjacent steps pass every R/T/A metric at every wavelength for TE and TM.",
+          "scope": "This axis at the stated fixed numerics; not absolute error or untested wavelengths."
+        },
+        "slices": {
+          "signature": "8f9df7e7644ef1c1edadfc06771911ca565866f2ed266f321a7611e2b0aed4d5",
+          "axis": "slices",
+          "values": [
+            220,
+            260,
+            300
+          ],
+          "fixed_numerics": {
+            "order": 80,
+            "slices": 300
+          },
+          "coefficient_method": "analytic",
+          "grid_used": null,
+          "wavelengths_nm": [
+            400,
+            450,
+            500,
+            550,
+            600,
+            650,
+            700
+          ],
+          "tolerance": 0.005,
+          "adjacent_changes": {
+            "400": [
+              {
+                "low": 220,
+                "high": 260,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 1.2169552976448728e-07,
+                    "transmittance": 1.0066592292479692e-09,
+                    "absorptance": -1.2270218896492935e-07
+                  },
+                  "TM": {
+                    "reflectance": -7.2638461795990206e-06,
+                    "transmittance": 1.9665718447244712e-05,
+                    "absorptance": -1.2401872267697733e-05
+                  }
+                },
+                "max_absolute_change": 1.9665718447244712e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 260,
+                "high": 300,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 7.823183950650403e-08,
+                    "transmittance": 6.423312707803095e-10,
+                    "absorptance": -7.887417075025382e-08
+                  },
+                  "TM": {
+                    "reflectance": -5.12413871928824e-06,
+                    "transmittance": 1.4078971352721181e-05,
+                    "absorptance": -8.954832633412124e-06
+                  }
+                },
+                "max_absolute_change": 1.4078971352721181e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "450": [
+              {
+                "low": 220,
+                "high": 260,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 3.2335414712481025e-07,
+                    "transmittance": 1.7969591264071832e-09,
+                    "absorptance": -3.2515110637287847e-07
+                  },
+                  "TM": {
+                    "reflectance": 1.8210897893340683e-05,
+                    "transmittance": 3.496167624375546e-05,
+                    "absorptance": -5.3172574137061446e-05
+                  }
+                },
+                "max_absolute_change": 5.3172574137061446e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 260,
+                "high": 300,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 2.0844990544777176e-07,
+                    "transmittance": 1.1478144591747525e-09,
+                    "absorptance": -2.095977198468546e-07
+                  },
+                  "TM": {
+                    "reflectance": 1.2345248615111548e-05,
+                    "transmittance": 2.488050072717296e-05,
+                    "absorptance": -3.722574934228451e-05
+                  }
+                },
+                "max_absolute_change": 3.722574934228451e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "500": [
+              {
+                "low": 220,
+                "high": 260,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 4.2664757343713333e-07,
+                    "transmittance": 1.508563739682431e-08,
+                    "absorptance": -4.417332107875538e-07
+                  },
+                  "TM": {
+                    "reflectance": 2.476443661652422e-05,
+                    "transmittance": 7.003121284021585e-05,
+                    "absorptance": -9.479564945680252e-05
+                  }
+                },
+                "max_absolute_change": 9.479564945680252e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 260,
+                "high": 300,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 2.757207276105067e-07,
+                    "transmittance": 9.81703709404709e-09,
+                    "absorptance": -2.8553776487694194e-07
+                  },
+                  "TM": {
+                    "reflectance": 1.7525651188586566e-05,
+                    "transmittance": 5.00085828345348e-05,
+                    "absorptance": -6.753423402305891e-05
+                  }
+                },
+                "max_absolute_change": 6.753423402305891e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "550": [
+              {
+                "low": 220,
+                "high": 260,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 2.4398537246117513e-07,
+                    "transmittance": 1.206672368308289e-08,
+                    "absorptance": -2.5605209613699387e-07
+                  },
+                  "TM": {
+                    "reflectance": -4.088748449315727e-06,
+                    "transmittance": -8.029893474773009e-05,
+                    "absorptance": 8.438768319696255e-05
+                  }
+                },
+                "max_absolute_change": 8.438768319696255e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 260,
+                "high": 300,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 1.5805605579899407e-07,
+                    "transmittance": 8.340334790315172e-09,
+                    "absorptance": -1.6639639061066802e-07
+                  },
+                  "TM": {
+                    "reflectance": 4.918822660454625e-05,
+                    "transmittance": -1.6265950364718895e-05,
+                    "absorptance": -3.2922276239744086e-05
+                  }
+                },
+                "max_absolute_change": 4.918822660454625e-05,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "600": [
+              {
+                "low": 220,
+                "high": 260,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 1.593698948365585e-07,
+                    "transmittance": 7.939494230108221e-10,
+                    "absorptance": -1.6016384427053332e-07
+                  },
+                  "TM": {
+                    "reflectance": 0.0005398323902103506,
+                    "transmittance": 0.0004837197651241243,
+                    "absorptance": -0.0010235521553345617
+                  }
+                },
+                "max_absolute_change": 0.0010235521553345617,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 260,
+                "high": 300,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 1.0267607897240794e-07,
+                    "transmittance": 5.332872578321483e-10,
+                    "absorptance": -1.032093662201028e-07
+                  },
+                  "TM": {
+                    "reflectance": 0.0002736206373938413,
+                    "transmittance": 0.0003103517759745489,
+                    "absorptance": -0.0005839724133682722
+                  }
+                },
+                "max_absolute_change": 0.0005839724133682722,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "650": [
+              {
+                "low": 220,
+                "high": 260,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 7.729600559613914e-08,
+                    "transmittance": 1.052790084317824e-10,
+                    "absorptance": -7.740128460387297e-08
+                  },
+                  "TM": {
+                    "reflectance": 0.001826924837805971,
+                    "transmittance": -0.0006797881303366449,
+                    "absorptance": -0.001147136707469354
+                  }
+                },
+                "max_absolute_change": 0.001826924837805971,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 260,
+                "high": 300,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 4.9851878736184574e-08,
+                    "transmittance": 6.803899045055737e-11,
+                    "absorptance": -4.991991772729243e-08
+                  },
+                  "TM": {
+                    "reflectance": 0.001092746969899916,
+                    "transmittance": -0.00016467506893297346,
+                    "absorptance": -0.0009280719009669425
+                  }
+                },
+                "max_absolute_change": 0.001092746969899916,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ],
+            "700": [
+              {
+                "low": 220,
+                "high": 260,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 4.9065202012421594e-08,
+                    "transmittance": 2.625818219272307e-11,
+                    "absorptance": -4.909146019554944e-08
+                  },
+                  "TM": {
+                    "reflectance": 0.0009650242310047519,
+                    "transmittance": 0.0005775280040440367,
+                    "absorptance": -0.001542552235048733
+                  }
+                },
+                "max_absolute_change": 0.001542552235048733,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              },
+              {
+                "low": 260,
+                "high": 300,
+                "signed_changes": {
+                  "TE": {
+                    "reflectance": 3.1653857535118846e-08,
+                    "transmittance": 1.654953404569497e-11,
+                    "absorptance": -3.1670407067696527e-08
+                  },
+                  "TM": {
+                    "reflectance": 0.0005128394017155369,
+                    "transmittance": 0.0007126357286850182,
+                    "absorptance": -0.0012254751304006106
+                  }
+                },
+                "max_absolute_change": 0.0012254751304006106,
+                "passes_tolerance": true,
+                "passivity_bounds_pass": true
+              }
+            ]
+          },
+          "status": "converged_within_tested_values",
+          "criterion": "Both final adjacent steps pass every R/T/A metric at every wavelength for TE and TM.",
+          "scope": "This axis at the stated fixed numerics; not absolute error or untested wavelengths."
+        }
+      },
+      "reference_comparison": {
+        "400": {
+          "signed_changes": {
+            "TE": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            },
+            "TM": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            }
+          },
+          "max_absolute_change": 0.0,
+          "passes_tolerance": true,
+          "passivity_bounds_pass": true
+        },
+        "450": {
+          "signed_changes": {
+            "TE": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            },
+            "TM": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            }
+          },
+          "max_absolute_change": 0.0,
+          "passes_tolerance": true,
+          "passivity_bounds_pass": true
+        },
+        "500": {
+          "signed_changes": {
+            "TE": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            },
+            "TM": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            }
+          },
+          "max_absolute_change": 0.0,
+          "passes_tolerance": true,
+          "passivity_bounds_pass": true
+        },
+        "550": {
+          "signed_changes": {
+            "TE": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            },
+            "TM": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            }
+          },
+          "max_absolute_change": 0.0,
+          "passes_tolerance": true,
+          "passivity_bounds_pass": true
+        },
+        "600": {
+          "signed_changes": {
+            "TE": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            },
+            "TM": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            }
+          },
+          "max_absolute_change": 0.0,
+          "passes_tolerance": true,
+          "passivity_bounds_pass": true
+        },
+        "650": {
+          "signed_changes": {
+            "TE": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            },
+            "TM": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            }
+          },
+          "max_absolute_change": 0.0,
+          "passes_tolerance": true,
+          "passivity_bounds_pass": true
+        },
+        "700": {
+          "signed_changes": {
+            "TE": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            },
+            "TM": {
+              "reflectance": 0.0,
+              "transmittance": 0.0,
+              "absorptance": 0.0
+            }
+          },
+          "max_absolute_change": 0.0,
+          "passes_tolerance": true,
+          "passivity_bounds_pass": true
+        }
+      }
+    }
+  ],
+  "criterion": "Every R/T/A metric for TE and TM at every sampled wavelength passes both final adjacent steps of order and slices at the selected tuple, and selected vs all-high analytic reference differs by at most tolerance.",
+  "scope": "Tested M and Nz, sampled wavelengths, analytic coefficients; no absolute-error or continuous-spectrum guarantee.",
+  "selected_numerics": {
+    "order": 80,
+    "slices": 300
+  },
+  "status": "converged_within_tested_values",
+  "recommended_numerics": {
+    "order": 80,
+    "slices": 300
+  },
+  "driver_sha256": "81cadea0216ae5ac3a0266ca7fed5f43c14684d693c8d529f241f26ba63fea4a"
+}
