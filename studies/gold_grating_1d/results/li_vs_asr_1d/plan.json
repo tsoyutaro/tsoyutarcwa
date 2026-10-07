@@ -1,0 +1,138 @@
+{
+  "study": "gold_grating_1d",
+  "geometry": {
+    "period_nm": 200.0,
+    "height_nm": 500.0,
+    "top_width_nm": 10.0,
+    "bottom_width_nm": 190.0,
+    "profile_power": 1.0
+  },
+  "config_path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\gold_grating_1d\\config.json",
+  "orders": [
+    2,
+    4,
+    8,
+    12,
+    16,
+    24
+  ],
+  "asr_ratios": [
+    4
+  ],
+  "slices": 420,
+  "wavelengths_nm": [
+    400,
+    450,
+    500,
+    550,
+    600,
+    650,
+    700
+  ],
+  "reference_order": 80,
+  "reference_check_order": 72,
+  "G": 0.001,
+  "quadrature_requested_minimum": 192,
+  "tolerance": 0.005,
+  "passivity_tolerance": 1e-07,
+  "execution": {
+    "requested_device": "cpu",
+    "requested_backend": "torch",
+    "device": "cpu",
+    "backend": "torch",
+    "dtype": "complex128",
+    "device_name": "CPU",
+    "torch_version": "2.8.0+cpu",
+    "cuda_version": null,
+    "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
+    "selection_reason": "PyTorch tensor backend on CPU"
+  },
+  "cpu_threads": 1,
+  "inputs": {
+    "study": "gold_grating_1d",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "top_width_nm": 10.0,
+      "bottom_width_nm": 190.0,
+      "profile_power": 1.0
+    },
+    "source_sha256": {
+      "paper_reproductions/vallius2002/devices.py": "7967e72f2cff054bc74d38f33a2bdeed48d9340a70d046f2e87c987e27ed574a",
+      "paper_reproductions/vallius2002/solver.py": "ef696f8f4a7fcfcdc7df0a5658253320cf171c21284abb3eb203717daaa9c9a2",
+      "paper_reproductions/vallius2002/torch_backend.py": "e6d9e4e1e37850dffee6fa54d27280aa0889ba392602e98b4147431593074e68",
+      "rcwa_ext/__init__.py": "9f879509554ab9e1ec6fca68161d34be4a9fac8038ba2bd163d12e63e35a975e",
+      "rcwa_ext/asr.py": "251e7daadb5b594151daa40647eadab5256efaa19f102fd9875ffc91d5823fac",
+      "rcwa_ext/asr_maps.py": "120ab95600ae15fc892f9fecfaf1b62a117309adc654127d204dbfbc21b17f58",
+      "rcwa_ext/auto.py": "e6d0c8574285a724b87f5a55e61dd3abc40588e0a14367fdb01172092a869537",
+      "rcwa_ext/config.py": "362d1499c30599a5f3375172b13a4cbebc5043060799a2ae3c74f6bdfedb2f48",
+      "rcwa_ext/fields.py": "72189b63b1fe8f913a23e3eaf88843bbd9d1809a6c502de024568d74f339a1d2",
+      "rcwa_ext/nvm.py": "c97f78d1bbe2332d568067b86632fbd7ee507de1a831467920acccee5bfc744b",
+      "rcwa_ext/reduced.py": "071ef06e30b169c94545fed25f035e25c03276e9e714f0d0dcd93b6887d78ecd",
+      "rcwa_ext/scattering.py": "f4d22b2b56e67309e477bd882cfb2c8be1e61ec5e11d287da5f40906c8fdfe5d",
+      "rcwa_ext/symmetry.py": "a8bdca73f13eb3e9db06c01dd1a6587a24d6d050260c07803301df2694606be2",
+      "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569",
+      "studies/asr_1d_comparison/adapters.py": "5b22d66205720aed98d595ad0b55bffc21e9a81d46ce1e8a6460547f4be47c67",
+      "studies/gold_grating_1d/common.py": "3a0a572d66a212309e97712701cac6b2b7d603bc67671d2cafac82f9189a1967",
+      "studies/gold_grating_1d/solver.py": "7a985a94294668eac8fdb5aa5a8bcf1148e8398172c520697dc11ef59a74da4c",
+      "studies/shared/gold_dispersion.py": "9e2be950cc9ecc0bb02548e0b6035dc7648197507b238a4b4f40736ab43b8297"
+    },
+    "material_sha256": {
+      "au_measured_nk.csv": "6e72f596e70f5b3eb66501b8bbf10dea1ff105047804abbe433e603a17e61b22"
+    },
+    "pmma_extension": null,
+    "G": 0.001,
+    "quadrature_minimum": 192,
+    "retention": "smallest_abs",
+    "q_projection": "direct",
+    "dtype": "complex128",
+    "incidence": "normal",
+    "li_coefficients": "analytic"
+  },
+  "material_interpolation": "existing TabulatedGold: linear epsilon",
+  "material_note": null,
+  "material_samples": {
+    "400": {
+      "gold": {
+        "real": -1.658031421383648,
+        "imag": 5.735361006289308
+      }
+    },
+    "450": {
+      "gold": {
+        "real": -1.756049294117647,
+        "imag": 5.2988117647058814
+      }
+    },
+    "500": {
+      "gold": {
+        "real": -2.5518200080000013,
+        "imag": 3.610559199999999
+      }
+    },
+    "550": {
+      "gold": {
+        "real": -5.937013405970148,
+        "imag": 2.0924622686567167
+      }
+    },
+    "600": {
+      "gold": {
+        "real": -9.427681925072047,
+        "imag": 1.5128521037463976
+      }
+    },
+    "650": {
+      "gold": {
+        "real": -12.983804140515222,
+        "imag": 1.110599344262295
+      }
+    },
+    "700": {
+      "gold": {
+        "real": -16.500759,
+        "imag": 1.063618
+      }
+    }
+  }
+}

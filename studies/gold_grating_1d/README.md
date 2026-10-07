@@ -206,3 +206,13 @@ python3 -m unittest discover -s studies/gold_grating_1d -p 'test*.py'
 ```
 
 回帰検証では全7波長・TE/TM・サンプリング／解析係数の一致、全 S ブロックの一致、均質／混在／無損失層、N×N の計算サイズと層ごとの中間行列解放を確認します。
+
+## Vallius 1D ASRとの次数比較
+
+```bash
+python -m studies.asr_1d_comparison.compare --study gold_grating_1d --device auto
+```
+
+同じ形状・材料・層数で、既存の解析的Li計算と1D ASRのR、金基板への電力、凹凸部分の吸収を比較します。
+結果は `results/li_vs_asr_1d/` に保存します。詳細な条件・GPUでの実行・内部倍率の変更・図の定義は
+[比較用README](../asr_1d_comparison/README_ja.md)を参照してください。

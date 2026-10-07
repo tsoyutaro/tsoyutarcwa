@@ -137,3 +137,13 @@ python3 studies/pmma_gold_grating_1d/validate.py --device cuda
 金蒸着PMMA構造の受動性・固有値残差を確認します。
 これらは低次数の物理確認であり、本番の次数・層数収束とは別の確認です。
 作成環境ではCPUで5ケースすべてPASS。CUDAでの本番探索は未実行です。
+
+## Vallius 1D ASRとの次数比較
+
+```bash
+python -m studies.asr_1d_comparison.compare --study pmma_gold_grating_1d --device auto
+```
+
+同じ形状・分散材料・PMMA基板・層数で、既存Li計算と1D ASRのR/T/Aを比較します。
+結果は `results/li_vs_asr_1d/` に保存します。詳細な条件・GPUでの実行・内部倍率の変更・図の定義は
+[比較用README](../asr_1d_comparison/README_ja.md)を参照してください。
