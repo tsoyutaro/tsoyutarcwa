@@ -15,7 +15,10 @@
       8,
       12,
       16,
-      24
+      24,
+      32,
+      40,
+      48
     ],
     "asr_ratios": [
       4
@@ -176,10 +179,31 @@
           "complete_and_passive": true,
           "max_absolute_change": 0.041857961859761816,
           "passes": false
+        },
+        {
+          "low": 24,
+          "high": 32,
+          "complete_and_passive": true,
+          "max_absolute_change": 0.0032574813413104586,
+          "passes": true
+        },
+        {
+          "low": 32,
+          "high": 40,
+          "complete_and_passive": true,
+          "max_absolute_change": 0.005003595031999319,
+          "passes": false
+        },
+        {
+          "low": 40,
+          "high": 48,
+          "complete_and_passive": true,
+          "max_absolute_change": 0.008802255811853316,
+          "passes": false
         }
       ],
       "tail_stable_at_tested_wavelengths": false,
-      "last_order_max_absolute_difference_from_finite_reference": 0.0028125357115911243,
+      "last_order_max_absolute_difference_from_finite_reference": 0.00429033482195762,
       "last_order_complete_and_passive_against_reference": true,
       "last_order_within_reference_tolerance": true,
       "tail_and_finite_reference_agree_within_tolerance": false
@@ -221,12 +245,33 @@
           "complete_and_passive": true,
           "max_absolute_change": 0.009627082684961402,
           "passes": false
+        },
+        {
+          "low": 24,
+          "high": 32,
+          "complete_and_passive": true,
+          "max_absolute_change": 0.0034091766154775716,
+          "passes": true
+        },
+        {
+          "low": 32,
+          "high": 40,
+          "complete_and_passive": true,
+          "max_absolute_change": 0.0027666764824564316,
+          "passes": true
+        },
+        {
+          "low": 40,
+          "high": 48,
+          "complete_and_passive": true,
+          "max_absolute_change": 0.0013547128510562612,
+          "passes": true
         }
       ],
-      "tail_stable_at_tested_wavelengths": false,
-      "last_order_max_absolute_difference_from_finite_reference": 0.0018862967723811408,
+      "tail_stable_at_tested_wavelengths": true,
+      "last_order_max_absolute_difference_from_finite_reference": 0.007583912694059586,
       "last_order_complete_and_passive_against_reference": true,
-      "last_order_within_reference_tolerance": true,
+      "last_order_within_reference_tolerance": false,
       "tail_and_finite_reference_agree_within_tolerance": false
     }
   },
