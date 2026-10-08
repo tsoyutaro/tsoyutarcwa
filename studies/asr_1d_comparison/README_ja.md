@@ -127,3 +127,44 @@ python -m studies.asr_1d_comparison.diagnose_passivity --study pmma_gold_grating
 ```
 
 `tm_stage_audit.json` に、内部・縮約された損失行列の最小固有値、投影後の人工増幅、電力内積の不一致、界面の場と電力の連続誤差を保存します。損失行列の符号は行列ノルムで規格化して数値丸めと区別します。
+
+**保持次数を固定した条件比較をPythonファイルで実行**
+
+```bash
+python -m studies.asr_1d_comparison.run_fixed_order_audit --device cuda
+```
+
+`run_fixed_order_audit.py` をプロジェクトのルートに置いた場合は、
+`python run_fixed_order_audit.py --device cuda` でも実行できます。
+
+保持次数M=48（N=97）、波長650/700 nm、金420分割、PMMA300分割＋キャップ、
+Galerkin投影、有限Li参照M=96/88を固定します。
+G=0.001で3N/4N/5Nを積分2048/4096点それぞれで比較し、
+次に4N・4096点でG=0.0003/0.003を計算します。
+G=0.001の基準は4N・4096点の結果を使います。
+積分点数が内部倍率ごとに自動増加することを避けるため、
+指定する全積分点数が最大内部次元での自動下限以上かを検査します。
+
+比較計算は指定デバイスで実行し、界面・S行列接続の条件数も保存します。
+投影行列W=KHの2ノルム条件数と固有値・電力内積の残差は、
+同じパラメータのCPU/SciPyによるTM代表層診断で調べます。
+投影診断はGPU上の全層を直接計測した結果ではありません。
+
+既定の出力は `studies/asr_1d_comparison/results/fixed_order_audit_M48/` です。
+`audit_plan.json` に計算条件と呼び出すコマンドを記録し、
+条件別の元出力に加えて `comparison_summary.csv` と `projection_summary.csv` に集約します。
+前者には物理量と `max_boundary_condition`、後者には
+`projected_field_condition_2norm` と各残差が入ります。
+
+計画だけ確認する場合は `--dry-run` を追加します（計算・出力ファイル作成なし）。
+`--stage compare` で比較計算のみ、`--stage projection` でCPU投影診断のみ、
+`--stage internal` / `quadrature` / `g` で比較の各段階を選べます。
+`quadrature` は2048点の基準に対する4096点の計算、`g` はG=0.001の基準に対する
+G=0.0003/0.003の計算です。基準も必要な場合は先に `compare` を実行してください。
+
+同じ条件で再実行すると比較計算の完了済みケースを再利用します。
+CPU投影診断は再計算します。条件を変更する場合は新しい `--output-root` を指定します。
+比較モジュールがケース単位のエラーを保存して正常終了した場合も、
+このランナーは不足・失敗ケースと条件数の欠落を検出して停止します。
+保持次数は1点だけなので、既存レポートの隣接次数による収束判定とは区別して、
+内部倍率・積分・Gによる変化を評価してください。
