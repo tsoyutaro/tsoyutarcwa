@@ -5,7 +5,7 @@
 **両studyを計算する**
 
 ```bash
-python -m studies.asr_1d_comparison.compare --study all --device auto
+python -m studies.asr_1d_comparison.compare --study all --device auto --output-root studies/asr_1d_comparison/results/galerkin
 ```
 
 CUDAが利用可能ならGPU、利用できなければCPUで計算します。`--device cuda` で明示したGPUが利用できない場合はエラーになり、CPUへ切り替えません。ASRのCPUは既定でSciPyです。`--device cpu --backend torch` を指定するとGPUと同じテンソル計算経路をCPUで使えます。既存Li側はCPU/GPUともPyTorchです。
@@ -16,11 +16,21 @@ CUDAが利用可能ならGPU、利用できなければCPUで計算します。`
 
 金のLi側は既存の解析的Fourier係数の経路にそろえます。横方向のサンプリングgridは使いません。PMMA側は従来から解析的な区間積分です。各studyの材料読み込み・補間関数をそのまま使用し、LiとASRに同じ複素誘電率を渡します。金studyの線形epsilon補間と、PMMA studyの線形n,k補間後の二乗は、それぞれ元studyに合わせます。元の材料CSVは変更しません。
 
-既定のASR倍率を4にしているのは、今回のPMMA被覆格子で3NのTMが受動性を大きく破る検証ケースが見つかったためです。4Nがすべての波長・次数で十分という保証はありません。3N/4Nを並べる場合：
+ASRのTM境界場は、既定で `--q-projection galerkin` を使います。内部固有モードの選択は従来どおり |γ²| の小さいN個です。物理磁場W=KHはそのまま、電場側の境界場Vを
+`W^H V = H^H [f/epsilon] H Gamma` から構成し、縮約された層内系と境界の電力内積を一致させます。
+SciPyとPyTorch/CUDAの両経路に実装しました。TE・既存Li・通常FMM・界面の連続条件・Redheffer接続は従来と同じです。
 
-本番のPMMA300分割では4NのM=16にも受動性違反が出ました。M=16・600 nmを5Nにした確認でも改善せず、界面接続の最大条件数は約4×10²⁵でした。現行ASRのTMに安定性の問題があり、赤い×の結果から収束を判断できません。内部倍率だけでなく、モード選択・投影・界面接続の検証が必要です。
+従来の `--q-projection direct` は磁場と相方の電場を独立にFourier投影しており、有限打切りでは電力内積が一致しませんでした。PMMA300分割、4N、M=16、600/650/700 nmの負吸収はこの段階で生じた人工的な増幅が主因でした。内部倍率を5Nへ増やしても解消せず、SciPyでも同じ問題がありました。galerkinはこの投影を改良した方法であり、元論文の有限投影と同一とは扱いません。論文再現CLIではdirectを既定値として維持しています。
 
-同じ4N・600 nmをSciPy側でも確認し、PyTorch側と同様に負の吸収になりました。今回の不安定性は計算経路を切り替えても残ります。
+受動性の回復は精度・収束の保証ではありません。内部倍率4、G、保持次数、層数、積分点による変化と有限Li参照との差を引き続き確認してください。旧 `gpu_4N` などの保存値はdirectの結果です。修正後はソースと投影設定のハッシュが変わるため、新しい出力先を使います。
+
+同じ条件をGPUで再計算：
+
+```bash
+python -m studies.asr_1d_comparison.compare --study all --device cuda --q-projection galerkin --output-root studies/asr_1d_comparison/results/gpu_galerkin
+```
+
+3N/4Nを並べる場合：
 
 ```bash
 python -m studies.asr_1d_comparison.compare --study all --device cuda \
@@ -45,8 +55,8 @@ python -m studies.asr_1d_comparison.compare --study all --device cuda \
 **studyごとの入口**
 
 ```bash
-python studies/gold_grating_1d/compare_asr.py --device cuda --slices 420
-python studies/pmma_gold_grating_1d/compare_asr.py --device cuda --slices 300
+python studies/gold_grating_1d/compare_asr.py --device cuda --slices 420 --output-root studies/asr_1d_comparison/results/gpu_galerkin
+python studies/pmma_gold_grating_1d/compare_asr.py --device cuda --slices 300 --output-root studies/asr_1d_comparison/results/gpu_galerkin
 ```
 
 特定波長、形状config、G、積分点数、内部倍率も変更できます。例：
@@ -86,7 +96,7 @@ python studies/pmma_gold_grating_1d/compare_asr.py --device cuda \
 計算せずに条件だけ確認：
 
 ```bash
-python -m studies.asr_1d_comparison.compare --study all --prepare-only
+python -m studies.asr_1d_comparison.compare --study all --prepare-only --output-root studies/asr_1d_comparison/results/galerkin
 ```
 
 同じ引数で再実行すると完了済みケースを再利用します。M・波長・内部倍率の範囲を広げることもできます。材料・形状・数値ソース・G・積分点を変更した場合は混在を拒否するので、新しい `--output-root` を指定してください。CPU/GPUを再開時に変更した場合の実行環境はケースごとに残ります。
@@ -94,7 +104,7 @@ python -m studies.asr_1d_comparison.compare --study all --prepare-only
 保存した範囲と同じ引数で再作図（計算はしない）：
 
 ```bash
-python -m studies.asr_1d_comparison.compare --study all --report-only
+python -m studies.asr_1d_comparison.compare --study all --report-only --output-root studies/asr_1d_comparison/results/galerkin
 ```
 
 既定と異なる `--orders`、`--wavelengths`、`--asr-ratios`、参照次数などで計算した場合、再作図にもその引数を指定してください。
@@ -103,6 +113,17 @@ python -m studies.asr_1d_comparison.compare --study all --report-only
 
 ```bash
 python -m unittest studies.asr_1d_comparison.test_comparison
+python -m unittest paper_reproductions.vallius2002.validation.test_galerkin paper_reproductions.vallius2002.validation.test_backends
 ```
 
 実studyのLiと変換した層の通常FMMの一致、金・PMMAのポート電力、層の順序・総厚・谷底境界、3材料の区間、ASRのCPUテンソル経路との一致、非受動な値を収束として扱わないことを検査します。検証成功から500 nm構造の全次数・層数収束を保証することはできません。
+
+追加のGalerkin検証は、無損失層の電力保存、任意の伝搬ポート励振に対する受動性、内部材料損失の体積積分との一致、3材料層・斜入射のバックエンド一致を含みます。CUDA環境では実GPUのテストも実行し、CUDAがない環境では明示的にスキップします。
+
+固有モード・投影・界面の段階別検査（CPU/SciPy、代表層と界面）：
+
+```bash
+python -m studies.asr_1d_comparison.diagnose_passivity --study pmma_gold_grating_1d --order 16 --wavelength 600 --slices 300
+```
+
+`tm_stage_audit.json` に、内部・縮約された損失行列の最小固有値、投影後の人工増幅、電力内積の不一致、界面の場と電力の連続誤差を保存します。損失行列の符号は行列ノルムで規格化して数値丸めと区別します。

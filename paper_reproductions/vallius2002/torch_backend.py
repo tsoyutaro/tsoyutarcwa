@@ -103,6 +103,15 @@ class TorchPreparedLayer:
         gamma = _sqrt_outgoing(eigenvalues)
         K = self.K0 if alpha0 == 0 or self.method == "fmm" else self._projection(alpha0)
         W = K @ eigenvectors
+        if self.method == "asr" and polarization == "TM" and q_projection == "galerkin":
+            # Same Galerkin power metric as SciPy; all matrices stay on
+            # the selected device. Preserve W^H V = H^H b H Gamma.
+            scales = torch.clamp(torch.linalg.vector_norm(W, dim=0), min=1e-30)
+            H = eigenvectors / scales[None, :]
+            W = W / scales[None, :]
+            reduced_metric = H.mH @ self.b @ H
+            V = torch.linalg.solve(W.mH, reduced_metric * gamma[None, :])
+            return W, V, gamma
         if polarization == "TE":
             Q = W
         elif q_projection == "laurent":

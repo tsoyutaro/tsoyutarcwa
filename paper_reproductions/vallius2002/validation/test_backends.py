@@ -80,11 +80,27 @@ class TensorPhysicalChecks:
             result = self.stack(layers, polarization=polarization, harmonics=17).solve(0.72)
             self.assertAlmostEqual(result["T"] + result["R"], 1, delta=2e-9)
 
+    def test_galerkin_tm_three_material_interfaces_remain_passive(self):
+        layers = [LayerSpec(.12, (0,.24,.48,.72,1), (1,-9.3875+1.5292j,2.22,1)),
+                  LayerSpec(.09, (0,.41,1), (3+.2j,1))]
+        options = dict(polarization="TM", method="asr", harmonics=17, oversampling=4,
+                       q_projection="galerkin", epsilon_out=2.25)
+        for angle in (0., .12):
+            for wavelength in (.72, 3.):
+                result = self.stack(layers, angle=angle, **options).solve(wavelength)
+                self.assertGreaterEqual(result["R"], -2e-9)
+                self.assertGreaterEqual(result["T"], -2e-9)
+                self.assertLessEqual(result["R"] + result["T"], 1+2e-9)
+                reference = PreparedStack(layers, angle=angle, **options,
+                                          device="cpu", backend="scipy").solve(wavelength)
+                np.testing.assert_allclose([result[k] for k in ("R","T")],
+                                           [reference[k] for k in ("R","T")], atol=2e-8, rtol=2e-7)
+
     def test_oblique_projection_retention_and_laurent_match_scipy(self):
         layers = [LayerSpec(0.23, (0, 0.3, 1), (4, 1))]
         for polarization in ("TE", "TM"):
             for retention in ("smallest_abs", "physical"):
-                for q_projection in ("direct", "laurent"):
+                for q_projection in ("direct", "laurent", "galerkin"):
                     options = dict(polarization=polarization, method="asr", harmonics=11,
                                    angle=0.17, retention=retention, q_projection=q_projection)
                     cpu = PreparedStack(layers, **options, device="cpu", backend="scipy").solve(0.89)

@@ -90,7 +90,7 @@ def scalar_observables(study, solution):
 
 def scalar_case(study, config, slices, order, wavelength, materials, *, method="asr",
                 oversampling=3, G=.001, quadrature=192, device="cpu", backend="auto",
-                diagnostics=False):
+                diagnostics=False, q_projection="galerkin"):
     """TE and TM share the prepared material/map matrices, then solve separately."""
     if not math.isfinite(float(order)) or int(order) != order or order < 0:
         raise ValueError("order must be a nonnegative integer")
@@ -100,7 +100,7 @@ def scalar_case(study, config, slices, order, wavelength, materials, *, method="
                           oversampling=oversampling if method == "asr" else 1,
                           G=G, quadrature=quadrature, epsilon_in=1., epsilon_out=substrate,
                           device=device, backend=backend, diagnostics=diagnostics,
-                          retention="smallest_abs", q_projection="direct")
+                          retention="smallest_abs", q_projection=q_projection)
     polarizations, audit = {}, {}
     for polarization in ("TE", "TM"):
         stack.polarization = polarization
@@ -113,6 +113,7 @@ def scalar_case(study, config, slices, order, wavelength, materials, *, method="
                   total_finite_layers=len(layers), wavelength_nm=float(wavelength),
                   method=method, oversampling=oversampling if method == "asr" else 1,
                   eigen_dimension=int(stack.internal_count), G=G if method == "asr" else None,
+                  q_projection=q_projection if method == "asr" else "direct",
                   quadrature_actual=max(layer.quadrature_points for layer in stack.prepared_layers),
                   polarizations=polarizations, diagnostics=audit,
                   execution=dict(stack.execution), runtime_seconds=time.perf_counter()-start,

@@ -54,7 +54,7 @@ def fingerprint(study, config, args):
                                  for path in sorted(set(paths))},
                   material_sha256={Path(path).name: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in tables},
                   pmma_extension=material.get("pmma_shortwave_extension"), G=args.G,
-                  quadrature_minimum=args.quadrature, retention="smallest_abs", q_projection="direct",
+                  quadrature_minimum=args.quadrature, retention="smallest_abs", q_projection=args.q_projection,
                   dtype="complex128", incidence="normal", li_coefficients="analytic")
     signature = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
     return inputs, signature
@@ -103,6 +103,7 @@ def summarize(study, checkpoint, plan):
                                slices=plan["slices"], wavelength_nm=wave, polarization=p,
                                eigen_dimension=case.get("eigen_dimension"),
                                internal_ratio=case.get("oversampling"), G=case.get("G"),
+                               q_projection=case.get("q_projection", "direct"),
                                quadrature_actual=case.get("quadrature_actual", 0),
                                total_finite_layers=case.get("total_finite_layers", plan["slices"]),
                                device=case.get("execution", case.get("environment", {})).get("device"),
@@ -152,6 +153,7 @@ def export(study, output, checkpoint, plan):
              f"元studyのconfig・材料関数を使用。周期={plan['geometry']['period_nm']} nm。形状はplan.jsonのgeometryに保存。",
              f"Nz={plan['slices']}固定、波長={plan['wavelengths_nm']} nm、TE/TM、N=2M+1。",
              f"M={plan['orders']}、ASR内部倍率={plan['asr_ratios']}、G={plan['G']}。",
+             f"ASR TM境界場={plan.get('q_projection', 'direct')}。galerkinは電力内積を保つ改良版で、TEの境界場は従来と同じです。",
              f"Li参照M={plan['reference_order']}、参照の確認M={plan['reference_check_order']}。",
              f"参照間の全波長・全偏光・全指標の最大絶対差={report['reference_check_max_absolute_change']}。",
              "参照は有限次数の計算で、厳密解ではありません。層数の収束もこの次数掃引では再判定していません。", "",
@@ -182,6 +184,8 @@ def main(argv=None, default_study="all"):
     parser.add_argument("--reference-check-order", type=int, default=72)
     parser.add_argument("--G", type=float, default=.001)
     parser.add_argument("--quadrature", type=int, default=192)
+    parser.add_argument("--q-projection", choices=("galerkin", "direct", "laurent"), default="galerkin",
+                        help="ASR TM boundary trace: Galerkin preserves the reduced power metric; direct is the legacy projection")
     parser.add_argument("--device", default="auto")
     parser.add_argument("--backend", choices=("auto", "scipy", "torch"), default="auto", help="ASR backend; original Li always uses torch")
     parser.add_argument("--threads", type=int, default=1)
@@ -237,7 +241,7 @@ def main(argv=None, default_study="all"):
             plan = dict(study=study, geometry=config["geometry"], config_path=str(config_path),
                         orders=args.orders, asr_ratios=args.asr_ratios, slices=slices, wavelengths_nm=waves,
                         reference_order=args.reference_order, reference_check_order=args.reference_check_order,
-                        G=args.G, quadrature_requested_minimum=args.quadrature,
+                        G=args.G, quadrature_requested_minimum=args.quadrature, q_projection=args.q_projection,
                         tolerance=args.tolerance, passivity_tolerance=args.passivity_tolerance,
                         execution=execution, cpu_threads=args.threads, inputs=inputs,
                         material_interpolation=("existing TabulatedGold: linear epsilon" if study == "gold_grating_1d" else
@@ -273,7 +277,8 @@ def main(argv=None, default_study="all"):
                         else:
                             case = scalar_case(study, config, slices, order, wave, materials, oversampling=ratio,
                                                G=args.G, quadrature=args.quadrature, device=execution["device"],
-                                               backend=execution["backend"], diagnostics=args.diagnostics)
+                                               backend=execution["backend"], diagnostics=args.diagnostics,
+                                               q_projection=args.q_projection)
                         print(f"  saved in {case['runtime_seconds']:.2f} s: " +
                               "; ".join(f"{p} R={v['reflectance']:.7g}" for p, v in case["polarizations"].items()), flush=True)
                     except (ArithmeticError, RuntimeError, ValueError) as exc:

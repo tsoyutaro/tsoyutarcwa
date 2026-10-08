@@ -20,7 +20,8 @@ def plot_results(study, rows, references, plan, output):
     data = {(r["series"], r["order"], r["wavelength_nm"], r["polarization"]): r for r in rows}
     waves, orders = plan["wavelengths_nm"], plan["orders"]
     plt.rcParams.update({"font.size": 10, "axes.grid": True, "grid.alpha": .2})
-    context = f"Nz={plan['slices']} fixed; N=2M+1; G={plan['G']:g}; {len(waves)} wavelengths"
+    context = (f"Nz={plan['slices']} fixed; N=2M+1; G={plan['G']:g}; {len(waves)} wavelengths"
+               f"; TM trace={plan.get('q_projection','direct')}")
 
     def row(method, order, wave, pol):
         return data.get((method, order, wave, pol), {})

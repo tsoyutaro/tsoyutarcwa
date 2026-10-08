@@ -263,6 +263,25 @@ class _PreparedLayer:
         gamma = _sqrt_outgoing(eigenvalues)
         K = self.K0 if alpha0 == 0 or self.method == "fmm" else self._projection(alpha0)
         W = K @ eigenvectors
+        if self.method == "asr" and polarization == "TM" and q_projection == "galerkin":
+            # The reduced ASR equation is B_r c'' + O_r c = 0, with
+            # B_r=H^H b H and O_r=H^H O H. Its flux is Re(c^H B_r c'/i).
+            # Independently truncating H and H/epsilon onto x harmonics
+            # does not preserve that flux and can turn a passive layer
+            # into an active discrete system. Use the dual boundary trace:
+            # W^H V = H^H b H Gamma. This is a Galerkin traction, not a
+            # pointwise x-space Laurent product or a power correction.
+            scales = np.maximum(linalg.norm(W, axis=0), 1e-30)
+            H = eigenvectors / scales[None, :]
+            W = W / scales[None, :]
+            reduced_metric = H.conj().T @ self.b @ H
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", linalg.LinAlgWarning)
+                try:
+                    V = linalg.solve(W.conj().T, reduced_metric * gamma[None, :], check_finite=False)
+                except linalg.LinAlgWarning as exc:
+                    raise np.linalg.LinAlgError("ASR modal projection is rank deficient; increase retained harmonics") from exc
+            return W, V, gamma
         if polarization == "TE":
             Q = W
         elif q_projection == "laurent":
@@ -363,6 +382,10 @@ class PreparedStack:
             Q=H/epsilon in Eq. (26), avoiding a second Fourier truncation.
             ``"laurent"`` forms a finite Q^u Laurent vector first.  The
             paper does not specify the finite truncation of Q^u separately.
+            ``"galerkin"`` uses a dual TM boundary trace preserving the
+            reduced ASR power metric H^H b H. It prevents artificial gain
+            from independent field projections; TE and FMM are unchanged.
+            Direct remains the default for the original paper reproduction.
 
     At an exact external Rayleigh cutoff the wavelength is shifted upward
     by ``cutoff_shift`` (default relative 1e-12) and the evaluation value
@@ -400,8 +423,8 @@ class PreparedStack:
         if retention not in {"smallest_abs", "physical"}:
             raise ValueError("retention must be smallest_abs or physical")
         self.retention = retention
-        if q_projection not in {"direct", "laurent"}:
-            raise ValueError("q_projection must be direct or laurent")
+        if q_projection not in {"direct", "laurent", "galerkin"}:
+            raise ValueError("q_projection must be direct, laurent, or galerkin")
         self.q_projection = q_projection
         self.G = float(G)
         if not 0 < self.G:

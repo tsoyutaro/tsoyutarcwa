@@ -63,7 +63,7 @@ def plot_overview(folders, output):
         Line2D([0], [0], color="gray", ls="--", label=f"Tolerance: {100*plan['tolerance']:g} pp"),
         Line2D([0], [0], color="crimson", marker="x", ls="", label="Invalid at one or more wavelengths")]
     fig.legend(handles=legend, loc="lower center", ncol=2, fontsize=9)
-    fig.text(.5, .105, f"Maximum over wavelengths and metrics | Au: R, P_sub, A_relief | PMMA: R, T, A | G={plan['G']:g}",
+    fig.text(.5, .105, f"Maximum over wavelengths and metrics | Au: R, P_sub, A_relief | PMMA: R, T, A | TM trace={plan.get('q_projection','direct')}",
              ha="center", fontsize=9)
     fig.subplots_adjust(top=.82, bottom=.22, hspace=.62, wspace=.37)
     fig.canvas.draw()

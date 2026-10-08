@@ -249,7 +249,8 @@ def main():
     parser.add_argument("--overlay-reference", action="store_true")
     parser.add_argument("--include-reference-grid", action="store_true", help="Also solve at the original PDF vertices and markers.")
     parser.add_argument("--retention", choices=("smallest_abs", "physical"), default="smallest_abs")
-    parser.add_argument("--q-projection", choices=("direct", "laurent"), default="direct")
+    parser.add_argument("--q-projection", choices=("direct", "laurent", "galerkin"), default="direct",
+                        help="TM trace: legacy direct, truncated Laurent, or power-preserving Galerkin variant")
     parser.add_argument("--device", default="auto", help="auto (default), cpu, cuda, or cuda:<index>; explicit CUDA never falls back.")
     parser.add_argument("--backend", choices=("auto", "scipy", "torch"), default="auto",
                         help="auto: SciPy on CPU, PyTorch on CUDA; torch+cpu validates the CUDA tensor kernels on CPU.")

@@ -187,6 +187,17 @@ TMは `H, gamma*(H/epsilon)` です。TMの `Q=H/epsilon` はu空間の連続関
 `--q-projection laurent` では有限のu空間Laurent積を先に作る比較もできます。
 論文はQの有限打ち切り方法を別に指定していません。
 
+`--q-projection galerkin` はTMの有限次元境界場を改良する追加の選択肢です。
+保持固有モードH、物理磁場W=KH、内部計量b=[f/epsilon]、伝搬定数Gammaから
+`W^H V = H^H b H Gamma` を満たす電場側の境界場Vを構成します。
+独立にHとH/epsilonをFourier投影する従来のdirectでは、有限打切りにより電力内積が
+一致せず、損失性の層でも人工的な増幅が生じることがありました。
+galerkinは縮約された材料損失の符号を境界場へ引き継ぎます。数値計算では投影Wの
+可逆性と条件数にも依存し、受動性だけで次数収束を保証しません。
+これは論文の有限投影と同一ではないGalerkin境界場の追加実装です。
+論文再現CLIの既定値はdirectを維持し、studies/asr_1d_comparisonの既定値はgalerkinです。
+TE・通常FMM・固有モードの選択・S行列接続は変更しません。
+
 写像積分は材料界面ごとのGauss–Legendre積分で、入力quadrature値と
 `2*(内部次元+保持数)` の大きい方以上の点数を自動使用します。
 `--quadrature` は最低値です。層接続はRedheffer S行列で行い、増大する
@@ -200,6 +211,9 @@ TMは `H, gamma*(H/epsilon)` です。TMの `Q=H/epsilon` はu空間の連続関
 写像の連続性・積分・界面勾配、周期セル端、ASRの次数収束を確認します。
 低次数ASRでは境界の射影打ち切り誤差があり、無損失でも `A=1-R-T` がゼロから
 ずれる場合があります。図9・11のAは物理吸収ではなく残差です。
+この説明は既定のdirect投影に対応します。galerkinの検証は
+`python -m unittest paper_reproductions.vallius2002.validation.test_galerkin` で実行し、
+無損失保存、全伝搬ポート励振の受動性、層内損失積分とポート吸収の一致を調べます。
 
 `reference/` は著者の元数値データではなく、添付PDFの実際のベクトル曲線と
 菱形中心の抽出値です。計算値を参照データへ加工していません。出所のhash、
