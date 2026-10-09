@@ -120,10 +120,10 @@ python -m unittest paper_reproductions.vallius2002.validation.test_galerkin pape
 
 追加のGalerkin検証は、無損失層の電力保存、任意の伝搬ポート励振に対する受動性、内部材料損失の体積積分との一致、3材料層・斜入射のバックエンド一致を含みます。CUDA環境では実GPUのテストも実行し、CUDAがない環境では明示的にスキップします。
 
-固有モード・投影・界面の段階別検査（CPU/SciPy、代表層と界面）：
+固有モード・投影・界面の段階別検査（指定デバイス、代表層と界面）：
 
 ```bash
-python -m studies.asr_1d_comparison.diagnose_passivity --study pmma_gold_grating_1d --order 16 --wavelength 600 --slices 300
+python -m studies.asr_1d_comparison.diagnose_passivity --study pmma_gold_grating_1d --order 16 --wavelength 600 --slices 300 --device cuda
 ```
 
 `tm_stage_audit.json` に、内部・縮約された損失行列の最小固有値、投影後の人工増幅、電力内積の不一致、界面の場と電力の連続誤差を保存します。損失行列の符号は行列ノルムで規格化して数値丸めと区別します。
@@ -147,8 +147,11 @@ G=0.001の基準は4N・4096点の結果を使います。
 
 比較計算は指定デバイスで実行し、界面・S行列接続の条件数も保存します。
 投影行列W=KHの2ノルム条件数と固有値・電力内積の残差は、
-同じパラメータのCPU/SciPyによるTM代表層診断で調べます。
-投影診断はGPU上の全層を直接計測した結果ではありません。
+比較と同じ指定デバイス・バックエンドによるTM代表層診断で調べます。
+CUDA診断では、本体の `TorchPreparedLayer.modes()` が生成するW/Vと内部固有対を使い、
+固有値・投影・SVD条件数・損失行列・界面接続の線形代数をGPUで実行します。
+大きい診断行列をCPUへ転送して計算しません。形状・材料・積分係数の準備は従来どおりCPUです。
+代表層の診断であり、全層・全スタックの電力残差を測るものではありません。
 
 既定の出力は `studies/asr_1d_comparison/results/fixed_order_audit_M48/` です。
 `audit_plan.json` に計算条件と呼び出すコマンドを記録し、
@@ -157,14 +160,29 @@ G=0.001の基準は4N・4096点の結果を使います。
 `projected_field_condition_2norm` と各残差が入ります。
 
 計画だけ確認する場合は `--dry-run` を追加します（計算・出力ファイル作成なし）。
-`--stage compare` で比較計算のみ、`--stage projection` でCPU投影診断のみ、
+`--stage compare` で比較計算のみ、`--stage projection` で投影診断のみ、
 `--stage internal` / `quadrature` / `g` で比較の各段階を選べます。
 `quadrature` は2048点の基準に対する4096点の計算、`g` はG=0.001の基準に対する
 G=0.0003/0.003の計算です。基準も必要な場合は先に `compare` を実行してください。
 
 同じ条件で再実行すると比較計算の完了済みケースを再利用します。
-CPU投影診断は再計算します。条件を変更する場合は新しい `--output-root` を指定します。
+投影診断は再計算します。CUDAが未利用の場合、明示したCUDA指定はCPUへ切り替わりません。
+条件を変更する場合は新しい `--output-root` を指定します。
 比較モジュールがケース単位のエラーを保存して正常終了した場合も、
 このランナーは不足・失敗ケースと条件数の欠落を検出して停止します。
 保持次数は1点だけなので、既存レポートの隣接次数による収束判定とは区別して、
 内部倍率・積分・Gによる変化を評価してください。
+
+投影診断の `threadpoolctl` は任意依存です。未インストールでも停止せず、
+NumPy/SciPyの読み込み前にBLAS/OpenMPの環境変数でCPUスレッド数1を要求します。
+利用可能な場合は従来どおり `threadpool_limits(limits=1)` を使います。
+診断JSONの `cpu_thread_control` に制御方法を保存します。
+GPU比較を終えた後に投影診断で停止した場合は、同じ条件・出力先で
+`python run_fixed_order_audit.py --device cuda --stage projection` により診断から再開できます。
+診断・ランナーの変更は比較の数値ソースを変更しないため、
+保存済みのGPU比較チェックポイントはそのまま利用します。
+GPU診断は `projection/cuda_auto/`（既定のCUDA・backend=auto）に保存し、旧CPU診断と分けます。
+`projection_summary.csv` のbackend/device/linear_algebra_deviceとmodal_trace_sourceで実行経路を確認できます。
+実行前の検査は `python -m studies.asr_1d_comparison.diagnose_passivity --device cuda --check-only`、
+デバイス診断の検証は `python -m unittest studies.asr_1d_comparison.test_device_diagnostics` です。
+後者はCUDA環境でGPU上の行列を検査し、CUDAがなければGPU試験を明示的にスキップします。

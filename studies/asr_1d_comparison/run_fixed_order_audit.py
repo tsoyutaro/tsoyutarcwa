@@ -1,4 +1,4 @@
-"""Run controlled fixed-order ASR comparisons and sampled CPU projection audits.
+"""Run controlled fixed-order ASR comparisons and projection audits on one device.
 
 Run from the project root:
     python -m studies.asr_1d_comparison.run_fixed_order_audit --device cuda
@@ -12,6 +12,7 @@ import argparse
 import csv
 import json
 import math
+import os
 import shlex
 import subprocess
 import sys
@@ -96,13 +97,17 @@ def build_jobs(args, output):
             for wave in args.wavelengths:
                 for ratio in variant["ratios"]:
                     name = f"{study}_{wave:g}nm_r{ratio}_q{variant['quadrature']}_G{variant['G']:g}"
-                    target = output / "projection" / f"{name}.json"
+                    # Keep the former CPU-only diagnostics separate from new
+                    # diagnostics computed on the explicitly selected device.
+                    location = f"{args.device.replace(':', '_')}_{args.backend}"
+                    target = output / "projection" / location / f"{name}.json"
                     command = [sys.executable, "-u", "-m",
                                "studies.asr_1d_comparison.diagnose_passivity",
                                "--study", study, "--order", str(args.order),
                                "--wavelength", f"{wave:g}", "--slices", str(slices),
                                "--ratio", str(ratio), "--quadrature", str(variant["quadrature"]),
-                               "--G", f"{variant['G']:g}", "--output", str(target)]
+                               "--G", f"{variant['G']:g}", "--device", args.device,
+                               "--backend", args.backend, "--output", str(target)]
                     jobs.append(dict(kind="projection", stage="projection", name=name,
                                      output=str(target), command=command))
     return jobs
@@ -138,6 +143,15 @@ def verify_comparison(job, args):
         raise RuntimeError("\n".join(errors))
 
 
+def child_environment(args, kind):
+    environment = os.environ.copy()
+    threads = str(args.threads if kind == "comparison" else 1)
+    for variable in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+                     "BLIS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
+        environment[variable] = threads
+    return environment
+
+
 def export_summaries(jobs, output):
     comparison_rows, projection_rows = [], []
     for job in jobs:
@@ -169,9 +183,15 @@ def export_summaries(jobs, output):
                     slices=data["slices"], quadrature_minimum=data["quadrature_minimum"],
                     quadrature_actual=layer["quadrature_actual"],
                     backend=data["backend"], device=data["device"],
+                    dtype=data.get("dtype", "complex128"),
+                    linear_algebra_device=data.get("linear_algebra_device", data["device"]),
+                    coefficient_preparation_device=data.get("coefficient_preparation_device", "cpu"),
+                    modal_trace_source=data.get("modal_trace_source", "SciPy generalized eig (QZ)"),
+                    condition_number_method=data.get("execution", {}).get("condition_number_method", "2-norm from SVD"),
                     layer_index_zero_based=layer["layer_index_zero_based"], layer_name=layer["name"],
                     projected_field_condition_2norm=layer["projected_field_condition"],
                     generalized_eigen_residual=layer["generalized_eigen_residual"],
+                    production_field_projection_relative_error=layer.get("production_field_projection_relative_error"),
                     min_imag_gamma=layer["min_imag_gamma"],
                     galerkin_power_metric_relative_error=galerkin["power_metric_relative_error"],
                     field_generator_loss_relative_minimum=galerkin["field_generator_loss"]["relative_minimum"],
@@ -184,7 +204,7 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--project-root", type=Path)
     parser.add_argument("--output-root", type=Path)
-    parser.add_argument("--device", default="cuda", help="Comparison device: cuda, cuda:0, cpu, or auto")
+    parser.add_argument("--device", default="cuda", help="Device for both comparison and projection: cuda, cuda:0, cpu, or auto")
     parser.add_argument("--backend", choices=("auto", "scipy", "torch"), default="auto")
     parser.add_argument("--stage", choices=("all", "compare", "internal", "quadrature", "g", "projection"), default="all")
     parser.add_argument("--study", choices=("all", *STUDIES), default="all")
@@ -229,7 +249,8 @@ def main(argv=None):
         print(f"Project: {project}\nOutput: {output}\nM={args.order}, N={n}; "
               f"internal dimensions={[ratio*n for ratio in args.ratios]}", flush=True)
         print(f"Comparison: device={args.device}, backend={args.backend}, Galerkin, TE/TM.\n"
-              "Projection audit: CPU/SciPy, TM, sampled layers/interfaces (not a GPU/all-layer condition audit).",
+              f"Projection audit: device={args.device}, backend={args.backend}, TM, sampled layers/interfaces.\n"
+              "Host geometry/material/quadrature coefficient preparation remains on CPU.",
               flush=True)
         if args.dry_run:
             for index, job in enumerate(selected, 1):
@@ -242,20 +263,29 @@ def main(argv=None):
             previous = json.loads(manifest.read_text(encoding="utf-8"))
             if previous["settings"] != settings:
                 raise ValueError("Audit settings changed. Use a new --output-root to keep conditions separate.")
+        if any(job["kind"] == "projection" for job in selected):
+            # Fail before any expensive comparison if CUDA is unavailable or
+            # the old CPU-only diagnostic file has not been replaced.
+            print("Checking projection device/backend before calculations...", flush=True)
+            subprocess.run([sys.executable, "-u", "-m", "studies.asr_1d_comparison.diagnose_passivity",
+                            "--device", args.device, "--backend", args.backend, "--check-only"],
+                           cwd=project, env=child_environment(args, "projection"), check=True)
         save_json(manifest, dict(settings=settings, project_root=str(project), jobs=jobs,
                                  note="Fixed retained order; finite Li reference is not an exact solution. "
-                                      "Projection audits are sampled CPU/SciPy runs."))
+                                      "Projection audits use the requested device/backend at sampled layers. "
+                                      "Geometry/material/quadrature coefficient preparation is on CPU."))
         try:
             for index, job in enumerate(selected, 1):
                 print(f"\n[{index}/{len(selected)}] {job['kind']}: {job['name']}", flush=True)
-                subprocess.run(job["command"], cwd=project, check=True)
+                subprocess.run(job["command"], cwd=project,
+                               env=child_environment(args, job["kind"]), check=True)
                 if job["kind"] == "comparison":
                     verify_comparison(job, args)
         finally:
             export_summaries(jobs, output)
         print(f"\nFinished: {output}\n"
               "Summary files: comparison_summary.csv / projection_summary.csv (when available).\n"
-              "To resume comparisons, rerun with the same settings. CPU projection audits are recomputed.",
+              "To resume comparisons, rerun with the same settings. Projection audits are recomputed.",
               flush=True)
         return 0
     except KeyboardInterrupt:
