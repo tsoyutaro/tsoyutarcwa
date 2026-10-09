@@ -1,0 +1,488 @@
+{
+  "study": "pmma_gold_grating_1d",
+  "order": 48,
+  "harmonics": 97,
+  "internal_dimension": 582,
+  "wavelength_nm": 700.0,
+  "slices": 300,
+  "total_finite_layers": 301,
+  "G": 0.001,
+  "quadrature_minimum": 2048,
+  "backend": "torch",
+  "device": "cuda:0",
+  "execution": {
+    "requested_device": "cuda",
+    "requested_backend": "auto",
+    "device": "cuda:0",
+    "backend": "torch",
+    "dtype": "complex128",
+    "device_name": "NVIDIA H100 MIG 3g.47gb",
+    "torch_version": "2.6.0+cu124",
+    "cuda_version": "12.4",
+    "condition_number_method": "2-norm from SVD (PyTorch gesvd)",
+    "selection_reason": "explicit CUDA selection"
+  },
+  "evaluation_wavelength_nm": 700.0,
+  "cutoff_regularized": false,
+  "dtype": "complex128",
+  "coefficient_preparation_device": "cpu",
+  "linear_algebra_device": "cuda:0",
+  "modal_trace_source": "TorchPreparedLayer.modes",
+  "cpu_threads_requested": 1,
+  "cpu_thread_control": "environment_variables",
+  "selected_layers": [
+    {
+      "layer_index_zero_based": 0,
+      "name": "cap_1",
+      "quadrature_actual": 2048,
+      "modal_trace_source": "TorchPreparedLayer.modes",
+      "modal_eigenproblem": "lu_solve_eig",
+      "min_imag_gamma": 0.007593431006499096,
+      "generalized_eigen_residual": 8.514810480795009e-10,
+      "production_field_projection_relative_error": 6.669756727316057e-16,
+      "full_inverse_metric_loss": {
+        "minimum_eigenvalue": -3.4886412744458915e-12,
+        "operator_scale": 27107.9774118496,
+        "relative_minimum": -1.286942666892188e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "full_operator_loss": {
+        "minimum_eigenvalue": -7.777067391293574e-06,
+        "operator_scale": 1385198051.9311762,
+        "relative_minimum": -5.61440826490563e-15,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_negative_metric_loss": {
+        "minimum_eigenvalue": -4.0914490139590834e-16,
+        "operator_scale": 1.0,
+        "relative_minimum": -4.0914490139590834e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_operator_loss": {
+        "minimum_eigenvalue": -1.6802162134609454e-10,
+        "operator_scale": 53326.08782416571,
+        "relative_minimum": -3.1508334513515993e-15,
+        "passive_at_relative_1e_10": true
+      },
+      "projected_field_condition": 19.129422087016128,
+      "projections": {
+        "direct": {
+          "power_metric_relative_error": 0.09225892963707343,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -0.19165068639685184,
+            "operator_scale": 16.52397900049082,
+            "relative_minimum": -0.01159833756694796,
+            "passive_at_relative_1e_10": false
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -2244.487567384775,
+            "operator_scale": 86768.71053495519,
+            "relative_minimum": -0.025867476346563577,
+            "passive_at_relative_1e_10": false
+          }
+        },
+        "galerkin": {
+          "power_metric_relative_error": 8.854511725027256e-16,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -1.5520489727112487e-14,
+            "operator_scale": 142.0926161165901,
+            "relative_minimum": -1.0922798208161348e-16,
+            "passive_at_relative_1e_10": true
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -1.8385981343898898e-05,
+            "operator_scale": 88919.14135127343,
+            "relative_minimum": -2.06771917322789e-10,
+            "passive_at_relative_1e_10": false
+          }
+        }
+      }
+    },
+    {
+      "layer_index_zero_based": 1,
+      "name": "shell_2",
+      "quadrature_actual": 2048,
+      "modal_trace_source": "TorchPreparedLayer.modes",
+      "modal_eigenproblem": "lu_solve_eig",
+      "min_imag_gamma": 0.006622944086330372,
+      "generalized_eigen_residual": 3.293865987457855e-08,
+      "production_field_projection_relative_error": 1.0094856107261699e-15,
+      "full_inverse_metric_loss": {
+        "minimum_eigenvalue": -4.506965589378317e-11,
+        "operator_scale": 90103.15230506341,
+        "relative_minimum": -5.002006560346552e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "full_operator_loss": {
+        "minimum_eigenvalue": -8.182508619010106e-06,
+        "operator_scale": 3840840334.630794,
+        "relative_minimum": -2.130395409887993e-15,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_negative_metric_loss": {
+        "minimum_eigenvalue": -4.1748797639838846e-16,
+        "operator_scale": 5.622073757253902,
+        "relative_minimum": -7.42587156313492e-17,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_operator_loss": {
+        "minimum_eigenvalue": -5.318234531022836e-10,
+        "operator_scale": 522092.9031794193,
+        "relative_minimum": -1.0186375832033105e-15,
+        "passive_at_relative_1e_10": true
+      },
+      "projected_field_condition": 14.165438956893881,
+      "projections": {
+        "direct": {
+          "power_metric_relative_error": 0.8341243921201641,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -4.52584276710708,
+            "operator_scale": 16.58339741988094,
+            "relative_minimum": -0.27291408705439885,
+            "passive_at_relative_1e_10": false
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -113171.22883599394,
+            "operator_scale": 257187.19175508636,
+            "relative_minimum": -0.4400344669720737,
+            "passive_at_relative_1e_10": false
+          }
+        },
+        "galerkin": {
+          "power_metric_relative_error": 1.1246999674961787e-15,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -1.6487732395604128e-14,
+            "operator_scale": 16.608399879456968,
+            "relative_minimum": -9.9273455090625e-16,
+            "passive_at_relative_1e_10": true
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -0.001896725491011888,
+            "operator_scale": 1757111.9785320715,
+            "relative_minimum": -1.0794562408005736e-09,
+            "passive_at_relative_1e_10": false
+          }
+        }
+      }
+    },
+    {
+      "layer_index_zero_based": 150,
+      "name": "shell_151",
+      "quadrature_actual": 2048,
+      "modal_trace_source": "TorchPreparedLayer.modes",
+      "modal_eigenproblem": "lu_solve_eig",
+      "min_imag_gamma": 0.012011801073764577,
+      "generalized_eigen_residual": 4.355942195055849e-09,
+      "production_field_projection_relative_error": 9.174587242443503e-16,
+      "full_inverse_metric_loss": {
+        "minimum_eigenvalue": -5.681574721117894e-12,
+        "operator_scale": 75831.76779191889,
+        "relative_minimum": -7.492341121082711e-17,
+        "passive_at_relative_1e_10": true
+      },
+      "full_operator_loss": {
+        "minimum_eigenvalue": -4.635190382109781e-07,
+        "operator_scale": 688511074.4790943,
+        "relative_minimum": -6.732194374094301e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_negative_metric_loss": {
+        "minimum_eigenvalue": -3.3324168522653296e-16,
+        "operator_scale": 1.9015722196478653,
+        "relative_minimum": -1.752453479196509e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_operator_loss": {
+        "minimum_eigenvalue": -8.876000336416312e-11,
+        "operator_scale": 175962.60022772272,
+        "relative_minimum": -5.044253906755981e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "projected_field_condition": 12.810905920787889,
+      "projections": {
+        "direct": {
+          "power_metric_relative_error": 0.6017410122269597,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -4.18837150940723,
+            "operator_scale": 16.609238284749,
+            "relative_minimum": -0.25217119759508133,
+            "passive_at_relative_1e_10": false
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -33635.034848718795,
+            "operator_scale": 108402.27516723437,
+            "relative_minimum": -0.310279786995516,
+            "passive_at_relative_1e_10": false
+          }
+        },
+        "galerkin": {
+          "power_metric_relative_error": 6.397005789160474e-16,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -3.853688770876455e-14,
+            "operator_scale": 16.520734339668955,
+            "relative_minimum": -2.3326376973589635e-15,
+            "passive_at_relative_1e_10": true
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -4.585978666758745e-05,
+            "operator_scale": 276129.3325597769,
+            "relative_minimum": -1.6608082249885444e-10,
+            "passive_at_relative_1e_10": false
+          }
+        }
+      }
+    },
+    {
+      "layer_index_zero_based": 151,
+      "name": "shell_152",
+      "quadrature_actual": 2048,
+      "modal_trace_source": "TorchPreparedLayer.modes",
+      "modal_eigenproblem": "lu_solve_eig",
+      "min_imag_gamma": 0.012048546670749106,
+      "generalized_eigen_residual": 5.2737155042841744e-09,
+      "production_field_projection_relative_error": 9.522545535788253e-16,
+      "full_inverse_metric_loss": {
+        "minimum_eigenvalue": -5.675851798929671e-12,
+        "operator_scale": 74677.63316646512,
+        "relative_minimum": -7.600470928527605e-17,
+        "passive_at_relative_1e_10": true
+      },
+      "full_operator_loss": {
+        "minimum_eigenvalue": -3.7065797595550634e-07,
+        "operator_scale": 691768264.3478429,
+        "relative_minimum": -5.358123450559562e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_negative_metric_loss": {
+        "minimum_eigenvalue": -3.519962062543732e-16,
+        "operator_scale": 1.0,
+        "relative_minimum": -3.519962062543732e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_operator_loss": {
+        "minimum_eigenvalue": -8.754076463412518e-11,
+        "operator_scale": 50074.720648822484,
+        "relative_minimum": -1.7482027557987727e-15,
+        "passive_at_relative_1e_10": true
+      },
+      "projected_field_condition": 13.018998227627437,
+      "projections": {
+        "direct": {
+          "power_metric_relative_error": 0.3021243993404057,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -7.518915151852952,
+            "operator_scale": 20.986889055974718,
+            "relative_minimum": -0.35826725589481334,
+            "passive_at_relative_1e_10": false
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -13004.286192979578,
+            "operator_scale": 82312.13163943535,
+            "relative_minimum": -0.15798747929338386,
+            "passive_at_relative_1e_10": false
+          }
+        },
+        "galerkin": {
+          "power_metric_relative_error": 9.272177979619578e-16,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -3.283688178266485e-14,
+            "operator_scale": 16.520386266285755,
+            "relative_minimum": -1.9876582334928362e-15,
+            "passive_at_relative_1e_10": true
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -5.385235106037616e-05,
+            "operator_scale": 91798.00056584041,
+            "relative_minimum": -5.866396950743123e-10,
+            "passive_at_relative_1e_10": false
+          }
+        }
+      }
+    },
+    {
+      "layer_index_zero_based": 299,
+      "name": "valley_300",
+      "quadrature_actual": 2048,
+      "modal_trace_source": "TorchPreparedLayer.modes",
+      "modal_eigenproblem": "lu_solve_eig",
+      "min_imag_gamma": 0.016480915497649726,
+      "generalized_eigen_residual": 4.303721862468329e-09,
+      "production_field_projection_relative_error": 6.845402200793473e-16,
+      "full_inverse_metric_loss": {
+        "minimum_eigenvalue": -2.9069199405058106e-12,
+        "operator_scale": 21712.21913190943,
+        "relative_minimum": -1.3388405500355542e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "full_operator_loss": {
+        "minimum_eigenvalue": -4.980458234372372e-06,
+        "operator_scale": 4429002199.589931,
+        "relative_minimum": -1.124510219216757e-15,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_negative_metric_loss": {
+        "minimum_eigenvalue": -1.3108367864958824e-16,
+        "operator_scale": 1.0,
+        "relative_minimum": -1.3108367864958824e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_operator_loss": {
+        "minimum_eigenvalue": -1.5150386132088403e-10,
+        "operator_scale": 23726.363907628474,
+        "relative_minimum": -6.385464789746931e-15,
+        "passive_at_relative_1e_10": true
+      },
+      "projected_field_condition": 17.944976330405787,
+      "projections": {
+        "direct": {
+          "power_metric_relative_error": 0.07158673590425227,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -0.5191697034497358,
+            "operator_scale": 16.52030248370732,
+            "relative_minimum": -0.031426162079160005,
+            "passive_at_relative_1e_10": false
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -3442.138654834291,
+            "operator_scale": 39465.32340423587,
+            "relative_minimum": -0.08721931959297821,
+            "passive_at_relative_1e_10": false
+          }
+        },
+        "galerkin": {
+          "power_metric_relative_error": 8.579673004549479e-16,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -2.2795284490904252e-14,
+            "operator_scale": 16.99252300835674,
+            "relative_minimum": -1.3414891055138648e-15,
+            "passive_at_relative_1e_10": true
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -1.9858734109783544e-05,
+            "operator_scale": 43060.75687169364,
+            "relative_minimum": -4.6117940213999945e-10,
+            "passive_at_relative_1e_10": false
+          }
+        }
+      }
+    },
+    {
+      "layer_index_zero_based": 300,
+      "name": "valley_301",
+      "quadrature_actual": 2048,
+      "modal_trace_source": "TorchPreparedLayer.modes",
+      "modal_eigenproblem": "lu_solve_eig",
+      "min_imag_gamma": 0.01634885375080033,
+      "generalized_eigen_residual": 4.258327100204359e-09,
+      "production_field_projection_relative_error": 6.940710153160965e-16,
+      "full_inverse_metric_loss": {
+        "minimum_eigenvalue": -8.632266744271091e-12,
+        "operator_scale": 21846.62998999934,
+        "relative_minimum": -3.951303586970922e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "full_operator_loss": {
+        "minimum_eigenvalue": -5.568187195405571e-06,
+        "operator_scale": 4333074899.332456,
+        "relative_minimum": -1.2850429140431878e-15,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_negative_metric_loss": {
+        "minimum_eigenvalue": -2.100442453698585e-16,
+        "operator_scale": 1.0,
+        "relative_minimum": -2.100442453698585e-16,
+        "passive_at_relative_1e_10": true
+      },
+      "reduced_operator_loss": {
+        "minimum_eigenvalue": -1.7820349862216765e-10,
+        "operator_scale": 23744.585087789805,
+        "relative_minimum": -7.505016321123479e-15,
+        "passive_at_relative_1e_10": true
+      },
+      "projected_field_condition": 16.909550158774156,
+      "projections": {
+        "direct": {
+          "power_metric_relative_error": 0.14735201167525513,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -0.29698820356505995,
+            "operator_scale": 16.529863012275275,
+            "relative_minimum": -0.01796676738001476,
+            "passive_at_relative_1e_10": false
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -1113.0227933241438,
+            "operator_scale": 39900.13197078446,
+            "relative_minimum": -0.027895215838862827,
+            "passive_at_relative_1e_10": false
+          }
+        },
+        "galerkin": {
+          "power_metric_relative_error": 8.876780658682295e-16,
+          "field_generator_loss": {
+            "minimum_eigenvalue": -1.8714903288304002e-14,
+            "operator_scale": 142.1498656962152,
+            "relative_minimum": -1.3165614470786162e-16,
+            "passive_at_relative_1e_10": true
+          },
+          "companion_generator_loss": {
+            "minimum_eigenvalue": -1.8339623085252266e-05,
+            "operator_scale": 42424.80940322691,
+            "relative_minimum": -4.3228533830153923e-10,
+            "passive_at_relative_1e_10": false
+          }
+        }
+      }
+    }
+  ],
+  "interfaces": [
+    {
+      "left_layer_index_zero_based": 0,
+      "projection": "direct",
+      "relative_field_continuity_residual": 2.5764790503806086e-15,
+      "power_left": -71.45991623500186,
+      "power_right": -71.45991623499651,
+      "relative_interface_power_jump": 3.007915386560624e-16
+    },
+    {
+      "left_layer_index_zero_based": 0,
+      "projection": "galerkin",
+      "relative_field_continuity_residual": 4.320876018756014e-14,
+      "power_left": -79.16516026870733,
+      "power_right": -79.16516026887831,
+      "relative_interface_power_jump": 9.61040542689882e-15
+    },
+    {
+      "left_layer_index_zero_based": 150,
+      "projection": "direct",
+      "relative_field_continuity_residual": 2.0543559690136155e-15,
+      "power_left": -31.081893879527513,
+      "power_right": -31.08189387952848,
+      "relative_interface_power_jump": 7.758052174316442e-17
+    },
+    {
+      "left_layer_index_zero_based": 150,
+      "projection": "galerkin",
+      "relative_field_continuity_residual": 2.0715641644866816e-15,
+      "power_left": 24.444359691191835,
+      "power_right": 24.44435969119229,
+      "relative_interface_power_jump": 3.6492264184270746e-17
+    },
+    {
+      "left_layer_index_zero_based": 299,
+      "projection": "direct",
+      "relative_field_continuity_residual": 1.7002692696766507e-15,
+      "power_left": 923.2228207304008,
+      "power_right": 923.2228207304001,
+      "relative_interface_power_jump": 6.988152133142807e-17
+    },
+    {
+      "left_layer_index_zero_based": 299,
+      "projection": "galerkin",
+      "relative_field_continuity_residual": 1.5539376977730725e-15,
+      "power_left": 846.2492555159749,
+      "power_right": 846.2492555159747,
+      "relative_interface_power_jump": 2.319940657677548e-17
+    }
+  ],
+  "scope": "Stage audit at sampled layers and interfaces; independent of a full-stack port residual."
+}
