@@ -219,6 +219,12 @@ def main(argv=None, default_study="all"):
             print("threadpoolctl is unavailable; BLAS thread settings are inherited", flush=True)
         execution = resolve_execution(args.device, args.backend)
     outputs = {}
+    asr_case, cleanup = scalar_case, None
+    if execution.get("backend") == "torch" and not (args.prepare_only or args.report_only):
+        from .streaming_gpu import scalar_case_streamed, release_unused_cuda
+        asr_case, cleanup = scalar_case_streamed, release_unused_cuda
+        print(f"ASR memory: one large prepared layer at a time on {execution['device']}; "
+              "retaining production TE/TM modal traces only", flush=True)
     with context:
         for study in selected:
             config, material_model, config_path = load_study(study, args.config)
@@ -275,18 +281,25 @@ def main(argv=None, default_study="all"):
                         if series == "li":
                             case = existing_li_case(study, config, slices, order, wave, materials, execution["device"])
                         else:
-                            case = scalar_case(study, config, slices, order, wave, materials, oversampling=ratio,
+                            case = asr_case(study, config, slices, order, wave, materials, oversampling=ratio,
                                                G=args.G, quadrature=args.quadrature, device=execution["device"],
                                                backend=execution["backend"], diagnostics=args.diagnostics,
                                                q_projection=args.q_projection)
                         print(f"  saved in {case['runtime_seconds']:.2f} s: " +
                               "; ".join(f"{p} R={v['reflectance']:.7g}" for p, v in case["polarizations"].items()), flush=True)
+                        memory = case.get("memory", {})
+                        if "peak_allocated_bytes" in memory:
+                            print(f"  GPU peak: allocated={memory['peak_allocated_bytes']/2**30:.3f} GiB; "
+                                  f"reserved={memory['peak_reserved_bytes']/2**30:.3f} GiB; "
+                                  f"modal traces={memory['retained_modal_bytes']/2**30:.3f} GiB", flush=True)
                     except (ArithmeticError, RuntimeError, ValueError) as exc:
                         case = dict(order=order, slices=slices, wavelength_nm=wave, method=series,
                                     error=f"{type(exc).__name__}: {exc}", polarizations={})
                         print(f"  calculation failed: {case['error']}", flush=True)
                     checkpoint["cases"][key] = case
                     save_json(path, checkpoint)
+                    if cleanup is not None:
+                        cleanup(execution["device"])
             export(study, output, checkpoint, plan)
         if len(selected) == 2 and not args.prepare_only:
             from .overview import plot_overview
