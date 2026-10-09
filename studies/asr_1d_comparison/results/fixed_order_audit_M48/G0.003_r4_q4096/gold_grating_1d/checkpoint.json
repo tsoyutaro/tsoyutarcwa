@@ -1,0 +1,854 @@
+{
+  "signature": "4f229d76e012ab5ce55391941e2d91e2b11c61de3609b7f548b1d48ca50fa334",
+  "inputs": {
+    "study": "gold_grating_1d",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "top_width_nm": 10.0,
+      "bottom_width_nm": 190.0,
+      "profile_power": 1.0
+    },
+    "source_sha256": {
+      "paper_reproductions/vallius2002/devices.py": "7967e72f2cff054bc74d38f33a2bdeed48d9340a70d046f2e87c987e27ed574a",
+      "paper_reproductions/vallius2002/solver.py": "3befefcf1e207e614b218769758d1e389c6123ed2ffbd4ebd1100895f097f5bd",
+      "paper_reproductions/vallius2002/torch_backend.py": "eda2df16691e4a319ba3fe8453a37004263e6578feaaa94d188ba8f63e58956f",
+      "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+      "rcwa_ext/asr.py": "4917b39f60cf6d53c060ddf5d09c3b484fc822ab2a1ef5365edb4d51d26dd82e",
+      "rcwa_ext/asr_maps.py": "3dd35a4714a0f3e1eb2785b2e588464263c2692300c5545e19684049fde23ed4",
+      "rcwa_ext/auto.py": "b01853630cbc92765f7e553a542976c71684bea4422f7cdbe473008aca8b6f79",
+      "rcwa_ext/config.py": "7dd514744bb64c78aab0e9da42be1f5f60ea0066ba6921a59649972a5553b51a",
+      "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+      "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+      "rcwa_ext/reduced.py": "683a241f1b0cd2a37cac50d6a9c012d827f0da3c56d3d135c1b9a3825cc74209",
+      "rcwa_ext/scattering.py": "72fa7c523a84705b631a4264e235e6f874055d39c2bf4927387d388021a5de25",
+      "rcwa_ext/symmetry.py": "acc71992589157c0f3bd9115731fe3f91a1ea438fb0fb43289994a7d60edbc7f",
+      "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+      "studies/asr_1d_comparison/adapters.py": "6b09a73ab939c0ef64c3a4a1952e8e2cfe20263ca09eeb3f8fed142f01e838cf",
+      "studies/gold_grating_1d/common.py": "3a0a572d66a212309e97712701cac6b2b7d603bc67671d2cafac82f9189a1967",
+      "studies/gold_grating_1d/solver.py": "7a985a94294668eac8fdb5aa5a8bcf1148e8398172c520697dc11ef59a74da4c",
+      "studies/shared/gold_dispersion.py": "9e2be950cc9ecc0bb02548e0b6035dc7648197507b238a4b4f40736ab43b8297"
+    },
+    "material_sha256": {
+      "au_measured_nk.csv": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99"
+    },
+    "pmma_extension": null,
+    "G": 0.003,
+    "quadrature_minimum": 4096,
+    "retention": "smallest_abs",
+    "q_projection": "galerkin",
+    "dtype": "complex128",
+    "incidence": "normal",
+    "li_coefficients": "analytic"
+  },
+  "cases": {
+    "li|420|48|650": {
+      "order": 48,
+      "slices": 420,
+      "grid": 576,
+      "wavelength_nm": 650.0,
+      "coefficient_method": "analytic",
+      "grid_used": null,
+      "epsilon_gold_real": -12.983804140515222,
+      "epsilon_gold_imag": 1.110599344262295,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.8956458571010639,
+          "power_into_substrate": 1.4770589181176074e-09,
+          "relief_absorptance": 0.10435414142187716,
+          "absorptance_total": 0.10435414289893608
+        },
+        "TM": {
+          "reflectance": 0.677265236192509,
+          "power_into_substrate": 0.07970735275119092,
+          "relief_absorptance": 0.24302741105630007,
+          "absorptance_total": 0.322734763807491
+        }
+      },
+      "runtime_seconds": 14.972573443781585,
+      "maximum_fill_fraction_error_all_layers": null,
+      "selected_layer_diagnostics": [
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 97,
+          "normal_epsilon_reciprocal_condition": 47.82944301455872,
+          "electric_eigenvector_condition": 20.72729107590344,
+          "magnetic_eigenvector_condition": 35668.35329024763,
+          "relative_eigen_residual": 6.664824796144688e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0143684483074953,
+              "magnetic_eigenvector_condition": 243.51768337387756,
+              "relative_eigen_residual": 4.6981881447273755e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 20.72729107590344,
+              "magnetic_eigenvector_condition": 228.77877657891105,
+              "relative_eigen_residual": 7.763648419256763e-15
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 1,
+          "width_nm": 10.214285714285714
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 97,
+          "normal_epsilon_reciprocal_condition": 81.6099679370469,
+          "electric_eigenvector_condition": 3.11226992580184,
+          "magnetic_eigenvector_condition": 32945.038757581664,
+          "relative_eigen_residual": 7.181712828817516e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0462018943680336,
+              "magnetic_eigenvector_condition": 90.42778821519269,
+              "relative_eigen_residual": 4.03414764498039e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 3.11226992580184,
+              "magnetic_eigenvector_condition": 413.4703488282296,
+              "relative_eigen_residual": 8.034392483220078e-15
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 210,
+          "width_nm": 99.78571428571429
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 97,
+          "normal_epsilon_reciprocal_condition": 34.389209750962024,
+          "electric_eigenvector_condition": 25.345851571861427,
+          "magnetic_eigenvector_condition": 27713.321173905166,
+          "relative_eigen_residual": 7.46068306894541e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0216776346963434,
+              "magnetic_eigenvector_condition": 44.7891947069965,
+              "relative_eigen_residual": 4.4700978861667065e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 25.345851571861427,
+              "magnetic_eigenvector_condition": 512.0290503800031,
+              "relative_eigen_residual": 8.999421054059372e-15
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 420,
+          "width_nm": 189.78571428571428
+        }
+      ],
+      "fourier_orders_x": 97,
+      "fourier_orders_y": 1,
+      "polarization_separated": true,
+      "eigenproblem_dimension_per_polarization": 97,
+      "environment": {
+        "torch": "2.6.0+cu124",
+        "device": "cuda:0",
+        "cuda": "12.4",
+        "gpu": "NVIDIA H100 MIG 3g.47gb"
+      },
+      "peak_cuda_allocated_bytes": 51590656,
+      "peak_cuda_reserved_bytes": 56623104,
+      "transmittance_far": 0.0,
+      "method": "li",
+      "oversampling": 1,
+      "harmonics": 97,
+      "eigen_dimension": 97
+    },
+    "li|420|48|700": {
+      "order": 48,
+      "slices": 420,
+      "grid": 576,
+      "wavelength_nm": 700.0,
+      "coefficient_method": "analytic",
+      "grid_used": null,
+      "epsilon_gold_real": -16.500759,
+      "epsilon_gold_imag": 1.063618,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.9300007448170858,
+          "power_into_substrate": 4.2537842698115924e-10,
+          "relief_absorptance": 0.06999925475753574,
+          "absorptance_total": 0.06999925518291417
+        },
+        "TM": {
+          "reflectance": 0.7641021609310512,
+          "power_into_substrate": 0.05780967857932243,
+          "relief_absorptance": 0.17808816048962636,
+          "absorptance_total": 0.2358978390689488
+        }
+      },
+      "runtime_seconds": 7.583806473296136,
+      "maximum_fill_fraction_error_all_layers": null,
+      "selected_layer_diagnostics": [
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 97,
+          "normal_epsilon_reciprocal_condition": 167.27911400579345,
+          "electric_eigenvector_condition": 15.957397375253949,
+          "magnetic_eigenvector_condition": 37190.74323264123,
+          "relative_eigen_residual": 2.0259121166161755e-14,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0116637988603032,
+              "magnetic_eigenvector_condition": 321.62534453101904,
+              "relative_eigen_residual": 3.935359740033879e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 15.957397375253949,
+              "magnetic_eigenvector_condition": 221.5709161921609,
+              "relative_eigen_residual": 2.304683421232551e-14
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 1,
+          "width_nm": 10.214285714285714
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 97,
+          "normal_epsilon_reciprocal_condition": 172.13768186599427,
+          "electric_eigenvector_condition": 3.070416612315112,
+          "magnetic_eigenvector_condition": 47816.71518620087,
+          "relative_eigen_residual": 5.298229498912671e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0357677251882067,
+              "magnetic_eigenvector_condition": 86.36283764591181,
+              "relative_eigen_residual": 4.172298194392611e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 3.070416612315112,
+              "magnetic_eigenvector_condition": 626.8803942517187,
+              "relative_eigen_residual": 5.4689017620028514e-15
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 210,
+          "width_nm": 99.78571428571429
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 97,
+          "normal_epsilon_reciprocal_condition": 73.89864968338718,
+          "electric_eigenvector_condition": 33.13563689522383,
+          "magnetic_eigenvector_condition": 47501.73884083901,
+          "relative_eigen_residual": 3.227894400790425e-14,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0181068762838932,
+              "magnetic_eigenvector_condition": 42.81981288075331,
+              "relative_eigen_residual": 4.281480114644465e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 33.13563689522383,
+              "magnetic_eigenvector_condition": 926.3476836791863,
+              "relative_eigen_residual": 3.6813366124210867e-14
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 420,
+          "width_nm": 189.78571428571428
+        }
+      ],
+      "fourier_orders_x": 97,
+      "fourier_orders_y": 1,
+      "polarization_separated": true,
+      "eigenproblem_dimension_per_polarization": 97,
+      "environment": {
+        "torch": "2.6.0+cu124",
+        "device": "cuda:0",
+        "cuda": "12.4",
+        "gpu": "NVIDIA H100 MIG 3g.47gb"
+      },
+      "peak_cuda_allocated_bytes": 51590656,
+      "peak_cuda_reserved_bytes": 56623104,
+      "transmittance_far": 0.0,
+      "method": "li",
+      "oversampling": 1,
+      "harmonics": 97,
+      "eigen_dimension": 97
+    },
+    "li|420|88|650": {
+      "order": 88,
+      "slices": 420,
+      "grid": 576,
+      "wavelength_nm": 650.0,
+      "coefficient_method": "analytic",
+      "grid_used": null,
+      "epsilon_gold_real": -12.983804140515222,
+      "epsilon_gold_imag": 1.110599344262295,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.8956460789774099,
+          "power_into_substrate": 1.477075265881137e-09,
+          "relief_absorptance": 0.10435391954551484,
+          "absorptance_total": 0.10435392102259011
+        },
+        "TM": {
+          "reflectance": 0.6736051010134237,
+          "power_into_substrate": 0.07961545740614771,
+          "relief_absorptance": 0.24677944158042853,
+          "absorptance_total": 0.32639489898657625
+        }
+      },
+      "runtime_seconds": 26.610682105645537,
+      "maximum_fill_fraction_error_all_layers": null,
+      "selected_layer_diagnostics": [
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 177,
+          "normal_epsilon_reciprocal_condition": 90.84152923305834,
+          "electric_eigenvector_condition": 14.286101589379358,
+          "magnetic_eigenvector_condition": 181883.500031163,
+          "relative_eigen_residual": 2.218941643539462e-14,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.014368267997135,
+              "magnetic_eigenvector_condition": 446.4489244181528,
+              "relative_eigen_residual": 5.5427218475675134e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 14.286101589379358,
+              "magnetic_eigenvector_condition": 635.9307615503169,
+              "relative_eigen_residual": 2.4180606786175114e-14
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 1,
+          "width_nm": 10.214285714285714
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 177,
+          "normal_epsilon_reciprocal_condition": 61.11086657274255,
+          "electric_eigenvector_condition": 3.6576913132446203,
+          "magnetic_eigenvector_condition": 129399.02708027174,
+          "relative_eigen_residual": 6.622354340435652e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.046201878246466,
+              "magnetic_eigenvector_condition": 165.76953296328003,
+              "relative_eigen_residual": 5.506915628117892e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 3.6576913132446203,
+              "magnetic_eigenvector_condition": 885.2913227363085,
+              "relative_eigen_residual": 7.171684063004414e-15
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 210,
+          "width_nm": 99.78571428571429
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 177,
+          "normal_epsilon_reciprocal_condition": 156.24963472258747,
+          "electric_eigenvector_condition": 22.421891419263385,
+          "magnetic_eigenvector_condition": 133839.96837491388,
+          "relative_eigen_residual": 2.736530769750709e-14,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0216779509561909,
+              "magnetic_eigenvector_condition": 82.09898452084184,
+              "relative_eigen_residual": 4.9715831920782434e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 22.421891419263385,
+              "magnetic_eigenvector_condition": 1345.0083545278244,
+              "relative_eigen_residual": 2.9896038548992365e-14
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 420,
+          "width_nm": 189.78571428571428
+        }
+      ],
+      "fourier_orders_x": 177,
+      "fourier_orders_y": 1,
+      "polarization_separated": true,
+      "eigenproblem_dimension_per_polarization": 177,
+      "environment": {
+        "torch": "2.6.0+cu124",
+        "device": "cuda:0",
+        "cuda": "12.4",
+        "gpu": "NVIDIA H100 MIG 3g.47gb"
+      },
+      "peak_cuda_allocated_bytes": 94909952,
+      "peak_cuda_reserved_bytes": 106954752,
+      "transmittance_far": 0.0,
+      "method": "li",
+      "oversampling": 1,
+      "harmonics": 177,
+      "eigen_dimension": 177
+    },
+    "li|420|88|700": {
+      "order": 88,
+      "slices": 420,
+      "grid": 576,
+      "wavelength_nm": 700.0,
+      "coefficient_method": "analytic",
+      "grid_used": null,
+      "epsilon_gold_real": -16.500759,
+      "epsilon_gold_imag": 1.063618,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.9300009163385206,
+          "power_into_substrate": 4.2538366198549233e-10,
+          "relief_absorptance": 0.06999908323609579,
+          "absorptance_total": 0.06999908366147944
+        },
+        "TM": {
+          "reflectance": 0.7591888503809517,
+          "power_into_substrate": 0.05783273132459693,
+          "relief_absorptance": 0.18297841829445133,
+          "absorptance_total": 0.24081114961904826
+        }
+      },
+      "runtime_seconds": 26.04437956167385,
+      "maximum_fill_fraction_error_all_layers": null,
+      "selected_layer_diagnostics": [
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 177,
+          "normal_epsilon_reciprocal_condition": 143.16759391671908,
+          "electric_eigenvector_condition": 14.826604339364772,
+          "magnetic_eigenvector_condition": 182202.880187156,
+          "relative_eigen_residual": 1.1072344369982724e-14,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0116636420940992,
+              "magnetic_eigenvector_condition": 589.6422524934626,
+              "relative_eigen_residual": 5.323161848852303e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 14.826604339364772,
+              "magnetic_eigenvector_condition": 591.7327982119698,
+              "relative_eigen_residual": 1.1989444969485467e-14
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 1,
+          "width_nm": 10.214285714285714
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 177,
+          "normal_epsilon_reciprocal_condition": 33.138477729327626,
+          "electric_eigenvector_condition": 3.494295001549708,
+          "magnetic_eigenvector_condition": 227009.86485583338,
+          "relative_eigen_residual": 6.045831749366586e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0357677168133772,
+              "magnetic_eigenvector_condition": 158.31633798659755,
+              "relative_eigen_residual": 5.651533849033783e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 3.494295001549708,
+              "magnetic_eigenvector_condition": 1622.361931945764,
+              "relative_eigen_residual": 6.1950090034940305e-15
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 210,
+          "width_nm": 99.78571428571429
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 177,
+          "normal_epsilon_reciprocal_condition": 57.603377105154806,
+          "electric_eigenvector_condition": 18.25507419210335,
+          "magnetic_eigenvector_condition": 133368.52856932522,
+          "relative_eigen_residual": 3.434233899591462e-14,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0181071611452337,
+              "magnetic_eigenvector_condition": 78.48774758291066,
+              "relative_eigen_residual": 5.885685862712041e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 18.25507419210335,
+              "magnetic_eigenvector_condition": 1414.9944678825784,
+              "relative_eigen_residual": 3.789985100365941e-14
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 420,
+          "width_nm": 189.78571428571428
+        }
+      ],
+      "fourier_orders_x": 177,
+      "fourier_orders_y": 1,
+      "polarization_separated": true,
+      "eigenproblem_dimension_per_polarization": 177,
+      "environment": {
+        "torch": "2.6.0+cu124",
+        "device": "cuda:0",
+        "cuda": "12.4",
+        "gpu": "NVIDIA H100 MIG 3g.47gb"
+      },
+      "peak_cuda_allocated_bytes": 94909952,
+      "peak_cuda_reserved_bytes": 106954752,
+      "transmittance_far": 0.0,
+      "method": "li",
+      "oversampling": 1,
+      "harmonics": 177,
+      "eigen_dimension": 177
+    },
+    "li|420|96|650": {
+      "order": 96,
+      "slices": 420,
+      "grid": 576,
+      "wavelength_nm": 650.0,
+      "coefficient_method": "analytic",
+      "grid_used": null,
+      "epsilon_gold_real": -12.983804140515222,
+      "epsilon_gold_imag": 1.110599344262295,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.8956460887722053,
+          "power_into_substrate": 1.4770759918140544e-09,
+          "relief_absorptance": 0.1043539097507187,
+          "absorptance_total": 0.1043539112277947
+        },
+        "TM": {
+          "reflectance": 0.6736465999208912,
+          "power_into_substrate": 0.07984455114189554,
+          "relief_absorptance": 0.2465088489372133,
+          "absorptance_total": 0.32635340007910885
+        }
+      },
+      "runtime_seconds": 31.399740028195083,
+      "maximum_fill_fraction_error_all_layers": null,
+      "selected_layer_diagnostics": [
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 193,
+          "normal_epsilon_reciprocal_condition": 47.292434529222184,
+          "electric_eigenvector_condition": 13.319162627196665,
+          "magnetic_eigenvector_condition": 184653.07195864266,
+          "relative_eigen_residual": 3.0147832805492386e-14,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0143682591221714,
+              "magnetic_eigenvector_condition": 487.0352481039178,
+              "relative_eigen_residual": 5.941966299683884e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 13.319162627196665,
+              "magnetic_eigenvector_condition": 591.7738860168832,
+              "relative_eigen_residual": 3.823583594239161e-14
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 1,
+          "width_nm": 10.214285714285714
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 193,
+          "normal_epsilon_reciprocal_condition": 48.535261865877445,
+          "electric_eigenvector_condition": 3.8644533549420674,
+          "magnetic_eigenvector_condition": 157333.0540132545,
+          "relative_eigen_residual": 7.797085815196618e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0462018775248938,
+              "magnetic_eigenvector_condition": 180.83838582024214,
+              "relative_eigen_residual": 6.263859012461887e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 3.8644533549420674,
+              "magnetic_eigenvector_condition": 986.6389542325825,
+              "relative_eigen_residual": 8.64482916057915e-15
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 210,
+          "width_nm": 99.78571428571429
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 193,
+          "normal_epsilon_reciprocal_condition": 54.02456664124087,
+          "electric_eigenvector_condition": 16.340198004606798,
+          "magnetic_eigenvector_condition": 123843.56158628958,
+          "relative_eigen_residual": 9.00947461270322e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0216779665292677,
+              "magnetic_eigenvector_condition": 89.56146099520855,
+              "relative_eigen_residual": 5.21993118783743e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 16.340198004606798,
+              "magnetic_eigenvector_condition": 1140.4801218006091,
+              "relative_eigen_residual": 1.0738409628310004e-14
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 420,
+          "width_nm": 189.78571428571428
+        }
+      ],
+      "fourier_orders_x": 193,
+      "fourier_orders_y": 1,
+      "polarization_separated": true,
+      "eigenproblem_dimension_per_polarization": 193,
+      "environment": {
+        "torch": "2.6.0+cu124",
+        "device": "cuda:0",
+        "cuda": "12.4",
+        "gpu": "NVIDIA H100 MIG 3g.47gb"
+      },
+      "peak_cuda_allocated_bytes": 106283008,
+      "peak_cuda_reserved_bytes": 148897792,
+      "transmittance_far": 0.0,
+      "method": "li",
+      "oversampling": 1,
+      "harmonics": 193,
+      "eigen_dimension": 193
+    },
+    "li|420|96|700": {
+      "order": 96,
+      "slices": 420,
+      "grid": 576,
+      "wavelength_nm": 700.0,
+      "coefficient_method": "analytic",
+      "grid_used": null,
+      "epsilon_gold_real": -16.500759,
+      "epsilon_gold_imag": 1.063618,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.9300009239068815,
+          "power_into_substrate": 4.253838944321441e-10,
+          "relief_absorptance": 0.06999907566773461,
+          "absorptance_total": 0.0699990760931185
+        },
+        "TM": {
+          "reflectance": 0.758723941360153,
+          "power_into_substrate": 0.05780130640548468,
+          "relief_absorptance": 0.18347475223436235,
+          "absorptance_total": 0.24127605863984702
+        }
+      },
+      "runtime_seconds": 31.162685775663704,
+      "maximum_fill_fraction_error_all_layers": null,
+      "selected_layer_diagnostics": [
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 193,
+          "normal_epsilon_reciprocal_condition": 28.46710882966056,
+          "electric_eigenvector_condition": 21.202104811700405,
+          "magnetic_eigenvector_condition": 281590.0676630372,
+          "relative_eigen_residual": 6.141742154424866e-14,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.011663634379049,
+              "magnetic_eigenvector_condition": 643.245930505792,
+              "relative_eigen_residual": 5.927463012789166e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 21.202104811700405,
+              "magnetic_eigenvector_condition": 838.246226469056,
+              "relative_eigen_residual": 6.624069479200937e-14
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 1,
+          "width_nm": 10.214285714285714
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 193,
+          "normal_epsilon_reciprocal_condition": 28.923575515206412,
+          "electric_eigenvector_condition": 3.655973037251201,
+          "magnetic_eigenvector_condition": 282144.920904783,
+          "relative_eigen_residual": 6.9082857104470925e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.035767716436809,
+              "magnetic_eigenvector_condition": 172.70757532666892,
+              "relative_eigen_residual": 6.114347202135786e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 3.655973037251201,
+              "magnetic_eigenvector_condition": 1848.2367264534653,
+              "relative_eigen_residual": 7.189256695386338e-15
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 210,
+          "width_nm": 99.78571428571429
+        },
+        {
+          "polarization_separated": true,
+          "eigenproblem_dimension_per_polarization": 193,
+          "normal_epsilon_reciprocal_condition": 232.7265715899791,
+          "electric_eigenvector_condition": 42.31242250928082,
+          "magnetic_eigenvector_condition": 226438.03851102086,
+          "relative_eigen_residual": 7.84562899603896e-15,
+          "polarization_diagnostics": {
+            "TE": {
+              "electric_eigenvector_condition": 1.0181071751745137,
+              "magnetic_eigenvector_condition": 85.62187885626366,
+              "relative_eigen_residual": 5.654678569841588e-15
+            },
+            "TM": {
+              "electric_eigenvector_condition": 42.31242250928082,
+              "magnetic_eigenvector_condition": 2201.599512068429,
+              "relative_eigen_residual": 8.15034555292681e-15
+            }
+          },
+          "sampled_fill_fraction": null,
+          "fill_fraction_error": null,
+          "layer": 420,
+          "width_nm": 189.78571428571428
+        }
+      ],
+      "fourier_orders_x": 193,
+      "fourier_orders_y": 1,
+      "polarization_separated": true,
+      "eigenproblem_dimension_per_polarization": 193,
+      "environment": {
+        "torch": "2.6.0+cu124",
+        "device": "cuda:0",
+        "cuda": "12.4",
+        "gpu": "NVIDIA H100 MIG 3g.47gb"
+      },
+      "peak_cuda_allocated_bytes": 106283008,
+      "peak_cuda_reserved_bytes": 148897792,
+      "transmittance_far": 0.0,
+      "method": "li",
+      "oversampling": 1,
+      "harmonics": 193,
+      "eigen_dimension": 193
+    },
+    "asr_r4|420|48|650": {
+      "order": 48,
+      "harmonics": 97,
+      "slices": 420,
+      "total_finite_layers": 420,
+      "wavelength_nm": 650.0,
+      "method": "asr",
+      "oversampling": 4,
+      "eigen_dimension": 388,
+      "G": 0.003,
+      "q_projection": "galerkin",
+      "quadrature_actual": 4096,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.8956461387353698,
+          "power_into_substrate": 1.4770794202610817e-09,
+          "relief_absorptance": 0.10435385978755078,
+          "absorptance_total": 0.1043538612646302,
+          "transmittance_far": 0.0
+        },
+        "TM": {
+          "reflectance": 0.6787851994007327,
+          "power_into_substrate": 0.08054501629900399,
+          "relief_absorptance": 0.24066978430026334,
+          "absorptance_total": 0.3212148005992673,
+          "transmittance_far": 0.0
+        }
+      },
+      "diagnostics": {
+        "TE": {
+          "max_boundary_condition": 931.1139398140999,
+          "cutoff_regularized": false
+        },
+        "TM": {
+          "max_boundary_condition": 50606.666792964425,
+          "cutoff_regularized": false
+        }
+      },
+      "execution": {
+        "requested_device": "cuda:0",
+        "requested_backend": "torch",
+        "device": "cuda:0",
+        "backend": "torch",
+        "dtype": "complex128",
+        "device_name": "NVIDIA H100 MIG 3g.47gb",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4",
+        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
+        "selection_reason": "explicit CUDA selection"
+      },
+      "runtime_seconds": 723.9552172371186,
+      "coefficient_method": "adaptive quadrature"
+    },
+    "asr_r4|420|48|700": {
+      "order": 48,
+      "harmonics": 97,
+      "slices": 420,
+      "total_finite_layers": 420,
+      "wavelength_nm": 700.0,
+      "method": "asr",
+      "oversampling": 4,
+      "eigen_dimension": 388,
+      "G": 0.003,
+      "q_projection": "galerkin",
+      "quadrature_actual": 4096,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.9300009625526424,
+          "power_into_substrate": 4.2538499335829175e-10,
+          "relief_absorptance": 0.06999903702197259,
+          "absorptance_total": 0.06999903744735758,
+          "transmittance_far": 0.0
+        },
+        "TM": {
+          "reflectance": 0.766747531037007,
+          "power_into_substrate": 0.058471483453039,
+          "relief_absorptance": 0.17478098550995402,
+          "absorptance_total": 0.233252468962993,
+          "transmittance_far": 0.0
+        }
+      },
+      "diagnostics": {
+        "TE": {
+          "max_boundary_condition": 1094.588344858605,
+          "cutoff_regularized": false
+        },
+        "TM": {
+          "max_boundary_condition": 26554.52088420376,
+          "cutoff_regularized": false
+        }
+      },
+      "execution": {
+        "requested_device": "cuda:0",
+        "requested_backend": "torch",
+        "device": "cuda:0",
+        "backend": "torch",
+        "dtype": "complex128",
+        "device_name": "NVIDIA H100 MIG 3g.47gb",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4",
+        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
+        "selection_reason": "explicit CUDA selection"
+      },
+      "runtime_seconds": 556.644143293146,
+      "coefficient_method": "adaptive quadrature"
+    }
+  }
+}

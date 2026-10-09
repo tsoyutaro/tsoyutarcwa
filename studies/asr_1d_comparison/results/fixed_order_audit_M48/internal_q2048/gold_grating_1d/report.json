@@ -1,0 +1,146 @@
+{
+  "plan": {
+    "study": "gold_grating_1d",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "top_width_nm": 10.0,
+      "bottom_width_nm": 190.0,
+      "profile_power": 1.0
+    },
+    "config_path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_grating_1d/config.json",
+    "orders": [
+      48
+    ],
+    "asr_ratios": [
+      3,
+      4,
+      5
+    ],
+    "slices": 420,
+    "wavelengths_nm": [
+      650.0,
+      700.0
+    ],
+    "reference_order": 96,
+    "reference_check_order": 88,
+    "G": 0.001,
+    "quadrature_requested_minimum": 2048,
+    "q_projection": "galerkin",
+    "tolerance": 0.005,
+    "passivity_tolerance": 1e-07,
+    "execution": {
+      "requested_device": "cuda",
+      "requested_backend": "auto",
+      "device": "cuda:0",
+      "backend": "torch",
+      "dtype": "complex128",
+      "device_name": "NVIDIA H100 MIG 3g.47gb",
+      "torch_version": "2.6.0+cu124",
+      "cuda_version": "12.4",
+      "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
+      "selection_reason": "explicit CUDA selection"
+    },
+    "cpu_threads": 1,
+    "inputs": {
+      "study": "gold_grating_1d",
+      "geometry": {
+        "period_nm": 200.0,
+        "height_nm": 500.0,
+        "top_width_nm": 10.0,
+        "bottom_width_nm": 190.0,
+        "profile_power": 1.0
+      },
+      "source_sha256": {
+        "paper_reproductions/vallius2002/devices.py": "7967e72f2cff054bc74d38f33a2bdeed48d9340a70d046f2e87c987e27ed574a",
+        "paper_reproductions/vallius2002/solver.py": "3befefcf1e207e614b218769758d1e389c6123ed2ffbd4ebd1100895f097f5bd",
+        "paper_reproductions/vallius2002/torch_backend.py": "eda2df16691e4a319ba3fe8453a37004263e6578feaaa94d188ba8f63e58956f",
+        "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+        "rcwa_ext/asr.py": "4917b39f60cf6d53c060ddf5d09c3b484fc822ab2a1ef5365edb4d51d26dd82e",
+        "rcwa_ext/asr_maps.py": "3dd35a4714a0f3e1eb2785b2e588464263c2692300c5545e19684049fde23ed4",
+        "rcwa_ext/auto.py": "b01853630cbc92765f7e553a542976c71684bea4422f7cdbe473008aca8b6f79",
+        "rcwa_ext/config.py": "7dd514744bb64c78aab0e9da42be1f5f60ea0066ba6921a59649972a5553b51a",
+        "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+        "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+        "rcwa_ext/reduced.py": "683a241f1b0cd2a37cac50d6a9c012d827f0da3c56d3d135c1b9a3825cc74209",
+        "rcwa_ext/scattering.py": "72fa7c523a84705b631a4264e235e6f874055d39c2bf4927387d388021a5de25",
+        "rcwa_ext/symmetry.py": "acc71992589157c0f3bd9115731fe3f91a1ea438fb0fb43289994a7d60edbc7f",
+        "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+        "studies/asr_1d_comparison/adapters.py": "6b09a73ab939c0ef64c3a4a1952e8e2cfe20263ca09eeb3f8fed142f01e838cf",
+        "studies/gold_grating_1d/common.py": "3a0a572d66a212309e97712701cac6b2b7d603bc67671d2cafac82f9189a1967",
+        "studies/gold_grating_1d/solver.py": "7a985a94294668eac8fdb5aa5a8bcf1148e8398172c520697dc11ef59a74da4c",
+        "studies/shared/gold_dispersion.py": "9e2be950cc9ecc0bb02548e0b6035dc7648197507b238a4b4f40736ab43b8297"
+      },
+      "material_sha256": {
+        "au_measured_nk.csv": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99"
+      },
+      "pmma_extension": null,
+      "G": 0.001,
+      "quadrature_minimum": 2048,
+      "retention": "smallest_abs",
+      "q_projection": "galerkin",
+      "dtype": "complex128",
+      "incidence": "normal",
+      "li_coefficients": "analytic"
+    },
+    "material_interpolation": "existing TabulatedGold: linear epsilon",
+    "material_note": null,
+    "material_samples": {
+      "650.0": {
+        "gold": {
+          "real": -12.983804140515222,
+          "imag": 1.110599344262295
+        }
+      },
+      "700.0": {
+        "gold": {
+          "real": -16.500759,
+          "imag": 1.063618
+        }
+      }
+    }
+  },
+  "methods": {
+    "li": {
+      "invalid_polarization_cases": 0,
+      "adjacent_changes": [],
+      "tail_stable_at_tested_wavelengths": false,
+      "last_order_max_absolute_difference_from_finite_reference": 0.005386591744735991,
+      "last_order_complete_and_passive_against_reference": true,
+      "last_order_within_reference_tolerance": false,
+      "tail_and_finite_reference_agree_within_tolerance": false
+    },
+    "asr_r3": {
+      "invalid_polarization_cases": 0,
+      "adjacent_changes": [],
+      "tail_stable_at_tested_wavelengths": false,
+      "last_order_max_absolute_difference_from_finite_reference": 0.008563189040329294,
+      "last_order_complete_and_passive_against_reference": true,
+      "last_order_within_reference_tolerance": false,
+      "tail_and_finite_reference_agree_within_tolerance": false
+    },
+    "asr_r4": {
+      "invalid_polarization_cases": 0,
+      "adjacent_changes": [],
+      "tail_stable_at_tested_wavelengths": false,
+      "last_order_max_absolute_difference_from_finite_reference": 0.008693756116763457,
+      "last_order_complete_and_passive_against_reference": true,
+      "last_order_within_reference_tolerance": false,
+      "tail_and_finite_reference_agree_within_tolerance": false
+    },
+    "asr_r5": {
+      "invalid_polarization_cases": 0,
+      "adjacent_changes": [],
+      "tail_stable_at_tested_wavelengths": false,
+      "last_order_max_absolute_difference_from_finite_reference": 0.008693923018513822,
+      "last_order_complete_and_passive_against_reference": true,
+      "last_order_within_reference_tolerance": false,
+      "tail_and_finite_reference_agree_within_tolerance": false
+    }
+  },
+  "reference_check_max_absolute_change": 0.0004963339399110256,
+  "reference_passivity_ok": true,
+  "finite_reference_stable_at_tolerance": true,
+  "scope": "Fixed geometry slices, selected wavelengths, finite Li reference; not an exact-solution error bound.",
+  "absorption_note": "Absorption is a port-power residual, not an independent volume integral."
+}
