@@ -186,3 +186,32 @@ GPU診断は `projection/cuda_auto/`（既定のCUDA・backend=auto）に保存�
 実行前の検査は `python -m studies.asr_1d_comparison.diagnose_passivity --device cuda --check-only`、
 デバイス診断の検証は `python -m unittest studies.asr_1d_comparison.test_device_diagnostics` です。
 後者はCUDA環境でGPU上の行列を検査し、CUDAがなければGPU試験を明示的にスキップします。
+
+## 保存済みの反射率・透過率・吸収率を図示する
+
+描画スクリプトは `studies/asr_1d_comparison/plot_absolute_powers.py` にあります。
+プロジェクト直下から、次のコマンドで実行します。
+
+```bash
+python -m studies.asr_1d_comparison.plot_absolute_powers
+```
+
+既定の出力先は `studies/asr_1d_comparison/results/absolute_powers/` です。
+`--study pmma_gold_grating_1d` または `--study gold_grating_1d` で構造を選択できます。
+`--output-root` の相対パスは `--project-root`（既定は実行時のディレクトリ）から解決します。
+
+`results/gpu_galerkin/<study>/checkpoint.json` と `plan.json` を読み、
+各波長のR/T/Aの実値を保持次数Mに対して描画します。縦軸0〜1の全体図と線形の拡大版、
+PNG/SVG、表示値CSV、入力の出所JSONを保存します。Matplotlibが必要です。
+保存済み結果の描画なので、RCWAの再計算やCUDA指定は不要です。
+
+元の保持次数掃引はASR内部4Nです。PMMAの固定次数監査
+`fixed_order_audit_M48_r5to7/internal_q4096` と
+`fixed_order_audit_M64_r6to7/internal_q4096` が両方ある場合は、
+内部6N/7NのM48,64の2点も別の図として出力します。
+
+PMMAのTは損失のないPMMA基板への透過電力、A=1−R−Tです。
+金格子は半無限の吸収性Au基板上にあるため、遠方T=0、全吸収A_total=1−Rを図示します。
+基板界面に入る電力P_subと格子部だけの吸収A_reliefは別の物理量です。
+以前の `adjacent_difference.png` は、実値ではなく
+`100 × max_波長 |Q(M) − Q(M_previous)|`（パーセントポイント）を示します。
