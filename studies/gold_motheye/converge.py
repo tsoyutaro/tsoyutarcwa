@@ -185,6 +185,7 @@ def simulate_case(
     use_symmetry: bool,
     symmetry_reduction: str = "d6-source",
     device: torch.device,
+    material_name: str = "Au",
 ) -> dict[str, object]:
     """Run one wavelength/configuration and return flux-normalized observables."""
     started = time.perf_counter()
@@ -273,7 +274,7 @@ def simulate_case(
     output_flux = transmitted_flux / incident_flux
     if semi_infinite and output_flux == 0.0:
         raise RuntimeError(
-            "Power into the Au substrate is exactly zero; the absorption "
+            f"Power into the {material_name} substrate is exactly zero; the absorption "
             "split is unresolved. Check the forward S block and solver."
         )
 
@@ -310,8 +311,8 @@ def simulate_case(
         "order": numerical.order,
         "slices": numerical.slices,
         "grid": numerical.grid,
-        "epsilon_gold_real": epsilon_gold.real,
-        "epsilon_gold_imag": epsilon_gold.imag,
+        ("epsilon_gold_real" if material_name == "Au" else "epsilon_material_real"): epsilon_gold.real,
+        ("epsilon_gold_imag" if material_name == "Au" else "epsilon_material_imag"): epsilon_gold.imag,
         "reflectance": reflectance,
         "transmittance_far": transmission_far,
         "absorptance_total": absorptance_total,
@@ -368,19 +369,27 @@ def _choose_candidate(
     candidates: Sequence[int],
     spectra: dict[int, Sequence[dict[str, object]]],
     tolerance: float,
+    *,
+    reject_unphysical: bool = False,
 ) -> tuple[int, bool, list[dict[str, object]]]:
     comparisons: list[dict[str, object]] = []
     for coarse, fine in zip(candidates, candidates[1:]):
         maximum, per_metric = _adjacent_error(spectra[coarse], spectra[fine])
+        physical_ok = not reject_unphysical or not any(
+            bool(row.get("passivity_warning", False))
+            for row in (*spectra[coarse], *spectra[fine])
+        )
         comparisons.append(
             {
                 "coarse": coarse,
                 "fine": fine,
                 "max_abs_change": maximum,
                 "per_metric": per_metric,
-                "passed": maximum <= tolerance,
+                "passed": maximum <= tolerance and physical_ok,
             }
         )
+        if reject_unphysical:
+            comparisons[-1]["physical_ok"] = physical_ok
     # Two passing steps must reach the largest tested candidate.  An earlier
     # quiet interval followed by a larger change is not convergence.
     suffix_start = len(comparisons)
@@ -404,6 +413,8 @@ class Study:
         device: torch.device,
         checkpoint: Path,
         signature: str,
+        material_name: str = "Au",
+        reject_unphysical: bool = False,
     ) -> None:
         self.geometry = geometry
         self.gold_epsilon = gold_epsilon
@@ -414,6 +425,8 @@ class Study:
         self.device = device
         self.checkpoint = checkpoint
         self.signature = signature
+        self.material_name = material_name
+        self.reject_unphysical = reject_unphysical
         self.cases: dict[str, dict[str, object]] = {}
         if checkpoint.exists():
             payload = json.loads(checkpoint.read_text(encoding="utf-8"))
@@ -461,6 +474,7 @@ class Study:
                 use_symmetry=self.use_symmetry,
                 symmetry_reduction=self.symmetry_reduction,
                 device=self.device,
+                material_name=self.material_name,
             )
             self._write_checkpoint()
         return self.cases[key]
@@ -485,7 +499,8 @@ def _scan_axis(
         values[axis] = candidate
         spectra[candidate] = study.spectrum(NumericalConfig(**values))
     selected, converged, comparisons = _choose_candidate(
-        candidates, spectra, tolerance
+        candidates, spectra, tolerance,
+        reject_unphysical=study.reject_unphysical,
     )
     return selected, converged, {
         "axis": axis,

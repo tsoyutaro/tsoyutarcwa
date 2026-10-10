@@ -68,7 +68,8 @@ def plot_convergence(report: dict, destination: Path, invalid_split: bool) -> No
     axes = [("slices", "Height slices Nz"), ("order", "Fourier order M"),
             ("grid", "ASR grid")]
     width, height = 1320, 815
-    out = [text(48, 55, "Gold moth-eye | convergence", size=30, weight="bold"),
+    material = {"Au": "Gold", "Cr": "Chromium"}.get(report.get("assumptions", {}).get("material", "Au"), "Metal")
+    out = [text(48, 55, f"{material} moth-eye | convergence", size=30, weight="bold"),
            text(48, 86, "Maximum adjacent change over all anchor wavelengths and convergence observables", size=17),
            text(48, 114, f"Criterion: upper-end two consecutive steps <= {tolerance_pp:g} percentage points", size=16)]
     status = report.get("status", "unknown")
@@ -184,7 +185,8 @@ def plot_spectrum(rows: list[dict[str, float]], report: dict, source: Path,
     sparse = len(rows) <= 3
     order_value = rows[0].get("order", report.get("recommendation", {}).get("order", "?"))
     order_label = f"{order_value:g}" if isinstance(order_value, (int, float)) else str(order_value)
-    out = [text(55, 56, "Gold moth-eye | optical response", size=30, weight="bold"),
+    material = {"Au": "Gold", "Cr": "Chromium"}.get(report.get("assumptions", {}).get("material", "Au"), "Metal")
+    out = [text(55, 56, f"{material} moth-eye | optical response", size=30, weight="bold"),
            text(55, 87, f"Source: {source.name}  |  {len(rows)} wavelengths  |  M={order_label}, "
                         f"Nz={report.get('recommendation', {}).get('slices', '?')}, grid={report.get('recommendation', {}).get('grid', '?')}",
                 size=16),
@@ -228,9 +230,12 @@ def plot_spectrum(rows: list[dict[str, float]], report: dict, source: Path,
                        + f'" fill="none" stroke="{color}" stroke-width="2.7"/>')
         out.extend(circle(x, y, radius=5 if sparse else 2.8, fill=color) for x, y in points)
     out.append(text((left + right) / 2, 700, "Wavelength (nm)", size=17, anchor="middle"))
+    symbol = report.get("assumptions", {}).get("material", "Au")
+    semi_infinite = report.get("assumptions", {}).get("geometry", {}).get("substrate_mode", "semi-infinite") == "semi-infinite"
     footer = ("Absorption split suppressed: forward transmission was not computed."
               if invalid_split else
-              "For a semi-infinite Au substrate, T far = 0 and A total = A moth-eye + A substrate.")
+              f"For a semi-infinite {symbol} substrate, T far = 0 and A total = A moth-eye + A substrate."
+              if semi_infinite else "Finite metal film: A total = 1 - R - T far.")
     out.append(text(55, 722, footer,
                     size=14, fill="#475569"))
     destination.write_text(svg_document(width, height, out), encoding="utf-8")

@@ -1,0 +1,87 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "CSV units, samples, interpolation, invalid-data rejection and physical convergence gate",
+      "passed": true
+    },
+    {
+      "name": "Flat air/Cr Fresnel interface 400 nm",
+      "passed": true,
+      "max_error": 0.0,
+      "R": 0.531572772060506,
+      "P_sub": 0.46842722793949404
+    },
+    {
+      "name": "Flat air/Cr Fresnel interface 550 nm",
+      "passed": true,
+      "max_error": 4.440892098500626e-16,
+      "R": 0.5545353366296013,
+      "P_sub": 0.4454646633703992
+    },
+    {
+      "name": "Flat air/Cr Fresnel interface 700 nm",
+      "passed": true,
+      "max_error": 0.0,
+      "R": 0.5621076995400904,
+      "P_sub": 0.43789230045990957
+    },
+    {
+      "name": "Cr patterned stack D6/Cs cross-check",
+      "passed": true,
+      "max_error": 1.2212453270876722e-15,
+      "results": [
+        {
+          "wavelength_nm": 550,
+          "order": 1,
+          "slices": 2,
+          "grid": 64,
+          "epsilon_material_real": -0.9627151515151512,
+          "epsilon_material_imag": 21.181018181818185,
+          "reflectance": 0.3043492914038115,
+          "transmittance_far": 0.0,
+          "absorptance_total": 0.6956507085961885,
+          "motheye_absorptance": 0.5941239708023082,
+          "substrate_absorptance": 0.10152673779388034,
+          "power_into_substrate": 0.10152673779388034,
+          "convergence_metrics": {
+            "reflectance": 0.3043492914038115,
+            "power_into_substrate": 0.10152673779388034,
+            "motheye_absorptance": 0.5941239708023082
+          },
+          "passivity_warning": false,
+          "reduced_dimension": 3,
+          "full_dimension": 18,
+          "symmetry_reduction": "D6-E1-source-row",
+          "symmetry_irrep": "E1",
+          "runtime_seconds": 2.4897819999896456
+        },
+        {
+          "wavelength_nm": 550,
+          "order": 1,
+          "slices": 2,
+          "grid": 64,
+          "epsilon_material_real": -0.9627151515151512,
+          "epsilon_material_imag": 21.181018181818185,
+          "reflectance": 0.3043492914038108,
+          "transmittance_far": 0.0,
+          "absorptance_total": 0.6956507085961892,
+          "motheye_absorptance": 0.5941239708023094,
+          "substrate_absorptance": 0.10152673779387975,
+          "power_into_substrate": 0.10152673779387975,
+          "convergence_metrics": {
+            "reflectance": 0.3043492914038108,
+            "power_into_substrate": 0.10152673779387975,
+            "motheye_absorptance": 0.5941239708023094
+          },
+          "passivity_warning": false,
+          "reduced_dimension": 7,
+          "full_dimension": 18,
+          "symmetry_reduction": "D6-star/Cs(x-mirror)",
+          "symmetry_irrep": null,
+          "runtime_seconds": 0.1241192999877967
+        }
+      ]
+    }
+  ]
+}
