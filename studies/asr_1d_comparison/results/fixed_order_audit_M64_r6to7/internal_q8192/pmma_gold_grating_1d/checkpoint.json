@@ -866,6 +866,246 @@
       "oversampling": 1,
       "harmonics": 257,
       "eigen_dimension": 257
+    },
+    "asr_r6|300|64|650": {
+      "order": 64,
+      "harmonics": 129,
+      "slices": 300,
+      "total_finite_layers": 301,
+      "wavelength_nm": 650.0,
+      "method": "asr",
+      "oversampling": 6,
+      "eigen_dimension": 774,
+      "G": 0.001,
+      "q_projection": "galerkin",
+      "quadrature_actual": 8192,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.9194576395124912,
+          "transmittance": 3.878324238213484e-06,
+          "absorptance": 0.08053848216327063
+        },
+        "TM": {
+          "reflectance": 0.1901108457773939,
+          "transmittance": 0.38169700598036477,
+          "absorptance": 0.42819214824224133
+        }
+      },
+      "diagnostics": {
+        "TE": {
+          "max_boundary_condition": 1074.1784165560935,
+          "cutoff_regularized": false
+        },
+        "TM": {
+          "max_boundary_condition": 444162.6967478216,
+          "cutoff_regularized": false
+        }
+      },
+      "execution": {
+        "requested_device": "cuda:0",
+        "requested_backend": "torch",
+        "device": "cuda:0",
+        "backend": "torch",
+        "dtype": "complex128",
+        "device_name": "NVIDIA H100 MIG 4g.47gb",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4",
+        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
+        "selection_reason": "explicit CUDA selection",
+        "layer_storage": "streamed_production_modal_traces",
+        "coefficient_preparation_device": "cpu",
+        "linear_algebra_device": "cuda:0",
+        "unique_profiles": 301,
+        "large_prepared_layers_live_limit": 1,
+        "residency_controller_sha256": "4cff35307cf287108fbcf5b74bdb9801d3835089f4b9c15288918e1354d99e0b"
+      },
+      "memory": {
+        "retained_modal_bytes": 321814752,
+        "peak_allocated_bytes": 477454848,
+        "peak_reserved_bytes": 526385152
+      },
+      "runtime_seconds": 7357.806848997716,
+      "coefficient_method": "adaptive quadrature"
+    },
+    "asr_r6|300|64|700": {
+      "order": 64,
+      "harmonics": 129,
+      "slices": 300,
+      "total_finite_layers": 301,
+      "wavelength_nm": 700.0,
+      "method": "asr",
+      "oversampling": 6,
+      "eigen_dimension": 774,
+      "G": 0.001,
+      "q_projection": "galerkin",
+      "quadrature_actual": 8192,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.9475119810542041,
+          "transmittance": 8.777951064323363e-07,
+          "absorptance": 0.052487141150689476
+        },
+        "TM": {
+          "reflectance": 0.524170268402415,
+          "transmittance": 0.20814585454230433,
+          "absorptance": 0.2676838770552807
+        }
+      },
+      "diagnostics": {
+        "TE": {
+          "max_boundary_condition": 1085.0239809145396,
+          "cutoff_regularized": false
+        },
+        "TM": {
+          "max_boundary_condition": 768293.6120641782,
+          "cutoff_regularized": false
+        }
+      },
+      "execution": {
+        "requested_device": "cuda:0",
+        "requested_backend": "torch",
+        "device": "cuda:0",
+        "backend": "torch",
+        "dtype": "complex128",
+        "device_name": "NVIDIA H100 MIG 4g.47gb",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4",
+        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
+        "selection_reason": "explicit CUDA selection",
+        "layer_storage": "streamed_production_modal_traces",
+        "coefficient_preparation_device": "cpu",
+        "linear_algebra_device": "cuda:0",
+        "unique_profiles": 301,
+        "large_prepared_layers_live_limit": 1,
+        "residency_controller_sha256": "4cff35307cf287108fbcf5b74bdb9801d3835089f4b9c15288918e1354d99e0b"
+      },
+      "memory": {
+        "retained_modal_bytes": 321814752,
+        "peak_allocated_bytes": 477454848,
+        "peak_reserved_bytes": 526385152
+      },
+      "runtime_seconds": 6288.981676924974,
+      "coefficient_method": "adaptive quadrature"
+    },
+    "asr_r7|300|64|650": {
+      "order": 64,
+      "harmonics": 129,
+      "slices": 300,
+      "total_finite_layers": 301,
+      "wavelength_nm": 650.0,
+      "method": "asr",
+      "oversampling": 7,
+      "eigen_dimension": 903,
+      "G": 0.001,
+      "q_projection": "galerkin",
+      "quadrature_actual": 8192,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.9194576389888411,
+          "transmittance": 3.87832429994477e-06,
+          "absorptance": 0.08053848268685891
+        },
+        "TM": {
+          "reflectance": 0.19011094167298676,
+          "transmittance": 0.3816973268382387,
+          "absorptance": 0.4281917314887746
+        }
+      },
+      "diagnostics": {
+        "TE": {
+          "max_boundary_condition": 1074.1784172227017,
+          "cutoff_regularized": false
+        },
+        "TM": {
+          "max_boundary_condition": 444162.8301408039,
+          "cutoff_regularized": false
+        }
+      },
+      "execution": {
+        "requested_device": "cuda:0",
+        "requested_backend": "torch",
+        "device": "cuda:0",
+        "backend": "torch",
+        "dtype": "complex128",
+        "device_name": "NVIDIA H100 MIG 4g.47gb",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4",
+        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
+        "selection_reason": "explicit CUDA selection",
+        "layer_storage": "streamed_production_modal_traces",
+        "coefficient_preparation_device": "cpu",
+        "linear_algebra_device": "cuda:0",
+        "unique_profiles": 301,
+        "large_prepared_layers_live_limit": 1,
+        "residency_controller_sha256": "4cff35307cf287108fbcf5b74bdb9801d3835089f4b9c15288918e1354d99e0b"
+      },
+      "memory": {
+        "retained_modal_bytes": 321814752,
+        "peak_allocated_bytes": 519187456,
+        "peak_reserved_bytes": 597688320
+      },
+      "runtime_seconds": 12522.139952381141,
+      "coefficient_method": "adaptive quadrature"
+    },
+    "asr_r7|300|64|700": {
+      "order": 64,
+      "harmonics": 129,
+      "slices": 300,
+      "total_finite_layers": 301,
+      "wavelength_nm": 700.0,
+      "method": "asr",
+      "oversampling": 7,
+      "eigen_dimension": 903,
+      "G": 0.001,
+      "q_projection": "galerkin",
+      "quadrature_actual": 8192,
+      "polarizations": {
+        "TE": {
+          "reflectance": 0.9475119795463961,
+          "transmittance": 8.777951031830164e-07,
+          "absorptance": 0.05248714265850072
+        },
+        "TM": {
+          "reflectance": 0.5241701922103987,
+          "transmittance": 0.20814588533200315,
+          "absorptance": 0.2676839224575981
+        }
+      },
+      "diagnostics": {
+        "TE": {
+          "max_boundary_condition": 1085.023980022228,
+          "cutoff_regularized": false
+        },
+        "TM": {
+          "max_boundary_condition": 768293.7289794576,
+          "cutoff_regularized": false
+        }
+      },
+      "execution": {
+        "requested_device": "cuda:0",
+        "requested_backend": "torch",
+        "device": "cuda:0",
+        "backend": "torch",
+        "dtype": "complex128",
+        "device_name": "NVIDIA H100 MIG 4g.47gb",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4",
+        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
+        "selection_reason": "explicit CUDA selection",
+        "layer_storage": "streamed_production_modal_traces",
+        "coefficient_preparation_device": "cpu",
+        "linear_algebra_device": "cuda:0",
+        "unique_profiles": 301,
+        "large_prepared_layers_live_limit": 1,
+        "residency_controller_sha256": "4cff35307cf287108fbcf5b74bdb9801d3835089f4b9c15288918e1354d99e0b"
+      },
+      "memory": {
+        "retained_modal_bytes": 321814752,
+        "peak_allocated_bytes": 519187456,
+        "peak_reserved_bytes": 597688320
+      },
+      "runtime_seconds": 4965.441605600994,
+      "coefficient_method": "adaptive quadrature"
     }
   }
 }
