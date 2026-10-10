@@ -1,5 +1,5 @@
 {
-  "signature": "2311b5814770ad93d2d419197673029dd7b17c7505d20d93aa1743aea60c7e0e",
+  "signature": "68b85dcf6bf0b2b950e889eca5b237397b5a025e9ef001b41dee59d5eced65fd",
   "inputs": {
     "study": "pmma_gold_grating_1d",
     "geometry": {
@@ -43,7 +43,7 @@
     },
     "pmma_extension": "linear_to_400nm",
     "G": 0.001,
-    "quadrature_minimum": 4096,
+    "quadrature_minimum": 8192,
     "retention": "smallest_abs",
     "q_projection": "galerkin",
     "dtype": "complex128",
@@ -171,7 +171,7 @@
           "outer_width_nm": 200.0
         }
       ],
-      "runtime_seconds": 22.82113361498341,
+      "runtime_seconds": 17.868078169878572,
       "fourier_orders_x": 129,
       "fourier_orders_y": 1,
       "environment": {
@@ -307,7 +307,7 @@
           "outer_width_nm": 200.0
         }
       ],
-      "runtime_seconds": 11.350427052937448,
+      "runtime_seconds": 11.31168480264023,
       "fourier_orders_x": 129,
       "fourier_orders_y": 1,
       "environment": {
@@ -443,7 +443,7 @@
           "outer_width_nm": 200.0
         }
       ],
-      "runtime_seconds": 36.61480127135292,
+      "runtime_seconds": 36.70567098585889,
       "fourier_orders_x": 241,
       "fourier_orders_y": 1,
       "environment": {
@@ -579,7 +579,7 @@
           "outer_width_nm": 200.0
         }
       ],
-      "runtime_seconds": 36.608362677972764,
+      "runtime_seconds": 36.665380659047514,
       "fourier_orders_x": 241,
       "fourier_orders_y": 1,
       "environment": {
@@ -715,7 +715,7 @@
           "outer_width_nm": 200.0
         }
       ],
-      "runtime_seconds": 43.83906837925315,
+      "runtime_seconds": 44.01933693885803,
       "fourier_orders_x": 257,
       "fourier_orders_y": 1,
       "environment": {
@@ -851,7 +851,7 @@
           "outer_width_nm": 200.0
         }
       ],
-      "runtime_seconds": 43.980666724964976,
+      "runtime_seconds": 43.934131887275726,
       "fourier_orders_x": 257,
       "fourier_orders_y": 1,
       "environment": {
@@ -866,213 +866,6 @@
       "oversampling": 1,
       "harmonics": 257,
       "eigen_dimension": 257
-    },
-    "asr_r6|300|64|650": {
-      "order": 64,
-      "harmonics": 129,
-      "slices": 300,
-      "total_finite_layers": 301,
-      "wavelength_nm": 650.0,
-      "method": "asr",
-      "oversampling": 6,
-      "eigen_dimension": 774,
-      "G": 0.001,
-      "q_projection": "galerkin",
-      "quadrature_actual": 4096,
-      "polarizations": {
-        "TE": {
-          "reflectance": 0.9194576480216556,
-          "transmittance": 3.878324256271216e-06,
-          "absorptance": 0.08053847365408809
-        },
-        "TM": {
-          "reflectance": 0.19011084319020846,
-          "transmittance": 0.38169715235074925,
-          "absorptance": 0.4281920044590423
-        }
-      },
-      "diagnostics": {
-        "TE": {
-          "max_boundary_condition": 1074.1784156173715,
-          "cutoff_regularized": false
-        },
-        "TM": {
-          "max_boundary_condition": 444162.8029573716,
-          "cutoff_regularized": false
-        }
-      },
-      "execution": {
-        "requested_device": "cuda:0",
-        "requested_backend": "torch",
-        "device": "cuda:0",
-        "backend": "torch",
-        "dtype": "complex128",
-        "device_name": "NVIDIA H100 MIG 3g.47gb",
-        "torch_version": "2.6.0+cu124",
-        "cuda_version": "12.4",
-        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
-        "selection_reason": "explicit CUDA selection"
-      },
-      "runtime_seconds": 3774.656429134775,
-      "coefficient_method": "adaptive quadrature"
-    },
-    "asr_r6|300|64|700": {
-      "order": 64,
-      "harmonics": 129,
-      "slices": 300,
-      "total_finite_layers": 301,
-      "wavelength_nm": 700.0,
-      "method": "asr",
-      "oversampling": 6,
-      "eigen_dimension": 774,
-      "G": 0.001,
-      "q_projection": "galerkin",
-      "quadrature_actual": 4096,
-      "polarizations": {
-        "TE": {
-          "reflectance": 0.9475119788897532,
-          "transmittance": 8.777951030713329e-07,
-          "absorptance": 0.05248714331514368
-        },
-        "TM": {
-          "reflectance": 0.5241702753324728,
-          "transmittance": 0.2081458814554124,
-          "absorptance": 0.26768384321211475
-        }
-      },
-      "diagnostics": {
-        "TE": {
-          "max_boundary_condition": 1085.0239813719586,
-          "cutoff_regularized": false
-        },
-        "TM": {
-          "max_boundary_condition": 768293.9135978075,
-          "cutoff_regularized": false
-        }
-      },
-      "execution": {
-        "requested_device": "cuda:0",
-        "requested_backend": "torch",
-        "device": "cuda:0",
-        "backend": "torch",
-        "dtype": "complex128",
-        "device_name": "NVIDIA H100 MIG 3g.47gb",
-        "torch_version": "2.6.0+cu124",
-        "cuda_version": "12.4",
-        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
-        "selection_reason": "explicit CUDA selection"
-      },
-      "runtime_seconds": 1814.142892446369,
-      "coefficient_method": "adaptive quadrature"
-    },
-    "asr_r7|300|64|650": {
-      "order": 64,
-      "harmonics": 129,
-      "slices": 300,
-      "total_finite_layers": 301,
-      "wavelength_nm": 650.0,
-      "method": "asr",
-      "oversampling": 7,
-      "eigen_dimension": 903,
-      "G": 0.001,
-      "q_projection": "galerkin",
-      "quadrature_actual": 4096,
-      "polarizations": {
-        "TE": {
-          "reflectance": 0.9194576412522756,
-          "transmittance": 3.878324229665731e-06,
-          "absorptance": 0.08053848042349475
-        },
-        "TM": {
-          "reflectance": 0.19011087247800684,
-          "transmittance": 0.38169729268300207,
-          "absorptance": 0.4281918348389911
-        }
-      },
-      "diagnostics": {
-        "TE": {
-          "max_boundary_condition": 1074.178423784908,
-          "cutoff_regularized": false
-        },
-        "TM": {
-          "max_boundary_condition": 444162.84101945336,
-          "cutoff_regularized": false
-        }
-      },
-      "execution": {
-        "requested_device": "cuda:0",
-        "requested_backend": "torch",
-        "device": "cuda:0",
-        "backend": "torch",
-        "dtype": "complex128",
-        "device_name": "NVIDIA H100 MIG 3g.47gb",
-        "torch_version": "2.6.0+cu124",
-        "cuda_version": "12.4",
-        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
-        "selection_reason": "explicit CUDA selection"
-      },
-      "runtime_seconds": 1715.9550101929344,
-      "coefficient_method": "adaptive quadrature"
-    },
-    "asr_r7|300|64|700": {
-      "order": 64,
-      "harmonics": 129,
-      "slices": 300,
-      "total_finite_layers": 301,
-      "wavelength_nm": 700.0,
-      "method": "asr",
-      "oversampling": 7,
-      "eigen_dimension": 903,
-      "G": 0.001,
-      "q_projection": "galerkin",
-      "quadrature_actual": 4096,
-      "polarizations": {
-        "TE": {
-          "reflectance": 0.9475119827829303,
-          "transmittance": 8.777951033672887e-07,
-          "absorptance": 0.05248713942196638
-        },
-        "TM": {
-          "reflectance": 0.524170269241341,
-          "transmittance": 0.20814588433276152,
-          "absorptance": 0.2676838464258975
-        }
-      },
-      "diagnostics": {
-        "TE": {
-          "max_boundary_condition": 1085.023983942536,
-          "cutoff_regularized": false
-        },
-        "TM": {
-          "max_boundary_condition": 768293.8191804854,
-          "cutoff_regularized": false
-        }
-      },
-      "execution": {
-        "requested_device": "cuda:0",
-        "requested_backend": "torch",
-        "device": "cuda:0",
-        "backend": "torch",
-        "dtype": "complex128",
-        "device_name": "NVIDIA H100 MIG 3g.47gb",
-        "torch_version": "2.6.0+cu124",
-        "cuda_version": "12.4",
-        "condition_number_method": "exact 1-norm from LU inverse (PyTorch)",
-        "selection_reason": "explicit CUDA selection",
-        "layer_storage": "streamed_production_modal_traces",
-        "coefficient_preparation_device": "cpu",
-        "linear_algebra_device": "cuda:0",
-        "unique_profiles": 301,
-        "large_prepared_layers_live_limit": 1,
-        "residency_controller_sha256": "4cff35307cf287108fbcf5b74bdb9801d3835089f4b9c15288918e1354d99e0b"
-      },
-      "memory": {
-        "retained_modal_bytes": 321814752,
-        "peak_allocated_bytes": 518794240,
-        "peak_reserved_bytes": 597688320
-      },
-      "runtime_seconds": 12496.465806783177,
-      "coefficient_method": "adaptive quadrature"
     }
   }
 }

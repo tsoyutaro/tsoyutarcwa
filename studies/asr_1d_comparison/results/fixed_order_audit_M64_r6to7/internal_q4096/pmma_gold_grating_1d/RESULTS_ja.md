@@ -18,7 +18,7 @@ Li参照M=128、参照の確認M=120。
 |---|---:|---|---|
 | li | 0 | False | True |
 | asr_r6 | 0 | False | False |
-| asr_r7 | 2 | False | False |
+| asr_r7 | 0 | False | False |
 
 [物理量](values.png)・[有限Li参照との差](reference_difference.png)・[隣接次数の差](adjacent_difference.png)
 
