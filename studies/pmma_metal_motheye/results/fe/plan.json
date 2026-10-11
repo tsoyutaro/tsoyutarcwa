@@ -1,0 +1,198 @@
+{
+  "signature": "8b9667cad35f11093f9065af03644ce1fc9675cf5d89aa1d62904e77f9e90df2",
+  "assumptions": {
+    "model": "PMMA core / Fe shell / air, triangular lattice, PMMA substrate",
+    "material": "Fe",
+    "material_provenance": {
+      "material": "Fe",
+      "filename": "Fe.csv",
+      "source": "user-supplied CSV",
+      "original_sha256": "ad1bc68cc7734334d98da9743cb09804ba10aff2c4947e141a202877edc1dbb3",
+      "wavelength_unit": "micrometre in wl column"
+    },
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 65.0,
+      "metal_side_thickness_nm": 30.0,
+      "metal_top_thickness_nm": 30.0,
+      "metal_valley_thickness_nm": 30.0,
+      "profile_power": 1.0,
+      "asr_circle_g": 0.03
+    },
+    "substrate": "semi-infinite, lossless dispersive PMMA",
+    "incidence": "normal, x polarization",
+    "dtype": "complex128",
+    "radial_mapping": "outer",
+    "cascade": "redheffer",
+    "symmetry": "D6 source sector",
+    "factorization_rules": true,
+    "anchor_wavelengths_nm": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "metal": {
+      "csv": "Fe.csv",
+      "sha256_lf": "bc6e30d104ecbd6684810bb5682fb03e85ad3016825d0922f0f6002d7fefeaf7",
+      "interpolation": "linear epsilon in wavelength_nm; epsilon=(n+i*k)^2; no extrapolation",
+      "tabulated_range_nm": [
+        188.0,
+        1937.0
+      ]
+    },
+    "pmma": {
+      "csv": "Szczurowski.csv",
+      "sha256_lf": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+      "k": 0.0,
+      "tabulated_range_nm": [
+        404.7,
+        1083.0
+      ],
+      "interpolation": "linear n in wavelength_nm",
+      "shortwave_policy": "linear-to-400",
+      "extension_source_points": [
+        [
+          404.7,
+          1.5051867964397
+        ],
+        [
+          411.5,
+          1.5042437025881
+        ]
+      ],
+      "n_400nm": 1.5058386407194826
+    },
+    "source_sha256": {
+      "studies/pmma_metal_motheye/converge.py": "a71c675d1211abb1288048219045e348e6fd7bea1b5921d5a990a5362378a3aa",
+      "studies/pmma_metal_motheye/model.py": "3def8fab3433b6cebfa74190aa272c4750ae2916b1c0cf5ddfd6825ed96109ba",
+      "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+      "studies/pmma_gold_motheye/common.py": "fbd63af8a877a424a6d5f95bfe9d74f1f0166fd287a93e91b2d7c7ced77c100c",
+      "studies/pmma_gold_motheye/geometry_preview.py": "d17db6225b9a509a8eca1e369695253a3d61914545f124ddd10cedabdd73a633",
+      "studies/shared/tabulated_nk.py": "f9469c64ae70ca4bf20321693a7ddcf6a3468d274f839de085d3aad60e46598b",
+      "studies/shared/transition_metals.py": "f05893aaa6301c8302fc75836903de37605942f6a1076822b1c2a46d12eb2918",
+      "studies/pmma_metal_motheye/plot_results.py": "83e8cfe25b9ed4fb6eded4d38a0ad62d3b14ea9c9cb3aa132bad5f64d788835b",
+      "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+      "rcwa_ext/asr.py": "5b2a19c9dc105e1b9922728c008ab15765355ff4bec2ce5c5543f6df5f5b5f5f",
+      "rcwa_ext/asr_maps.py": "961b1867bc4dbb22e8b8bf1aaa948ac5ac5c34dfc33ba8d61768ccdfb74448b7",
+      "rcwa_ext/auto.py": "855ddd982c812b2e6921f2d98a82a5fde0d1e7817662834d4615ba873baec174",
+      "rcwa_ext/config.py": "7dd514744bb64c78aab0e9da42be1f5f60ea0066ba6921a59649972a5553b51a",
+      "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+      "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+      "rcwa_ext/reduced.py": "683a241f1b0cd2a37cac50d6a9c012d827f0da3c56d3d135c1b9a3825cc74209",
+      "rcwa_ext/scattering.py": "72fa7c523a84705b631a4264e235e6f874055d39c2bf4927387d388021a5de25",
+      "rcwa_ext/symmetry.py": "acc71992589157c0f3bd9115731fe3f91a1ea438fb0fb43289994a7d60edbc7f"
+    },
+    "convergence_rule": "last two refinements on every axis, physical powers, stable fixed configuration v1"
+  },
+  "candidate_axes": {
+    "order": [
+      8,
+      12,
+      16,
+      18,
+      20
+    ],
+    "slices": [
+      40,
+      60,
+      80,
+      100
+    ],
+    "grid": [
+      256,
+      384,
+      512
+    ]
+  },
+  "tolerance": 0.005,
+  "tolerance_percentage_points": 0.5,
+  "max_cycles": 4,
+  "requested_device": "cuda",
+  "output_root": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_metal_motheye\\results\\fe",
+  "final_spectrum_requested": true,
+  "spectrum_wavelengths_nm": [
+    400.0,
+    405.0,
+    410.0,
+    415.0,
+    420.0,
+    425.0,
+    430.0,
+    435.0,
+    440.0,
+    445.0,
+    450.0,
+    455.0,
+    460.0,
+    465.0,
+    470.0,
+    475.0,
+    480.0,
+    485.0,
+    490.0,
+    495.0,
+    500.0,
+    505.0,
+    510.0,
+    515.0,
+    520.0,
+    525.0,
+    530.0,
+    535.0,
+    540.0,
+    545.0,
+    550.0,
+    555.0,
+    560.0,
+    565.0,
+    570.0,
+    575.0,
+    580.0,
+    585.0,
+    590.0,
+    595.0,
+    600.0,
+    605.0,
+    610.0,
+    615.0,
+    620.0,
+    625.0,
+    630.0,
+    635.0,
+    640.0,
+    645.0,
+    650.0,
+    655.0,
+    660.0,
+    665.0,
+    670.0,
+    675.0,
+    680.0,
+    685.0,
+    690.0,
+    695.0,
+    700.0
+  ],
+  "anchor_materials": [
+    {
+      "wavelength_nm": 400.0,
+      "pmma_n": 1.5058386407194826,
+      "epsilon_metal_real": -1.6127749999999996,
+      "epsilon_metal_imag": 11.7265125
+    },
+    {
+      "wavelength_nm": 550.0,
+      "pmma_n": 1.492401592592772,
+      "epsilon_metal_real": 0.10505151515151459,
+      "epsilon_metal_imag": 17.295915151515153
+    },
+    {
+      "wavelength_nm": 700.0,
+      "pmma_n": 1.4868514449253294,
+      "epsilon_metal_real": -1.9153533333333344,
+      "epsilon_metal_imag": 18.234106666666666
+    }
+  ]
+}

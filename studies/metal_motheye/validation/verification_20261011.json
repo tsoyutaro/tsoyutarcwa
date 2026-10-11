@@ -1,0 +1,249 @@
+{
+  "passed": true,
+  "scope": "software and small-case physics validation; not production convergence",
+  "checks": [
+    {
+      "name": "Fe CSV hash, units, interpolation and range",
+      "passed": true,
+      "samples": 49,
+      "range_nm": [
+        188.0,
+        1937.0
+      ]
+    },
+    {
+      "name": "Ni CSV hash, units, interpolation and range",
+      "passed": true,
+      "samples": 49,
+      "range_nm": [
+        188.0,
+        1937.0
+      ]
+    },
+    {
+      "name": "Ti CSV hash, units, interpolation and range",
+      "passed": true,
+      "samples": 49,
+      "range_nm": [
+        188.0,
+        1937.0
+      ]
+    },
+    {
+      "name": "W CSV hash, units, interpolation and range",
+      "passed": true,
+      "samples": 51,
+      "range_nm": [
+        667.0,
+        200000.0
+      ]
+    },
+    {
+      "name": "V CSV hash, units, interpolation and range",
+      "passed": true,
+      "samples": 49,
+      "range_nm": [
+        188.0,
+        1937.0
+      ]
+    },
+    {
+      "name": "PMMA geometry and valley boundary",
+      "passed": true
+    },
+    {
+      "name": "Early plateau does not establish tail convergence",
+      "passed": true
+    },
+    {
+      "name": "Fe flat-interface Fresnel power",
+      "passed": true,
+      "max_error": 1.1102230246251565e-16,
+      "R": 0.51236015630441,
+      "P_sub": 0.48763984369559005
+    },
+    {
+      "name": "Fe patterned pure-metal D6/Cs parity",
+      "passed": true,
+      "max_error": 2.7755575615628914e-15,
+      "numerical": {
+        "M": 1,
+        "Nz": 2,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.27523254505742134,
+        "absorptance_total": 0.7247674549425787,
+        "motheye_absorptance": 0.6293977871895539,
+        "power_into_substrate": 0.09536966775302477
+      }
+    },
+    {
+      "name": "PMMA/Fe Cr-engine parity and resume safety",
+      "passed": true,
+      "max_error": 0.0,
+      "numerical": {
+        "M": 2,
+        "Nz": 4,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.005493524721306766,
+        "transmittance": 0.00881899754058379,
+        "absorptance": 0.9856874777381094
+      }
+    },
+    {
+      "name": "Ni flat-interface Fresnel power",
+      "passed": true,
+      "max_error": 0.0,
+      "R": 0.6443551946714909,
+      "P_sub": 0.355644805328509
+    },
+    {
+      "name": "Ni patterned pure-metal D6/Cs parity",
+      "passed": true,
+      "max_error": 2.3314683517128287e-15,
+      "numerical": {
+        "M": 1,
+        "Nz": 2,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.415460250390599,
+        "absorptance_total": 0.584539749609401,
+        "motheye_absorptance": 0.4845052823142938,
+        "power_into_substrate": 0.10003446729510723
+      }
+    },
+    {
+      "name": "PMMA/Ni Cr-engine parity and resume safety",
+      "passed": true,
+      "max_error": 0.0,
+      "numerical": {
+        "M": 2,
+        "Nz": 4,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.017678580934705167,
+        "transmittance": 0.008345020512019031,
+        "absorptance": 0.9739763985532758
+      }
+    },
+    {
+      "name": "Ti flat-interface Fresnel power",
+      "passed": true,
+      "max_error": 0.0,
+      "R": 0.5823012694417394,
+      "P_sub": 0.4176987305582606
+    },
+    {
+      "name": "Ti patterned pure-metal D6/Cs parity",
+      "passed": true,
+      "max_error": 6.217248937900877e-15,
+      "numerical": {
+        "M": 1,
+        "Nz": 2,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.3427769763317773,
+        "absorptance_total": 0.6572230236682227,
+        "motheye_absorptance": 0.5557571962892215,
+        "power_into_substrate": 0.10146582737900123
+      }
+    },
+    {
+      "name": "PMMA/Ti Cr-engine parity and resume safety",
+      "passed": true,
+      "max_error": 0.0,
+      "numerical": {
+        "M": 2,
+        "Nz": 4,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.010666826586725051,
+        "transmittance": 0.006370093603851098,
+        "absorptance": 0.9829630798094239
+      }
+    },
+    {
+      "name": "W flat-interface Fresnel power",
+      "passed": true,
+      "max_error": 2.220446049250313e-16,
+      "R": 0.515556995335322,
+      "P_sub": 0.4844430046646782
+    },
+    {
+      "name": "W patterned pure-metal D6/Cs parity",
+      "passed": true,
+      "max_error": 1.1657341758564144e-15,
+      "numerical": {
+        "M": 1,
+        "Nz": 2,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.19766996638702988,
+        "absorptance_total": 0.8023300336129702,
+        "motheye_absorptance": 0.6915997005862957,
+        "power_into_substrate": 0.1107303330266744
+      }
+    },
+    {
+      "name": "PMMA/W Cr-engine parity and resume safety",
+      "passed": true,
+      "max_error": 0.0,
+      "numerical": {
+        "M": 2,
+        "Nz": 4,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.0030813374337095812,
+        "transmittance": 0.03726219784849462,
+        "absorptance": 0.9596564647177959
+      }
+    },
+    {
+      "name": "V flat-interface Fresnel power",
+      "passed": true,
+      "max_error": 1.1102230246251565e-16,
+      "R": 0.5325307116570805,
+      "P_sub": 0.46746928834291934
+    },
+    {
+      "name": "V patterned pure-metal D6/Cs parity",
+      "passed": true,
+      "max_error": 8.604228440844963e-16,
+      "numerical": {
+        "M": 1,
+        "Nz": 2,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.2659979079449675,
+        "absorptance_total": 0.7340020920550325,
+        "motheye_absorptance": 0.6290296887562125,
+        "power_into_substrate": 0.1049724032988201
+      }
+    },
+    {
+      "name": "PMMA/V Cr-engine parity and resume safety",
+      "passed": true,
+      "max_error": 0.0,
+      "numerical": {
+        "M": 2,
+        "Nz": 4,
+        "Q": 64
+      },
+      "powers": {
+        "reflectance": 0.004196045727783447,
+        "transmittance": 0.0032543995106777664,
+        "absorptance": 0.9925495547615388
+      }
+    }
+  ]
+}

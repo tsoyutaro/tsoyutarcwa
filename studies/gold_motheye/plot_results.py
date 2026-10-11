@@ -68,7 +68,7 @@ def plot_convergence(report: dict, destination: Path, invalid_split: bool) -> No
     axes = [("slices", "Height slices Nz"), ("order", "Fourier order M"),
             ("grid", "ASR grid")]
     width, height = 1320, 815
-    material = {"Au": "Gold", "Cr": "Chromium"}.get(report.get("assumptions", {}).get("material", "Au"), "Metal")
+    material = {"Au": "Gold", "Cr": "Chromium", "Fe": "Iron", "Ni": "Nickel", "Ti": "Titanium", "W": "Tungsten", "V": "Vanadium"}.get(report.get("assumptions", {}).get("material", "Au"), "Metal")
     out = [text(48, 55, f"{material} moth-eye | convergence", size=30, weight="bold"),
            text(48, 86, "Maximum adjacent change over all anchor wavelengths and convergence observables", size=17),
            text(48, 114, f"Criterion: upper-end two consecutive steps <= {tolerance_pp:g} percentage points", size=16)]
@@ -185,7 +185,7 @@ def plot_spectrum(rows: list[dict[str, float]], report: dict, source: Path,
     sparse = len(rows) <= 3
     order_value = rows[0].get("order", report.get("recommendation", {}).get("order", "?"))
     order_label = f"{order_value:g}" if isinstance(order_value, (int, float)) else str(order_value)
-    material = {"Au": "Gold", "Cr": "Chromium"}.get(report.get("assumptions", {}).get("material", "Au"), "Metal")
+    material = {"Au": "Gold", "Cr": "Chromium", "Fe": "Iron", "Ni": "Nickel", "Ti": "Titanium", "W": "Tungsten", "V": "Vanadium"}.get(report.get("assumptions", {}).get("material", "Au"), "Metal")
     out = [text(55, 56, f"{material} moth-eye | optical response", size=30, weight="bold"),
            text(55, 87, f"Source: {source.name}  |  {len(rows)} wavelengths  |  M={order_label}, "
                         f"Nz={report.get('recommendation', {}).get('slices', '?')}, grid={report.get('recommendation', {}).get('grid', '?')}",
