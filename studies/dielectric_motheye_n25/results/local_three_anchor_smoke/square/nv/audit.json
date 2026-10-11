@@ -1,0 +1,71 @@
+{
+  "settings": {
+    "physical_signature": "6ac76829b7e1af6060592ba520eb282282accf28691d808cfb6917bb7fe63645",
+    "numerical": {
+      "order": 2,
+      "slices": 3,
+      "grid": 40
+    },
+    "refinements": {
+      "order": {
+        "order": 3,
+        "slices": 3,
+        "grid": 40
+      },
+      "slices": {
+        "order": 2,
+        "slices": 4,
+        "grid": 40
+      },
+      "grid": {
+        "order": 2,
+        "slices": 3,
+        "grid": 48
+      }
+    },
+    "wavelengths": [
+      400.0,
+      430.0,
+      436.0,
+      475.0,
+      495.0,
+      505.0,
+      550.0,
+      600.0,
+      645.0,
+      650.0,
+      700.0
+    ],
+    "steps_nm": {
+      "height_nm": 0.1,
+      "base_radius_nm": 0.02
+    },
+    "atol_per_nm": 1e-07,
+    "rtol": 0.05,
+    "energy_tolerance": 1e-06,
+    "repeats": 1,
+    "integration": {
+      "device": "cpu",
+      "torch_version": "2.8.0+cpu",
+      "cuda_version": null,
+      "gpu": null,
+      "cpu_threads": 4
+    },
+    "check_gradients": false,
+    "checkpoint_layers": true,
+    "audit_source_sha256": "f3b9db380caf1aaee449f6fffab828c3e804aeb3d4bb995b37fea339aa32ee18"
+  },
+  "objective_definition": "trapezoidal wavelength average of R over audit wavelengths",
+  "forward": {
+    "median_seconds": 0.673956199985696,
+    "samples_seconds": [
+      0.673956199985696
+    ],
+    "max_peak_cuda_allocated_mb": null
+  },
+  "gradient": null,
+  "gradient_passed": false,
+  "coverage": "height and base radius only; not a proof for all per-slice design variables",
+  "forward_physical": true,
+  "gradient_audit_skipped": true
+}

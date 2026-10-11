@@ -10,7 +10,8 @@ from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
-from .compare import comparison_exit_code, main, recommendation, scan_axis, validate_final_spectrum
+from .compare import (comparison_exit_code, main, recommendation, scan_axis,
+                      validate_final_spectrum, converge_with_spectrum)
 from .model import (Geometry, Numerical, Study, choose_candidate, physical,
                     solve, trapezoid_weights)
 
@@ -102,6 +103,35 @@ class Guards(unittest.TestCase):
             self.assertFalse(result["checks"][-1]["passed"])
             self.assertFalse(result["passed"])
 
+    def test_three_anchors_promote_hidden_peak_then_validate_again(self):
+        class FakeStudy:
+            lattice, method = "hexagonal", "asr"
+            cases = {}
+
+            def evaluate(self, n, wavelength):
+                # Only 645 nm needs M>=3; the original three points look flat.
+                return row(.01 + (.01 if wavelength == 645 and n.order < 3 else 0), wavelength)
+
+            def spectrum(self, n, wavelengths):
+                return [self.evaluate(n, w) for w in wavelengths]
+
+        for limit, expected_status in ((0, "final_spectrum_not_converged"), (2, "converged")):
+            report = {"history": [], "recommendation": {"order": 4, "slices": 3, "grid": 64}}
+            with redirect_stdout(io.StringIO()):
+                numerical = converge_with_spectrum(FakeStudy(), Numerical(4, 3, 64),
+                    {"order": [1, 2, 3, 4, 5], "slices": [2, 3, 4], "grid": [32, 64, 96]},
+                    (400., 550., 700.), (400., 550., 645., 700.), tolerance=.001,
+                    energy_tolerance=1e-6, max_cycles=3, run_final_spectrum=True,
+                    max_anchor_refinements=limit, report=report, save=lambda: None)
+            self.assertEqual(report["status"], expected_status)
+            if limit:
+                self.assertEqual(numerical.order, 4)
+                self.assertIn(645., report["anchor_wavelengths_nm"])
+                self.assertEqual(report["anchor_refinements"][0]["added_wavelengths_nm"], (645.,))
+                self.assertTrue(report["final_spectrum_mesh_validation"]["passed"])
+            else:
+                self.assertFalse(report["final_spectrum_mesh_validation"]["passed"])
+
     def test_forward_and_gradient_cost_choose_separately(self):
         choice = self.decision(fake_reports())
         self.assertEqual(choice["status"], "gradient_validated")
@@ -170,6 +200,12 @@ class Guards(unittest.TestCase):
             plan = json.loads((Path(folder) / "plan.json").read_text())
             self.assertEqual(plan["assumptions"]["geometry"]["index"], 2.5)
             self.assertEqual(plan["substrate_first_diffraction_threshold_nm"]["square"], 500)
+            self.assertEqual(plan["anchor_wavelengths_nm"], [400., 550., 700.])
+            self.assertEqual(len(plan["gradient_audit"]["wavelengths_nm"]), 11)
+            self.assertEqual(main(["--device", "cuda", "--dry-run", "--output-root", folder,
+                "--anchor-wavelengths", "400,430,436,475,495,505,550,600,645,650,700"]), 0)
+            dense_plan = json.loads((Path(folder) / "plan.json").read_text())
+            self.assertEqual(plan["signature"], dense_plan["signature"])
 
 
 class Physics(unittest.TestCase):

@@ -1,0 +1,188 @@
+{
+  "initial_anchors_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "audit_wavelength_count": 11,
+  "spectrum_wavelength_count": 61,
+  "scenarios": [
+    {
+      "scenario": "low_order",
+      "groups": [
+        {
+          "group": "hexagonal/nv",
+          "assumed_numerical": [
+            6,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 1,
+          "optical_hours": 0.028577488276965195,
+          "audit_hours": 0.9992017904010914,
+          "total_hours": 1.0277792786780566
+        },
+        {
+          "group": "hexagonal/asr",
+          "assumed_numerical": [
+            6,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 338,
+          "optical_hours": 5.742686966918428,
+          "audit_hours": 2.418674185634838,
+          "total_hours": 8.161361152553267
+        },
+        {
+          "group": "square/nv",
+          "assumed_numerical": [
+            4,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 338,
+          "optical_hours": 1.741808612805135,
+          "audit_hours": 0.27277703821086513,
+          "total_hours": 2.014585651016
+        },
+        {
+          "group": "square/asr",
+          "assumed_numerical": [
+            6,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 338,
+          "optical_hours": 3.6079116303198298,
+          "audit_hours": 1.3692832830798418,
+          "total_hours": 4.977194913399671
+        }
+      ],
+      "total_hours": 16.180920995646996
+    },
+    {
+      "scenario": "moderate_order",
+      "groups": [
+        {
+          "group": "hexagonal/nv",
+          "assumed_numerical": [
+            6,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 1,
+          "optical_hours": 0.028577488276965195,
+          "audit_hours": 0.9992017904010914,
+          "total_hours": 1.0277792786780566
+        },
+        {
+          "group": "hexagonal/asr",
+          "assumed_numerical": [
+            10,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 338,
+          "optical_hours": 7.1479852951602085,
+          "audit_hours": 5.1039854252945185,
+          "total_hours": 12.251970720454725
+        },
+        {
+          "group": "square/nv",
+          "assumed_numerical": [
+            6,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 338,
+          "optical_hours": 1.8204912108233389,
+          "audit_hours": 0.35819733330174536,
+          "total_hours": 2.1786885441250843
+        },
+        {
+          "group": "square/asr",
+          "assumed_numerical": [
+            10,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 338,
+          "optical_hours": 4.45568084367889,
+          "audit_hours": 2.9826105988038094,
+          "total_hours": 7.4382914424827
+        }
+      ],
+      "total_hours": 22.896729985740567
+    },
+    {
+      "scenario": "high_order",
+      "groups": [
+        {
+          "group": "hexagonal/nv",
+          "assumed_numerical": [
+            6,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 1,
+          "optical_hours": 0.028577488276965195,
+          "audit_hours": 0.9992017904010914,
+          "total_hours": 1.0277792786780566
+        },
+        {
+          "group": "hexagonal/asr",
+          "assumed_numerical": [
+            14,
+            80,
+            384
+          ],
+          "remaining_optical_cases": 329,
+          "optical_hours": 10.358065299100222,
+          "audit_hours": 12.104039234340572,
+          "total_hours": 22.462104533440794
+        },
+        {
+          "group": "square/nv",
+          "assumed_numerical": [
+            6,
+            60,
+            384
+          ],
+          "remaining_optical_cases": 338,
+          "optical_hours": 1.8204912108233389,
+          "audit_hours": 0.35819733330174536,
+          "total_hours": 2.1786885441250843
+        },
+        {
+          "group": "square/asr",
+          "assumed_numerical": [
+            14,
+            80,
+            384
+          ],
+          "remaining_optical_cases": 329,
+          "optical_hours": 6.853517340416901,
+          "audit_hours": 8.1086031776897,
+          "total_hours": 14.9621205181066
+        }
+      ],
+      "total_hours": 40.63069287435054
+    }
+  ],
+  "completed_case_counts": {
+    "hexagonal/nv": 429,
+    "hexagonal/asr": 0,
+    "square/nv": 0,
+    "square/asr": 0
+  },
+  "assumptions": [
+    "H100 timings; no new optical calculations",
+    "Two stable axis-scan cycles",
+    "No extra adaptive anchor rounds; those may increase time",
+    "All final mesh checks and gradient audits pass",
+    "ASR gradients estimated as 3-4 times forward; new GPU gradients not yet measured",
+    "Square M14/16 extrapolated from old GPU cases and scaled by 1.5",
+    "Forward Q512 cost approximated by Q384 cost; GPU load and host overhead excluded"
+  ]
+}

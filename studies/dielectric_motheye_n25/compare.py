@@ -14,6 +14,7 @@ from .model import (Geometry, Numerical, Study, adjacent_error, choose_candidate
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
+DEFAULT_AUDIT_WAVELENGTHS = "400,430,436,475,495,505,550,600,645,650,700"
 
 
 def parse_ints(value):
@@ -117,6 +118,87 @@ def validate_final_spectrum(study, current, axes, spectrum, tolerance, energy_to
     return result
 
 
+def failed_validation_wavelengths(validation, anchors, energy_tolerance):
+    """Promote only unresolved wavelengths; never weaken the final check."""
+    additions = set()
+    for check in validation["checks"]:
+        if check["passed"]:
+            continue
+        additions.add(check["worst_wavelength_nm"])
+        additions.update(row["wavelength_nm"] for row in check["spectrum"]
+                         if not physical(row, energy_tolerance))
+    return tuple(sorted(additions - set(anchors)))
+
+
+def converge_with_spectrum(study, current, axes, anchors, final_wavelengths, *,
+                          tolerance, energy_tolerance, max_cycles, run_final_spectrum,
+                          max_anchor_refinements, report, save):
+    active_anchors = tuple(anchors)
+    report["anchor_refinements"] = []
+    for refinement in range(max_anchor_refinements + 1):
+        report.update(status="running", anchor_wavelengths_nm=active_anchors,
+                      final_spectrum=[], final_spectrum_complete=False,
+                      final_spectrum_mesh_validation=None)
+        report.pop("mean_spectrum_reflectance", None)
+        save()
+        for cycle in range(1, max_cycles + 1):
+            start, statuses = current, []
+            for axis in ("slices", "order", "grid"):
+                print(f"{study.lattice}/{study.method}: anchor refinement {refinement}, "
+                      f"cycle {cycle}/{max_cycles}, scan {axis} ({len(active_anchors)} wavelengths)", flush=True)
+                record = scan_axis(study, axis, axes[axis], current, active_anchors,
+                                   tolerance, energy_tolerance, cycle)
+                record["anchor_refinement"] = refinement
+                report["history"].append(record)
+                current = replace(current, **{axis: record["selected"]})
+                report["recommendation"] = asdict(current)
+                statuses.append(record["converged"])
+                save()
+            converged = current == start and all(statuses)
+            if current == start:
+                break
+        report["anchor_spectrum"] = study.spectrum(current, active_anchors)
+        report["status"] = ("converged" if converged else "candidate_range_insufficient"
+                            if not all(statuses) else "cycle_limit_reached")
+        if not all(physical(row, energy_tolerance) for row in report["anchor_spectrum"]):
+            report["status"] = "nonphysical_results"
+        report["mean_anchor_reflectance"] = mean_reflectance(report["anchor_spectrum"])
+        if report["status"] != "converged" or not run_final_spectrum:
+            break
+        report["status"] = "spectrum_running"
+        for w in final_wavelengths:
+            report["final_spectrum"].append(study.evaluate(current, w))
+            save()
+        report["final_spectrum_complete"] = True
+        report["mean_spectrum_reflectance"] = mean_reflectance(report["final_spectrum"])
+        if not all(physical(row, energy_tolerance) for row in report["final_spectrum"]):
+            report["status"] = "nonphysical_final_spectrum"
+            break
+        report["status"] = "spectrum_validation_running"
+
+        def save_validation(result):
+            report["final_spectrum_mesh_validation"] = result
+            save()
+
+        validation = validate_final_spectrum(study, current, axes, report["final_spectrum"],
+                                           tolerance, energy_tolerance, save=save_validation)
+        report["status"] = "converged" if validation["passed"] else "final_spectrum_not_converged"
+        if validation["passed"] or refinement == max_anchor_refinements:
+            break
+        additions = failed_validation_wavelengths(validation, active_anchors, energy_tolerance)
+        if not additions:
+            break
+        report["anchor_refinements"].append({"added_wavelengths_nm": additions,
+            "previous_recommendation": asdict(current),
+            "failed_checks": [{k: check[k] for k in ("axis", "max_abs_change", "worst_wavelength_nm", "physical")}
+                              for check in validation["checks"] if not check["passed"]]})
+        active_anchors = tuple(sorted(set(active_anchors) | set(additions)))
+        print(f"{study.lattice}/{study.method}: adding failed wavelengths {additions}; "
+              "reusing completed optical cases.", flush=True)
+    save()
+    return current
+
+
 def recommendation(reports, lattice, tolerance, gradient_atol, gradient_rtol, require_spectrum,
                    energy_tolerance=1e-6):
     from .audit import PARAMETERS, compatible
@@ -209,7 +291,9 @@ def build_parser():
     p.add_argument("--orders", default="2,4,6,8,10,12")
     p.add_argument("--slices", default="20,40,60,80")
     p.add_argument("--grids", default="256,384,512")
-    p.add_argument("--anchor-wavelengths", default="400,430,436,475,495,505,550,600,645,650,700")
+    p.add_argument("--anchor-wavelengths", default="400,550,700")
+    p.add_argument("--audit-wavelengths", default=DEFAULT_AUDIT_WAVELENGTHS)
+    p.add_argument("--max-anchor-refinements", type=int, default=2)
     p.add_argument("--asr-square-profile", choices=("radial", "equalized", "weiss2009", "identity"), default="radial")
     p.add_argument("--no-layer-checkpoint", action="store_true")
     p.add_argument("--spectrum-wavelengths", default="400:700:5")
@@ -263,12 +347,15 @@ def main(argv=None):
         if not methods or any(v not in {"nv", "asr"} for v in methods):
             raise ValueError("Methods: nv,asr")
         anchors, final_wavelengths = parse_wavelengths(args.anchor_wavelengths), parse_wavelengths(args.spectrum_wavelengths)
+        audit_wavelengths = parse_wavelengths(args.audit_wavelengths)
         for value in (args.tolerance, args.energy_tolerance, args.fd_height_step_nm, args.fd_radius_step_nm,
                       args.gradient_atol, args.gradient_rtol):
             if not math.isfinite(value) or value <= 0:
                 raise ValueError("Tolerances and finite-difference steps must be positive and finite.")
         if min(args.max_cycles, args.benchmark_repeats, args.cpu_threads) <= 0:
             raise ValueError("Cycles, benchmark repeats and CPU threads must be positive.")
+        if args.max_anchor_refinements < 0:
+            raise ValueError("Anchor refinements must be nonnegative.")
         if args.device not in {"auto", "cpu", "cuda"} and not (args.device.startswith("cuda:") and args.device[5:].isdigit()):
             raise ValueError("Device: auto, cpu, cuda, cuda:<index>")
         # Reject invalid perturbed geometries before any expensive solve.
@@ -290,7 +377,9 @@ def main(argv=None):
             "candidate_axes": axes, "anchor_wavelengths_nm": anchors, "spectrum_wavelengths_nm": final_wavelengths,
             "tolerance": args.tolerance, "energy_tolerance": args.energy_tolerance,
             "max_cycles": args.max_cycles, "benchmark_repeats": args.benchmark_repeats,
+            "max_anchor_refinements": args.max_anchor_refinements,
             "gradient_audit": {"enabled": not args.skip_gradient_audit,
+                "wavelengths_nm": audit_wavelengths,
                 "layer_checkpointing": not args.no_layer_checkpoint,
                 "steps_nm": {"height_nm": args.fd_height_step_nm, "base_radius_nm": args.fd_radius_step_nm},
                 "atol_per_nm": args.gradient_atol, "rtol": args.gradient_rtol},
@@ -353,54 +442,18 @@ def main(argv=None):
         write_json(report_path, report)
         write_csv(group / "spectrum.csv", [])
         try:
-            converged = False
-            for cycle in range(1, args.max_cycles + 1):
-                start, statuses = current, []
-                for axis in ("slices", "order", "grid"):
-                    print(f"{key}: cycle {cycle}/{args.max_cycles}, scan {axis}", flush=True)
-                    record = scan_axis(study, axis, axes[axis], current, anchors,
-                                       args.tolerance, args.energy_tolerance, cycle)
-                    report["history"].append(record)
-                    current = replace(current, **{axis: record["selected"]})
-                    report["recommendation"] = asdict(current)
-                    statuses.append(record["converged"])
-                    write_json(report_path, report)
-                converged = current == start and all(statuses)
-                if current == start:
-                    break
-            report["anchor_spectrum"] = study.spectrum(current, anchors)
-            report["status"] = ("converged" if converged else "candidate_range_insufficient"
-                                if not all(statuses) else "cycle_limit_reached")
-            if not all(physical(r, args.energy_tolerance) for r in report["anchor_spectrum"]):
-                report["status"] = "nonphysical_results"
-            report["mean_anchor_reflectance"] = mean_reflectance(report["anchor_spectrum"])
-            if report["status"] == "converged" and args.run_final_spectrum:
-                report["status"] = "spectrum_running"
-                for w in final_wavelengths:
-                    report["final_spectrum"].append(study.evaluate(current, w))
-                    write_json(report_path, report)
-                report["final_spectrum_complete"] = True
-                report["status"] = ("converged" if all(physical(r, args.energy_tolerance)
-                    for r in report["final_spectrum"]) else "nonphysical_final_spectrum")
-                report["mean_spectrum_reflectance"] = mean_reflectance(report["final_spectrum"])
-                if report["status"] == "converged":
-                    report["status"] = "spectrum_validation_running"
-
-                    def save_validation(result):
-                        report["final_spectrum_mesh_validation"] = result
-                        write_json(report_path, report)
-
-                    validation = validate_final_spectrum(study, current, axes,
-                        report["final_spectrum"], args.tolerance, args.energy_tolerance,
-                        save=save_validation)
-                    report["status"] = "converged" if validation["passed"] else "final_spectrum_not_converged"
+            current = converge_with_spectrum(study, current, axes, anchors, final_wavelengths,
+                tolerance=args.tolerance, energy_tolerance=args.energy_tolerance,
+                max_cycles=args.max_cycles, run_final_spectrum=args.run_final_spectrum,
+                max_anchor_refinements=args.max_anchor_refinements, report=report,
+                save=lambda: write_json(report_path, report))
             if report["status"] == "converged":
                 from .audit import run_audit
                 report["status"] = "audit_running"
                 write_json(report_path, report)
                 report["audit"] = run_audit(study, current,
                     {axis: replace(current, **{axis: values[-1]}) for axis, values in axes.items()},
-                    anchors, output=group, repeats=args.benchmark_repeats,
+                    audit_wavelengths, output=group, repeats=args.benchmark_repeats,
                     steps={"height_nm": args.fd_height_step_nm, "base_radius_nm": args.fd_radius_step_nm},
                     atol=args.gradient_atol, rtol=args.gradient_rtol,
                     energy_tolerance=args.energy_tolerance, integration=integration,
@@ -412,6 +465,7 @@ def main(argv=None):
             interrupted = isinstance(error, KeyboardInterrupt)
             print(f"{key} stopped: {report['error']}; completed solves are saved.", flush=True)
         finally:
+            current = Numerical(**report["recommendation"])
             report["completed_cases"] = len(study.cases)
             write_profile(group, geometry, current.slices)
             write_csv(group / "all_cases.csv", list(study.cases.values()))
