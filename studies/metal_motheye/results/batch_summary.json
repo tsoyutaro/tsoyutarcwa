@@ -1,0 +1,39 @@
+{
+  "status": "running",
+  "dry_run": false,
+  "materials": [
+    "Fe",
+    "Ni",
+    "Ti",
+    "W",
+    "V"
+  ],
+  "structures": [
+    "metal",
+    "pmma"
+  ],
+  "requested_device": "cuda",
+  "scheduling": "sequential; no concurrent GPU processes",
+  "jobs": [
+    {
+      "material": "Fe",
+      "structure": "metal",
+      "output_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/fe",
+      "command": [
+        "/bin/python",
+        "-u",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/run_metal_motheye_convergence.py",
+        "--material",
+        "Fe",
+        "--device",
+        "cuda",
+        "--cpu-threads",
+        "4",
+        "--output-root",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/fe",
+        "--run-final-spectrum"
+      ],
+      "status": "running"
+    }
+  ]
+}
