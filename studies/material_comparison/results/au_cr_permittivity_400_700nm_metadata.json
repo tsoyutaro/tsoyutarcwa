@@ -1,0 +1,150 @@
+{
+  "quantity": "complex relative permittivity (dimensionless)",
+  "time_convention": "exp(-i omega t); passive Im(epsilon) >= 0",
+  "conversion": "epsilon = (n + i*k)^2",
+  "interpolation": "linear in epsilon versus wavelength, as in the solver",
+  "range_nm": [
+    400,
+    700
+  ],
+  "step_nm": 1,
+  "sources": {
+    "Au": {
+      "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\gold_motheye3\\data\\au_measured_nk.csv",
+      "sha256": "6e72f596e70f5b3eb66501b8bbf10dea1ff105047804abbe433e603a17e61b22",
+      "sample_count": 49,
+      "samples_400_700nm": [
+        {
+          "wavelength_nm": 413.3,
+          "epsilon_real": -1.7021640000000002,
+          "epsilon_imag": 5.717359999999999
+        },
+        {
+          "wavelength_nm": 430.5,
+          "epsilon_real": -1.6922039999999998,
+          "epsilon_imag": 5.6491999999999996
+        },
+        {
+          "wavelength_nm": 450.9,
+          "epsilon_real": -1.758996,
+          "epsilon_imag": 5.28264
+        },
+        {
+          "wavelength_nm": 471.4,
+          "epsilon_real": -1.7027009999999996,
+          "epsilon_imag": 4.84438
+        },
+        {
+          "wavelength_nm": 495.9,
+          "epsilon_real": -2.278289,
+          "epsilon_imag": 3.81264
+        },
+        {
+          "wavelength_nm": 520.9,
+          "epsilon_real": -3.9461609999999996,
+          "epsilon_imag": 2.58044
+        },
+        {
+          "wavelength_nm": 548.6,
+          "epsilon_real": -5.842125,
+          "epsilon_imag": 2.1113
+        },
+        {
+          "wavelength_nm": 582.1,
+          "epsilon_real": -8.112669,
+          "epsilon_imag": 1.66054
+        },
+        {
+          "wavelength_nm": 616.8,
+          "epsilon_real": -10.661883999999999,
+          "epsilon_imag": 1.37424
+        },
+        {
+          "wavelength_nm": 659.5,
+          "epsilon_real": -13.648209,
+          "epsilon_imag": 1.03516
+        }
+      ]
+    },
+    "Cr": {
+      "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\cr_motheye\\data\\Johnson.csv",
+      "sha256": "c88e310d75af57a460a267ec3f00ab24613bab0b8903455775f9db6e3f8d610f",
+      "sample_count": 49,
+      "samples_400_700nm": [
+        {
+          "wavelength_nm": 413.0,
+          "epsilon_real": -4.258500000000001,
+          "epsilon_imag": 12.1888
+        },
+        {
+          "wavelength_nm": 431.0,
+          "epsilon_real": -4.4455,
+          "epsilon_imag": 13.315199999999999
+        },
+        {
+          "wavelength_nm": 451.0,
+          "epsilon_real": -4.4307,
+          "epsilon_imag": 14.6324
+        },
+        {
+          "wavelength_nm": 471.0,
+          "epsilon_real": -4.197500000000003,
+          "epsilon_imag": 16.2648
+        },
+        {
+          "wavelength_nm": 496.0,
+          "epsilon_real": -3.327499999999999,
+          "epsilon_imag": 18.15
+        },
+        {
+          "wavelength_nm": 521.0,
+          "epsilon_real": -2.4453000000000014,
+          "epsilon_imag": 19.5804
+        },
+        {
+          "wavelength_nm": 549.0,
+          "epsilon_real": -0.9764999999999997,
+          "epsilon_imag": 21.178800000000003
+        },
+        {
+          "wavelength_nm": 582.0,
+          "epsilon_real": -0.5215999999999976,
+          "epsilon_imag": 21.252
+        },
+        {
+          "wavelength_nm": 617.0,
+          "epsilon_real": -0.8410999999999991,
+          "epsilon_imag": 20.921999999999997
+        },
+        {
+          "wavelength_nm": 659.0,
+          "epsilon_real": -1.6075,
+          "epsilon_imag": 20.641199999999998
+        }
+      ]
+    }
+  },
+  "anchors": [
+    {
+      "wavelength_nm": 400,
+      "au_epsilon_real": -1.658031421383648,
+      "au_epsilon_imag": 5.735361006289308,
+      "cr_epsilon_real": -4.055700000000001,
+      "cr_epsilon_imag": 11.4829
+    },
+    {
+      "wavelength_nm": 550,
+      "au_epsilon_real": -5.937013405970148,
+      "au_epsilon_imag": 2.0924622686567167,
+      "cr_epsilon_real": -0.9627151515151512,
+      "cr_epsilon_imag": 21.181018181818185
+    },
+    {
+      "wavelength_nm": 700,
+      "au_epsilon_real": -16.500759,
+      "au_epsilon_imag": 1.063618,
+      "cr_epsilon_real": -2.13785777777778,
+      "cr_epsilon_imag": 20.675639999999998
+    }
+  ]
+}

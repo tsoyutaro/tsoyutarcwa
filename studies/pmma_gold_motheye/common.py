@@ -179,6 +179,7 @@ def simulate_case(
     factorization_rules: bool = True,
     device: torch.device,
     valley_gold_thickness_nm: float = 0.0,
+    top_cap_thickness_nm: float | None = None,
     discard_auxiliary: bool = True,
 ) -> dict[str, object]:
     """Evaluate R, T and A for one wavelength and discretization."""
@@ -193,6 +194,13 @@ def simulate_case(
         or not 0.0 <= valley_gold_thickness_nm <= geometry.height_nm
     ):
         raise ValueError("valley_gold_thickness_nm must lie within [0, height_nm].")
+    cap_thickness = (
+        geometry.gold_thickness_nm
+        if top_cap_thickness_nm is None else top_cap_thickness_nm
+    )
+    if not math.isfinite(cap_thickness) or cap_thickness < 0.0:
+        raise ValueError("top_cap_thickness_nm must be finite and nonnegative.")
+    has_top_cap = geometry.include_top_cap and cap_thickness > 0.0
 
     period = geometry.period_nm
     epsilon_gold = gold_epsilon(wavelength_nm)
@@ -234,9 +242,9 @@ def simulate_case(
     simulation.set_incident_angle(0.0, 0.0)
 
     # Above the original PMMA tip, a gold disk approximates the conformal cap.
-    if geometry.include_top_cap:
+    if has_top_cap:
         simulation.add_layer_circle_asr(
-            geometry.gold_thickness_nm / period,
+            cap_thickness / period,
             (geometry.tip_radius_nm + geometry.gold_thickness_nm) / period,
             1.0,
             epsilon_gold,
@@ -346,7 +354,8 @@ def simulate_case(
         "wavelength_nm": wavelength_nm,
         "order": numerical.order,
         "profile_slices": numerical.slices,
-        "total_pattern_layers": len(profile_layers) + int(geometry.include_top_cap),
+        "total_pattern_layers": len(profile_layers) + int(has_top_cap),
+        "top_cap_thickness_nm": cap_thickness if has_top_cap else 0.0,
         "valley_gold_thickness_nm": valley_gold_thickness_nm,
         "grid": numerical.grid,
         "radial_mapping": numerical.radial_mapping,
