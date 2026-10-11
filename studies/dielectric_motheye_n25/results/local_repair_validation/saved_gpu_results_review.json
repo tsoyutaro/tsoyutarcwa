@@ -1,0 +1,88 @@
+{
+  "pmma_cr": {
+    "status": "converged",
+    "recommendation": {
+      "order": 18,
+      "slices": 80,
+      "grid": 384
+    },
+    "spectrum_complete": true,
+    "wavelength_count": 61,
+    "mean_powers": {
+      "reflectance": 0.014034123106302147,
+      "transmittance": 0.008542955487023315,
+      "absorptance": 0.9774229214066745
+    }
+  },
+  "n25": {
+    "hexagonal/nv": {
+      "status": "converged",
+      "recommendation": {
+        "order": 6,
+        "slices": 40,
+        "grid": 256
+      },
+      "mean_R": 0.005946520605638096,
+      "gradient_passed": true,
+      "gradient_error": null
+    },
+    "hexagonal/asr": {
+      "status": "converged",
+      "recommendation": {
+        "order": 6,
+        "slices": 40,
+        "grid": 256
+      },
+      "mean_R": 0.005074025649211608,
+      "gradient_passed": false,
+      "gradient_error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 14.00 MiB. GPU 0 has a total capacity of 46.38 GiB of which 4.12 MiB is free. Including non-PyTorch memory, this process has 46.32 GiB memory in use. Of the allocated memory 43.07 GiB is allocated by PyTorch, and 2.26 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+    },
+    "square/nv": {
+      "status": "converged",
+      "recommendation": {
+        "order": 4,
+        "slices": 40,
+        "grid": 256
+      },
+      "mean_R": 0.007368458528623942,
+      "gradient_passed": true,
+      "gradient_error": null
+    },
+    "square/asr": {
+      "status": "nonphysical_results",
+      "recommendation": {
+        "order": 12,
+        "slices": 80,
+        "grid": 384
+      },
+      "mean_R": null,
+      "gradient_passed": null,
+      "gradient_error": null
+    }
+  },
+  "hexagonal_disagreement": {
+    "wavelength_nm": 645.0,
+    "max_abs_R_difference": 0.0016882408131980997
+  },
+  "square_asr_bad_cases": {
+    "count": 91,
+    "worst": {
+      "lattice": "square",
+      "method": "asr",
+      "wavelength_nm": 436.0,
+      "order": 12,
+      "slices": 80,
+      "grid": 128,
+      "retained_scalar_harmonics": 625,
+      "eigen_dimension": 313,
+      "full_dimension": 1250,
+      "reflectance": 97.24867575261764,
+      "transmittance": 312.7493161067475,
+      "absorptance": -408.99799185936513,
+      "energy_residual": 408.99799185936513,
+      "runtime_seconds": 28.58151160599664,
+      "device": "cuda:0",
+      "base_fill_fraction": 0.7088218424661971
+    }
+  }
+}

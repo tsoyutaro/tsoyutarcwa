@@ -51,6 +51,8 @@ class AutoRCWA(CustomRCWA_NVM):
     build_triangular_circle_asr_mapping = (
         CustomRCWA_ASR_FR.build_triangular_circle_asr_mapping
     )
+    build_square_circle_asr_mapping = CustomRCWA_ASR_FR.build_square_circle_asr_mapping
+    _build_radial_circle_asr_mapping = CustomRCWA_ASR_FR._build_radial_circle_asr_mapping
     _periodic_circle_mask = CustomRCWA_ASR_FR._periodic_circle_mask
     _axis_toeplitz_samples = CustomRCWA_ASR_FR._axis_toeplitz_samples
     _assemble_matrix_valued_toeplitz = (
@@ -188,11 +190,12 @@ class AutoRCWA(CustomRCWA_NVM):
         raw_circle_profile = str(self.asr_options.circle_profile).strip().lower().replace(
             "_", "-"
         )
+        profile_aliases["radial"] = "radial"
         normalized_circle_profile = profile_aliases.get(raw_circle_profile)
         if normalized_circle_profile is None:
             raise ValueError(
                 "ASROptions.circle_profile must be 'equalized', "
-                "'weiss2009', or 'identity'."
+                "'weiss2009', 'identity', or 'radial' (square cell)."
             )
         if (
             not math.isfinite(float(self.asr_options.minimum_circle_jacobian))

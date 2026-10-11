@@ -10,7 +10,7 @@ from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
-from .compare import comparison_exit_code, main, recommendation, scan_axis
+from .compare import comparison_exit_code, main, recommendation, scan_axis, validate_final_spectrum
 from .model import (Geometry, Numerical, Study, choose_candidate, physical,
                     solve, trapezoid_weights)
 
@@ -28,7 +28,7 @@ def fake_reports():
         spectrum = [row(.01, w) for w in (400., 550., 700.)]
         reports["hexagonal/" + method] = {"status": "converged", "tolerance": .001,
             "energy_tolerance": 1e-6, "anchor_spectrum": spectrum, "final_spectrum": spectrum,
-            "final_spectrum_complete": True, "audit": {
+            "final_spectrum_complete": True, "final_spectrum_mesh_validation": {"complete": True, "passed": True}, "audit": {
                 "forward_physical": True, "forward": {"median_seconds": forward_cost},
                 "gradient": {"median_seconds": gradient_cost}, "gradient_passed": True,
                 "gradient_per_nm": {"height_nm": 1e-4, "base_radius_nm": 2e-4},
@@ -77,6 +77,31 @@ class Guards(unittest.TestCase):
         self.assertAlmostEqual(sum(weights), 1)
         self.assertAlmostEqual(sum(w * y for w, y in zip(weights, (.1, .2, .4))), .25)
 
+    def test_full_mesh_validation_detects_peak_between_original_anchors_and_joint_drift(self):
+        class FakeStudy:
+            lattice, method = "hexagonal", "asr"
+            peak = True
+
+            def spectrum(self, n, wavelengths):
+                refined_axes = sum((n.order > 2, n.slices > 4, n.grid > 64))
+                return [row(.01 + (.003 if self.peak and w == 645 else .0004 * refined_axes), w)
+                        for w in wavelengths]
+
+        study = FakeStudy()
+        spectrum = [row(.01, w) for w in (400., 550., 645., 700.)]
+        with redirect_stdout(io.StringIO()):
+            result = validate_final_spectrum(study, Numerical(2, 4, 64),
+                {"order": [1, 2, 3], "slices": [2, 4, 6], "grid": [32, 64, 96]}, spectrum, .001, 1e-6)
+            self.assertFalse(result["passed"])
+            self.assertTrue(result["complete"])
+            self.assertEqual(result["checks"][0]["worst_wavelength_nm"], 645.)
+            study.peak = False
+            result = validate_final_spectrum(study, Numerical(2, 4, 64),
+                {"order": [1, 2, 3], "slices": [2, 4, 6], "grid": [32, 64, 96]}, spectrum, .001, 1e-6)
+            self.assertTrue(all(c["passed"] for c in result["checks"][:3]))
+            self.assertFalse(result["checks"][-1]["passed"])
+            self.assertFalse(result["passed"])
+
     def test_forward_and_gradient_cost_choose_separately(self):
         choice = self.decision(fake_reports())
         self.assertEqual(choice["status"], "gradient_validated")
@@ -101,6 +126,11 @@ class Guards(unittest.TestCase):
     def test_incomplete_full_spectrum_and_different_benchmark_wavelengths(self):
         reports = fake_reports()
         reports["hexagonal/nv"]["final_spectrum_complete"] = False
+        self.assertEqual(self.decision(reports)["status"], "insufficient_evidence")
+        reports = fake_reports()
+        del reports["hexagonal/nv"]["final_spectrum_mesh_validation"]
+        self.assertEqual(self.decision(reports)["status"], "insufficient_evidence")
+        reports["hexagonal/nv"]["final_spectrum_mesh_validation"] = None
         self.assertEqual(self.decision(reports)["status"], "insufficient_evidence")
         reports = fake_reports()
         reports["hexagonal/nv"]["audit"]["settings"]["wavelengths"] = [550.]
@@ -191,6 +221,54 @@ class Physics(unittest.TestCase):
                 self.assertEqual(resumed.evaluate(Numerical(1, 2, 32), 550.), result)
             with self.assertRaisesRegex(ValueError, "signature differs"):
                 Study(**{**kwargs, "signature": "changed-geometry"})
+
+    def test_asr_layer_checkpoint_preserves_powers_and_both_shape_gradients(self):
+        for lattice in ("hexagonal", "square"):
+            outputs = []
+            retained_bytes = []
+            for checkpointed in (False, True):
+                h = self.torch.tensor(500., dtype=self.torch.float64, requires_grad=True)
+                b = self.torch.tensor(95., dtype=self.torch.float64, requires_grad=True)
+                saved = []
+
+                def pack(tensor):
+                    saved.append(tensor.numel() * tensor.element_size())
+                    return tensor
+
+                with self.torch.autograd.graph.saved_tensors_hooks(pack, lambda tensor: tensor):
+                    _, reflected = solve(550., Numerical(2, 4, 64), Geometry(),
+                        method="asr", lattice=lattice, device=self.device,
+                        parameters={"height_nm": h, "base_radius_nm": b},
+                        checkpoint_layers=checkpointed)
+                retained_bytes.append(sum(saved))
+                outputs.append([float(reflected.detach()), *map(float, self.torch.autograd.grad(reflected, (h, b)))])
+            with self.subTest(lattice=lattice):
+                for a, b in zip(*outputs):
+                    self.assertAlmostEqual(a, b, delta=1e-10 + abs(a) * 1e-8)
+                # Counts tensors saved for backward, not CUDA peak memory.
+                self.assertLess(retained_bytes[1], retained_bytes[0] * .5)
+
+    def test_square_radial_large_radius_has_stable_trace_and_exact_mirror_masks(self):
+        from rcwa_solver_auto import ASROptions, AutoRCWA, GroupTheoryOptions, Lattice, OutputSpec
+        sim = AutoRCWA(freq=200/550, order=[12, 12], lattice=Lattice.square(1.),
+            asr=ASROptions(circle_profile="radial", circle_G=.03, grid=(128, 128)),
+            outputs=OutputSpec(smatrix_size="half", fields="none"),
+            group_theory=GroupTheoryOptions(enabled=True, symmetry="c2v", polarization="x", strict=True),
+            dtype=self.torch.complex128, device=self.device, verify_cascade=False)
+        sim.add_input_layer(eps=1.)
+        sim.add_output_layer(eps=6.25)
+        sim.set_incident_angle(0., 0.)
+        mapping = sim.build_square_circle_asr_mapping(128, 128, 92.75/200)
+        self.assertGreater(float(mapping.det_j.min()), .001)
+        transform, _ = sim._build_circle_conversion_matrices(mapping)
+        eb, _ = sim._c2v_source_bases((.5, .5), "x")
+        self.assertLess(float(self.torch.linalg.cond(eb.mH @ transform @ eb)), 1e5)
+        # Include points exactly on the computational/material boundary.
+        boundary = sim.build_square_circle_asr_mapping(128, 128, .25)
+        mask = boundary.matched_outer_mask
+        mirror = (-self.torch.arange(128)) % 128
+        self.assertTrue(self.torch.equal(mask, mask[mirror, :]))
+        self.assertTrue(self.torch.equal(mask, mask[:, mirror]))
 
 
 if __name__ == "__main__":

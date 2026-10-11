@@ -1,0 +1,65 @@
+{
+  "signature": "5af169731e249d2a8035a0272e2b2d36e4a62ffbf84ad5038faaeb9214f1c6ee",
+  "tasks": {
+    "forward_warmup": {
+      "objective": 0.07098097706913228,
+      "gradient_per_nm": null,
+      "max_energy_residual": 1.5543122344752192e-15,
+      "rows": [
+        {
+          "lattice": "square",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 2,
+          "slices": 3,
+          "grid": 40,
+          "retained_scalar_harmonics": 25,
+          "eigen_dimension": 13,
+          "full_dimension": 50,
+          "reflectance": 0.07098097706913228,
+          "transmittance": 0.9290190229308692,
+          "absorptance": -1.5543122344752192e-15,
+          "energy_residual": 1.5543122344752192e-15,
+          "runtime_seconds": 0.17311510001309216,
+          "device": "cpu",
+          "base_fill_fraction": 0.7088218424661971,
+          "asr_profile": "radial",
+          "gradient_layer_checkpointing": false
+        }
+      ],
+      "seconds": 0.17332400000304915,
+      "peak_cuda_allocated_mb": null,
+      "peak_cuda_reserved_mb": null
+    },
+    "forward_0": {
+      "objective": 0.07098097706913228,
+      "gradient_per_nm": null,
+      "max_energy_residual": 1.5543122344752192e-15,
+      "rows": [
+        {
+          "lattice": "square",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 2,
+          "slices": 3,
+          "grid": 40,
+          "retained_scalar_harmonics": 25,
+          "eigen_dimension": 13,
+          "full_dimension": 50,
+          "reflectance": 0.07098097706913228,
+          "transmittance": 0.9290190229308692,
+          "absorptance": -1.5543122344752192e-15,
+          "energy_residual": 1.5543122344752192e-15,
+          "runtime_seconds": 0.14756849998957478,
+          "device": "cpu",
+          "base_fill_fraction": 0.7088218424661971,
+          "asr_profile": "radial",
+          "gradient_layer_checkpointing": false
+        }
+      ],
+      "seconds": 0.14792000001762062,
+      "peak_cuda_allocated_mb": null,
+      "peak_cuda_reserved_mb": null
+    }
+  }
+}

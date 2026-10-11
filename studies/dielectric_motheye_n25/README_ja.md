@@ -24,11 +24,11 @@ NV法と円形境界適合ASRを同じソルバー基盤で明示的に選び、
 | 四つの計算に共通 | complex128、Redheffer接続、half S行列、場保存なし |
 | 対称性 | 六方はD6の入射行、正方はC2vのx入射セクター。同一格子内の両方法で共通 |
 | NV | 円の誘電率Fourier係数は解析式、法線ベクトル投影はQ×Q格子、Lanczosフィルタなし |
-| ASR | `matched-asr`、一般化因数分解あり、G=0.03、Q×Q積分格子 |
+| ASR | `matched-asr`、一般化因数分解あり、G=0.03、Q×Q積分格子。六方はD6放射状写像、正方はD4放射状写像 |
 | 保持次数M | 2,4,6,8,10,12 |
 | 高さ分割Nz | 20,40,60,80 |
-| NV投影／ASR積分Q | 128,256,384 |
-| 判定波長 | 400,430,436,495,505,550,700 nm |
+| NV投影／ASR積分Q | 256,384,512 |
+| 判定波長 | 400,430,436,475,495,505,550,600,645,650,700 nm |
 | 許容変化 | R/T/Aの絶対変化0.001＝0.1パーセントポイント |
 | 無損失の条件 | −1e−7≦R,T≦1+1e−7、abs(R+T−1)≦1e−6 |
 | 最終スペクトル | 指定時、収束したケースだけ400–700 nm、5 nm刻みの61点 |
@@ -36,7 +36,10 @@ NV法と円形境界適合ASRを同じソルバー基盤で明示的に選び、
 正方格子では基板側の最初の回折が開く境界がnP=500 nm、六方ではn√3P/2≈433.013 nm。
 その両側の判定点を含める。R/Tはゼロ次だけでなく全伝搬回折次数のフラックスを集計する。
 最終スペクトルには500 nmも含め、閾値でのエネルギー保存を確認する。
-判定点の間の収束精度まで保証するものではない。
+`--run-final-spectrum`では全61波長について、M、Nz、Qをそれぞれ候補上限に
+増やした3条件と、三軸を同時に上限へ増やした条件も比較する。
+すべての最大変化が許容値以下で、エネルギー保存を満たす場合だけ監査へ進む。
+指定波長の間の精度や、候補上限より先の収束まで保証するものではない。
 
 両格子は最近接周期を200 nmにそろえる。セル面積が異なるため底面の充填率は
 六方約0.8185、正方約0.7088。格子間で光学応答が違うのは計算法の差だけではない。
@@ -57,6 +60,17 @@ cd /home/7/uq06557/common2/20260813/tsoyutarcwa
 python run_n25_motheye_comparison.py --device cuda --dry-run
 python run_n25_motheye_comparison.py --device cuda --run-final-spectrum
 ```
+
+2026-10-11の修正前の結果と比較する場合は、ソースハッシュが変わるため
+別出力先を使う。従来のGPU結果を上書きせず、更新した`rcwa_ext`一式と
+`studies/dielectric_motheye_n25`一式を遠隔環境へ反映してから実行する：
+
+```text
+python run_n25_motheye_comparison.py --device cuda --orders 4,6,8,10,12,14,16 --slices 40,60,80,100 --grids 256,384,512 --run-final-spectrum --output-root studies/dielectric_motheye_n25/results/repaired_v2
+```
+
+旧結果の問題と修正根拠は[RESULTS_REVIEW_20261011.md](RESULTS_REVIEW_20261011.md)を参照。
+この再計算コマンドの全GPU結果はローカルでは検証していない。
 
 2格子×2方法の収束確認、最終スペクトル、計算時間、勾配の確認、図と比較JSONの出力まで行う。
 CUDAを明示した場合はCPUへ自動で戻さない。行列・固有値・界面接続・フラックス・自動微分はGPU、
@@ -131,6 +145,16 @@ Nz→M→Qを更新し、三軸の設定が安定し、同じ固定設定で全�
 `--gradient-atol`、`--gradient-rtol`で変更できる。
 監査の目的関数は**判定波長を使った台形積分の波長平均R**であり、61点の平均の勾配とは限らない。
 波長ごとに勾配を加算するため、全波長の計算グラフを同時には保持しない。
+対称性縮約を使うASRの半径勾配では、各層の写像・積分・固有値問題を
+`torch.utils.checkpoint`で逆伝播時に再計算する。縮約した層モードは保持するが、
+全層の大きな補助計算グラフを同時には保持しない。計算時間は増える可能性がある。
+`--no-layer-checkpoint`で従来の保持方式へ戻せる。`--no-symmetry`ではこの対策は使わない。
+CPUで順計算と両形状勾配の一致を検証した。GPUピークメモリは再計算の監査で測定する。
+
+正方ASRの`--asr-square-profile radial`は、円周近くで直交する二方向を同時に
+強く圧縮する従来の写像を置き換える。周期境界を保ち、材料境界の判定も
+計算座標で行って丸めによる鏡映対称性の破れを防ぐ。
+`equalized`、`weiss2009`、`identity`も比較用に選べるが、新規の別出力先で実行する。
 
 `recommendations`は格子ごとに二種類を出す：
 
@@ -151,6 +175,7 @@ Nz→M→Qを更新し、三軸の設定が安定し、同じ固定設定で全�
 - `<格子>/<方法>/checkpoint.json`：光学ケースの再開用。
 - 同フォルダの`profile_layers.csv`：その方法の推奨／最後の保持設定Nzに対応する中点半径。
 - 同フォルダの`convergence.json`、`all_cases.csv`、`anchor_spectrum.csv`、`spectrum.csv`：収束結果。
+- `convergence.json`内の`final_spectrum_mesh_validation`：全最終波長の三軸別／同時細分化結果。
 - 同フォルダの`audit_checkpoint.json`、`audit.json`：時間・メモリ・勾配の途中／最終結果。
 - `comparison.json`：4ケースと、格子ごとの方法選択。まずこの`recommendations`を確認する。
 - `figures/absolute_<格子>_<軸>.png/svg`：M/Nz/Qに対するR・Tそのもの。
@@ -164,8 +189,8 @@ R/T/Aそのものをクリップしない。曲線の固定Nz/Qは方法ごと�
 単発時間の図には初回準備の影響が含まれるため、方法選択にはウォーム中央値を使う。
 
 ステータスは`converged`、`candidate_range_insufficient`、`cycle_limit_reached`、
-`nonphysical_results`、`nonphysical_final_spectrum`、`calculation_failed`、`interrupted`。
-実行中は`running`、`spectrum_running`、`audit_running`で処理段階を示す。
+`nonphysical_results`、`nonphysical_final_spectrum`、`final_spectrum_not_converged`、`calculation_failed`、`interrupted`。
+実行中は`running`、`spectrum_running`、`spectrum_validation_running`、`audit_running`で処理段階を示す。
 未収束なら最終スペクトル／最適化監査を省略し、完了ケースは保存する。
 本番の終了コードは比較成立0、検査不足・不一致2、計算失敗1。
 既定では勾配監査も要求するため、順計算だけが通った場合や片方だけ勾配が通った場合は2。
@@ -181,7 +206,7 @@ CPUの小規模計算で4ケースのエネルギー保存と形状勾配を検�
 ローカルの`results/local_cpu_550nm`等は550 nmでの小規模評価であり、
 GPU本計算や400–700 nm全体の手法選択の根拠として扱わない。
 
-550 nm、Nz=12、Q=96、CPU・2スレッド、許容値0.001の予備評価では、
+**修正前の旧写像**による550 nm、Nz=12、Q=96、CPU・2スレッド、許容値0.001の予備評価では、
 六方はM=6を採用し、RはNV=0.00636095、ASR=0.00589262。
 正方はM=4を採用し、RはNV=0.00771255、ASR=0.00857250。
 両方法の差は許容値以下で、NVのウォーム順計算は六方約2.0倍、正方約3.5倍速かった。

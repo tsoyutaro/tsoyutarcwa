@@ -62,6 +62,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
             "weiss-2009": "weiss2009",
             "paper": "weiss2009",
             "identity": "identity",
+            "radial": "radial",
             "none": "identity",
             "no-asr": "identity",
         }
@@ -72,7 +73,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
         if self.matched_asr_profile is None:
             raise ValueError(
                 "matched_asr_profile must be 'equalized', 'weiss2009', "
-                "or 'identity'."
+                "'identity', or 'radial' (square cell)."
             )
         self.matched_asr_min_jacobian = float(
             kwargs.pop("matched_asr_min_jacobian", 1.0e-12)
@@ -1346,11 +1347,17 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                 raise UnsupportedCombinationError(
                     "matched circle ASR supports orthogonal or 60-degree triangular cells."
                 )
-            mapping = self.build_circle_asr_mapping(nx, ny, radius)
+            mapping = (
+                self.build_square_circle_asr_mapping(nx, ny, radius)
+                if self.matched_asr_profile == "radial"
+                else self.build_circle_asr_mapping(nx, ny, radius)
+            )
         lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
         if core_shell and normalized_mapping == "double":
             if mapping.matched_outer_mask is None or mapping.matched_core_mask is None:
                 raise RuntimeError("Double-matched map did not provide fixed material masks.")
+            inside = mapping.matched_outer_mask
+        elif mapping.matched_outer_mask is not None:
             inside = mapping.matched_outer_mask
         else:
             inside = self._periodic_circle_mask(mapping.x, mapping.y, radius)

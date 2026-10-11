@@ -1,0 +1,193 @@
+{
+  "device": "cpu",
+  "torch_version": "2.8.0+cpu",
+  "checks": [
+    {
+      "name": "grid=256 R=0.05 rotation60 Jacobian",
+      "error": 1.5308782194900534e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=256 R=0.05 reflection_x Jacobian",
+      "error": 1.391300910087703e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=256 R=0.05 coordinates",
+      "error": 4.696763811207205e-16,
+      "tolerance": 2e-12,
+      "passed": true
+    },
+    {
+      "name": "grid=256 R=0.251 rotation60 Jacobian",
+      "error": 3.2745354147065305e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=256 R=0.251 reflection_x Jacobian",
+      "error": 2.8137485402120205e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=256 R=0.251 coordinates",
+      "error": 4.0592529337857286e-16,
+      "tolerance": 2e-12,
+      "passed": true
+    },
+    {
+      "name": "grid=256 R=0.4862 rotation60 Jacobian",
+      "error": 1.1341029677173868e-14,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=256 R=0.4862 reflection_x Jacobian",
+      "error": 7.052114212163831e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=256 R=0.4862 coordinates",
+      "error": 5.134781488891349e-16,
+      "tolerance": 2e-12,
+      "passed": true
+    },
+    {
+      "name": "grid=384 R=0.05 rotation60 Jacobian",
+      "error": 4.056971636783205e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=384 R=0.05 reflection_x Jacobian",
+      "error": 3.899358713553452e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=384 R=0.05 coordinates",
+      "error": 6.29704621779581e-16,
+      "tolerance": 2e-12,
+      "passed": true
+    },
+    {
+      "name": "grid=384 R=0.251 rotation60 Jacobian",
+      "error": 3.828025852960815e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=384 R=0.251 reflection_x Jacobian",
+      "error": 3.8656355506749465e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=384 R=0.251 coordinates",
+      "error": 4.5737068646301e-16,
+      "tolerance": 2e-12,
+      "passed": true
+    },
+    {
+      "name": "grid=384 R=0.4862 rotation60 Jacobian",
+      "error": 3.950053284988833e-14,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=384 R=0.4862 reflection_x Jacobian",
+      "error": 3.900220731072069e-14,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=384 R=0.4862 coordinates",
+      "error": 5.91107024439097e-16,
+      "tolerance": 2e-12,
+      "passed": true
+    },
+    {
+      "name": "grid=512 R=0.05 rotation60 Jacobian",
+      "error": 1.9954403940806886e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=512 R=0.05 reflection_x Jacobian",
+      "error": 1.391300910087703e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=512 R=0.05 coordinates",
+      "error": 4.996003610813204e-16,
+      "tolerance": 2e-12,
+      "passed": true
+    },
+    {
+      "name": "grid=512 R=0.251 rotation60 Jacobian",
+      "error": 3.2713146146391323e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=512 R=0.251 reflection_x Jacobian",
+      "error": 2.810980965475386e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=512 R=0.251 coordinates",
+      "error": 4.0592529337857286e-16,
+      "tolerance": 2e-12,
+      "passed": true
+    },
+    {
+      "name": "grid=512 R=0.4862 rotation60 Jacobian",
+      "error": 1.32196989650126e-14,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=512 R=0.4862 reflection_x Jacobian",
+      "error": 6.930148872517077e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "grid=512 R=0.4862 coordinates",
+      "error": 5.134781488891349e-16,
+      "tolerance": 2e-12,
+      "passed": true
+    },
+    {
+      "name": "R=0.24 coordinates radius gradient vs finite difference",
+      "error": 5.743894000326393e-10,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "R=0.24 Jacobian radius gradient vs finite difference",
+      "error": 4.079316832548724e-09,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "R=0.4862 coordinates radius gradient vs finite difference",
+      "error": 1.2449508304301606e-11,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "R=0.4862 Jacobian radius gradient vs finite difference",
+      "error": 8.39548747952843e-10,
+      "tolerance": 2e-05,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

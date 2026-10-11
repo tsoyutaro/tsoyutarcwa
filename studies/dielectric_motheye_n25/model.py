@@ -117,7 +117,8 @@ def release(device):
 
 
 def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
-          lattice: str, device, use_symmetry=True, parameters=None):
+          lattice: str, device, use_symmetry=True, parameters=None,
+          square_asr_profile="radial", checkpoint_layers=True):
     """Return scalar diagnostics and differentiable R. No global no_grad: ASR
     needs autograd for its spatial Jacobian; fixed-geometry maps detach it.
     """
@@ -132,25 +133,56 @@ def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
         raise ValueError("Numerical parameters must be positive.")
     g = geometry
     parameters = parameters or {}
-    height = parameters.get("height_nm", g.height_nm)
-    base = parameters.get("base_radius_nm", g.base_radius_nm)
+    height = torch.as_tensor(parameters.get("height_nm", g.height_nm), dtype=torch.float64, device=device)
+    base = torch.as_tensor(parameters.get("base_radius_nm", g.base_radius_nm), dtype=torch.float64, device=device)
     synchronize(device)
     started = time.perf_counter()
-    sim = AutoRCWA(
-        freq=g.period_nm / wavelength, order=[numerical.order] * 2,
-        lattice=Lattice.triangular(1.) if lattice == "hexagonal" else Lattice.square(1.),
-        outputs=OutputSpec(smatrix_size="half", fields="none"), cascade="redheffer",
-        asr=ASROptions(circle_G=g.asr_circle_g, grid=(numerical.grid,) * 2, factorization_rules=True),
-        nvm=NVMOptions(grid=(numerical.grid,) * 2, use_lanczos=False),
-        group_theory=GroupTheoryOptions(enabled=use_symmetry,
-            symmetry="d6" if lattice == "hexagonal" else "c2v",
-            polarization="x" if use_symmetry else None, strict=use_symmetry),
-        dtype=torch.complex128, device=device, verify_cascade=False)
-    sim.add_input_layer(eps=1.)
-    sim.add_output_layer(eps=g.index ** 2)
-    sim.set_incident_angle(0., 0.)
+    def make_sim():
+        sim = AutoRCWA(
+            freq=g.period_nm / wavelength, order=[numerical.order] * 2,
+            lattice=Lattice.triangular(1.) if lattice == "hexagonal" else Lattice.square(1.),
+            outputs=OutputSpec(smatrix_size="half", fields="none"), cascade="redheffer",
+            asr=ASROptions(circle_G=g.asr_circle_g, grid=(numerical.grid,) * 2,
+                          circle_profile=square_asr_profile if lattice == "square" else "equalized",
+                          factorization_rules=True),
+            nvm=NVMOptions(grid=(numerical.grid,) * 2, use_lanczos=False),
+            group_theory=GroupTheoryOptions(enabled=use_symmetry,
+                symmetry="d6" if lattice == "hexagonal" else "c2v",
+                polarization="x" if use_symmetry else None, strict=use_symmetry),
+            dtype=torch.complex128, device=device, verify_cascade=False)
+        sim.add_input_layer(eps=1.)
+        sim.add_output_layer(eps=g.index ** 2)
+        sim.set_incident_angle(0., 0.)
+        return sim
+
+    sim = make_sim()
+    checkpointed = bool(checkpoint_layers and method == "asr" and use_symmetry and base.requires_grad)
+
+    def single_layer_modes(radius):
+        # A fresh simulator makes recomputation pure: backward must never
+        # append layers to the simulator used by the forward cascade.
+        local = make_sim()
+        selected = local.add_structured_layer(LayerSpec(
+            thickness=1., geometry=Circle(radius / g.period_nm),
+            background=Material(1.), inclusion=Material(g.index ** 2),
+            method=METHODS[method], factorization_rules=True))
+        if selected != METHODS[method] or len(local._polarized_layers) != 1:
+            raise RuntimeError("Layer checkpoint requires one invariant source sector.")
+        modes = local._polarized_layers[0]
+        return (modes["electric"], modes["magnetic"], modes["kz"],
+                *local._polarization_bases)
+
     for j in range(numerical.slices):
         radius = g.tip_radius_nm + (base - g.tip_radius_nm) * ((j + .5) / numerical.slices) ** g.profile_power
+        if checkpointed:
+            from torch.utils.checkpoint import checkpoint
+            electric, magnetic, kz, eb, hb = checkpoint(
+                single_layer_modes, radius, use_reentrant=False, preserve_rng_state=False)
+            sim._install_polarization_basis(eb.detach(), hb.detach(), 1e-8)
+            sim._polarized_layers.append({"electric": electric, "magnetic": magnetic, "kz": kz})
+            sim.thickness.append(height / (numerical.slices * g.period_nm))
+            sim.layer_N += 1
+            continue
         selected = sim.add_structured_layer(LayerSpec(
             thickness=height / (numerical.slices * g.period_nm),
             geometry=Circle(radius / g.period_nm), background=Material(1.),
@@ -160,7 +192,10 @@ def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
         if selected != METHODS[method]:
             raise RuntimeError("Solver silently selected a different formulation.")
         _discard_flux_only_auxiliary(sim)
-    sim.solve_global_smatrix()
+    if checkpointed:
+        sim._solve_polarization_reduced_smatrix()
+    else:
+        sim.solve_global_smatrix()
     incident = _zero_order_x_source(sim)
 
     def flux(electric, medium_v, direction):
@@ -183,15 +218,19 @@ def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
            "full_dimension": diagnostics.get("full_dimension", 2 * sim.order_N),
            "reflectance": r, "transmittance": t, "absorptance": 1 - r - t,
            "energy_residual": r + t - 1, "runtime_seconds": time.perf_counter() - started,
-           "device": str(device), "base_fill_fraction": g.fill_fraction(lattice)}
+           "device": str(device), "base_fill_fraction": g.fill_fraction(lattice),
+           "asr_profile": ("d6-radial" if lattice == "hexagonal" else square_asr_profile) if method == "asr" else None,
+           "gradient_layer_checkpointing": checkpointed}
     finite_powers(row)
     return row, reflected
 
 
 class Study:
-    def __init__(self, *, geometry, method, lattice, device, use_symmetry, signature, checkpoint):
+    def __init__(self, *, geometry, method, lattice, device, use_symmetry, signature, checkpoint,
+                 square_asr_profile="radial", checkpoint_layers=True):
         self.geometry, self.method, self.lattice = geometry, method, lattice
         self.device, self.use_symmetry = device, use_symmetry
+        self.square_asr_profile, self.checkpoint_layers = square_asr_profile, checkpoint_layers
         self.signature, self.checkpoint = signature, checkpoint
         self.cases = {}
         if checkpoint.exists():
@@ -215,7 +254,8 @@ class Study:
             return self.cases[key]
         print(f"{self.lattice}/{self.method}: M={n.order} Nz={n.slices} Q={n.grid} lambda={w:g}", flush=True)
         row, tensor = solve(w, n, self.geometry, method=self.method, lattice=self.lattice,
-                            device=self.device, use_symmetry=self.use_symmetry)
+                            device=self.device, use_symmetry=self.use_symmetry,
+                            square_asr_profile=self.square_asr_profile, checkpoint_layers=self.checkpoint_layers)
         del tensor
         release(self.device)
         self.cases[key] = row

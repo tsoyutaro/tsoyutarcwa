@@ -30,7 +30,8 @@ def objective(study, numerical, wavelengths, geometry=None, *, gradient=False):
         tensors = {name: torch.tensor(getattr(geometry, name), dtype=torch.float64,
                                       device=study.device, requires_grad=True) for name in PARAMETERS} if gradient else None
         row, reflected = solve(w, numerical, geometry, method=study.method, lattice=study.lattice,
-                               device=study.device, use_symmetry=study.use_symmetry, parameters=tensors)
+                               device=study.device, use_symmetry=study.use_symmetry, parameters=tensors,
+                               square_asr_profile=study.square_asr_profile, checkpoint_layers=study.checkpoint_layers)
         rows.append(row)
         value += weight * row["reflectance"]
         if gradient:
@@ -72,6 +73,7 @@ def run_audit(study, numerical, refinements, wavelengths, *, output: Path,
                 "rtol": rtol, "energy_tolerance": energy_tolerance,
                 "repeats": repeats, "integration": integration,
                 "check_gradients": check_gradients,
+                "checkpoint_layers": study.checkpoint_layers,
                 "audit_source_sha256": content_hash(Path(__file__))}
     identity = signature_for(settings)
     progress_path = output / "audit_checkpoint.json"
@@ -148,6 +150,7 @@ def run_audit(study, numerical, refinements, wavelengths, *, output: Path,
                       and all(c["passed"] for c in fd_checks + refinement_checks))
     except Exception as error:
         result["gradient_error"] = f"{type(error).__name__}: {error}"
+        error.__traceback__ = None
         release(study.device)
     write_json(output / "audit.json", result)
     return result

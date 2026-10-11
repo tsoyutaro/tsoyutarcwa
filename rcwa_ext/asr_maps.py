@@ -1168,10 +1168,28 @@ class _ASRMappingMixin:
             raise UnsupportedCombinationError(
                 "Triangular matched-ASR requires equal primitive-vector lengths."
             )
+        return self._build_radial_circle_asr_mapping(nx, ny, radius, triangular=True)
+
+    def build_square_circle_asr_mapping(self, nx: int, ny: int, radius) -> CircleASRMapping:
+        """D4-equivariant radial circle map on a square Wigner--Seitz cell.
+
+        Unlike the separable stretch followed by the circular deformation,
+        this map does not compress both Cartesian axes in narrow base gaps.
+        Its periodic boundary remains fixed and its circular interface has
+        radial derivative G. It uses the same construction as the D6 map.
+        """
+        return self._build_radial_circle_asr_mapping(nx, ny, radius, triangular=False)
+
+    def _build_radial_circle_asr_mapping(self, nx, ny, radius, *, triangular):
+        self._validate_grid(int(self.order[0]), nx, "x")
+        self._validate_grid(int(self.order[1]), ny, "y")
+        lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
+        if not math.isclose(lx, ly, rel_tol=1.0e-8, abs_tol=1.0e-12):
+            raise UnsupportedCombinationError("The radial circle map requires equal cell lengths.")
         zeta = float(getattr(self, "zeta_deg", 90.0))
-        if abs(zeta - 60.0) > 1.0e-7:
+        if abs(zeta - (60.0 if triangular else 90.0)) > 1.0e-7:
             raise UnsupportedCombinationError(
-                "The D6 matched map requires a 60-degree triangular primitive cell."
+                "The radial circle map requires a triangular or square primitive cell."
             )
         radius, radius_value = _real_parameter_tensor(
             "radius",
@@ -1182,11 +1200,11 @@ class _ASRMappingMixin:
         )
         if 2.0 * radius_value >= lx:
             raise ValueError(
-                "triangular matched-ASR requires non-touching circles: 2*radius < L."
+                "The radial circle map requires non-touching circles: 2*radius < L."
             )
         if nx != ny:
             raise UnsupportedCombinationError(
-                "The D6 matched map requires an equal u/v sampling grid."
+                "The radial circle map requires an equal u/v sampling grid."
             )
 
         u_axis = torch.arange(nx, dtype=torch.float64, device=self._device) * lx / nx
@@ -1200,8 +1218,8 @@ class _ASRMappingMixin:
         q2_candidates: list[torch.Tensor] = []
         r2_candidates: list[torch.Tensor] = []
         shifts: list[tuple[int, int]] = []
-        cosine = 0.5
-        sine = math.sqrt(3.0) / 2.0
+        cosine = 0.5 if triangular else 0.0
+        sine = math.sqrt(3.0) / 2.0 if triangular else 1.0
         for shift_i in (-1, 0, 1):
             for shift_j in (-1, 0, 1):
                 q1 = u_leaf - 0.5 * lx - shift_i * lx
@@ -1224,15 +1242,15 @@ class _ASRMappingMixin:
         shift_j = torch.gather(shift_j_values.expand(-1, nx, ny), 0, nearest)[0]
 
         # h(q)=L/2 is exactly the Wigner--Seitz boundary.  It is invariant
-        # under all six rotations and six reflections of D6.
+        # under D6 for the triangular cell and D4 for the square cell.
         support_values = torch.stack(
             (torch.abs(q1 + 0.5 * q2), torch.abs(0.5 * q1 + q2),
              torch.abs(0.5 * (q1 - q2))), dim=0
-        )
+        ) if triangular else torch.stack((torch.abs(q1), torch.abs(q2)), dim=0)
         hex_radius = torch.amax(support_values, dim=0)
-        # On a hexagonal sector boundary the maximum has multiple slopes.
+        # On a polygonal sector boundary the maximum has multiple slopes.
         # Mathematically tied supports can differ by roundoff on grids such
-        # as 384, causing maximum's winning-branch derivative to break D6.
+        # as 384, causing maximum's winning-branch derivative to break symmetry.
         # Use the symmetric subgradient for ties within cell-scale roundoff;
         # retain the exact forward maximum and the mixed radius derivatives.
         tie_tolerance = 64.0 * torch.finfo(torch.float64).eps * lx
@@ -1250,7 +1268,7 @@ class _ASRMappingMixin:
             torch.clamp(
                 q1_interface**2
                 + q2_interface**2
-                + q1_interface * q2_interface,
+                + 2.0 * cosine * q1_interface * q2_interface,
                 min=norm_floor**2,
             )
         )
@@ -1359,6 +1377,10 @@ class _ASRMappingMixin:
             ),
             u_breaks=identity_breaks,
             v_breaks=identity_breaks.clone(),
+            # The radial square maps this exact computational interface onto
+            # the circle. Testing the mapped radius again can break mirror
+            # symmetry through roundoff at points on the interface.
+            matched_outer_mask=None if triangular else (rho <= 1.0),
         )
 
     def _periodic_circle_mask(

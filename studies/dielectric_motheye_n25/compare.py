@@ -88,6 +88,35 @@ def scan_axis(study, axis, candidates, current, anchors, tolerance, energy_toler
             "comparisons": comparisons, "spectra": {str(k): v for k, v in spectra.items()}}
 
 
+def validate_final_spectrum(study, current, axes, spectrum, tolerance, energy_tolerance, save=None):
+    """Check every final wavelength at individually and jointly finer meshes.
+
+    Sparse anchors can miss a spectral feature. Checking R+T alone cannot
+    detect a wrong but lossless solution. Reuse individual optical cases.
+    """
+    wavelengths = [row["wavelength_nm"] for row in spectrum]
+    refinements = {axis: replace(current, **{axis: values[-1]}) for axis, values in axes.items()}
+    refinements["combined"] = Numerical(**{axis: values[-1] for axis, values in axes.items()})
+    result = {"complete": False, "passed": False, "baseline": asdict(current),
+              "wavelengths_nm": wavelengths, "checks": []}
+    for axis, refined in refinements.items():
+        print(f"{study.lattice}/{study.method}: full-spectrum mesh check {axis}", flush=True)
+        rows = study.spectrum(refined, wavelengths)
+        maximum, per_metric = adjacent_error(spectrum, rows)
+        passive = all(physical(row, energy_tolerance) for row in spectrum + rows)
+        worst = max(zip(spectrum, rows), key=lambda pair: adjacent_error([pair[0]], [pair[1]])[0])
+        result["checks"].append({"axis": axis, "numerical": asdict(refined),
+            "max_abs_change": maximum, "per_metric": per_metric,
+            "worst_wavelength_nm": worst[0]["wavelength_nm"], "physical": passive,
+            "passed": passive and maximum <= tolerance, "spectrum": rows})
+        if save:
+            save(result)
+    result.update(complete=True, passed=all(check["passed"] for check in result["checks"]))
+    if save:
+        save(result)
+    return result
+
+
 def recommendation(reports, lattice, tolerance, gradient_atol, gradient_rtol, require_spectrum,
                    energy_tolerance=1e-6):
     from .audit import PARAMETERS, compatible
@@ -95,13 +124,17 @@ def recommendation(reports, lattice, tolerance, gradient_atol, gradient_rtol, re
     result = {"lattice": lattice, "status": "insufficient_evidence",
               "derivative_free_method": None, "gradient_method": None}
     if any(r is None or r["status"] != "converged" for r in pair.values()):
-        result["reason"] = "Both methods must pass their three-axis convergence and lossless checks."
+        result["reason"] = "Both methods must pass mesh convergence and physical checks, including requested full spectra."
         return result
     if any(r["tolerance"] > tolerance or r["energy_tolerance"] > energy_tolerance for r in pair.values()):
         result["reason"] = "A stored method was validated with a looser tolerance; rerun it at the requested accuracy."
         return result
     if require_spectrum and any(not r.get("final_spectrum_complete") for r in pair.values()):
         result["reason"] = "Requested full spectra are incomplete."
+        return result
+    mesh_validations = [r.get("final_spectrum_mesh_validation") or {} for r in pair.values()]
+    if require_spectrum and any(not v.get("complete") or not v.get("passed") for v in mesh_validations):
+        result["reason"] = "Full-spectrum mesh refinement checks are incomplete or failed."
         return result
     spectra = {key: r["final_spectrum"] if require_spectrum else r["anchor_spectrum"] for key, r in pair.items()}
     try:
@@ -175,8 +208,10 @@ def build_parser():
         p.add_argument("--" + name, type=float, default=value)
     p.add_argument("--orders", default="2,4,6,8,10,12")
     p.add_argument("--slices", default="20,40,60,80")
-    p.add_argument("--grids", default="128,256,384")
-    p.add_argument("--anchor-wavelengths", default="400,430,436,495,505,550,700")
+    p.add_argument("--grids", default="256,384,512")
+    p.add_argument("--anchor-wavelengths", default="400,430,436,475,495,505,550,600,645,650,700")
+    p.add_argument("--asr-square-profile", choices=("radial", "equalized", "weiss2009", "identity"), default="radial")
+    p.add_argument("--no-layer-checkpoint", action="store_true")
     p.add_argument("--spectrum-wavelengths", default="400:700:5")
     p.add_argument("--tolerance", type=float, default=.001)
     p.add_argument("--energy-tolerance", type=float, default=1e-6)
@@ -248,6 +283,7 @@ def main(argv=None):
                    "substrate": "semi-infinite same material", "incidence": "normal x polarization",
                    "dtype": "complex128", "cascade": "redheffer", "smatrix_size": "half", "fields": "none",
                    "use_symmetry": not args.no_symmetry, "nv_lanczos_filter": False,
+                   "asr_square_profile": args.asr_square_profile,
                    "asr_factorization_rules": True, "source_sha256": source_hashes()}
     signature = signature_for(assumptions)
     plan = {"assumptions": assumptions, "signature": signature, "lattices": lattices, "methods": methods,
@@ -255,9 +291,11 @@ def main(argv=None):
             "tolerance": args.tolerance, "energy_tolerance": args.energy_tolerance,
             "max_cycles": args.max_cycles, "benchmark_repeats": args.benchmark_repeats,
             "gradient_audit": {"enabled": not args.skip_gradient_audit,
+                "layer_checkpointing": not args.no_layer_checkpoint,
                 "steps_nm": {"height_nm": args.fd_height_step_nm, "base_radius_nm": args.fd_radius_step_nm},
                 "atol_per_nm": args.gradient_atol, "rtol": args.gradient_rtol},
             "requested_device": args.device, "output_root": str(output),
+            "full_spectrum_mesh_validation": bool(args.run_final_spectrum),
             "substrate_first_diffraction_threshold_nm": {"square": geometry.index * geometry.period_nm,
                 "hexagonal": geometry.index * geometry.period_nm * math.sqrt(3) / 2},
             "flat_interface_reflectance": ((geometry.index - 1) / (geometry.index + 1)) ** 2,
@@ -291,7 +329,8 @@ def main(argv=None):
                 key = f"{lattice}/{method}"
                 studies[key] = Study(geometry=geometry, method=method, lattice=lattice, device=device,
                     use_symmetry=not args.no_symmetry, signature=signature_for({"physical": signature, "group": key}),
-                    checkpoint=group / "checkpoint.json")
+                    checkpoint=group / "checkpoint.json", square_asr_profile=args.asr_square_profile,
+                    checkpoint_layers=not args.no_layer_checkpoint)
     except (ValueError, OSError) as error:
         parser.error(str(error))
     write_json(output / "plan.json", plan)
@@ -309,6 +348,7 @@ def main(argv=None):
                   "anchor_wavelengths_nm": anchors, "tolerance": args.tolerance,
                   "energy_tolerance": args.energy_tolerance, "recommendation": asdict(current),
                   "history": [], "anchor_spectrum": [], "final_spectrum": [],
+                  "final_spectrum_mesh_validation": None,
                   "final_spectrum_complete": False, "audit": None, "integration": integration}
         write_json(report_path, report)
         write_csv(group / "spectrum.csv", [])
@@ -343,6 +383,17 @@ def main(argv=None):
                 report["status"] = ("converged" if all(physical(r, args.energy_tolerance)
                     for r in report["final_spectrum"]) else "nonphysical_final_spectrum")
                 report["mean_spectrum_reflectance"] = mean_reflectance(report["final_spectrum"])
+                if report["status"] == "converged":
+                    report["status"] = "spectrum_validation_running"
+
+                    def save_validation(result):
+                        report["final_spectrum_mesh_validation"] = result
+                        write_json(report_path, report)
+
+                    validation = validate_final_spectrum(study, current, axes,
+                        report["final_spectrum"], args.tolerance, args.energy_tolerance,
+                        save=save_validation)
+                    report["status"] = "converged" if validation["passed"] else "final_spectrum_not_converged"
             if report["status"] == "converged":
                 from .audit import run_audit
                 report["status"] = "audit_running"
