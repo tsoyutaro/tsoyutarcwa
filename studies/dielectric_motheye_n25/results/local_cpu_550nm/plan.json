@@ -1,0 +1,106 @@
+{
+  "assumptions": {
+    "geometry": {
+      "index": 2.5,
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 95.0,
+      "profile_power": 1.0,
+      "asr_circle_g": 0.03
+    },
+    "material": "lossless, nondispersive; epsilon=n^2, mu=1",
+    "substrate": "semi-infinite same material",
+    "incidence": "normal x polarization",
+    "dtype": "complex128",
+    "cascade": "redheffer",
+    "smatrix_size": "half",
+    "fields": "none",
+    "use_symmetry": true,
+    "nv_lanczos_filter": false,
+    "asr_factorization_rules": true,
+    "source_sha256": {
+      "studies/dielectric_motheye_n25/model.py": "e33644b5dbfbc26f7528b2f65bc1b19231cced04df1a27ec8e4dc9a87be11505",
+      "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+      "studies/pmma_gold_motheye/common.py": "fbd63af8a877a424a6d5f95bfe9d74f1f0166fd287a93e91b2d7c7ced77c100c",
+      "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+      "rcwa_ext/asr.py": "4917b39f60cf6d53c060ddf5d09c3b484fc822ab2a1ef5365edb4d51d26dd82e",
+      "rcwa_ext/asr_maps.py": "3dd35a4714a0f3e1eb2785b2e588464263c2692300c5545e19684049fde23ed4",
+      "rcwa_ext/auto.py": "b01853630cbc92765f7e553a542976c71684bea4422f7cdbe473008aca8b6f79",
+      "rcwa_ext/config.py": "7dd514744bb64c78aab0e9da42be1f5f60ea0066ba6921a59649972a5553b51a",
+      "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+      "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+      "rcwa_ext/reduced.py": "683a241f1b0cd2a37cac50d6a9c012d827f0da3c56d3d135c1b9a3825cc74209",
+      "rcwa_ext/scattering.py": "72fa7c523a84705b631a4264e235e6f874055d39c2bf4927387d388021a5de25",
+      "rcwa_ext/symmetry.py": "acc71992589157c0f3bd9115731fe3f91a1ea438fb0fb43289994a7d60edbc7f",
+      "installed_torcwa/__init__.py": "0b283d41acec3330ad0f56b3cbe54c1c7061b64f4496b61666f90c165aee8264",
+      "installed_torcwa/geometry.py": "50a2a1d447d7bc01261e8c98fc9c667a01a0d4fd179e639ea945087cca8e4cc4",
+      "installed_torcwa/rcwa.py": "b902f14de0ad7f18cd394f4e23820e70aa2507542d417642b3b16736e239feba",
+      "installed_torcwa/torch_eig.py": "762dc49df3a6243da57d4003cf3923ad728e58cf11564344b3990e9d244201f5"
+    }
+  },
+  "signature": "4cfad33a8a3426354cb0bed7e0e0b7051d63406731298cf714ab106f644a6915",
+  "lattices": [
+    "hexagonal",
+    "square"
+  ],
+  "methods": [
+    "nv",
+    "asr"
+  ],
+  "candidate_axes": {
+    "order": [
+      2,
+      4,
+      6,
+      8
+    ],
+    "slices": [
+      8,
+      12,
+      16
+    ],
+    "grid": [
+      64,
+      96,
+      128
+    ]
+  },
+  "anchor_wavelengths_nm": [
+    550.0
+  ],
+  "spectrum_wavelengths_nm": [
+    550.0
+  ],
+  "tolerance": 0.001,
+  "energy_tolerance": 1e-06,
+  "max_cycles": 4,
+  "benchmark_repeats": 1,
+  "gradient_audit": {
+    "enabled": true,
+    "steps_nm": {
+      "height_nm": 0.1,
+      "base_radius_nm": 0.02
+    },
+    "atol_per_nm": 1e-07,
+    "rtol": 0.05
+  },
+  "requested_device": "cpu",
+  "output_root": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\dielectric_motheye_n25\\results\\local_cpu_550nm",
+  "substrate_first_diffraction_threshold_nm": {
+    "square": 500.0,
+    "hexagonal": 433.0127018922193
+  },
+  "flat_interface_reflectance": 0.18367346938775508,
+  "base_fill_fraction": {
+    "hexagonal": 0.8184769631106908,
+    "square": 0.7088218424661971
+  },
+  "integration": {
+    "device": "cpu",
+    "torch_version": "2.8.0+cpu",
+    "cuda_version": null,
+    "gpu": null,
+    "cpu_threads": 2
+  }
+}

@@ -1,0 +1,416 @@
+{
+  "signature": "9506d3c4d78fe62ebbe1815fb1bb318917b7fa62be71d8f6f183601833d80855",
+  "tasks": {
+    "forward_warmup": {
+      "objective": 0.0058926191537959135,
+      "gradient_per_nm": null,
+      "max_energy_residual": 4.218847493575595e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.0058926191537959135,
+          "transmittance": 0.9941073808462082,
+          "absorptance": -4.107825191113079e-15,
+          "energy_residual": 4.218847493575595e-15,
+          "runtime_seconds": 9.161139099975117,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ],
+      "seconds": 9.164111099991715,
+      "peak_cuda_allocated_mb": null,
+      "peak_cuda_reserved_mb": null
+    },
+    "forward_0": {
+      "objective": 0.0058926191537959135,
+      "gradient_per_nm": null,
+      "max_energy_residual": 4.218847493575595e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.0058926191537959135,
+          "transmittance": 0.9941073808462082,
+          "absorptance": -4.107825191113079e-15,
+          "energy_residual": 4.218847493575595e-15,
+          "runtime_seconds": 7.632809200003976,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ],
+      "seconds": 7.639185999985784,
+      "peak_cuda_allocated_mb": null,
+      "peak_cuda_reserved_mb": null
+    },
+    "gradient_warmup": {
+      "objective": 0.0058926191537959135,
+      "gradient_per_nm": {
+        "height_nm": 5.036149709416597e-07,
+        "base_radius_nm": -0.0008545300239791172
+      },
+      "max_energy_residual": 4.218847493575595e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.0058926191537959135,
+          "transmittance": 0.9941073808462082,
+          "absorptance": -4.107825191113079e-15,
+          "energy_residual": 4.218847493575595e-15,
+          "runtime_seconds": 11.617872000002535,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ],
+      "seconds": 19.503530000016326,
+      "peak_cuda_allocated_mb": null,
+      "peak_cuda_reserved_mb": null
+    },
+    "gradient_0": {
+      "objective": 0.0058926191537959135,
+      "gradient_per_nm": {
+        "height_nm": 5.036149709416597e-07,
+        "base_radius_nm": -0.0008545300239791172
+      },
+      "max_energy_residual": 4.218847493575595e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.0058926191537959135,
+          "transmittance": 0.9941073808462082,
+          "absorptance": -4.107825191113079e-15,
+          "energy_residual": 4.218847493575595e-15,
+          "runtime_seconds": 9.88907899998594,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ],
+      "seconds": 17.383379600010812,
+      "peak_cuda_allocated_mb": null,
+      "peak_cuda_reserved_mb": null
+    },
+    "fd_height_nm_1.0_plus": {
+      "objective": 0.0058926649823856665,
+      "gradient_per_nm": null,
+      "max_energy_residual": 6.661338147750939e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.0058926649823856665,
+          "transmittance": 0.9941073350176076,
+          "absorptance": 6.661338147750939e-15,
+          "energy_residual": -6.661338147750939e-15,
+          "runtime_seconds": 8.103414100012742,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ]
+    },
+    "fd_height_nm_1.0_minus": {
+      "objective": 0.005892564259672763,
+      "gradient_per_nm": null,
+      "max_energy_residual": 2.4424906541753444e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.005892564259672763,
+          "transmittance": 0.9941074357403248,
+          "absorptance": 2.4424906541753444e-15,
+          "energy_residual": -2.4424906541753444e-15,
+          "runtime_seconds": 7.756196399976034,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ]
+    },
+    "fd_height_nm_0.5_plus": {
+      "objective": 0.005892643201334469,
+      "gradient_per_nm": null,
+      "max_energy_residual": 6.994405055138486e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.005892643201334469,
+          "transmittance": 0.9941073567986586,
+          "absorptance": 6.994405055138486e-15,
+          "energy_residual": -6.994405055138486e-15,
+          "runtime_seconds": 7.811897900013719,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ]
+    },
+    "fd_height_nm_0.5_minus": {
+      "objective": 0.005892592839872526,
+      "gradient_per_nm": null,
+      "max_energy_residual": 2.4424906541753444e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.005892592839872526,
+          "transmittance": 0.994107407160125,
+          "absorptance": 2.4424906541753444e-15,
+          "energy_residual": -2.4424906541753444e-15,
+          "runtime_seconds": 8.339832900004694,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ]
+    },
+    "fd_base_radius_nm_1.0_plus": {
+      "objective": 0.005954560277775523,
+      "gradient_per_nm": null,
+      "max_energy_residual": 1.2878587085651816e-14,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.005954560277775523,
+          "transmittance": 0.9940454397222116,
+          "absorptance": 1.2878587085651816e-14,
+          "energy_residual": -1.2878587085651816e-14,
+          "runtime_seconds": 7.8389843000040855,
+          "device": "cpu",
+          "base_fill_fraction": 0.8188216212658825
+        }
+      ]
+    },
+    "fd_base_radius_nm_1.0_minus": {
+      "objective": 0.0058159939307018335,
+      "gradient_per_nm": null,
+      "max_energy_residual": 4.6629367034256575e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.0058159939307018335,
+          "transmittance": 0.9941840060692935,
+          "absorptance": 4.6629367034256575e-15,
+          "energy_residual": -4.6629367034256575e-15,
+          "runtime_seconds": 8.343634199991357,
+          "device": "cpu",
+          "base_fill_fraction": 0.8181323775074737
+        }
+      ]
+    },
+    "fd_base_radius_nm_0.5_plus": {
+      "objective": 0.005964180294338024,
+      "gradient_per_nm": null,
+      "max_energy_residual": 2.886579864025407e-14,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.005964180294338024,
+          "transmittance": 0.9940358197056909,
+          "absorptance": -2.886579864025407e-14,
+          "energy_residual": 2.886579864025407e-14,
+          "runtime_seconds": 8.295857699995395,
+          "device": "cpu",
+          "base_fill_fraction": 0.81864928311929
+        }
+      ]
+    },
+    "fd_base_radius_nm_0.5_minus": {
+      "objective": 0.005811620000838297,
+      "gradient_per_nm": null,
+      "max_energy_residual": 1.509903313490213e-14,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.005811620000838297,
+          "transmittance": 0.9941883799991466,
+          "absorptance": 1.509903313490213e-14,
+          "energy_residual": -1.509903313490213e-14,
+          "runtime_seconds": 7.984943199990084,
+          "device": "cpu",
+          "base_fill_fraction": 0.8183046612400853
+        }
+      ]
+    },
+    "refined_gradient_order": {
+      "objective": 0.00585527104268763,
+      "gradient_per_nm": {
+        "height_nm": -3.3735697053137934e-06,
+        "base_radius_nm": -0.0009205921914240072
+      },
+      "max_energy_residual": 1.5210055437364645e-14,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 8,
+          "slices": 12,
+          "grid": 96,
+          "retained_scalar_harmonics": 217,
+          "eigen_dimension": 73,
+          "full_dimension": 578,
+          "reflectance": 0.00585527104268763,
+          "transmittance": 0.9941447289572971,
+          "absorptance": 1.5210055437364645e-14,
+          "energy_residual": -1.5210055437364645e-14,
+          "runtime_seconds": 24.47161610002513,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ],
+      "seconds": 42.47150249997503,
+      "peak_cuda_allocated_mb": null,
+      "peak_cuda_reserved_mb": null
+    },
+    "refined_gradient_slices": {
+      "objective": 0.005674145864590056,
+      "gradient_per_nm": {
+        "height_nm": 6.333509971718531e-07,
+        "base_radius_nm": 2.590305759341839e-05
+      },
+      "max_energy_residual": 3.1086244689504383e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 16,
+          "grid": 96,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.005674145864590056,
+          "transmittance": 0.994325854135413,
+          "absorptance": -2.9976021664879227e-15,
+          "energy_residual": 3.1086244689504383e-15,
+          "runtime_seconds": 12.948036199988564,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ],
+      "seconds": 23.69277679998777,
+      "peak_cuda_allocated_mb": null,
+      "peak_cuda_reserved_mb": null
+    },
+    "refined_gradient_grid": {
+      "objective": 0.005643133617863826,
+      "gradient_per_nm": {
+        "height_nm": 1.7207420257608884e-07,
+        "base_radius_nm": -0.0008092349055242325
+      },
+      "max_energy_residual": 6.661338147750939e-15,
+      "rows": [
+        {
+          "lattice": "hexagonal",
+          "method": "asr",
+          "wavelength_nm": 550.0,
+          "order": 6,
+          "slices": 12,
+          "grid": 128,
+          "retained_scalar_harmonics": 127,
+          "eigen_dimension": 43,
+          "full_dimension": 338,
+          "reflectance": 0.005643133617863826,
+          "transmittance": 0.9943568663821429,
+          "absorptance": -6.772360450213455e-15,
+          "energy_residual": 6.661338147750939e-15,
+          "runtime_seconds": 11.51382389999344,
+          "device": "cpu",
+          "base_fill_fraction": 0.8184769631106908
+        }
+      ],
+      "seconds": 22.134258800011594,
+      "peak_cuda_allocated_mb": null,
+      "peak_cuda_reserved_mb": null
+    }
+  }
+}
