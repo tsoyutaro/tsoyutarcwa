@@ -110,7 +110,7 @@
   "tolerance_percentage_points": 0.5,
   "max_cycles": 4,
   "requested_device": "cuda",
-  "output_root": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_metal_motheye\\results\\fe",
+  "output_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/fe",
   "final_spectrum_requested": true,
   "spectrum_wavelengths_nm": [
     400.0,
@@ -194,5 +194,14 @@
       "epsilon_metal_real": -1.9153533333333344,
       "epsilon_metal_imag": 18.234106666666666
     }
-  ]
+  ],
+  "integration": {
+    "requested_device": "cuda",
+    "device": "cuda",
+    "torch_version": "2.6.0+cu124",
+    "cuda_version": "12.4",
+    "gpu": "NVIDIA H100",
+    "host_preparation": "geometry, material interpolation and quadrature setup on CPU",
+    "gpu_calculation": "complex128 matrices, eigenproblems, interfaces, cascade and flux"
+  }
 }

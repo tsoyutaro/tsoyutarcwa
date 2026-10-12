@@ -1,0 +1,158 @@
+{
+  "settings": {
+    "physical_signature": "1a65ec0e3e133f12ab1964a2e165f3e91ac9ca4b84a89fd12bf813bac281ad94",
+    "numerical": {
+      "order": 6,
+      "slices": 60,
+      "grid": 384
+    },
+    "refinements": {
+      "order": {
+        "order": 16,
+        "slices": 60,
+        "grid": 384
+      },
+      "slices": {
+        "order": 6,
+        "slices": 100,
+        "grid": 384
+      },
+      "grid": {
+        "order": 6,
+        "slices": 60,
+        "grid": 512
+      }
+    },
+    "wavelengths": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "steps_nm": {
+      "height_nm": 0.1,
+      "base_radius_nm": 0.02
+    },
+    "atol_per_nm": 1e-07,
+    "rtol": 0.05,
+    "energy_tolerance": 1e-06,
+    "repeats": 3,
+    "integration": {
+      "device": "cuda:0",
+      "torch_version": "2.6.0+cu124",
+      "cuda_version": "12.4",
+      "gpu": "NVIDIA H100",
+      "cpu_threads": 4
+    },
+    "check_gradients": true,
+    "checkpoint_layers": true,
+    "audit_source_sha256": "f3b9db380caf1aaee449f6fffab828c3e804aeb3d4bb995b37fea339aa32ee18"
+  },
+  "objective_definition": "trapezoidal wavelength average of R over audit wavelengths",
+  "forward": {
+    "median_seconds": 24.48523091804236,
+    "samples_seconds": [
+      24.148845833726227,
+      24.637233311776072,
+      24.48523091804236
+    ],
+    "max_peak_cuda_allocated_mb": 657.75634765625
+  },
+  "gradient": {
+    "median_seconds": 40.07477564411238,
+    "samples_seconds": [
+      39.60350739490241,
+      40.07477564411238,
+      40.11861470108852
+    ],
+    "max_peak_cuda_allocated_mb": 2467.42529296875
+  },
+  "gradient_passed": false,
+  "coverage": "height and base radius only; not a proof for all per-slice design variables",
+  "forward_physical": true,
+  "objective": 0.006408300026774717,
+  "gradient_per_nm": {
+    "height_nm": -1.0670462780281159e-05,
+    "base_radius_nm": -0.0007687355754405457
+  },
+  "fd_checks": [
+    {
+      "parameter": "height_nm",
+      "autograd_per_nm": -1.0670462780281159e-05,
+      "fd_h_per_nm": -1.0670451867549405e-05,
+      "fd_half_h_per_nm": -1.0670460050361472e-05,
+      "passed": true
+    },
+    {
+      "parameter": "base_radius_nm",
+      "autograd_per_nm": -0.0007687355754405457,
+      "fd_h_per_nm": -0.0007687359675835701,
+      "fd_half_h_per_nm": -0.0007687358454287231,
+      "passed": true
+    }
+  ],
+  "refinement_checks": [
+    {
+      "axis": "order",
+      "numerical": {
+        "order": 16,
+        "slices": 60,
+        "grid": 384
+      },
+      "per_parameter": {
+        "height_nm": {
+          "baseline": -1.0670462780281159e-05,
+          "refined": -1.155916812781296e-05,
+          "passed": false
+        },
+        "base_radius_nm": {
+          "baseline": -0.0007687355754405457,
+          "refined": -0.0007689083670812857,
+          "passed": true
+        }
+      },
+      "passed": false
+    },
+    {
+      "axis": "slices",
+      "numerical": {
+        "order": 6,
+        "slices": 100,
+        "grid": 384
+      },
+      "per_parameter": {
+        "height_nm": {
+          "baseline": -1.0670462780281159e-05,
+          "refined": -1.066325051528652e-05,
+          "passed": true
+        },
+        "base_radius_nm": {
+          "baseline": -0.0007687355754405457,
+          "refined": -0.0007675996686751548,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    {
+      "axis": "grid",
+      "numerical": {
+        "order": 6,
+        "slices": 60,
+        "grid": 512
+      },
+      "per_parameter": {
+        "height_nm": {
+          "baseline": -1.0670462780281159e-05,
+          "refined": -1.0578108383583175e-05,
+          "passed": true
+        },
+        "base_radius_nm": {
+          "baseline": -0.0007687355754405457,
+          "refined": -0.0007640928618181048,
+          "passed": true
+        }
+      },
+      "passed": true
+    }
+  ]
+}
