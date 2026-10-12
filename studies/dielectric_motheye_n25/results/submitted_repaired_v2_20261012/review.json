@@ -1,0 +1,395 @@
+{
+  "hexagonal/nv": {
+    "status": "converged",
+    "numerical": {
+      "order": 6,
+      "slices": 60,
+      "grid": 384
+    },
+    "wavelength_count": 61,
+    "mean_R": 0.005969004399860856,
+    "max_energy_residual": 2.5979218776228663e-14,
+    "refined_mean_R": 0.005926164253068403,
+    "audit_wavelengths": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "gradient_passed": false,
+    "failed_fd_checks": [],
+    "failed_refinement_checks": [
+      {
+        "axis": "order",
+        "numerical": {
+          "order": 16,
+          "slices": 60,
+          "grid": 384
+        },
+        "per_parameter": {
+          "height_nm": {
+            "baseline": -1.0670462780281159e-05,
+            "refined": -1.155916812781296e-05,
+            "passed": false
+          },
+          "base_radius_nm": {
+            "baseline": -0.0007687355754405457,
+            "refined": -0.0007689083670812857,
+            "passed": true
+          }
+        },
+        "passed": false
+      }
+    ]
+  },
+  "hexagonal/asr": {
+    "status": "converged",
+    "numerical": {
+      "order": 8,
+      "slices": 60,
+      "grid": 384
+    },
+    "wavelength_count": 61,
+    "mean_R": 0.005323211858094628,
+    "max_energy_residual": 4.596323321948148e-14,
+    "refined_mean_R": 0.005651018724210843,
+    "audit_wavelengths": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "gradient_passed": false,
+    "failed_fd_checks": [
+      {
+        "parameter": "base_radius_nm",
+        "autograd_per_nm": -0.0008649330652373607,
+        "fd_h_per_nm": -0.0007113903702438184,
+        "fd_half_h_per_nm": -0.0006314280256295487,
+        "passed": false
+      }
+    ],
+    "failed_refinement_checks": [
+      {
+        "axis": "order",
+        "numerical": {
+          "order": 16,
+          "slices": 60,
+          "grid": 384
+        },
+        "per_parameter": {
+          "height_nm": {
+            "baseline": -1.5660952035817747e-05,
+            "refined": -1.3693620564885717e-05,
+            "passed": false
+          },
+          "base_radius_nm": {
+            "baseline": -0.0008649330652373607,
+            "refined": -0.0008585168021505521,
+            "passed": true
+          }
+        },
+        "passed": false
+      },
+      {
+        "axis": "slices",
+        "numerical": {
+          "order": 8,
+          "slices": 100,
+          "grid": 384
+        },
+        "per_parameter": {
+          "height_nm": {
+            "baseline": -1.5660952035817747e-05,
+            "refined": -1.570807843286988e-05,
+            "passed": true
+          },
+          "base_radius_nm": {
+            "baseline": -0.0008649330652373607,
+            "refined": -0.0005616697035881969,
+            "passed": false
+          }
+        },
+        "passed": false
+      },
+      {
+        "axis": "grid",
+        "numerical": {
+          "order": 8,
+          "slices": 60,
+          "grid": 512
+        },
+        "per_parameter": {
+          "height_nm": {
+            "baseline": -1.5660952035817747e-05,
+            "refined": -1.5642461826879233e-05,
+            "passed": true
+          },
+          "base_radius_nm": {
+            "baseline": -0.0008649330652373607,
+            "refined": -0.000693125170739913,
+            "passed": false
+          }
+        },
+        "passed": false
+      }
+    ]
+  },
+  "square/nv": {
+    "status": "converged",
+    "numerical": {
+      "order": 6,
+      "slices": 60,
+      "grid": 384
+    },
+    "wavelength_count": 61,
+    "mean_R": 0.007370139639841692,
+    "max_energy_residual": 5.10702591327572e-14,
+    "refined_mean_R": 0.007302228761924542,
+    "audit_wavelengths": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "gradient_passed": true,
+    "failed_fd_checks": [],
+    "failed_refinement_checks": []
+  },
+  "square/asr": {
+    "status": "nonphysical_results",
+    "numerical": {
+      "order": 16,
+      "slices": 100,
+      "grid": 512
+    },
+    "wavelength_count": 3,
+    "mean_R": 0.006541036551828532,
+    "max_energy_residual": 6.027750760084771e-06,
+    "refined_mean_R": null,
+    "audit_wavelengths": null,
+    "gradient_passed": null,
+    "failed_fd_checks": [],
+    "failed_refinement_checks": []
+  },
+  "hexagonal_cross": {
+    "baseline": {
+      "max_abs_change": 0.0010794171265989744,
+      "per_metric": {
+        "reflectance": 0.0010794171265989744,
+        "transmittance": 0.0010794171265979813,
+        "absorptance": 6.272760089132134e-14
+      },
+      "worst_wavelength_nm": 630.0,
+      "NV_R": 0.007762628579669979,
+      "ASR_R": 0.006683211453071005,
+      "physical": true,
+      "within_0.001": false
+    },
+    "order": {
+      "max_abs_change": 0.0005228971345987432,
+      "per_metric": {
+        "reflectance": 0.0005228971343218276,
+        "transmittance": 0.0005228971345987432,
+        "absorptance": 2.3221424783059774e-12
+      },
+      "worst_wavelength_nm": 600.0,
+      "NV_R": 0.0074611741917705865,
+      "ASR_R": 0.006938277057448759,
+      "physical": true,
+      "within_0.001": true
+    },
+    "slices": {
+      "max_abs_change": 0.0010429000991912102,
+      "per_metric": {
+        "reflectance": 0.0010429000991912102,
+        "transmittance": 0.0010429000991717396,
+        "absorptance": 6.439293542825908e-14
+      },
+      "worst_wavelength_nm": 630.0,
+      "NV_R": 0.00777994346908946,
+      "ASR_R": 0.00673704336989825,
+      "physical": true,
+      "within_0.001": false
+    },
+    "grid": {
+      "max_abs_change": 0.0010625689446645695,
+      "per_metric": {
+        "reflectance": 0.0010625689446645695,
+        "transmittance": 0.0010625689446359665,
+        "absorptance": 1.2101430968414206e-13
+      },
+      "worst_wavelength_nm": 630.0,
+      "NV_R": 0.007750168925132295,
+      "ASR_R": 0.006687599980467726,
+      "physical": true,
+      "within_0.001": false
+    },
+    "combined": {
+      "max_abs_change": 0.0004294767508622741,
+      "per_metric": {
+        "reflectance": 0.0004294767508622741,
+        "transmittance": 0.00042947675035931443,
+        "absorptance": 1.8200996265704816e-12
+      },
+      "worst_wavelength_nm": 600.0,
+      "NV_R": 0.007479173128188886,
+      "ASR_R": 0.007049696377326612,
+      "physical": true,
+      "within_0.001": true
+    }
+  },
+  "provenance": {
+    "input_file": "C:\\Users\\tsoyu\\Downloads\\comparison.json",
+    "sha256": "d4e0066020732f5e3f868d4c7716016cd618f50e09dd0ec77b6c7026bff8afa7",
+    "optical_results": "Submitted GPU results, not recomputed locally",
+    "diagnostics": "Additional CPU trace/mask diagnostics do not replace the submitted GPU spectra"
+  },
+  "local_trace_diagnostics": [
+    {
+      "M": 12,
+      "Q": 128,
+      "radius_nm": 5.45,
+      "jacobian_min": 0.03951582887733425,
+      "condition": 116.51608717351708,
+      "smin": 0.011973583518779779,
+      "smax": 1.395115101053532,
+      "seconds": 2.656439699989278
+    },
+    {
+      "M": 12,
+      "Q": 128,
+      "radius_nm": 30.0,
+      "jacobian_min": 0.03712398971395381,
+      "condition": 141.74022472051487,
+      "smin": 0.011213789851947034,
+      "smax": 1.5894450935836018,
+      "seconds": 0.9065157999866642
+    },
+    {
+      "M": 12,
+      "Q": 128,
+      "radius_nm": 60.0,
+      "jacobian_min": 0.03712398971395381,
+      "condition": 474.5809395048003,
+      "smin": 0.003621031903012326,
+      "smax": 1.7184727225084446,
+      "seconds": 0.9406159999780357
+    },
+    {
+      "M": 12,
+      "Q": 128,
+      "radius_nm": 94.55,
+      "jacobian_min": 0.034127428267475016,
+      "condition": 20507.55851887296,
+      "smin": 0.0001848064743492958,
+      "smax": 3.7899295873847785,
+      "seconds": 0.884261500032153
+    },
+    {
+      "M": 16,
+      "Q": 128,
+      "radius_nm": 5.45,
+      "jacobian_min": 0.03951582887733425,
+      "condition": 1691.8912835073304,
+      "smin": 0.0008329091530625296,
+      "smax": 1.4091917360199668,
+      "seconds": 1.9206221000058576
+    },
+    {
+      "M": 16,
+      "Q": 128,
+      "radius_nm": 30.0,
+      "jacobian_min": 0.03712398971395381,
+      "condition": 2369.3102908394007,
+      "smin": 0.0007151920110505063,
+      "smax": 1.6945117917080912,
+      "seconds": 1.9743211000459269
+    },
+    {
+      "M": 16,
+      "Q": 128,
+      "radius_nm": 60.0,
+      "jacobian_min": 0.03712398971395381,
+      "condition": 9532.896492535863,
+      "smin": 0.00018605079649363626,
+      "smax": 1.7736029853276887,
+      "seconds": 1.9064604999730363
+    },
+    {
+      "M": 16,
+      "Q": 128,
+      "radius_nm": 94.55,
+      "jacobian_min": 0.034127428267475016,
+      "condition": 1072848.6087687653,
+      "smin": 4.481419693147323e-06,
+      "smax": 4.807884883102052,
+      "seconds": 1.907273399992846
+    },
+    {
+      "M": 16,
+      "Q": 384,
+      "radius_nm": 5.45,
+      "jacobian_min": 0.02814190584345777,
+      "condition": 1702.051737940424,
+      "smin": 0.0008289801117776646,
+      "smax": 1.410967039969221,
+      "seconds": 11.787589900020976
+    },
+    {
+      "M": 16,
+      "Q": 384,
+      "radius_nm": 60.0,
+      "jacobian_min": 0.0238560892711418,
+      "condition": 9636.119017843399,
+      "smin": 0.00018406717810379023,
+      "smax": 1.7736932354867012,
+      "seconds": 12.390977900009602
+    }
+  ],
+  "local_G_diagnostics": [
+    {
+      "M": 16,
+      "Q": 128,
+      "G": 0.03,
+      "radius_nm": 94.55,
+      "condition": 1072848.6087687653,
+      "jacobian_min": 0.034127428267475016
+    },
+    {
+      "M": 16,
+      "Q": 128,
+      "G": 0.1,
+      "radius_nm": 94.55,
+      "condition": 1874391.7706309892,
+      "jacobian_min": 0.08227816072990321
+    },
+    {
+      "M": 16,
+      "Q": 128,
+      "G": 0.3,
+      "radius_nm": 94.55,
+      "condition": 6207984.054440546,
+      "jacobian_min": 0.219413882303937
+    },
+    {
+      "M": 16,
+      "Q": 128,
+      "G": 0.5,
+      "radius_nm": 94.55,
+      "condition": 4531457.451481259,
+      "jacobian_min": 0.3559010116599126
+    }
+  ],
+  "local_mask_diagnostic": {
+    "Q": 384,
+    "Nz": 60,
+    "slice_index_1based": 18,
+    "base_radius_nm_values": [
+      94.98,
+      95,
+      95.02
+    ],
+    "changed_mask_samples_plus_vs_minus": {
+      "square": 480,
+      "hexagonal": 240
+    }
+  }
+}

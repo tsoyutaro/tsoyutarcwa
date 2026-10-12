@@ -1,0 +1,65 @@
+{
+  "scope": "CPU diagnostics; original modes held for cascade ablation; local map M16 uses Nz20 and Q128, not the failing GPU Nz100/Q512 case",
+  "legacy_mode_cascade_ablation": {
+    "legacy": {
+      "R": 0.27757066976838307,
+      "T": 0.7224104433671712,
+      "energy": -1.8886864445732954e-05
+    },
+    "equilibrated": {
+      "R": 0.27755356145690735,
+      "T": 0.7225700553405602,
+      "energy": 0.00012361679746764054,
+      "seconds": 310.863217599981
+    },
+    "boundary": {
+      "R": 0.2775799430219605,
+      "T": 0.7225230335422962,
+      "energy": 0.00010297656425661827,
+      "seconds": 282.86933609994594
+    }
+  },
+  "local_map_M16_asr": {
+    "lattice": "square",
+    "method": "asr",
+    "wavelength_nm": 700.0,
+    "order": 16,
+    "slices": 20,
+    "grid": 128,
+    "retained_scalar_harmonics": 1089,
+    "eigen_dimension": 545,
+    "full_dimension": 2178,
+    "reflectance": 0.01578064208458109,
+    "transmittance": 0.9842193579151552,
+    "absorptance": 2.636779683484747e-13,
+    "energy_residual": -2.636779683484747e-13,
+    "runtime_seconds": 834.178258400003,
+    "device": "cpu",
+    "base_fill_fraction": 0.7088218424661971,
+    "asr_profile": "local-radial",
+    "gradient_layer_checkpointing": false,
+    "fixed_asr_interfaces": true
+  },
+  "local_map_M16_nv": {
+    "lattice": "square",
+    "method": "nv",
+    "wavelength_nm": 700.0,
+    "order": 16,
+    "slices": 20,
+    "grid": 128,
+    "retained_scalar_harmonics": 1089,
+    "eigen_dimension": 545,
+    "full_dimension": 2178,
+    "reflectance": 0.015892827841838746,
+    "transmittance": 0.9841071721580799,
+    "absorptance": 8.137934770502397e-14,
+    "energy_residual": -8.137934770502397e-14,
+    "runtime_seconds": 427.8985104000312,
+    "device": "cpu",
+    "base_fill_fraction": 0.7088218424661971,
+    "asr_profile": null,
+    "gradient_layer_checkpointing": false,
+    "fixed_asr_interfaces": false
+  },
+  "M16_cross_method_abs_change": 0.00011218575725765664
+}

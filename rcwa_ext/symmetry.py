@@ -1548,6 +1548,7 @@ class _SymmetryReductionMixin:
         triangular_star_pq: tuple[torch.Tensor, torch.Tensor] | None = None,
         backend: str = "matched-ASR",
         magnetic_transform: torch.Tensor | None = None,
+        flux_dual: bool = False,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Solve one x/y mirror sector for matched-ASR or triangular NVM."""
         polarization = self.polarization_reduction
@@ -1737,13 +1738,8 @@ class _SymmetryReductionMixin:
             magnetic_uv_full = magnetic_uv_basis @ magnetic_sub
             electric_basis, magnetic_basis = electric_uv_basis, magnetic_uv_basis
             electric_cart_raw = torch.matmul(transform, electric_uv_full)
-            magnetic_cart_raw = torch.matmul(
-                transform if magnetic_transform is None else magnetic_transform,
-                magnetic_uv_full,
-            )
             electric_cart_sub = torch.matmul(electric_basis.mH, electric_cart_raw)
-            magnetic_cart_sub = torch.matmul(magnetic_basis.mH, magnetic_cart_raw)
-            if backend == 'matched-ASR' and magnetic_transform is not None:
+            if backend == 'matched-ASR' and (magnetic_transform is not None or flux_dual):
                 # Restrict BEFORE the inverse-adjoint solve. At large orders
                 # the dense dual transform amplifies tiny off-sector FFT
                 # roundoff; projecting its already inverted result is unstable.
@@ -1757,6 +1753,10 @@ class _SymmetryReductionMixin:
                     te_sub.mH,pairing/float(getattr(self,'sin_zeta',1.))))
                 magnetic_cart_sub = th_sub @ magnetic_sub
                 magnetic_cart_raw = magnetic_basis @ magnetic_cart_sub
+            else:
+                magnetic_cart_raw = torch.matmul(
+                    transform if magnetic_transform is None else magnetic_transform, magnetic_uv_full)
+                magnetic_cart_sub = magnetic_basis.mH @ magnetic_cart_raw
             electric_cart_full = torch.matmul(electric_basis, electric_cart_sub)
             magnetic_cart_full = torch.matmul(magnetic_basis, magnetic_cart_sub)
             conversion_residual = torch.maximum(

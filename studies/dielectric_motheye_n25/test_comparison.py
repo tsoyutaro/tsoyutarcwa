@@ -11,7 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from .compare import (comparison_exit_code, main, recommendation, scan_axis,
-                      validate_final_spectrum, converge_with_spectrum)
+                      validate_final_spectrum, converge_with_spectrum, gradient_refinement_floors)
 from .model import (Geometry, Numerical, Study, choose_candidate, physical,
                     solve, trapezoid_weights)
 
@@ -77,6 +77,27 @@ class Guards(unittest.TestCase):
         weights = trapezoid_weights([400, 500, 700])
         self.assertAlmostEqual(sum(weights), 1)
         self.assertAlmostEqual(sum(w * y for w, y in zip(weights, (.1, .2, .4))), .25)
+
+    def test_minimum_order_requires_an_independent_finer_candidate(self):
+        class FlatStudy:
+            def spectrum(self, n, wavelengths):
+                return [row(.01, w) for w in wavelengths]
+        args = (FlatStudy(), "order", [4, 8, 12, 16, 20], Numerical(8, 4, 64), [550.], .001, 1e-6, 1)
+        selected = scan_axis(*args, minimum_candidate=16)
+        self.assertTrue(selected["converged"])
+        self.assertEqual(selected["selected"], 16)
+        self.assertFalse(scan_axis(*args, minimum_candidate=20)["converged"])
+
+    def test_only_verified_derivatives_can_trigger_mesh_promotion(self):
+        audit = {"fd_checks": [{"passed": True}], "auxiliary_physical": True,
+                 "refinement_checks": [{"axis": "order", "passed": False}]}
+        axes = {"order": [4, 8, 12, 16], "slices": [4, 6, 8], "grid": [64, 96, 128]}
+        self.assertEqual(gradient_refinement_floors(audit, Numerical(8, 6, 96), axes), {"order": 12})
+        self.assertFalse(gradient_refinement_floors(audit, Numerical(12, 6, 96), axes))
+        audit["fd_checks"][0]["passed"] = False
+        self.assertFalse(gradient_refinement_floors(audit, Numerical(8, 6, 96), axes))
+        audit["fd_checks"][0]["passed"], audit["auxiliary_physical"] = True, False
+        self.assertFalse(gradient_refinement_floors(audit, Numerical(8, 6, 96), axes))
 
     def test_full_mesh_validation_detects_peak_between_original_anchors_and_joint_drift(self):
         class FakeStudy:
@@ -202,6 +223,7 @@ class Guards(unittest.TestCase):
             self.assertEqual(plan["substrate_first_diffraction_threshold_nm"]["square"], 500)
             self.assertEqual(plan["anchor_wavelengths_nm"], [400., 550., 700.])
             self.assertEqual(len(plan["gradient_audit"]["wavelengths_nm"]), 11)
+            self.assertEqual(plan["mesh_tolerance"], .00025)
             self.assertEqual(main(["--device", "cuda", "--dry-run", "--output-root", folder,
                 "--anchor-wavelengths", "400,430,436,475,495,505,550,600,645,650,700"]), 0)
             dense_plan = json.loads((Path(folder) / "plan.json").read_text())
@@ -239,9 +261,9 @@ class Physics(unittest.TestCase):
                 for parameter, step, derivative in zip(("height_nm", "base_radius_nm"), (.1, .02), derivatives):
                     with self.subTest(lattice=lattice, method=method, parameter=parameter):
                         plus, _ = solve(550., n, replace(g, **{parameter: getattr(g, parameter) + step}),
-                                        method=method, lattice=lattice, device=self.device)
+                                        method=method, lattice=lattice, device=self.device, asr_reference_geometry=g)
                         minus, _ = solve(550., n, replace(g, **{parameter: getattr(g, parameter) - step}),
-                                         method=method, lattice=lattice, device=self.device)
+                                         method=method, lattice=lattice, device=self.device, asr_reference_geometry=g)
                         fd = (plus["reflectance"] - minus["reflectance"]) / (2 * step)
                         ad = float(derivative)
                         self.assertAlmostEqual(ad, fd, delta=1e-7 + .01 * abs(fd))
@@ -257,6 +279,67 @@ class Physics(unittest.TestCase):
                 self.assertEqual(resumed.evaluate(Numerical(1, 2, 32), 550.), result)
             with self.assertRaisesRegex(ValueError, "signature differs"):
                 Study(**{**kwargs, "signature": "changed-geometry"})
+
+    def test_local_fixed_circle_masks_and_gradients_at_grid_aligned_interfaces(self):
+        from rcwa_solver_auto import ASROptions, AutoRCWA, Lattice, OutputSpec
+        for lattice in ("hexagonal", "square"):
+            sim = AutoRCWA(freq=200/550, order=[2, 2],
+                lattice=Lattice.triangular(1.) if lattice == "hexagonal" else Lattice.square(1.),
+                asr=ASROptions(circle_profile="local-radial"), outputs=OutputSpec(fields="none"),
+                dtype=self.torch.complex128, device=self.device)
+            masks = [sim.build_local_circle_asr_mapping(160, 160, r,
+                     reference_radius=.25).matched_outer_mask for r in (.2499, .25, .2501)]
+            self.assertTrue(all(self.torch.equal(masks[0], mask) for mask in masks[1:]))
+            g, n = Geometry(), Numerical(2, 4, 160)
+            base = self.torch.tensor(95., dtype=self.torch.float64, requires_grad=True)
+            result, value = solve(550., n, g, method="asr", lattice=lattice,
+                device=self.device, parameters={"base_radius_nm": base})
+            derivative = float(self.torch.autograd.grad(value, base)[0])
+            self.assertTrue(physical(result, 1e-6))
+            for step in (.02, .01):
+                plus, _ = solve(550., n, replace(g, base_radius_nm=95.+step),
+                    method="asr", lattice=lattice, device=self.device, asr_reference_geometry=g)
+                minus, _ = solve(550., n, replace(g, base_radius_nm=95.-step),
+                    method="asr", lattice=lattice, device=self.device, asr_reference_geometry=g)
+                fd = (plus["reflectance"] - minus["reflectance"]) / (2 * step)
+                self.assertAlmostEqual(derivative, fd, delta=1e-7 + .001 * abs(fd))
+
+    def test_direct_boundary_is_lossless_and_invariant_to_modal_column_scaling(self):
+        from rcwa_solver_auto import AutoRCWA, Lattice, OutputSpec
+        sim = AutoRCWA(freq=1., order=[0, 0], lattice=Lattice.square(1.),
+                       outputs=OutputSpec(fields="none"), dtype=self.torch.complex128, device=self.device)
+        electric = self.torch.eye(3, dtype=self.torch.complex128)
+        eta = self.torch.tensor([1.5, 2., 2.5], dtype=self.torch.complex128)
+        magnetic = self.torch.diag(eta)
+        depth = self.torch.tensor(.31, dtype=self.torch.float64, requires_grad=True)
+        reference = sim._reduced_layer_smatrix(electric, magnetic, eta, depth, electric)
+        scales = self.torch.diag(self.torch.tensor([1e-10, 1., 1e10], dtype=self.torch.complex128))
+        scaled = sim._reduced_layer_smatrix(electric @ scales, magnetic @ scales, eta, depth, electric)
+        for a, b in zip(reference, scaled):
+            self.assertTrue(self.torch.allclose(a, b, atol=1e-12, rtol=1e-12))
+        power = reference[0].abs().square().sum(0) + reference[1].abs().square().sum(0)
+        self.assertTrue(self.torch.allclose(power, self.torch.ones_like(power), atol=1e-12, rtol=0))
+        value = reference[1].abs().square().sum()
+        derivative = float(self.torch.autograd.grad(value, depth)[0])
+        step = 1e-6
+        def objective(d):
+            return float(sim._reduced_layer_smatrix(electric, magnetic, eta,
+                         self.torch.tensor(d, dtype=self.torch.float64), electric)[1].abs().square().sum())
+        fd = (objective(.31+step) - objective(.31-step)) / (2 * step)
+        self.assertAlmostEqual(derivative, fd, delta=1e-6 + abs(fd)*1e-6)
+
+    def test_local_map_retains_stable_high_order_trace_near_the_base(self):
+        from rcwa_solver_auto import ASROptions, AutoRCWA, GroupTheoryOptions, Lattice, OutputSpec
+        sim = AutoRCWA(freq=200/700, order=[16, 16], lattice=Lattice.square(1.),
+            asr=ASROptions(circle_profile="local-radial"), outputs=OutputSpec(fields="none"),
+            group_theory=GroupTheoryOptions(enabled=True, symmetry="c2v", polarization="x"),
+            dtype=self.torch.complex128, device=self.device)
+        sim.add_input_layer(eps=1.); sim.add_output_layer(eps=6.25); sim.set_incident_angle(0., 0.)
+        mapping = sim.build_local_circle_asr_mapping(128, 128, .47275, reference_radius=.47275)
+        transform, _ = sim._build_circle_conversion_matrices(mapping)
+        eb, _ = sim._c2v_source_bases((.5, .5), "x")
+        self.assertLess(float(self.torch.linalg.cond(eb.mH @ transform @ eb)), 1e4)
+        self.assertGreater(float(mapping.det_j.min()), .01)
 
     def test_asr_layer_checkpoint_preserves_powers_and_both_shape_gradients(self):
         for lattice in ("hexagonal", "square"):

@@ -70,20 +70,26 @@ def write_geometry(output, g, slices):
     geometry_svg(g, output / "geometry.svg")
 
 
-def scan_axis(study, axis, candidates, current, anchors, tolerance, energy_tolerance, cycle):
+def scan_axis(study, axis, candidates, current, anchors, tolerance, energy_tolerance, cycle,
+              minimum_candidate=None):
     spectra = {value: study.spectrum(replace(current, **{axis: value}), anchors) for value in candidates}
     selected, passed, comparisons = choose_candidate(candidates, spectra, tolerance, energy_tolerance)
     if passed:
         # Select the earliest fine end in a stable tail of at least two
         # intervals, checking it against every higher candidate as well.
         # A temporary plateau or cumulative drift cannot select a low order.
+        selected = None
         for i in range(1, len(candidates) - 1):
+            if minimum_candidate is not None and candidates[i] < minimum_candidate:
+                continue
             if all(c["passed"] for c in comparisons[i - 1:]) and all(
                 adjacent_error(spectra[candidates[i]], spectra[finer])[0] <= tolerance
                 for finer in candidates[i + 1:]
             ):
                 selected = candidates[i]
                 break
+        if selected is None:
+            selected, passed = candidates[-1], False
     return {"cycle": cycle, "axis": axis, "fixed": asdict(current),
             "candidates": candidates, "selected": selected, "converged": passed,
             "comparisons": comparisons, "spectra": {str(k): v for k, v in spectra.items()}}
@@ -132,9 +138,9 @@ def failed_validation_wavelengths(validation, anchors, energy_tolerance):
 
 def converge_with_spectrum(study, current, axes, anchors, final_wavelengths, *,
                           tolerance, energy_tolerance, max_cycles, run_final_spectrum,
-                          max_anchor_refinements, report, save):
+                          max_anchor_refinements, report, save, minimum_candidates=None):
     active_anchors = tuple(anchors)
-    report["anchor_refinements"] = []
+    report.setdefault("anchor_refinements", [])
     for refinement in range(max_anchor_refinements + 1):
         report.update(status="running", anchor_wavelengths_nm=active_anchors,
                       final_spectrum=[], final_spectrum_complete=False,
@@ -147,7 +153,8 @@ def converge_with_spectrum(study, current, axes, anchors, final_wavelengths, *,
                 print(f"{study.lattice}/{study.method}: anchor refinement {refinement}, "
                       f"cycle {cycle}/{max_cycles}, scan {axis} ({len(active_anchors)} wavelengths)", flush=True)
                 record = scan_axis(study, axis, axes[axis], current, active_anchors,
-                                   tolerance, energy_tolerance, cycle)
+                                   tolerance, energy_tolerance, cycle,
+                                   (minimum_candidates or {}).get(axis))
                 record["anchor_refinement"] = refinement
                 report["history"].append(record)
                 current = replace(current, **{axis: record["selected"]})
@@ -197,6 +204,29 @@ def converge_with_spectrum(study, current, axes, anchors, final_wavelengths, *,
               "reusing completed optical cases.", flush=True)
     save()
     return current
+
+
+def gradient_refinement_floors(audit, current, axes):
+    """Promote only mesh failures after the discretized derivative passed FD.
+
+    A missing/incorrect derivative must not be hidden by increasing order.
+    Every promoted setting needs a genuinely finer candidate for validation.
+    """
+    if audit.get("gradient_error") or not audit.get("fd_checks") or not all(
+        c["passed"] for c in audit["fd_checks"]
+    ) or not audit.get("auxiliary_physical", False):
+        return {}
+    floors = {}
+    for check in audit.get("refinement_checks", []):
+        axis = check["axis"]
+        if check["passed"]:
+            continue
+        value = getattr(current, axis)
+        finer = [candidate for candidate in axes[axis][:-1] if candidate > value]
+        if not finer:
+            return {}
+        floors[axis] = finer[0]
+    return floors
 
 
 def recommendation(reports, lattice, tolerance, gradient_atol, gradient_rtol, require_spectrum,
@@ -288,16 +318,21 @@ def build_parser():
     for name, value in (("period-nm", 200.), ("height-nm", 500.), ("tip-radius-nm", 5.),
                         ("base-radius-nm", 95.), ("profile-power", 1.), ("asr-circle-g", .03)):
         p.add_argument("--" + name, type=float, default=value)
-    p.add_argument("--orders", default="2,4,6,8,10,12")
+    p.add_argument("--orders", default="4,6,8,10,12,16,20")
+    p.add_argument("--min-order", type=int)
     p.add_argument("--slices", default="20,40,60,80")
     p.add_argument("--grids", default="256,384,512")
     p.add_argument("--anchor-wavelengths", default="400,550,700")
     p.add_argument("--audit-wavelengths", default=DEFAULT_AUDIT_WAVELENGTHS)
     p.add_argument("--max-anchor-refinements", type=int, default=2)
-    p.add_argument("--asr-square-profile", choices=("radial", "equalized", "weiss2009", "identity"), default="radial")
+    p.add_argument("--asr-profile", "--asr-square-profile", dest="asr_square_profile",
+                   choices=("local-radial", "radial", "equalized", "weiss2009", "identity"), default="local-radial")
     p.add_argument("--no-layer-checkpoint", action="store_true")
     p.add_argument("--spectrum-wavelengths", default="400:700:5")
     p.add_argument("--tolerance", type=float, default=.001)
+    p.add_argument("--mesh-tolerance", type=float,
+                   help="Self-convergence budget; default is one quarter of --tolerance.")
+    p.add_argument("--max-numerical-refinements", type=int, default=2)
     p.add_argument("--energy-tolerance", type=float, default=1e-6)
     p.add_argument("--max-cycles", type=int, default=4)
     p.add_argument("--run-final-spectrum", action="store_true")
@@ -338,6 +373,13 @@ def main(argv=None):
         geometry = Geometry(**{name: getattr(args, name) for name in Geometry.__dataclass_fields__})
         geometry.validate()
         axes = {"order": parse_ints(args.orders), "slices": parse_ints(args.slices), "grid": parse_ints(args.grids)}
+        mesh_tolerance = args.tolerance / 4 if args.mesh_tolerance is None else args.mesh_tolerance
+        if not math.isfinite(mesh_tolerance) or not 0 < mesh_tolerance <= args.tolerance:
+            raise ValueError("mesh-tolerance must be positive and no greater than tolerance.")
+        if args.min_order is not None and not 0 < args.min_order < axes["order"][-1]:
+            raise ValueError("min-order must be positive and leave a finer order for validation.")
+        if args.max_numerical_refinements < 0:
+            raise ValueError("Numerical refinements must be nonnegative.")
         if min(axes["grid"]) < max(32, 4 * max(axes["order"]) + 4):
             raise ValueError("Every quadrature/projection grid must be >=max(32,4*max(M)+4).")
         lattices = list(dict.fromkeys(v.strip() for v in args.lattices.split(",")))
@@ -371,11 +413,14 @@ def main(argv=None):
                    "dtype": "complex128", "cascade": "redheffer", "smatrix_size": "half", "fields": "none",
                    "use_symmetry": not args.no_symmetry, "nv_lanczos_filter": False,
                    "asr_square_profile": args.asr_square_profile,
+                   "asr_interface_coordinates": "fixed nominal per-slice radial support for shape perturbations",
                    "asr_factorization_rules": True, "source_sha256": source_hashes()}
     signature = signature_for(assumptions)
     plan = {"assumptions": assumptions, "signature": signature, "lattices": lattices, "methods": methods,
             "candidate_axes": axes, "anchor_wavelengths_nm": anchors, "spectrum_wavelengths_nm": final_wavelengths,
             "tolerance": args.tolerance, "energy_tolerance": args.energy_tolerance,
+            "mesh_tolerance": mesh_tolerance, "minimum_order": args.min_order,
+            "max_numerical_refinements": args.max_numerical_refinements,
             "max_cycles": args.max_cycles, "benchmark_repeats": args.benchmark_repeats,
             "max_anchor_refinements": args.max_anchor_refinements,
             "gradient_audit": {"enabled": not args.skip_gradient_audit,
@@ -434,31 +479,53 @@ def main(argv=None):
         current = Numerical(**{name: values[-2] for name, values in axes.items()})
         report = {"status": "running", "physical_signature": study.signature,
                   "lattice": study.lattice, "method": study.method, "candidate_axes": axes,
-                  "anchor_wavelengths_nm": anchors, "tolerance": args.tolerance,
+                  "anchor_wavelengths_nm": anchors, "tolerance": mesh_tolerance,
+                  "comparison_tolerance": args.tolerance,
                   "energy_tolerance": args.energy_tolerance, "recommendation": asdict(current),
                   "history": [], "anchor_spectrum": [], "final_spectrum": [],
                   "final_spectrum_mesh_validation": None,
-                  "final_spectrum_complete": False, "audit": None, "integration": integration}
+                  "final_spectrum_complete": False, "audit": None, "audit_history": [],
+                  "numerical_refinements": [], "integration": integration}
         write_json(report_path, report)
         write_csv(group / "spectrum.csv", [])
         try:
-            current = converge_with_spectrum(study, current, axes, anchors, final_wavelengths,
-                tolerance=args.tolerance, energy_tolerance=args.energy_tolerance,
-                max_cycles=args.max_cycles, run_final_spectrum=args.run_final_spectrum,
-                max_anchor_refinements=args.max_anchor_refinements, report=report,
-                save=lambda: write_json(report_path, report))
-            if report["status"] == "converged":
+            floors = {"order": args.min_order} if args.min_order is not None else {}
+            for refinement in range(args.max_numerical_refinements + 1):
+                current = converge_with_spectrum(study, current, axes,
+                    report["anchor_wavelengths_nm"], final_wavelengths,
+                    tolerance=mesh_tolerance, energy_tolerance=args.energy_tolerance,
+                    max_cycles=args.max_cycles, run_final_spectrum=args.run_final_spectrum,
+                    max_anchor_refinements=args.max_anchor_refinements, report=report,
+                    minimum_candidates=floors, save=lambda: write_json(report_path, report))
+                if report["status"] != "converged":
+                    report["audit"] = None
+                    break
                 from .audit import run_audit
                 report["status"] = "audit_running"
                 write_json(report_path, report)
+                audit_output = group / "audits" / f"M{current.order}_Nz{current.slices}_Q{current.grid}"
                 report["audit"] = run_audit(study, current,
                     {axis: replace(current, **{axis: values[-1]}) for axis, values in axes.items()},
-                    audit_wavelengths, output=group, repeats=args.benchmark_repeats,
+                    audit_wavelengths, output=audit_output, repeats=args.benchmark_repeats,
                     steps={"height_nm": args.fd_height_step_nm, "base_radius_nm": args.fd_radius_step_nm},
                     atol=args.gradient_atol, rtol=args.gradient_rtol,
                     energy_tolerance=args.energy_tolerance, integration=integration,
                     check_gradients=not args.skip_gradient_audit)
+                report["audit_history"].append(report["audit"])
+                write_json(group / "audit.json", report["audit"])
                 report["status"] = "converged"
+                if args.skip_gradient_audit or report["audit"]["gradient_passed"]:
+                    break
+                additions = gradient_refinement_floors(report["audit"], current, axes)
+                if not additions or refinement == args.max_numerical_refinements:
+                    report["gradient_refinement_stop_reason"] = (
+                        "Audit still fails; check FD/physical failures or extend the finer candidate range.")
+                    break
+                floors.update(additions)
+                report["numerical_refinements"].append({"reason": "gradient mesh convergence",
+                    "previous_numerical": asdict(current), "minimum_candidates": dict(floors)})
+                print(f"{key}: gradient mesh check failed; increasing minimum candidates to {floors}.", flush=True)
+                write_json(report_path, report)
         except (Exception, KeyboardInterrupt) as error:
             report["status"] = "interrupted" if isinstance(error, KeyboardInterrupt) else "calculation_failed"
             report["error"] = f"{type(error).__name__}: {error}"

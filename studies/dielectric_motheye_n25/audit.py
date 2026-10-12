@@ -31,7 +31,8 @@ def objective(study, numerical, wavelengths, geometry=None, *, gradient=False):
                                       device=study.device, requires_grad=True) for name in PARAMETERS} if gradient else None
         row, reflected = solve(w, numerical, geometry, method=study.method, lattice=study.lattice,
                                device=study.device, use_symmetry=study.use_symmetry, parameters=tensors,
-                               square_asr_profile=study.square_asr_profile, checkpoint_layers=study.checkpoint_layers)
+                               square_asr_profile=study.square_asr_profile, checkpoint_layers=study.checkpoint_layers,
+                               asr_reference_geometry=study.geometry)
         rows.append(row)
         value += weight * row["reflectance"]
         if gradient:
@@ -146,6 +147,7 @@ def run_audit(study, numerical, refinements, wavelengths, *, output: Path,
         result.update(gradient=summarize(repeated), objective=baseline["objective"],
                       gradient_per_nm=baseline["gradient_per_nm"], fd_checks=fd_checks,
                       refinement_checks=refinement_checks,
+                      auxiliary_physical=all_physical,
                       gradient_passed=forward_physical and all_physical
                       and all(c["passed"] for c in fd_checks + refinement_checks))
     except Exception as error:

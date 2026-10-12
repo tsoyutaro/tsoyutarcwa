@@ -334,6 +334,29 @@ class _StableLinearAlgebraMixin(_FieldRecoveryMixin):
         """Return ``b @ inv(a)`` without forming an inverse (plain transpose)."""
         return self._solve(a.mT, b.mT).mT
 
+    def _equilibrated_solve(self, a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+        """Solve a boundary system with scaling and residual refinement.
+
+        Scaling is a change of variables, not a regularization or a mode
+        truncation. Its detached scales preserve the exact solve derivative
+        while avoiding differentiation through arbitrary norm maxima.
+        """
+        a, b = a.to(torch.complex128), b.to(torch.complex128)
+        floor = torch.finfo(a.real.dtype).tiny
+        rows = a.detach().abs().amax(1).clamp_min(floor)
+        row_scaled = a / rows[:, None]
+        columns = row_scaled.detach().abs().amax(0).clamp_min(floor)
+        scaled = row_scaled / columns[None, :]
+        lu, pivots = torch.linalg.lu_factor(scaled)
+
+        def correction(rhs):
+            return torch.linalg.lu_solve(lu, pivots, rhs / rows[:, None]) / columns[:, None]
+
+        value = correction(b)
+        for _ in range(2):
+            value = value + correction(b - a @ value)
+        return value.to(self._dtype)
+
     def _eig(self, matrix: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         if getattr(self, "stable_eig_grad", False) and hasattr(torcwa, "Eig"):
             values, vectors = torcwa.Eig.apply(matrix)

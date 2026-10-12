@@ -118,9 +118,13 @@ def release(device):
 
 def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
           lattice: str, device, use_symmetry=True, parameters=None,
-          square_asr_profile="radial", checkpoint_layers=True):
+          square_asr_profile="local-radial", checkpoint_layers=True, asr_reference_geometry=None):
     """Return scalar diagnostics and differentiable R. No global no_grad: ASR
     needs autograd for its spatial Jacobian; fixed-geometry maps detach it.
+
+    Hold asr_reference_geometry at the nominal geometry during shape finite
+    differences. It fixes the quadrature interface; the physical radius and
+    all Jacobian/material tensors still change with the design variable.
     """
     import torch
     from rcwa_solver_auto import (ASROptions, AutoRCWA, Circle, GroupTheoryOptions,
@@ -132,6 +136,8 @@ def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
     if min(numerical.order, numerical.slices, numerical.grid) <= 0:
         raise ValueError("Numerical parameters must be positive.")
     g = geometry
+    reference = asr_reference_geometry or geometry
+    fixed_interfaces = method == "asr" and (lattice == "hexagonal" or square_asr_profile in {"radial", "local-radial"})
     parameters = parameters or {}
     height = torch.as_tensor(parameters.get("height_nm", g.height_nm), dtype=torch.float64, device=device)
     base = torch.as_tensor(parameters.get("base_radius_nm", g.base_radius_nm), dtype=torch.float64, device=device)
@@ -143,7 +149,7 @@ def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
             lattice=Lattice.triangular(1.) if lattice == "hexagonal" else Lattice.square(1.),
             outputs=OutputSpec(smatrix_size="half", fields="none"), cascade="redheffer",
             asr=ASROptions(circle_G=g.asr_circle_g, grid=(numerical.grid,) * 2,
-                          circle_profile=square_asr_profile if lattice == "square" else "equalized",
+                          circle_profile=square_asr_profile if lattice == "square" or square_asr_profile == "local-radial" else "equalized",
                           factorization_rules=True),
             nvm=NVMOptions(grid=(numerical.grid,) * 2, use_lanczos=False),
             group_theory=GroupTheoryOptions(enabled=use_symmetry,
@@ -158,14 +164,15 @@ def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
     sim = make_sim()
     checkpointed = bool(checkpoint_layers and method == "asr" and use_symmetry and base.requires_grad)
 
-    def single_layer_modes(radius):
+    def single_layer_modes(radius, reference_radius):
         # A fresh simulator makes recomputation pure: backward must never
         # append layers to the simulator used by the forward cascade.
         local = make_sim()
         selected = local.add_structured_layer(LayerSpec(
             thickness=1., geometry=Circle(radius / g.period_nm),
             background=Material(1.), inclusion=Material(g.index ** 2),
-            method=METHODS[method], factorization_rules=True))
+            method=METHODS[method], factorization_rules=True,
+            asr_reference_radius=reference_radius))
         if selected != METHODS[method] or len(local._polarized_layers) != 1:
             raise RuntimeError("Layer checkpoint requires one invariant source sector.")
         modes = local._polarized_layers[0]
@@ -174,10 +181,12 @@ def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
 
     for j in range(numerical.slices):
         radius = g.tip_radius_nm + (base - g.tip_radius_nm) * ((j + .5) / numerical.slices) ** g.profile_power
+        reference_radius = torch.tensor(reference.radius(j, numerical.slices) / g.period_nm,
+                                        dtype=torch.float64, device=device) if fixed_interfaces else None
         if checkpointed:
             from torch.utils.checkpoint import checkpoint
             electric, magnetic, kz, eb, hb = checkpoint(
-                single_layer_modes, radius, use_reentrant=False, preserve_rng_state=False)
+                single_layer_modes, radius, reference_radius, use_reentrant=False, preserve_rng_state=False)
             sim._install_polarization_basis(eb.detach(), hb.detach(), 1e-8)
             sim._polarized_layers.append({"electric": electric, "magnetic": magnetic, "kz": kz})
             sim.thickness.append(height / (numerical.slices * g.period_nm))
@@ -188,6 +197,7 @@ def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
             geometry=Circle(radius / g.period_nm), background=Material(1.),
             inclusion=Material(g.index ** 2), method=METHODS[method],
             factorization_rules=True if method == "asr" else None,
+            asr_reference_radius=reference_radius,
             label=f"moth-eye-{j}"))
         if selected != METHODS[method]:
             raise RuntimeError("Solver silently selected a different formulation.")
@@ -219,15 +229,16 @@ def solve(wavelength, numerical: Numerical, geometry: Geometry, *, method: str,
            "reflectance": r, "transmittance": t, "absorptance": 1 - r - t,
            "energy_residual": r + t - 1, "runtime_seconds": time.perf_counter() - started,
            "device": str(device), "base_fill_fraction": g.fill_fraction(lattice),
-           "asr_profile": ("d6-radial" if lattice == "hexagonal" else square_asr_profile) if method == "asr" else None,
+           "asr_profile": ("d6-radial" if lattice == "hexagonal" and square_asr_profile != "local-radial" else square_asr_profile) if method == "asr" else None,
            "gradient_layer_checkpointing": checkpointed}
+    row["fixed_asr_interfaces"] = fixed_interfaces
     finite_powers(row)
     return row, reflected
 
 
 class Study:
     def __init__(self, *, geometry, method, lattice, device, use_symmetry, signature, checkpoint,
-                 square_asr_profile="radial", checkpoint_layers=True):
+                 square_asr_profile="local-radial", checkpoint_layers=True):
         self.geometry, self.method, self.lattice = geometry, method, lattice
         self.device, self.use_symmetry = device, use_symmetry
         self.square_asr_profile, self.checkpoint_layers = square_asr_profile, checkpoint_layers

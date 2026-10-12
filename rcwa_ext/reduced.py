@@ -46,21 +46,21 @@ class _ReducedScatteringMixin:
         size = electric.shape[0]
         identity = self._eye(size)
         phase = torch.diag(torch.exp(1.0j * self.omega * kz * thickness))
-        a = self._solve(electric, identity) + self._solve(magnetic, reference_v)
-        b = self._solve(electric, identity) - self._solve(magnetic, reference_v)
-        a_inverse_b = self._solve(a, b)
-        a_inverse_xb = self._solve(a, torch.matmul(phase, b))
-        a_inverse_xa = self._solve(a, torch.matmul(phase, a))
-        core = a - torch.matmul(torch.matmul(phase, b), a_inverse_xb)
-        reflection = self._solve(
-            core,
-            torch.matmul(torch.matmul(phase, b), a_inverse_xa) - b,
-        )
-        transmission = self._solve(
-            core,
-            torch.matmul(phase, a - torch.matmul(b, a_inverse_b)),
-        )
-        return [transmission, reflection, reflection, transmission]
+        # Directly solve continuity for [a+(0), a-(d)]. Inverting E and H
+        # separately and subtracting their large inverses loses accuracy for
+        # strongly compressed ASR traces. This equivalent boundary system
+        # uses only decaying phases and retains the original modal dimension.
+        vh = self._solve(reference_v, magnetic)
+        plus, minus = electric + vh, electric - vh
+        boundary = torch.cat((torch.cat((plus, minus @ phase), 1),
+                              torch.cat((minus @ phase, plus), 1)), 0)
+        couplings = self._equilibrated_solve(boundary, 2 * self._eye(2 * size))
+        forward, backward = couplings[:, :size], couplings[:, size:]
+        ep = electric @ phase
+        return [ep @ forward[:size] + electric @ forward[size:],
+                electric @ forward[:size] + ep @ forward[size:] - identity,
+                ep @ backward[:size] + electric @ backward[size:] - identity,
+                electric @ backward[:size] + ep @ backward[size:]]
 
     def _polarized_redheffer_scattering(
         self,

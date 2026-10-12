@@ -1231,6 +1231,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
         eps_core=None,
         mu_core=1.0,
         radial_mapping: str = "outer",
+        reference_radius=None,
         nx: int = 256,
         ny: int = 256,
         factorization_rules: bool = True,
@@ -1332,23 +1333,31 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                     "core_radius must be smaller than the outer matched radius."
                 )
         triangular = getattr(self, "lattice_kind", "rectangular") == "triangular"
+        if reference_radius is not None and (core_shell or (not triangular and self.matched_asr_profile not in {"radial", "local-radial"})):
+            raise UnsupportedCombinationError(
+                "A fixed reference_radius requires a single circle and a radial matched map.")
         if getattr(self, "group_theory_symmetry", "auto") == "d6" and not triangular:
             raise UnsupportedCombinationError(
                 "symmetry='d6' requires a 60-degree equal-length triangular cell."
             )
-        if core_shell and normalized_mapping == "double":
+        if self.matched_asr_profile == "local-radial":
+            if reference_radius is None or core_shell:
+                raise UnsupportedCombinationError("local-radial requires a single circle and a fixed reference_radius.")
+            mapping = self.build_local_circle_asr_mapping(nx, ny, radius, reference_radius=reference_radius)
+        elif core_shell and normalized_mapping == "double":
             mapping = self.build_double_matched_circle_asr_mapping(
                 nx, ny, core_radius, radius
             )
         elif triangular:
-            mapping = self.build_triangular_circle_asr_mapping(nx, ny, radius)
+            mapping = self.build_triangular_circle_asr_mapping(
+                nx, ny, radius, reference_radius=reference_radius)
         else:
             if hasattr(self, "cos_zeta") and abs(_as_float(self.cos_zeta)) > 1.0e-8:
                 raise UnsupportedCombinationError(
                     "matched circle ASR supports orthogonal or 60-degree triangular cells."
                 )
             mapping = (
-                self.build_square_circle_asr_mapping(nx, ny, radius)
+                self.build_square_circle_asr_mapping(nx, ny, radius, reference_radius=reference_radius)
                 if self.matched_asr_profile == "radial"
                 else self.build_circle_asr_mapping(nx, ny, radius)
             )
@@ -1437,7 +1446,12 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
             factorization_normals=factorization_normals,
         )
         transform, transform_z_all = self._build_circle_conversion_matrices(mapping)
-        magnetic_transform = self._flux_dual_transform(transform)
+        # Source-only C2v uses the exact reduced flux dual below. Computing
+        # the dense inverse first is unnecessary and amplifies off-sector
+        # roundoff, as well as retaining a large unused autograd graph.
+        reduced_flux_dual = (not triangular and getattr(self, "polarization_reduction", None) is not None
+                             and not self.store_mode_couplings)
+        magnetic_transform = None if reduced_flux_dual else self._flux_dual_transform(transform)
         layer_index = self.layer_N
         complete_d6 = (
             bool(getattr(self, "use_group_theory", False))
@@ -1563,6 +1577,7 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                     layer_index=layer_index,
                     triangular_star_pq=triangular_star_pq,
                     magnetic_transform=magnetic_transform,
+                    flux_dual=reduced_flux_dual,
                 )
             )
         elif getattr(self, "use_group_theory", False):
@@ -1765,10 +1780,15 @@ class CustomRCWA_ASR_FR(_ASRMappingMixin, _SymmetryReductionMixin, _StableLinear
                     "map": (
                         "monotone C2 double-matched radial quintic Hermite map"
                         if core_shell and normalized_mapping == "double"
+                        else "local circular radial C1 Hermite map, identity outside inscribed disk"
+                        if self.matched_asr_profile == "local-radial"
                         else "D6 hex-to-circle periodic Hermite map"
                         if triangular
+                        else "D4 square-to-circle periodic Hermite map"
+                        if self.matched_asr_profile == "radial"
                         else "Weiss-37-38 + separable ASR"
                     ),
+                    "fixed_reference_radius": _as_float(reference_radius) if reference_radius is not None else None,
                     "conversion": "general-2d-T",
                     "polarization": getattr(self, "polarization_reduction", None),
                     "group_theory": (

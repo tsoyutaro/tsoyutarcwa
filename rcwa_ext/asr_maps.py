@@ -1151,6 +1151,8 @@ class _ASRMappingMixin:
         nx: int,
         ny: int,
         radius: float,
+        *,
+        reference_radius=None,
     ) -> CircleASRMapping:
         """D6-equivariant matched map for a triangular Bravais lattice.
 
@@ -1168,9 +1170,10 @@ class _ASRMappingMixin:
             raise UnsupportedCombinationError(
                 "Triangular matched-ASR requires equal primitive-vector lengths."
             )
-        return self._build_radial_circle_asr_mapping(nx, ny, radius, triangular=True)
+        return self._build_radial_circle_asr_mapping(
+            nx, ny, radius, triangular=True, reference_radius=reference_radius)
 
-    def build_square_circle_asr_mapping(self, nx: int, ny: int, radius) -> CircleASRMapping:
+    def build_square_circle_asr_mapping(self, nx: int, ny: int, radius, *, reference_radius=None) -> CircleASRMapping:
         """D4-equivariant radial circle map on a square Wigner--Seitz cell.
 
         Unlike the separable stretch followed by the circular deformation,
@@ -1178,9 +1181,22 @@ class _ASRMappingMixin:
         Its periodic boundary remains fixed and its circular interface has
         radial derivative G. It uses the same construction as the D6 map.
         """
-        return self._build_radial_circle_asr_mapping(nx, ny, radius, triangular=False)
+        return self._build_radial_circle_asr_mapping(
+            nx, ny, radius, triangular=False, reference_radius=reference_radius)
 
-    def _build_radial_circle_asr_mapping(self, nx, ny, radius, *, triangular):
+    def build_local_circle_asr_mapping(self, nx, ny, radius, *, reference_radius):
+        """Radial adaptation on a fixed circle, identity outside the inscribed disk.
+
+        Unlike polygon-to-circle matching, this does not deform every ray
+        tangentially. It is periodic and D4/D6 equivariant, and keeps the
+        computational material mask constant through physical-radius changes.
+        """
+        return self._build_radial_circle_asr_mapping(
+            nx, ny, radius, triangular=getattr(self, "lattice_kind", "rectangular") == "triangular",
+            reference_radius=reference_radius, circular_interface=True)
+
+    def _build_radial_circle_asr_mapping(self, nx, ny, radius, *, triangular,
+                                       reference_radius=None, circular_interface=False):
         self._validate_grid(int(self.order[0]), nx, "x")
         self._validate_grid(int(self.order[1]), ny, "y")
         lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
@@ -1202,6 +1218,15 @@ class _ASRMappingMixin:
             raise ValueError(
                 "The radial circle map requires non-touching circles: 2*radius < L."
             )
+        coordinate_radius = radius
+        if circular_interface and reference_radius is None:
+            raise ValueError("A local circle map requires a fixed reference_radius.")
+        if reference_radius is not None:
+            coordinate_radius, coordinate_value = _real_parameter_tensor(
+                "reference_radius", reference_radius, dtype=torch.float64,
+                device=self._device, allow_zero=False)
+            if coordinate_radius.requires_grad or 2.0 * coordinate_value >= lx:
+                raise ValueError("ASR reference_radius must be fixed and satisfy 0 < 2*Rref < L.")
         if nx != ny:
             raise UnsupportedCombinationError(
                 "The radial circle map requires an equal u/v sampling grid."
@@ -1258,7 +1283,14 @@ class _ASRMappingMixin:
         weights = ties.to(support_values.dtype) / ties.sum(dim=0, keepdim=True)
         averaged_radius = torch.sum(weights * support_values, dim=0)
         hex_radius = hex_radius.detach() + (averaged_radius - averaged_radius.detach())
-        rho = hex_radius / radius
+        if circular_interface:
+            hex_radius = torch.sqrt(torch.clamp(
+                q1**2 + q2**2 + 2.0 * cosine * q1 * q2,
+                min=(64.0 * torch.finfo(torch.float64).eps * lx)**2))
+        # Keep the material discontinuity on this fixed support curve. A
+        # radius-dependent Boolean mask has no autograd boundary term and
+        # yields finite-difference jumps when samples cross the interface.
+        rho = hex_radius / coordinate_radius
         active = rho > 64.0 * torch.finfo(torch.float64).eps
         safe_rho = torch.clamp(rho, min=64.0 * torch.finfo(torch.float64).eps)
         q1_interface = q1 / safe_rho
@@ -1274,20 +1306,33 @@ class _ASRMappingMixin:
         )
         safe_interface_norm = torch.clamp(interface_norm, min=norm_floor)
         circle_scale = torch.where(active, radius / safe_interface_norm, 1.0)
-        rho_outer = 0.5 * lx / radius
+        rho_outer = 0.5 * lx / coordinate_radius
+        interface_slope = self.matched_asr_G
+        boundary_slope = 1.0
+        if circular_interface:
+            inner_secant = radius / coordinate_radius
+            exterior_secant = (0.5 * lx - radius) / (0.5 * lx - coordinate_radius)
+            interface_slope = torch.minimum(radius.new_tensor(self.matched_asr_G),
+                                             .95 * torch.minimum(inner_secant, exterior_secant))
+            # Nonnegative Bernstein coefficients of the cubic derivative
+            # certify a monotone exterior segment; identity at the nominal
+            # radius also has identity first derivative at the periodic seam.
+            boundary_slope = torch.minimum(radius.new_tensor(1.), 2.9 * exterior_secant - interface_slope)
+            circle_scale = torch.ones_like(circle_scale) * inner_secant
 
         t_inner = torch.clamp(rho, 0.0, 1.0)
         radial_inner = self._cubic_hermite(
-            t_inner, 0.0, 1.0, circle_scale, self.matched_asr_G, 1.0
+            t_inner, 0.0, circle_scale if circular_interface else 1.0,
+            circle_scale, interface_slope, 1.0
         )
         outer_span = rho_outer - 1.0
         t_outer = torch.clamp((rho - 1.0) / outer_span, 0.0, 1.0)
         radial_outer = self._cubic_hermite(
             t_outer,
             circle_scale,
-            self.matched_asr_G,
+            interface_slope,
             rho_outer,
-            1.0,
+            boundary_slope,
             outer_span,
         )
         radial = torch.where(
@@ -1297,6 +1342,9 @@ class _ASRMappingMixin:
         )
         mapped_q1 = torch.where(active, radial * q1_interface, q1)
         mapped_q2 = torch.where(active, radial * q2_interface, q2)
+        if circular_interface:
+            mapped_q1 = torch.where(active, mapped_q1, circle_scale * q1)
+            mapped_q2 = torch.where(active, mapped_q2, circle_scale * q2)
 
         absolute_1 = 0.5 * lx + shift_i * lx + mapped_q1
         absolute_2 = 0.5 * ly + shift_j * ly + mapped_q2
@@ -1337,14 +1385,14 @@ class _ASRMappingMixin:
         det_j = x_u * y_v - x_v * y_u
         arrays = (x, y, x_u, x_v, y_u, y_v, det_j)
         if not all(bool(torch.all(torch.isfinite(value))) for value in arrays):
-            raise RuntimeError("The triangular matched map produced non-finite values.")
+            raise RuntimeError("The radial matched map produced non-finite values.")
         minimum_jacobian = max(
             1.0e-11 * sine,
             float(getattr(self, "matched_asr_min_jacobian", 1.0e-12)),
         )
         if _as_float(torch.min(det_j)) <= minimum_jacobian:
             raise RuntimeError(
-                "The triangular matched map is not orientation-preserving; "
+                "The radial matched map is not orientation-preserving; "
                 "increase circle_G or reduce the circle radius."
             )
         if not differentiable_geometry:
@@ -1370,17 +1418,18 @@ class _ASRMappingMixin:
             y_v=y_v,
             det_j=det_j,
             tu_breaks=torch.stack(
-                (radius.new_tensor(0.0), radius, radius.new_tensor(0.5 * lx))
+                (radius.new_tensor(0.0), coordinate_radius, radius.new_tensor(0.5 * lx))
             ),
             tv_breaks=torch.stack(
-                (radius.new_tensor(0.0), radius, radius.new_tensor(0.5 * ly))
+                (radius.new_tensor(0.0), coordinate_radius, radius.new_tensor(0.5 * ly))
             ),
             u_breaks=identity_breaks,
             v_breaks=identity_breaks.clone(),
-            # The radial square maps this exact computational interface onto
-            # the circle. Testing the mapped radius again can break mirror
-            # symmetry through roundoff at points on the interface.
-            matched_outer_mask=None if triangular else (rho <= 1.0),
+            # Use cell-scale roundoff to classify points exactly on the
+            # reference interface consistently in every symmetry image.
+            # This tolerance is independent of the physical radius.
+            matched_outer_mask=(rho <= 1.0 + 64.0 * torch.finfo(torch.float64).eps * lx / _as_float(coordinate_radius))
+                if reference_radius is not None or not triangular else None,
         )
 
     def _periodic_circle_mask(

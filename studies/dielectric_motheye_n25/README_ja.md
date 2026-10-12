@@ -24,13 +24,14 @@ NV法と円形境界適合ASRを同じソルバー基盤で明示的に選び、
 | 四つの計算に共通 | complex128、Redheffer接続、half S行列、場保存なし |
 | 対称性 | 六方はD6の入射行、正方はC2vのx入射セクター。同一格子内の両方法で共通 |
 | NV | 円の誘電率Fourier係数は解析式、法線ベクトル投影はQ×Q格子、Lanczosフィルタなし |
-| ASR | `matched-asr`、一般化因数分解あり、G=0.03、Q×Q積分格子。六方はD6放射状写像、正方はD4放射状写像 |
-| 保持次数M | 2,4,6,8,10,12 |
+| ASR | `matched-asr`、一般化因数分解あり、G=0.03、Q×Q積分格子。両格子とも`local-radial`、公称形状の計算座標上の円周を固定 |
+| 保持次数M | 4,6,8,10,12,16,20 |
 | 高さ分割Nz | 20,40,60,80 |
 | NV投影／ASR積分Q | 256,384,512 |
 | 初期の判定波長 | 400,550,700 nm。最終チェックで不合格なら必要な波長を自動追加 |
 | 時間・勾配監査波長 | 400,430,436,475,495,505,550,600,645,650,700 nm（11点） |
-| 許容変化 | R/T/Aの絶対変化0.001＝0.1パーセントポイント |
+| 方法間の許容変化 | R/T/Aの絶対変化0.001＝0.1パーセントポイント |
+| 自己収束の許容変化 | 既定0.00025。方法間許容値の1/4を各方法の誤差予算に使用 |
 | 無損失の条件 | −1e−7≦R,T≦1+1e−7、abs(R+T−1)≦1e−6 |
 | 最終スペクトル | 指定時、収束したケースだけ400–700 nm、5 nm刻みの61点 |
 
@@ -66,32 +67,30 @@ python run_n25_motheye_comparison.py --device cuda --dry-run
 python run_n25_motheye_comparison.py --device cuda --run-final-spectrum
 ```
 
-2026-10-11の修正前の結果と比較する場合は、ソースハッシュが変わるため
-別出力先を使う。従来のGPU結果を上書きせず、更新した`rcwa_ext`一式と
-`studies/dielectric_motheye_n25`一式を遠隔環境へ反映してから実行する：
+2026-10-12の実装修正では光学ソルバーのハッシュも変わるため、
+`repaired_v2`の光学キャッシュは再利用できない。
+必要な転送ファイルと診断根拠は[IMPLEMENTATION_FIX_20261012.md](IMPLEMENTATION_FIX_20261012.md)を参照。
+まず、以前に不安定だった正方格子M=16の550/700 nm、Q=384/512と
+小規模の両格子半径勾配を確認する：
 
 ```text
-python run_n25_motheye_comparison.py --device cuda --orders 4,6,8,10,12,14,16 --slices 40,60,80,100 --grids 256,384,512 --run-final-spectrum --output-root studies/dielectric_motheye_n25/results/repaired_v2
+python run_n25_motheye_repair_validation.py --device cuda
 ```
 
-旧結果の問題と修正根拠は[RESULTS_REVIEW_20261011.md](RESULTS_REVIEW_20261011.md)を参照。
-この再計算コマンドの全GPU結果はローカルでは検証していない。
-
-2026-10-12の波長点の修正は、光学モデルとそのハッシュを変更しない。
-`repaired_v2`の同じ出力先で完了したケースを再利用できる。
-実行中のプロセスには更新を反映できないため、停止した後に
-`studies/dielectric_motheye_n25/compare.py`を更新し、次のコマンドで再開する。
+`status=passed`を確認したら、4ケースの収束、61点スペクトル、時間・勾配監査へ進む。
+前段の検証は全帯域の収束証明ではない。
 
 ```text
-python run_n25_motheye_comparison.py --device cuda --orders 4,6,8,10,12,14,16 --slices 40,60,80,100 --grids 256,384,512 --anchor-wavelengths 400,550,700 --run-final-spectrum --output-root studies/dielectric_motheye_n25/results/repaired_v2
+python run_n25_motheye_comparison.py --device cuda --orders 8,12,16,20 --slices 40,60,80,100 --grids 256,384,512 --run-final-spectrum --output-root studies/dielectric_motheye_n25/results/repaired_v3
 ```
 
 初期3点だけで全帯域の収束を保証するわけではない。
-時間見積もりは[RUNTIME_ESTIMATE_20261012.md](RUNTIME_ESTIMATE_20261012.md)を参照。
+旧写像の時間見積もりは[RUNTIME_ESTIMATE_20261012.md](RUNTIME_ESTIMATE_20261012.md)に保存している。
+写像と界面計算法が変わったため、新版の実行時間は再測定が必要。
 保存済みGPUケースから見積もりを更新する場合（光学計算なし）：
 
 ```text
-python estimate_n25_motheye_runtime.py --output-root studies/dielectric_motheye_n25/results/repaired_v2
+python estimate_n25_motheye_runtime.py --output-root studies/dielectric_motheye_n25/results/repaired_v3
 ```
 
 2格子×2方法の収束確認、最終スペクトル、計算時間、勾配の確認、図と比較JSONの出力まで行う。
@@ -144,7 +143,9 @@ python run_n25_motheye_comparison.py --plot-only
 例えば8→10、10→12だけが通ればM=10。4→6から12まで安定し、
 M=6と全上位候補も一致すればM=6を採用する。隣接差の累積で誤差が増えるケースも除外する。
 両方法が別の次数で収束する場合は、各方法の採用条件で計算時間を比べる。
-既定の0.001は絶対誤差0.1パーセントポイントで、Rに対する相対誤差0.1%ではない。
+方法間比較の既定0.001は絶対誤差0.1パーセントポイントで、Rに対する相対誤差0.1%ではない。
+自己収束と全スペクトル細分化では既定0.00025を要求し、方法間比較に余裕を残す。
+`--mesh-tolerance`で指定可能。ただし比較許容値より緩くできない。
 低反射率の小さな改善を比較する場合は、例えば`--tolerance 0.0001`にして再検証する。
 Nz→M→Qを更新し、三軸の設定が安定し、同じ固定設定で全軸が通った場合に`converged`。
 これは有限の収束チェックであり、厳密な誤差上限ではない。
@@ -175,10 +176,20 @@ Nz→M→Qを更新し、三軸の設定が安定し、同じ固定設定で全�
 `--no-layer-checkpoint`で従来の保持方式へ戻せる。`--no-symmetry`ではこの対策は使わない。
 CPUで順計算と両形状勾配の一致を検証した。GPUピークメモリは再計算の監査で測定する。
 
-正方ASRの`--asr-square-profile radial`は、円周近くで直交する二方向を同時に
-強く圧縮する従来の写像を置き換える。周期境界を保ち、材料境界の判定も
-計算座標で行って丸めによる鏡映対称性の破れを防ぐ。
-`equalized`、`weiss2009`、`identity`も比較用に選べるが、新規の別出力先で実行する。
+両格子の既定`--asr-profile local-radial`は、内接円の内部だけを放射状に変形し、
+角形領域を円へ変換する際の接線方向の大きな変形を避ける。
+公称形状の円周を計算座標上の固定界面とし、物理半径の変化を写像とJacobianへ伝える。
+有限差分の±hでも同じ公称界面を保持する。境界の二値マスクが変化する勾配は使用しない。
+最適化でこの離散勾配を使う場合も、比較する局所変形の間は同じ参照形状を保持する。
+参照形状を作り直したときは順計算と勾配の収束を再確認する。
+`radial`、`equalized`、`weiss2009`、`identity`も比較用に選べるが、新規の別出力先を使う。
+従来の`--asr-square-profile`は別名として残す。
+
+有限差分と物理検査は通ったが勾配のM/Nz/Q細分化が不合格の場合、
+不合格の軸の採用下限を次の候補へ上げ、順計算・全スペクトル・監査を再実行する。
+既定で最大2回（`--max-numerical-refinements`）。FD不一致やエネルギー保存違反は
+次数増加で隠さず、未検証のままとする。候補上限を採用するだけでは収束と認定しない。
+`--min-order 16`等で採用下限を明示できるが、その上に検証用の次数を残す必要がある。
 
 `recommendations`は格子ごとに二種類を出す：
 
@@ -201,7 +212,9 @@ CPUで順計算と両形状勾配の一致を検証した。GPUピークメモ�
 - 同フォルダの`convergence.json`、`all_cases.csv`、`anchor_spectrum.csv`、`spectrum.csv`：収束結果。
 - `convergence.json`内の`final_spectrum_mesh_validation`：全最終波長の三軸別／同時細分化結果。
 - `anchor_refinements`：最終チェックで追加された判定波長と不合格の理由。
-- 同フォルダの`audit_checkpoint.json`、`audit.json`：時間・メモリ・勾配の途中／最終結果。
+- `audits/M*_Nz*_Q*/audit_checkpoint.json`、`audit.json`：採用条件別の時間・メモリ・勾配の途中／最終結果。
+- 同フォルダ直下の`audit.json`：最新の採用条件の監査結果。
+- `audit_history`、`numerical_refinements`：勾配細分化に伴う条件引き上げの根拠。
 - `comparison.json`：4ケースと、格子ごとの方法選択。まずこの`recommendations`を確認する。
 - `figures/absolute_<格子>_<軸>.png/svg`：M/Nz/Qに対するR・Tそのもの。
 - `figures/changes_and_time_*.png/svg`：変化量（パーセントポイント）と個別波長の計算時間。

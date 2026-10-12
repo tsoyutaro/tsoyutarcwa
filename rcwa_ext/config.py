@@ -373,6 +373,9 @@ class LayerSpec:
     method: str = "auto"
     factorization_rules: bool | None = None
     label: str | None = None
+    # A fixed computational support curve for radial matched-ASR shape
+    # derivatives. Physical radius remains on Circle; this is a mesh setting.
+    asr_reference_radius: object | None = None
 
 
 @dataclass(frozen=True)
