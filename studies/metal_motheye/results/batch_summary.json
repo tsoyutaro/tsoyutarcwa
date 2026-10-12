@@ -1,5 +1,5 @@
 {
-  "status": "interrupted",
+  "status": "failed",
   "dry_run": false,
   "materials": [
     "Fe",
@@ -33,14 +33,9 @@
         "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/fe",
         "--run-final-spectrum"
       ],
-      "status": "candidate_range_insufficient",
-      "exit_code": 2,
-      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/fe/metal_motheye_convergence.json",
-      "recommendation": {
-        "order": 20,
-        "slices": 60,
-        "grid": 256
-      }
+      "status": "calculation_failed",
+      "exit_code": 1,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/fe/metal_motheye_convergence.json"
     },
     {
       "material": "Fe",
@@ -60,14 +55,9 @@
         "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/fe",
         "--run-final-spectrum"
       ],
-      "status": "converged",
-      "exit_code": 0,
-      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/fe/pmma_metal_motheye_convergence.json",
-      "recommendation": {
-        "order": 18,
-        "slices": 80,
-        "grid": 384
-      }
+      "status": "calculation_failed",
+      "exit_code": 2,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/fe/pmma_metal_motheye_convergence.json"
     },
     {
       "material": "Ni",
@@ -87,14 +77,9 @@
         "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/ni",
         "--run-final-spectrum"
       ],
-      "status": "candidate_range_insufficient",
-      "exit_code": 2,
-      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/ni/metal_motheye_convergence.json",
-      "recommendation": {
-        "order": 20,
-        "slices": 60,
-        "grid": 256
-      }
+      "status": "calculation_failed",
+      "exit_code": 1,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/ni/metal_motheye_convergence.json"
     },
     {
       "material": "Ni",
@@ -114,14 +99,9 @@
         "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/ni",
         "--run-final-spectrum"
       ],
-      "status": "converged",
-      "exit_code": 0,
-      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/ni/pmma_metal_motheye_convergence.json",
-      "recommendation": {
-        "order": 18,
-        "slices": 80,
-        "grid": 384
-      }
+      "status": "calculation_failed",
+      "exit_code": 2,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/ni/pmma_metal_motheye_convergence.json"
     },
     {
       "material": "Ti",
@@ -141,14 +121,9 @@
         "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/ti",
         "--run-final-spectrum"
       ],
-      "status": "candidate_range_insufficient",
-      "exit_code": 2,
-      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/ti/metal_motheye_convergence.json",
-      "recommendation": {
-        "order": 20,
-        "slices": 60,
-        "grid": 256
-      }
+      "status": "calculation_failed",
+      "exit_code": 1,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/ti/metal_motheye_convergence.json"
     },
     {
       "material": "Ti",
@@ -168,7 +143,117 @@
         "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/ti",
         "--run-final-spectrum"
       ],
-      "status": "interrupted"
+      "status": "calculation_failed",
+      "exit_code": 2,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/ti/pmma_metal_motheye_convergence.json"
+    },
+    {
+      "material": "W",
+      "structure": "metal",
+      "output_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/w",
+      "command": [
+        "/bin/python",
+        "-u",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/run_metal_motheye_convergence.py",
+        "--material",
+        "W",
+        "--device",
+        "cuda",
+        "--cpu-threads",
+        "4",
+        "--output-root",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/w",
+        "--run-final-spectrum"
+      ],
+      "status": "candidate_range_insufficient",
+      "exit_code": 2,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/w/metal_motheye_convergence.json",
+      "recommendation": {
+        "order": 20,
+        "slices": 60,
+        "grid": 256
+      }
+    },
+    {
+      "material": "W",
+      "structure": "pmma",
+      "output_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/w",
+      "command": [
+        "/bin/python",
+        "-u",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/run_pmma_metal_motheye_convergence.py",
+        "--material",
+        "W",
+        "--device",
+        "cuda",
+        "--cpu-threads",
+        "4",
+        "--output-root",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/w",
+        "--run-final-spectrum"
+      ],
+      "status": "converged",
+      "exit_code": 0,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/w/pmma_metal_motheye_convergence.json",
+      "recommendation": {
+        "order": 18,
+        "slices": 80,
+        "grid": 384
+      }
+    },
+    {
+      "material": "V",
+      "structure": "metal",
+      "output_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/v",
+      "command": [
+        "/bin/python",
+        "-u",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/run_metal_motheye_convergence.py",
+        "--material",
+        "V",
+        "--device",
+        "cuda",
+        "--cpu-threads",
+        "4",
+        "--output-root",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/v",
+        "--run-final-spectrum"
+      ],
+      "status": "candidate_range_insufficient",
+      "exit_code": 2,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/metal_motheye/results/v/metal_motheye_convergence.json",
+      "recommendation": {
+        "order": 20,
+        "slices": 60,
+        "grid": 256
+      }
+    },
+    {
+      "material": "V",
+      "structure": "pmma",
+      "output_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/v",
+      "command": [
+        "/bin/python",
+        "-u",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/run_pmma_metal_motheye_convergence.py",
+        "--material",
+        "V",
+        "--device",
+        "cuda",
+        "--cpu-threads",
+        "4",
+        "--output-root",
+        "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/v",
+        "--run-final-spectrum"
+      ],
+      "status": "converged",
+      "exit_code": 0,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_metal_motheye/results/v/pmma_metal_motheye_convergence.json",
+      "recommendation": {
+        "order": 18,
+        "slices": 80,
+        "grid": 384
+      }
     }
   ]
 }
