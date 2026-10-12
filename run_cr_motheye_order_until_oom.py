@@ -102,6 +102,22 @@ def persist(output, saved):
     write_json(output / "report.json", report)
 
 
+def initialize_device(torch_module, requested):
+    device = torch_module.device(requested)
+    if device.type == "cuda":
+        if not torch_module.cuda.is_available():
+            raise ValueError("Requested CUDA device is unavailable.")
+        index = device.index if device.index is not None else torch_module.cuda.current_device()
+        if not 0 <= index < torch_module.cuda.device_count():
+            raise ValueError("Requested CUDA device is unavailable.")
+        # CUDA management APIs require an explicit index even when the solver
+        # accepts the generic device name "cuda".
+        device = torch_module.device("cuda", index)
+        torch_module.cuda.set_device(device)
+        torch_module.cuda.reset_peak_memory_stats(device)
+    return device
+
+
 def worker(plan_path, result_path, order, wave):
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
     identity = plan["identity"]
@@ -112,12 +128,7 @@ def worker(plan_path, result_path, order, wave):
         import torch
         from studies.gold_motheye.converge import GeometryConfig, NumericalConfig, simulate_case
         torch.set_num_threads(identity["cpu_threads"])
-        device = torch.device(identity["device"])
-        if device.type == "cuda":
-            if not torch.cuda.is_available() or (device.index or 0) >= torch.cuda.device_count():
-                raise ValueError("Requested CUDA device is unavailable.")
-            torch.cuda.set_device(device)
-            torch.cuda.reset_peak_memory_stats(device)
+        device = initialize_device(torch, identity["device"])
         model = load_tabulated_nk(identity["cr_csv"])
         row = simulate_case(wave, NumericalConfig(order, identity["slices"], identity["grid"]),
                             GeometryConfig(**identity["geometry"]), model, cascade="redheffer",
