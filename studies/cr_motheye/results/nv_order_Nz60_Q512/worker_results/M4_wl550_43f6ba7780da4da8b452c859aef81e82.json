@@ -1,0 +1,45 @@
+{
+  "status": "ok",
+  "signature": "e865b9976ccb71ffba8c493444135ba25aae6bcdbd158becd634d4e5badf4930",
+  "case": {
+    "wavelength_nm": 550.0,
+    "order": 4,
+    "slices": 60,
+    "grid": 512,
+    "epsilon_material_real": -0.9627151515151512,
+    "epsilon_material_imag": 21.181018181818185,
+    "reflectance": 0.011694590237697733,
+    "transmittance_far": 0.0,
+    "absorptance_total": 0.9883054097623023,
+    "motheye_absorptance": 0.8663345111147349,
+    "substrate_absorptance": 0.1219708986475674,
+    "power_into_substrate": 0.1219708986475674,
+    "convergence_metrics": {
+      "reflectance": 0.011694590237697733,
+      "power_into_substrate": 0.1219708986475674,
+      "motheye_absorptance": 0.8663345111147349
+    },
+    "passivity_warning": false,
+    "reduced_dimension": 21,
+    "full_dimension": 162,
+    "symmetry_reduction": "D6-E1-source-row",
+    "symmetry_irrep": "E1",
+    "runtime_seconds": 5.07595083815977,
+    "storage_policy": "NV-per-layer-D6-release-and-streamed-Redheffer-v1",
+    "discarded_auxiliary_storage_bytes": 598028160,
+    "post_layer_retained_tensor_peak_bytes": 6019264,
+    "layer_method": "nvm",
+    "nv_lanczos_enabled": false,
+    "normal_vector_grid_nx": 512,
+    "normal_vector_grid_ny": 512,
+    "nv_factorization_rule": "symmetric-nv-anticommutator",
+    "peak_cuda_allocated_bytes": 411151360,
+    "peak_cuda_reserved_bytes": 444596224
+  },
+  "environment": {
+    "torch": "2.6.0+cu124",
+    "device": "cuda:0",
+    "cuda": "12.4",
+    "gpu": "NVIDIA H100"
+  }
+}

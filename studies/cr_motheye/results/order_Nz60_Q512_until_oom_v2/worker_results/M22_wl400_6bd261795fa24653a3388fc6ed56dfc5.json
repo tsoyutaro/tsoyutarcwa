@@ -1,0 +1,37 @@
+{
+  "status": "ok",
+  "signature": "ff89ba19684d054705cab3b9244a939f20e183517a8fd0e6067308d006bd9d21",
+  "case": {
+    "wavelength_nm": 400.0,
+    "order": 22,
+    "slices": 60,
+    "grid": 512,
+    "epsilon_material_real": -4.055700000000001,
+    "epsilon_material_imag": 11.4829,
+    "reflectance": 0.003645774067766265,
+    "transmittance_far": 0.0,
+    "absorptance_total": 0.9963542259322338,
+    "motheye_absorptance": 0.9150938190115911,
+    "substrate_absorptance": 0.0812604069206426,
+    "power_into_substrate": 0.0812604069206426,
+    "convergence_metrics": {
+      "reflectance": 0.003645774067766265,
+      "power_into_substrate": 0.0812604069206426,
+      "motheye_absorptance": 0.9150938190115911
+    },
+    "passivity_warning": false,
+    "reduced_dimension": 507,
+    "full_dimension": 4050,
+    "symmetry_reduction": "D6-E1-source-row",
+    "symmetry_irrep": "E1",
+    "runtime_seconds": 156.7352582612075,
+    "peak_cuda_allocated_bytes": 78567514624,
+    "peak_cuda_reserved_bytes": 80258007040
+  },
+  "environment": {
+    "torch": "2.6.0+cu124",
+    "device": "cuda:0",
+    "cuda": "12.4",
+    "gpu": "NVIDIA H100"
+  }
+}

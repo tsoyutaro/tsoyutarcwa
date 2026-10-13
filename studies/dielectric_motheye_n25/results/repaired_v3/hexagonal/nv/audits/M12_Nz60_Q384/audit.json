@@ -1,0 +1,73 @@
+{
+  "settings": {
+    "physical_signature": "1ec6c7c3b242230063d61930320c023bac28bd9d58fc4476d50c473348395ac8",
+    "numerical": {
+      "order": 12,
+      "slices": 60,
+      "grid": 384
+    },
+    "refinements": {
+      "order": {
+        "order": 20,
+        "slices": 60,
+        "grid": 384
+      },
+      "slices": {
+        "order": 12,
+        "slices": 100,
+        "grid": 384
+      },
+      "grid": {
+        "order": 12,
+        "slices": 60,
+        "grid": 512
+      }
+    },
+    "wavelengths": [
+      400.0,
+      430.0,
+      436.0,
+      475.0,
+      495.0,
+      505.0,
+      550.0,
+      600.0,
+      645.0,
+      650.0,
+      700.0
+    ],
+    "steps_nm": {
+      "height_nm": 0.1,
+      "base_radius_nm": 0.02
+    },
+    "atol_per_nm": 1e-07,
+    "rtol": 0.05,
+    "energy_tolerance": 1e-06,
+    "repeats": 3,
+    "integration": {
+      "device": "cuda:0",
+      "torch_version": "2.6.0+cu124",
+      "cuda_version": "12.4",
+      "gpu": "NVIDIA H100",
+      "cpu_threads": 4
+    },
+    "check_gradients": true,
+    "checkpoint_layers": true,
+    "audit_source_sha256": "83b5721c6421b94e3cdeff93c3b19dbf4539b204c0552887401de7c2e2a80f0e"
+  },
+  "objective_definition": "trapezoidal wavelength average of R over audit wavelengths",
+  "forward": {
+    "median_seconds": 339.4304099283181,
+    "samples_seconds": [
+      343.13014900684357,
+      339.1894090278074,
+      339.4304099283181
+    ],
+    "max_peak_cuda_allocated_mb": 6471.44091796875
+  },
+  "gradient": null,
+  "gradient_passed": false,
+  "coverage": "height and base radius only; not a proof for all per-slice design variables",
+  "forward_physical": true,
+  "gradient_error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 174.00 MiB. GPU 0 has a total capacity of 93.09 GiB of which 147.44 MiB is free. Including non-PyTorch memory, this process has 92.93 GiB memory in use. Of the allocated memory 89.06 GiB is allocated by PyTorch, and 2.92 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+}

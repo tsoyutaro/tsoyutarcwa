@@ -1,0 +1,31 @@
+{
+  "status": "oom",
+  "signature": "ff89ba19684d054705cab3b9244a939f20e183517a8fd0e6067308d006bd9d21",
+  "fixed_slices": 60,
+  "fixed_grid": 512,
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "completed_cases": 12,
+  "complete_orders": [
+    16,
+    18,
+    20,
+    22
+  ],
+  "last_complete_order": 22,
+  "failure": {
+    "status": "oom",
+    "signature": "ff89ba19684d054705cab3b9244a939f20e183517a8fd0e6067308d006bd9d21",
+    "order": 24,
+    "wavelength_nm": 400.0,
+    "slices": 60,
+    "grid": 512,
+    "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 198.00 MiB. GPU 0 has a total capacity of 93.09 GiB of which 43.44 MiB is free. Including non-PyTorch memory, this process has 93.03 GiB memory in use. Of the allocated memory 90.88 GiB is allocated by PyTorch, and 1.20 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cr_motheye_order_until_oom.py\", line 133, in worker\n    row = simulate_case(wave, NumericalConfig(order, identity[\"slices\"], identity[\"grid\"]),\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye/converge.py\", line 241, in simulate_case\n    simulation.add_structured_layer(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/auto.py\", line 566, in add_structured_layer\n    self.add_layer_circle_asr(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/asr.py\", line 1537, in add_layer_circle_asr\n    ) = self._d6_source_eigendecomposition(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1210, in _d6_source_eigendecomposition\n    ) = self._d6_symmetrized_cartesian_pq(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 877, in _d6_symmetrized_cartesian_pq\n    magnetic_inverse = self._solve(magnetic_transform_star, self._eye(star_dimension))\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/scattering.py\", line 329, in _solve\n    return torch.linalg.solve(\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 198.00 MiB. GPU 0 has a total capacity of 93.09 GiB of which 43.44 MiB is free. Including non-PyTorch memory, this process has 93.03 GiB memory in use. Of the allocated memory 90.88 GiB is allocated by PyTorch, and 1.20 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)\n"
+  },
+  "requested_max_order": 0,
+  "interpretation": "An order sweep and memory limit measurement, not a three-axis convergence certification."
+}

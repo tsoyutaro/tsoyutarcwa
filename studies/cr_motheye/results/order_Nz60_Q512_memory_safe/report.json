@@ -1,0 +1,90 @@
+{
+  "status": "calculation_failed",
+  "signature": "05eca066c9075c8b7c76c516a4dd721429bb45e1032c66fcce6d0aa0bb67e1bf",
+  "fixed_slices": 60,
+  "fixed_grid": 512,
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "completed_cases": 22,
+  "complete_orders": [
+    22,
+    24,
+    26,
+    28,
+    30,
+    32,
+    34
+  ],
+  "last_complete_order": 34,
+  "failure": {
+    "status": "calculation_failed",
+    "signature": "05eca066c9075c8b7c76c516a4dd721429bb45e1032c66fcce6d0aa0bb67e1bf",
+    "order": 36,
+    "wavelength_nm": 550.0,
+    "slices": 60,
+    "grid": 512,
+    "error": "ValueError: Nonphysical power result; this is not classified as CUDA OOM.",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cr_motheye_order_memory_safe.py\", line 327, in worker\n    validate_case(row, identity)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cr_motheye_order_memory_safe.py\", line 247, in validate_case\n    raise ValueError(\"Nonphysical power result; this is not classified as CUDA OOM.\")\nValueError: Nonphysical power result; this is not classified as CUDA OOM.\n"
+  },
+  "requested_max_order": 0,
+  "interpretation": "An order sweep and memory limit measurement, not a three-axis convergence certification.",
+  "reference_parity": {
+    "order": 22,
+    "cases": {
+      "M=22|wl=400": {
+        "passed": true,
+        "absolute_errors": {
+          "reflectance": 0.0,
+          "absorptance_total": 0.0,
+          "motheye_absorptance": 0.0,
+          "substrate_absorptance": 0.0,
+          "power_into_substrate": 0.0
+        },
+        "tolerance": 1e-08
+      },
+      "M=22|wl=550": {
+        "passed": true,
+        "absolute_errors": {
+          "reflectance": 0.0,
+          "absorptance_total": 0.0,
+          "motheye_absorptance": 0.0,
+          "substrate_absorptance": 0.0,
+          "power_into_substrate": 0.0
+        },
+        "tolerance": 1e-08
+      },
+      "M=22|wl=700": {
+        "passed": true,
+        "absolute_errors": {
+          "reflectance": 0.0,
+          "absorptance_total": 0.0,
+          "motheye_absorptance": 0.0,
+          "substrate_absorptance": 0.0,
+          "power_into_substrate": 0.0
+        },
+        "tolerance": 1e-08
+      }
+    },
+    "passed_all_wavelengths": true,
+    "memory_comparison": {
+      "M=22|wl=400": {
+        "original_peak_cuda_allocated_bytes": 78567514624,
+        "memory_safe_peak_cuda_allocated_bytes": 12222035456,
+        "cuda_peak_reduction_percent": 84.44390723762753
+      },
+      "M=22|wl=550": {
+        "original_peak_cuda_allocated_bytes": 78567514624,
+        "memory_safe_peak_cuda_allocated_bytes": 12222035456,
+        "cuda_peak_reduction_percent": 84.44390723762753
+      },
+      "M=22|wl=700": {
+        "original_peak_cuda_allocated_bytes": 78567514624,
+        "memory_safe_peak_cuda_allocated_bytes": 12222035456,
+        "cuda_peak_reduction_percent": 84.44390723762753
+      }
+    }
+  }
+}

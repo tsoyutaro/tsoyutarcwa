@@ -1,0 +1,261 @@
+{
+  "status": "running",
+  "dry_run": false,
+  "materials": [
+    "Fe",
+    "Ni",
+    "Ti",
+    "W",
+    "V"
+  ],
+  "structures": [
+    "metal",
+    "pmma"
+  ],
+  "method": "NV",
+  "w_data_default": "Werner(W).csv",
+  "jobs": [
+    {
+      "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/transition_metals_nv/results/Nz60_Q512_M4-36_Werner/metal/fe",
+      "status": "requested_range_complete",
+      "material": "Fe",
+      "structure": "metal",
+      "completed_cases": 51,
+      "complete_orders": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36
+      ],
+      "last_complete_order": 36,
+      "failure": null,
+      "method": "NV",
+      "fixed_slices": 60,
+      "fixed_grid": 512,
+      "wavelengths_nm": [
+        400.0,
+        550.0,
+        700.0
+      ],
+      "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/transition_metals_nv/data/Fe.csv",
+      "material_sha256_lf": "bc6e30d104ecbd6684810bb5682fb03e85ad3016825d0922f0f6002d7fefeaf7",
+      "order_convergence": {
+        "tolerance": 0.0005,
+        "tolerance_pp": 0.05,
+        "comparisons": [
+          {
+            "coarse": 4,
+            "fine": 6,
+            "maximum_absolute_power_change": 0.003531823256480604,
+            "maximum_change_pp": 0.3531823256480604,
+            "per_metric": {
+              "reflectance": 0.0009275098165577311,
+              "power_into_substrate": 0.003531823256480604,
+              "motheye_absorptance": 0.003263520956232502
+            },
+            "passed": false
+          },
+          {
+            "coarse": 6,
+            "fine": 8,
+            "maximum_absolute_power_change": 0.0009562079771601173,
+            "maximum_change_pp": 0.09562079771601173,
+            "per_metric": {
+              "reflectance": 0.00011944402248351919,
+              "power_into_substrate": 0.0008744984761112629,
+              "motheye_absorptance": 0.0009562079771601173
+            },
+            "passed": false
+          },
+          {
+            "coarse": 8,
+            "fine": 10,
+            "maximum_absolute_power_change": 0.00031260842813364553,
+            "maximum_change_pp": 0.03126084281336455,
+            "per_metric": {
+              "reflectance": 8.422476302924996e-05,
+              "power_into_substrate": 0.00031260842813364553,
+              "motheye_absorptance": 0.00022838366510447017
+            },
+            "passed": true
+          },
+          {
+            "coarse": 10,
+            "fine": 12,
+            "maximum_absolute_power_change": 0.00039048784078676846,
+            "maximum_change_pp": 0.039048784078676846,
+            "per_metric": {
+              "reflectance": 3.8432918746195144e-05,
+              "power_into_substrate": 0.00039048784078676846,
+              "motheye_absorptance": 0.00036373684067880774
+            },
+            "passed": true
+          },
+          {
+            "coarse": 12,
+            "fine": 14,
+            "maximum_absolute_power_change": 0.0003217100418547725,
+            "maximum_change_pp": 0.03217100418547725,
+            "per_metric": {
+              "reflectance": 1.784793949434916e-05,
+              "power_into_substrate": 0.0003217100418547725,
+              "motheye_absorptance": 0.000318348393705703
+            },
+            "passed": true
+          },
+          {
+            "coarse": 14,
+            "fine": 16,
+            "maximum_absolute_power_change": 0.00017979922851862895,
+            "maximum_change_pp": 0.017979922851862895,
+            "per_metric": {
+              "reflectance": 1.0882237144748536e-05,
+              "power_into_substrate": 0.00017910399803033883,
+              "motheye_absorptance": 0.00017979922851862895
+            },
+            "passed": true
+          },
+          {
+            "coarse": 16,
+            "fine": 18,
+            "maximum_absolute_power_change": 0.00017397286649337151,
+            "maximum_change_pp": 0.01739728664933715,
+            "per_metric": {
+              "reflectance": 1.4188194264026788e-05,
+              "power_into_substrate": 0.00017397286649337151,
+              "motheye_absorptance": 0.0001597846722293239
+            },
+            "passed": true
+          },
+          {
+            "coarse": 18,
+            "fine": 20,
+            "maximum_absolute_power_change": 0.0002625983847936997,
+            "maximum_change_pp": 0.026259838479369968,
+            "per_metric": {
+              "reflectance": 5.0840544091861756e-06,
+              "power_into_substrate": 0.0002625983847936997,
+              "motheye_absorptance": 0.00025751433038445626
+            },
+            "passed": true
+          },
+          {
+            "coarse": 20,
+            "fine": 22,
+            "maximum_absolute_power_change": 0.00026048043170612267,
+            "maximum_change_pp": 0.026048043170612267,
+            "per_metric": {
+              "reflectance": 5.025207860149747e-06,
+              "power_into_substrate": 0.0002554552238459573,
+              "motheye_absorptance": 0.00026048043170612267
+            },
+            "passed": true
+          },
+          {
+            "coarse": 22,
+            "fine": 24,
+            "maximum_absolute_power_change": 0.0002020757644601856,
+            "maximum_change_pp": 0.02020757644601856,
+            "per_metric": {
+              "reflectance": 1.3225438481383536e-05,
+              "power_into_substrate": 0.00018885032597876217,
+              "motheye_absorptance": 0.0002020757644601856
+            },
+            "passed": true
+          },
+          {
+            "coarse": 24,
+            "fine": 26,
+            "maximum_absolute_power_change": 0.00011118916152585978,
+            "maximum_change_pp": 0.011118916152585978,
+            "per_metric": {
+              "reflectance": 1.6349369646279435e-05,
+              "power_into_substrate": 9.483979187954739e-05,
+              "motheye_absorptance": 0.00011118916152585978
+            },
+            "passed": true
+          },
+          {
+            "coarse": 26,
+            "fine": 28,
+            "maximum_absolute_power_change": 2.631471118219597e-05,
+            "maximum_change_pp": 0.002631471118219597,
+            "per_metric": {
+              "reflectance": 1.6410389642229628e-05,
+              "power_into_substrate": 1.9287768312004072e-05,
+              "motheye_absorptance": 2.631471118219597e-05
+            },
+            "passed": true
+          },
+          {
+            "coarse": 28,
+            "fine": 30,
+            "maximum_absolute_power_change": 3.664663009231295e-05,
+            "maximum_change_pp": 0.003664663009231295,
+            "per_metric": {
+              "reflectance": 1.1957992566162881e-05,
+              "power_into_substrate": 3.664663009231295e-05,
+              "motheye_absorptance": 3.1054923032125537e-05
+            },
+            "passed": true
+          },
+          {
+            "coarse": 30,
+            "fine": 32,
+            "maximum_absolute_power_change": 5.105107005939913e-05,
+            "maximum_change_pp": 0.005105107005939913,
+            "per_metric": {
+              "reflectance": 6.635132248427114e-06,
+              "power_into_substrate": 5.105107005939913e-05,
+              "motheye_absorptance": 4.594025264914592e-05
+            },
+            "passed": true
+          },
+          {
+            "coarse": 32,
+            "fine": 34,
+            "maximum_absolute_power_change": 4.680966962106181e-05,
+            "maximum_change_pp": 0.004680966962106181,
+            "per_metric": {
+              "reflectance": 3.836373167644472e-06,
+              "power_into_substrate": 4.680966962106181e-05,
+              "motheye_absorptance": 4.5545946817493466e-05
+            },
+            "passed": true
+          },
+          {
+            "coarse": 34,
+            "fine": 36,
+            "maximum_absolute_power_change": 4.159095179823158e-05,
+            "maximum_change_pp": 0.004159095179823158,
+            "per_metric": {
+              "reflectance": 1.5112138118944518e-06,
+              "power_into_substrate": 4.0802245250964875e-05,
+              "motheye_absorptance": 4.159095179823158e-05
+            },
+            "passed": true
+          }
+        ],
+        "tail_two_steps_passed": true,
+        "requested_range_complete": true,
+        "passed_at_fixed_Nz_Q": true,
+        "working_order": 34,
+        "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+      }
+    }
+  ],
+  "interpretation": "Order-only convergence checks at fixed Nz/Q; no final spectrum or layer/grid sweep."
+}

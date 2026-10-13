@@ -1,0 +1,10 @@
+{
+  "status": "calculation_failed",
+  "signature": "05eca066c9075c8b7c76c516a4dd721429bb45e1032c66fcce6d0aa0bb67e1bf",
+  "order": 36,
+  "wavelength_nm": 550.0,
+  "slices": 60,
+  "grid": 512,
+  "error": "ValueError: Nonphysical power result; this is not classified as CUDA OOM.",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cr_motheye_order_memory_safe.py\", line 327, in worker\n    validate_case(row, identity)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cr_motheye_order_memory_safe.py\", line 247, in validate_case\n    raise ValueError(\"Nonphysical power result; this is not classified as CUDA OOM.\")\nValueError: Nonphysical power result; this is not classified as CUDA OOM.\n"
+}

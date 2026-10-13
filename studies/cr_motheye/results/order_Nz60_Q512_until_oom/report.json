@@ -1,0 +1,26 @@
+{
+  "status": "calculation_failed",
+  "signature": "4982ccdca67224b5c4dea756e33372d0e517baa3f16931041e270542c6febc62",
+  "fixed_slices": 60,
+  "fixed_grid": 512,
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "completed_cases": 0,
+  "complete_orders": [],
+  "last_complete_order": null,
+  "failure": {
+    "status": "calculation_failed",
+    "signature": "4982ccdca67224b5c4dea756e33372d0e517baa3f16931041e270542c6febc62",
+    "order": 16,
+    "wavelength_nm": 400.0,
+    "slices": 60,
+    "grid": 512,
+    "error": "ValueError: Expected a torch.device with a specified index or an integer, but got:cuda",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cr_motheye_order_until_oom.py\", line 119, in worker\n    torch.cuda.set_device(device)\n  File \"/home/7/uq06557/.local/lib/python3.9/site-packages/torch/cuda/__init__.py\", line 474, in set_device\n    device = _get_device_index(device)\n  File \"/home/7/uq06557/.local/lib/python3.9/site-packages/torch/cuda/_utils.py\", line 38, in _get_device_index\n    return _torch_get_device_index(device, optional, allow_cpu)\n  File \"/home/7/uq06557/.local/lib/python3.9/site-packages/torch/_utils.py\", line 836, in _get_device_index\n    raise ValueError(\nValueError: Expected a torch.device with a specified index or an integer, but got:cuda\n"
+  },
+  "requested_max_order": 0,
+  "interpretation": "An order sweep and memory limit measurement, not a three-axis convergence certification."
+}
