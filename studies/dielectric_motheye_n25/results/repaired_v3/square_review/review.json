@@ -1,0 +1,167 @@
+{
+  "scope": "Saved initial-geometry forward results and baseline audit timings; gradient mesh validation is separate. No new optical solves.",
+  "geometry": {
+    "index": 2.5,
+    "period_nm": 200.0,
+    "height_nm": 500.0,
+    "tip_radius_nm": 5.0,
+    "base_radius_nm": 95.0,
+    "profile_power": 1.0,
+    "asr_circle_g": 0.03
+  },
+  "integration": {
+    "device": "cuda:0",
+    "torch_version": "2.6.0+cu124",
+    "cuda_version": "12.4",
+    "gpu": "NVIDIA H100",
+    "cpu_threads": 4
+  },
+  "fixed_order_scan": {
+    "slices": 60,
+    "grid": 384
+  },
+  "orders": [
+    8,
+    12,
+    16,
+    20
+  ],
+  "order_scan_wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "comparison_tolerance": 0.001,
+  "mesh_tolerance": 0.00025,
+  "cross_method_max_abs_change": 8.718854264688769e-05,
+  "cross_method_per_metric": {
+    "reflectance": 8.718854261778944e-05,
+    "transmittance": 8.718854264688769e-05,
+    "absorptance": 4.921618668163319e-13
+  },
+  "methods": {
+    "nv": {
+      "saved_status": "converged",
+      "numerical": {
+        "order": 12,
+        "slices": 60,
+        "grid": 384
+      },
+      "wavelength_count": 61,
+      "mean_reflectance": 0.007317479567679492,
+      "forward_mesh_passed": true,
+      "max_abs_energy_residual_final": 2.8343993818680246e-13,
+      "max_abs_energy_residual_all_cases": 1.0407230632836217e-12,
+      "timing": {
+        "forward": {
+          "samples_seconds": [
+            112.46663083741441,
+            105.33441985724494,
+            95.28631742112339
+          ],
+          "median_seconds": 105.33441985724494,
+          "max_peak_cuda_allocated_mib": 6756.30029296875
+        },
+        "gradient": {
+          "samples_seconds": [
+            298.24848943110555,
+            301.4521207702346,
+            298.34163529984653
+          ],
+          "median_seconds": 298.34163529984653,
+          "max_peak_cuda_allocated_mib": 19398.94580078125
+        }
+      },
+      "baseline_fd_checks": [
+        {
+          "parameter": "height_nm",
+          "autograd_per_nm": -2.4054298714167465e-06,
+          "finite_differences_per_nm": [
+            -2.405436552274827e-06,
+            -2.40543155058566e-06
+          ],
+          "passed": true
+        },
+        {
+          "parameter": "base_radius_nm",
+          "autograd_per_nm": -0.000789392358438666,
+          "finite_differences_per_nm": [
+            -0.0007893929648627313,
+            -0.0007893928260743581
+          ],
+          "passed": true
+        }
+      ],
+      "gradient_mesh_passed": false,
+      "gradient_error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 174.00 MiB. GPU 0 has a total capacity of 93.09 GiB of which 155.44 MiB is free. Including non-PyTorch memory, this process has 92.92 GiB memory in use. Of the allocated memory 90.95 GiB is allocated by PyTorch, and 691.11 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+      "saved_error": null
+    },
+    "asr": {
+      "saved_status": "interrupted",
+      "numerical": {
+        "order": 12,
+        "slices": 60,
+        "grid": 384
+      },
+      "wavelength_count": 61,
+      "mean_reflectance": 0.007280526478756978,
+      "forward_mesh_passed": true,
+      "max_abs_energy_residual_final": 2.0872192862952943e-13,
+      "max_abs_energy_residual_all_cases": 1.3498091533392653e-12,
+      "timing": {
+        "forward": {
+          "samples_seconds": [
+            240.5668014907278,
+            240.27583326026797,
+            241.0051151649095
+          ],
+          "median_seconds": 240.5668014907278,
+          "max_peak_cuda_allocated_mib": 5358.78369140625
+        },
+        "gradient": {
+          "samples_seconds": [
+            1776.5065989010036,
+            1783.2993736071512,
+            1779.0821390841156
+          ],
+          "median_seconds": 1779.0821390841156,
+          "max_peak_cuda_allocated_mib": 30269.134765625
+        }
+      },
+      "baseline_fd_checks": [
+        {
+          "parameter": "height_nm",
+          "autograd_per_nm": -2.538304874228959e-06,
+          "finite_differences_per_nm": [
+            -2.538311578087829e-06,
+            -2.5383065614757033e-06
+          ],
+          "passed": true
+        },
+        {
+          "parameter": "base_radius_nm",
+          "autograd_per_nm": -0.0007734314943591955,
+          "finite_differences_per_nm": [
+            -0.0007734315887019359,
+            -0.0007734315180739273
+          ],
+          "passed": true
+        }
+      ],
+      "gradient_mesh_passed": false,
+      "gradient_error": null,
+      "saved_error": "KeyboardInterrupt: "
+    }
+  },
+  "nv_forward_speedup": 2.2838384814456405,
+  "nv_baseline_gradient_speedup": 5.963237874244603,
+  "source_file_sha256": {
+    "plan.json": "a6c2de489e7b229b3ba1c228164597a98970f7cb41c87c8661d528c92781d62f",
+    "square/nv/convergence.json": "c6f27b295d5456732d3721e9e9c5184ce3c43031241542b775ad14270dca4a8d",
+    "square/nv/checkpoint.json": "a7882295ef8c13720ebcd1eb0ba1a607a19c611de5a43ff48625f982898554b9",
+    "square/nv/audits/M12_Nz60_Q384/audit_checkpoint.json": "97806a632d31081b3a48b37441319d8fdf6227358a306a3fa416e413f4f1779d",
+    "square/asr/convergence.json": "f2f912776eefc2316a4162e4617bcbe909c0a6c6b9459e3caf485942754eccc9",
+    "square/asr/checkpoint.json": "be8d166e8f63ab6ef8e9144d8a0a2e9399ecaed6f07222e1e6d79dfa4bcbc71b",
+    "square/asr/audits/M12_Nz60_Q384/audit_checkpoint.json": "e49c0d816b2b381dcdb6157150c12e53453e7f14f8b8923e9a5cfc7d7496eedd"
+  }
+}
