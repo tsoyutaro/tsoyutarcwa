@@ -1,0 +1,550 @@
+import torch
+import torcwa
+import numpy as np
+
+def build_fourier_projection_matrix_ultimate(order_x, order_y, Lx, Ly, nx, ny, R, device='cpu', dtype=torch.complex128):
+    dx, dy = Lx / nx, Ly / ny
+    x = torch.linspace(-Lx/2, Lx/2 - dx, nx, device=device, dtype=torch.float64)
+    y = torch.linspace(-Ly/2, Ly/2 - dy, ny, device=device, dtype=torch.float64)
+    X, Y = torch.meshgrid(x, y, indexing='ij')
+
+    theta = torch.atan2(Y, X)
+    vx = torch.cos(theta)
+    vy = torch.sin(theta)
+    r = torch.sqrt(X**2 + Y**2)
+
+    #エルミート補間関数
+    def smoothstep(val, edge0, edge1):
+        t = torch.clamp((val - edge0) / (edge1 - edge0), 0.0, 1.0)
+        return t * t * (3.0 - 2.0 * t)
+
+    W_center = smoothstep(r, edge0=0.0, edge1=R/2.0)
+    r_start = R + 0.01
+    r_end = min(Lx, Ly) / 2.0 - 0.01
+    if r_end <= r_start:
+        mid = (R + min(Lx, Ly) / 2.0) / 2.0
+        r_start = mid - 1e-4
+        r_end = mid + 1e-4
+
+    W_bound = smoothstep(r, edge0=r_end, edge1=r_start)
+    W_total = W_center * W_bound
+    #法線投影テンソルの構築（実空間）
+    P_xx_real = (0.5 + (vx * vx - 0.5) * W_total).to(dtype)
+    P_yy_real = (0.5 + (vy * vy - 0.5) * W_total).to(dtype)
+    P_xy_real = ((vx * vy) * W_total).to(dtype)
+    P_yx_real = P_xy_real
+
+    def sym_even_x(T): return 0.5 * (T + torch.roll(torch.flip(T, [0]), 1, 0))
+    def sym_even_y(T): return 0.5 * (T + torch.roll(torch.flip(T, [1]), 1, 1))
+    def sym_odd_x(T):  return 0.5 * (T - torch.roll(torch.flip(T, [0]), 1, 0))
+    def sym_odd_y(T):  return 0.5 * (T - torch.roll(torch.flip(T, [1]), 1, 1))
+
+    P_xx_real = sym_even_y(sym_even_x(P_xx_real))
+    P_yy_real = sym_even_y(sym_even_x(P_yy_real))
+    P_xy_real = sym_odd_y(sym_odd_x(P_xy_real))
+    P_yx_real = P_xy_real
+
+    # 2次元FFTとToeplitz（テプリッツ）行列の抽出
+    def get_fourier_matrix(v_space):
+        v_space_aligned = torch.fft.ifftshift(v_space)
+        fft_res = torch.fft.fft2(v_space_aligned) / (nx * ny)
+        fft_shifted = torch.fft.fftshift(fft_res)
+
+        cx, cy = nx // 2, ny // 2
+        Gx, Gy = torch.meshgrid(order_x, order_y, indexing='ij')
+        Gx, Gy = Gx.flatten().to(device), Gy.flatten().to(device)
+
+        dGx = Gx.unsqueeze(1) - Gx.unsqueeze(0)
+        dGy = Gy.unsqueeze(1) - Gy.unsqueeze(0)
+
+        idx_x = cx + dGx
+        idx_y = cy + dGy
+        return fft_shifted[idx_x, idx_y]
+
+    P_xx = get_fourier_matrix(P_xx_real)
+    P_yx = get_fourier_matrix(P_yx_real)
+    P_xy = get_fourier_matrix(P_xy_real)
+    P_yy = get_fourier_matrix(P_yy_real)
+
+    P_top    = torch.cat([P_xx, P_xy], dim=1)
+    P_bottom = torch.cat([P_yx, P_yy], dim=1)
+    return torch.cat([P_top, P_bottom], dim=0)
+
+class FastSolversMixin:
+    def _prepare_algo2a_cache(self, free_legacy_cache=True):
+        if not (hasattr(self, '_algo2a_t_plus') and len(self._algo2a_t_plus) == self.layer_N + 1):
+            self._algo2a_t_plus  = []
+            self._algo2a_t_minus = []
+
+            W_invs = [torch.linalg.inv(W.to(torch.complex128)).to(self._dtype) for W in self.E_eigvec]
+            V_invs = [torch.linalg.inv(V.to(torch.complex128)).to(self._dtype) for V in self.H_eigvec]
+
+            W_term = W_invs[-1]
+            V_term = torch.matmul(V_invs[-1], self.Vo if hasattr(self, 'Sout') else self.Vf)
+            self._algo2a_t_plus.append(0.5 * (W_term + V_term))
+            self._algo2a_t_minus.append(0.5 * (W_term - V_term))
+
+            for i in range(self.layer_N - 1, 0, -1):
+                W_term = torch.matmul(W_invs[i-1], self.E_eigvec[i])
+                V_term = torch.matmul(V_invs[i-1], self.H_eigvec[i])
+                self._algo2a_t_plus.append(0.5 * (W_term + V_term))
+                self._algo2a_t_minus.append(0.5 * (W_term - V_term))
+
+            V_up_inv = torch.linalg.inv((self.Vi if hasattr(self, 'Sin') else self.Vf).to(torch.complex128)).to(self._dtype)
+            W_term = self.E_eigvec[0]
+            V_term = torch.matmul(V_up_inv, self.H_eigvec[0])
+            self._algo2a_t_plus.append(0.5 * (W_term + V_term))
+            self._algo2a_t_minus.append(0.5 * (W_term - V_term))
+
+        if free_legacy_cache:
+            if hasattr(self, 'layer_S11'):
+                del self.layer_S11, self.layer_S21, self.layer_S12, self.layer_S22
+            if hasattr(self, 'Cf'):
+                del self.Cf, self.Cb
+            torch.cuda.empty_cache()
+
+
+    def solve_global_smatrix_half(self):
+        if self.layer_N == 0:
+            self.solve_global_smatrix()
+            return
+
+        I = torch.eye(2*self.order_N, dtype=self._dtype, device=self._device)
+        S11, S21 = (self.Sout[0], self.Sout[1]) if hasattr(self, 'Sout') else (I, torch.zeros_like(I))
+
+        for i in range(self.layer_N-1, -1, -1):
+            #S22が論文内のTuuに該当
+            sm_11, sm_21 = self.layer_S11[i], self.layer_S21[i]
+            sm_12, sm_22 = self.layer_S12[i], self.layer_S22[i]
+
+            tmp1 = torch.linalg.inv(I - torch.matmul(sm_12, S21))
+            tmp2 = torch.linalg.inv(I - torch.matmul(S21, sm_12))
+
+            S11_new = torch.matmul(S11, torch.matmul(tmp1, sm_11))
+            S21_new = sm_21 + torch.matmul(sm_22, torch.matmul(tmp2, torch.matmul(S21, sm_11)))
+            S11, S21 = S11_new, S21_new
+
+        if hasattr(self, 'Sin'):
+            sm_11, sm_21, sm_12, sm_22 = self.Sin[0], self.Sin[1], self.Sin[2], self.Sin[3]
+            tmp1 = torch.linalg.inv(I - torch.matmul(sm_12, S21))
+            tmp2 = torch.linalg.inv(I - torch.matmul(S21, sm_12))
+            S11_new = torch.matmul(S11, torch.matmul(tmp1, sm_11))
+            S21_new = sm_21 + torch.matmul(sm_22, torch.matmul(tmp2, torch.matmul(S21, sm_11)))
+            S11, S21 = S11_new, S21_new
+
+        dummy = torch.zeros_like(I)
+        self.S = [S11, S21, dummy, dummy]
+        self.C = [[], []]
+
+    def solve_global_smatrix_quarter(self):
+        if self.layer_N == 0:
+            self.solve_global_smatrix()
+            return
+
+        I = torch.eye(2*self.order_N, dtype=self._dtype, device=self._device)
+        S21 = self.Sout[1] if hasattr(self, 'Sout') else torch.zeros_like(I)
+
+        for i in range(self.layer_N-1, -1, -1):
+            sm_11, sm_21 = self.layer_S11[i], self.layer_S21[i]
+            sm_12, sm_22 = self.layer_S12[i], self.layer_S22[i]
+
+            tmp2 = torch.linalg.inv(I - torch.matmul(S21, sm_12))
+            S21 = sm_21 + torch.matmul(sm_22, torch.matmul(tmp2, torch.matmul(S21, sm_11)))
+
+        if hasattr(self, 'Sin'):
+            sm_11, sm_21, sm_12, sm_22 = self.Sin[0], self.Sin[1], self.Sin[2], self.Sin[3]
+            tmp2 = torch.linalg.inv(I - torch.matmul(S21, sm_12))
+            S21 = sm_21 + torch.matmul(sm_22, torch.matmul(tmp2, torch.matmul(S21, sm_11)))
+
+        dummy = torch.zeros_like(I)
+        self.S = [dummy, S21, dummy, dummy]
+        self.C = [[], []]
+    
+    def solve_global_smatrix_quarter_algo2a(self, free_legacy_cache=True):
+        if self.layer_N == 0:
+            self.solve_global_smatrix()
+            return
+
+        self._prepare_algo2a_cache(free_legacy_cache)
+
+        den_inv = torch.linalg.inv(self._algo2a_t_plus[0])
+        R = torch.matmul(self._algo2a_t_minus[0], den_inv)
+        del den_inv
+
+        # 【修正】自動微分に対応するため、バッファの事前確保（out=用のテンソル）を削除
+
+        for i in range(self.layer_N - 1, -1, -1):
+            phase_1d = torch.exp(1.j * self.omega * self.kz_norm[i] * self.thickness[i])
+            
+            # 【修正】インプレース演算（out=, mul_, add_）を避け、標準的な演算子を使用する
+            Omega = R * phase_1d.unsqueeze(0)
+            Omega = Omega * phase_1d.unsqueeze(1)
+            
+            t_plus = self._algo2a_t_plus[self.layer_N - i]
+            t_minus = self._algo2a_t_minus[self.layer_N - i]
+
+            num = torch.matmul(t_plus, Omega) + t_minus
+            den = torch.matmul(t_minus, Omega) + t_plus
+            
+            den_inv = torch.linalg.inv(den)
+            R = torch.matmul(num, den_inv)
+
+        I = torch.eye(2*self.order_N, dtype=self._dtype, device=self._device)
+        dummy = torch.zeros_like(I)
+        self.S = [dummy, R, dummy, dummy]
+        self.C = [[], []]
+    
+    def solve_global_smatrix_half_algo2a(self, free_legacy_cache=True):
+        if self.layer_N == 0:
+            self.solve_global_smatrix_half()
+            return
+
+        self._prepare_algo2a_cache(free_legacy_cache)
+
+        # 初期条件（基板と最下層の境界）
+        den_inv = torch.linalg.inv(self._algo2a_t_plus[0])
+        R = torch.matmul(self._algo2a_t_minus[0], den_inv) # R_ud (S21)
+        T = den_inv.clone()                                # T_dd (S11)
+        del den_inv
+
+        # 【修正】こちらもバッファの事前確保を削除
+
+        for i in range(self.layer_N - 1, -1, -1):
+            phase_1d = torch.exp(1.j * self.omega * self.kz_norm[i] * self.thickness[i])
+            
+            # 【修正】標準的な演算子に置き換え
+            Omega = R * phase_1d.unsqueeze(0)
+            Omega = Omega * phase_1d.unsqueeze(1)
+            
+            t_plus = self._algo2a_t_plus[self.layer_N - i]
+            t_minus = self._algo2a_t_minus[self.layer_N - i]
+
+            num = torch.matmul(t_plus, Omega) + t_minus
+            den = torch.matmul(t_minus, Omega) + t_plus
+            
+            den_inv = torch.linalg.inv(den)
+            
+            # R_ud_new (S21) の更新
+            R = torch.matmul(num, den_inv)
+            
+            # T_dd_new (S11) の更新: T_old * phi * den_inv
+            T_omega = T * phase_1d.unsqueeze(0)
+            T = torch.matmul(T_omega, den_inv)
+
+        I = torch.eye(2*self.order_N, dtype=self._dtype, device=self._device)
+        dummy = torch.zeros_like(I)
+        self.S = [T, R, dummy, dummy]
+        self.C = [[], []]
+        
+    def solve_global_smatrix_algo2a(self, free_legacy_cache=True):
+        if self.layer_N == 0:
+            self.solve_global_smatrix()
+            return
+
+        self._prepare_algo2a_cache(free_legacy_cache)
+
+        # 初期条件（基板と最下層の境界）
+        t_plus = self._algo2a_t_plus[0]
+        t_minus = self._algo2a_t_minus[0]
+        den_inv = torch.linalg.inv(t_plus)
+        
+        # S行列の対応: S11(T_dd), S21(R_ud), S12(R_du), S22(T_uu)
+        S21 = torch.matmul(t_minus, den_inv)
+        S11 = den_inv.clone()
+        S12 = -torch.matmul(den_inv, t_minus)
+        S22 = t_plus + torch.matmul(t_minus, S12)
+
+        for i in range(self.layer_N - 1, -1, -1):
+            # phi (伝搬位相ベクトル)
+            phase_1d = torch.exp(1.j * self.omega * self.kz_norm[i] * self.thickness[i])
+            
+            t_plus = self._algo2a_t_plus[self.layer_N - i]
+            t_minus = self._algo2a_t_minus[self.layer_N - i]
+
+            # (19a') Omega = phi * R_ud * phi
+            # ブロードキャストを用いて diag(phi) @ S21 @ diag(phi) を構築
+            Omega = S21 * phase_1d.unsqueeze(0)
+            Omega = phase_1d.unsqueeze(1) * Omega
+
+            # D = [t22 + t21 * Omega]
+            den = t_plus + torch.matmul(t_minus, Omega)
+            den_inv = torch.linalg.inv(den)
+
+            # R_ud_new (S21) = [t12 + t11 * Omega] * D^-1
+            num = t_minus + torch.matmul(t_plus, Omega)
+            S21_new = torch.matmul(num, den_inv)
+
+            # T_dd_new (S11) = T_dd_old * phi * D^-1
+            S11_phi = S11 * phase_1d.unsqueeze(0)
+            S11_new = torch.matmul(S11_phi, den_inv)
+
+            # T_uu_new (S22) = [t11 - R_ud_new * t21] * phi * T_uu_old
+            term_Tuu = t_plus - torch.matmul(S21_new, t_minus)
+            term_Tuu_phi = term_Tuu * phase_1d.unsqueeze(0)
+            S22_new = torch.matmul(term_Tuu_phi, S22)
+
+            # R_du_new (S12) = R_du_old - T_dd_new * t21 * phi * T_uu_old
+            term_Rdu = torch.matmul(S11_new, t_minus)
+            term_Rdu_phi = term_Rdu * phase_1d.unsqueeze(0)
+            S12_new = S12 - torch.matmul(term_Rdu_phi, S22)
+
+            # 更新
+            S11, S21, S12, S22 = S11_new, S21_new, S12_new, S22_new
+
+        self.S = [S11, S21, S12, S22]
+        self.C = [[], []]
+    
+    def _get_C2v_transformation_matrices(self):
+        Mx, My = len(self.order_x), len(self.order_y)
+        cx, cy = Mx // 2, My // 2
+
+        W_even_x = torch.zeros((Mx, cx + 1), dtype=self._dtype, device=self._device)
+        W_odd_x = torch.zeros((Mx, cx), dtype=self._dtype, device=self._device)
+        W_even_x[cx, 0] = 1.0
+        for i in range(1, cx + 1):
+            W_even_x[cx + i, i] = W_even_x[cx - i, i] = 1 / np.sqrt(2)
+            W_odd_x[cx + i, i - 1] = 1 / np.sqrt(2)
+            W_odd_x[cx - i, i - 1] = -1 / np.sqrt(2)
+
+        W_even_y = torch.zeros((My, cy + 1), dtype=self._dtype, device=self._device)
+        W_odd_y = torch.zeros((My, cy), dtype=self._dtype, device=self._device)
+        W_even_y[cy, 0] = 1.0
+        for i in range(1, cy + 1):
+            W_even_y[cy + i, i] = W_even_y[cy - i, i] = 1 / np.sqrt(2)
+            W_odd_y[cy + i, i - 1] = 1 / np.sqrt(2)
+            W_odd_y[cy - i, i - 1] = -1 / np.sqrt(2)
+
+        def kronecker_product(A, B):
+            return torch.einsum('ab,cd->acbd', A, B).reshape(A.size(0)*B.size(0), A.size(1)*B.size(1))
+
+        W_EE, W_EO = kronecker_product(W_even_x, W_even_y), kronecker_product(W_even_x, W_odd_y)
+        W_OE, W_OO = kronecker_product(W_odd_x, W_even_y), kronecker_product(W_odd_x, W_odd_y)
+
+        N = self.order_N
+        W1 = torch.zeros((2*N, W_OE.size(1) + W_EO.size(1)), dtype=self._dtype, device=self._device)
+        W1[:N, :W_OE.size(1)] = W_OE; W1[N:, W_OE.size(1):] = W_EO
+        W2 = torch.zeros((2*N, W_EO.size(1) + W_OE.size(1)), dtype=self._dtype, device=self._device)
+        W2[:N, :W_EO.size(1)] = W_EO; W2[N:, W_EO.size(1):] = W_OE
+        W3 = torch.zeros((2*N, W_EE.size(1) + W_OO.size(1)), dtype=self._dtype, device=self._device)
+        W3[:N, :W_EE.size(1)] = W_EE; W3[N:, W_EE.size(1):] = W_OO
+        W4 = torch.zeros((2*N, W_OO.size(1) + W_EE.size(1)), dtype=self._dtype, device=self._device)
+        W4[:N, :W_OO.size(1)] = W_OO; W4[N:, W_OO.size(1):] = W_EE
+        return [W1, W2, W3, W4]
+    
+    def _eigendecomposition_group_theory(self, P, Q):
+        Ws = self._get_C2v_transformation_matrices()
+        kz_norm_list, E_full_list = [], []
+
+        pairs = [
+            (Ws[0], Ws[1]), # W1 -> W2 
+            (Ws[1], Ws[0]), # W2 -> W1 
+            (Ws[2], Ws[3]), # W3 -> W4 
+            (Ws[3], Ws[2])  # W4 -> W3 
+        ]
+
+        is_C4v_symmetric = (len(self.order_x) == len(self.order_y)) and (self.L[0] == self.L[1])
+        saved_kz_sub = None
+        saved_E_sub = None
+
+        for idx, (W_E, W_H) in enumerate(pairs):
+            if W_E.size(1) == 0: continue
+            
+            if self.normal_incidence_optimized and idx in [0, 1]:
+                N_sub = W_E.size(1)
+                kz_sub = torch.ones(N_sub, dtype=self._dtype, device=self._device)
+                kz_norm_list.append(kz_sub)
+                E_full_list.append(W_E)
+                continue
+
+            if self.normal_incidence_optimized and is_C4v_symmetric and idx == 3 and saved_E_sub is not None:
+                kz_sub = saved_kz_sub 
+                Mx = len(self.order_x)
+                cx = Mx // 2
+                N_EE = (cx + 1) ** 2  
+                N_OO = cx ** 2        
+                
+                E_EE = saved_E_sub[:N_EE, :]
+                E_OO = saved_E_sub[N_EE:, :]
+                
+                E_EE_perm = E_EE.view(cx + 1, cx + 1, -1).transpose(0, 1).reshape(N_EE, -1)
+                E_OO_perm = E_OO.view(cx, cx, -1).transpose(0, 1).reshape(N_OO, -1)
+                
+                E_sub = torch.cat([E_OO_perm, E_EE_perm], dim=0) 
+                
+                kz_norm_list.append(kz_sub)
+                E_full_list.append(torch.matmul(W_E, E_sub))
+                continue
+
+            Q_sub = torch.matmul(W_H.T, torch.matmul(Q, W_E))
+            P_sub = torch.matmul(W_E.T, torch.matmul(P, W_H))
+            Omega_sub = torch.matmul(P_sub, Q_sub)
+
+            kz_sq_sub, E_sub = torcwa.Eig.apply(Omega_sub)
+            kz_sub = torch.sqrt(kz_sq_sub)
+            kz_sub = torch.where((kz_sub.real + kz_sub.imag) < -1e-12, -kz_sub, kz_sub)
+            
+            if idx == 2:
+                saved_kz_sub = kz_sub
+                saved_E_sub = E_sub
+
+            kz_norm_list.append(kz_sub)
+            E_full_list.append(torch.matmul(W_E, E_sub))
+
+        kz_norm = torch.cat(kz_norm_list)
+        E_eigvec = torch.cat(E_full_list, dim=1)
+        H_eigvec = torch.matmul(Q, E_eigvec) / (kz_norm + 1e-15).unsqueeze(0)
+
+        sort_idx = torch.argsort(kz_norm.real - 1e-6 * kz_norm.imag, descending=True)
+        self.kz_norm.append(kz_norm[sort_idx])
+        self.E_eigvec.append(E_eigvec[:, sort_idx])
+        
+
+class CustomRCWA_NVM(torcwa.rcwa, FastSolversMixin):
+    def __init__(self, freq, order, L, **kwargs):
+        if 'stable_eig_grad' not in kwargs:
+            kwargs['stable_eig_grad'] = False
+        self.zeta_deg = kwargs.pop('zeta_deg', 90.0)
+        self.use_group_theory = kwargs.pop('use_group_theory', False) 
+        super().__init__(freq, order, L, **kwargs)
+        self._current_eps_tensor_2N = None
+        self.normal_incidence_optimized = False
+    
+    def set_incident_angle(self, inc_ang, azi_ang, **kwargs):
+        # まず親クラスの標準的な角度設定処理を実行
+        super().set_incident_angle(inc_ang, azi_ang, **kwargs)
+        
+        # 浮動小数点の誤差を考慮し、限りなく0に近い場合にTrueとする
+        if abs(inc_ang) < 1e-7:
+            self.normal_incidence_optimized = True
+        else:
+            self.normal_incidence_optimized = False
+
+    def _build_analytical_toeplitz_circle(self, R, val_bg, val_cyl, use_lanczos=False, lanczos_power=2):
+        Lx, Ly = self.L[0], self.L[1]
+        ox = self.order_x.to(dtype=torch.float64, device=self._device)
+        oy = self.order_y.to(dtype=torch.float64, device=self._device)
+        Mx, My = len(ox), len(oy)
+        N = Mx * My
+
+        Gx_1d = (ox * (2.0 * torch.pi / Lx)).repeat_interleave(My).view(N, 1)
+        Gy_1d = (oy * (2.0 * torch.pi / Ly)).repeat(Mx).view(N, 1)
+        dGx   = Gx_1d - Gx_1d.T
+        dGy   = Gy_1d - Gy_1d.T
+        G_norm = torch.sqrt(dGx**2 + dGy**2)
+
+        f         = (torch.pi * R**2) / (Lx * Ly)
+        delta_val = val_cyl - val_bg
+        GR        = G_norm * R
+
+        mask_zero  = (GR < 1e-8)
+        mask_small = (~mask_zero) & (GR < 1e-2)
+        mask_large = ~(mask_zero | mask_small)
+
+        GR2 = GR * GR
+        bessel_taylor = 1.0 - GR2 / 8.0 + GR2 * GR2 / 192.0
+
+        GR_safe = torch.where(mask_large, GR, torch.ones_like(GR))
+        bessel_direct = 2.0 * torch.special.bessel_j1(GR_safe) / GR_safe
+
+        bessel_ratio = torch.where(mask_zero,  torch.ones_like(GR),
+                                   torch.where(mask_small, bessel_taylor, bessel_direct))
+
+        coeffs = delta_val * f * bessel_ratio
+
+        if use_lanczos:
+            G_max_val = G_norm.max()
+            buffer    = min(2.0 * torch.pi / Lx, 2.0 * torch.pi / Ly)
+            mp1       = G_max_val + buffer
+            z         = 3.83170597 * (G_norm / mp1)
+            sigma     = torch.where(mask_zero, torch.ones_like(G_norm),
+                                             2.0 * torch.special.bessel_j1(z) / z)
+            sigma     = torch.pow(sigma, lanczos_power)
+            coeffs    = coeffs * sigma
+
+        toeplitz_mat = coeffs + torch.eye(N, dtype=torch.float64, device=self._device) * val_bg
+        return toeplitz_mat.to(self._dtype)
+
+    def build_effective_epsilon_nvm(self, R, eps_bg, eps_cyl, nx=256, ny=256,
+                                    use_lanczos=False, lanczos_power=2):
+        eps_mat     = self._build_analytical_toeplitz_circle(R, eps_bg, eps_cyl, use_lanczos, lanczos_power)
+        inv_eps_mat = self._build_analytical_toeplitz_circle(R, 1.0/eps_bg, 1.0/eps_cyl, use_lanczos, lanczos_power)
+        Lx, Ly = self.L[0], self.L[1]
+
+        P = build_fourier_projection_matrix_ultimate(self.order_x, self.order_y, Lx, Ly, nx, ny, R, device=self._device, dtype=self._dtype)
+
+        inv_inv_eps_mat = torch.linalg.inv(inv_eps_mat.to(torch.complex128)).to(self._dtype)
+
+        delta_mat = inv_inv_eps_mat - eps_mat
+        zero_mat  = torch.zeros_like(delta_mat)
+
+        delta_2N = torch.cat([torch.cat([delta_mat, zero_mat], dim=1), torch.cat([zero_mat,  delta_mat], dim=1)], dim=0)
+        eps_2N   = torch.cat([torch.cat([eps_mat,  zero_mat], dim=1), torch.cat([zero_mat,  eps_mat],  dim=1)], dim=0)
+
+        eps_eff = eps_2N + torch.matmul(delta_2N, P)
+        return eps_eff
+
+    def add_layer_circle_nvm(self, thickness, R, eps_bg, eps_cyl, use_lanczos=False, lanczos_power=2, nx=256, ny=256):
+        eps_zz = self._build_analytical_toeplitz_circle(R, eps_bg, eps_cyl, use_lanczos, lanczos_power)
+        self.eps_conv.append(eps_zz)
+        self.mu_conv.append(torch.eye(self.order_N, dtype=self._dtype, device=self._device))
+        self._current_eps_tensor_2N = self.build_effective_epsilon_nvm(R, eps_bg, eps_cyl, nx=nx, ny=ny, use_lanczos=use_lanczos, lanczos_power=lanczos_power)
+
+        self.layer_N += 1
+        self.thickness.append(thickness)
+        self._eigen_decomposition_full_tensor()
+        self._solve_layer_smatrix()
+        self._current_eps_tensor_2N = None
+
+    def _eigen_decomposition_full_tensor(self):
+        """P行列・Q行列を構築し、フラグに応じて固有値ソルバーに渡す"""
+        eps_2N = self._current_eps_tensor_2N
+        eps_zz = self.eps_conv[-1]
+        mu_zz  = self.mu_conv[-1]
+        N      = self.order_N
+
+        eps_xx, eps_xy = eps_2N[:N, :N], eps_2N[:N, N:]
+        eps_yx, eps_yy = eps_2N[N:, :N], eps_2N[N:, N:]
+
+        inv_eps_zz = torch.linalg.inv(eps_zz.to(torch.complex128)).to(self._dtype)
+        inv_mu_zz  = torch.linalg.inv(mu_zz.to(torch.complex128)).to(self._dtype)
+
+        P11 =  torch.matmul(self.Kx_norm, torch.matmul(inv_eps_zz, self.Ky_norm))
+        P12 = mu_zz - torch.matmul(self.Kx_norm, torch.matmul(inv_eps_zz, self.Kx_norm))
+        P21 =  torch.matmul(self.Ky_norm, torch.matmul(inv_eps_zz, self.Ky_norm)) - mu_zz
+        P22 = -torch.matmul(self.Ky_norm, torch.matmul(inv_eps_zz, self.Kx_norm))
+        
+        P_mat = torch.hstack((torch.vstack((P11, P21)), torch.vstack((P12, P22))))
+        self.P.append(P_mat)
+
+        Q11 = -torch.matmul(self.Kx_norm, torch.matmul(inv_mu_zz, self.Ky_norm)) - eps_yx
+        Q12 =  torch.matmul(self.Kx_norm, torch.matmul(inv_mu_zz, self.Kx_norm)) - eps_yy
+        Q21 = eps_xx - torch.matmul(self.Ky_norm, torch.matmul(inv_mu_zz, self.Ky_norm))
+        Q22 = eps_xy + torch.matmul(self.Ky_norm, torch.matmul(inv_mu_zz, self.Kx_norm))
+        
+        Q_mat = torch.hstack((torch.vstack((Q11, Q21)), torch.vstack((Q12, Q22))))
+        self.Q.append(Q_mat)
+
+        # フラグによる固有値分解メソッドの分岐
+        if self.use_group_theory:
+            self._eigendecomposition_group_theory(P_mat, Q_mat)
+        else:
+            self._eigendecomposition_standard(P_mat, Q_mat)
+
+    def _eigendecomposition_standard(self, P, Q):
+        """従来の標準的な固有値分解"""
+        PQ = torch.matmul(P, Q)
+            
+        try:
+            kz_norm_sq, E_eigvec = torcwa.Eig.apply(PQ)
+        except AttributeError:
+            kz_norm_sq, E_eigvec = torcwa.rcwa.Eig.apply(PQ)
+
+        kz_norm = torch.sqrt(kz_norm_sq)
+
+        flip_condition = (kz_norm.real + kz_norm.imag) < -1e-12
+        kz_norm        = torch.where(flip_condition, -kz_norm, kz_norm)
+        sort_score     = kz_norm.real - 1e-6 * kz_norm.imag
+        sorted_indices = torch.argsort(sort_score, descending=True)
+
+        self.kz_norm.append(kz_norm[sorted_indices])
+        self.E_eigvec.append(E_eigvec[:, sorted_indices])

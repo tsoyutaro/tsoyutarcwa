@@ -1,0 +1,832 @@
+import os
+import sys
+import time
+import csv
+import gc
+import warnings
+import traceback
+import glob
+import copy
+
+NUM_THREADS = "1"
+os.environ["OMP_NUM_THREADS"] = NUM_THREADS
+os.environ["MKL_NUM_THREADS"] = NUM_THREADS
+os.environ["OPENBLAS_NUM_THREADS"] = NUM_THREADS
+os.environ["VECLIB_MAXIMUM_THREADS"] = NUM_THREADS
+os.environ["NUMEXPR_NUM_THREADS"] = NUM_THREADS
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
+# =====================================================================
+# パスを通し、作成したcommonライブラリからインポート
+# =====================================================================
+sys.path.append(os.path.abspath('/home/7/uq06557/common'))
+
+from hpc_utils import safe_acquire_lock
+from ml_utils import set_seed, EarlyStopping
+from rcwa_solver import CustomRCWA_NVM
+from geometry_models import IndependentRadiiModel, MonotonicSigmoidModel, MonotonicSoftmaxModel
+
+warnings.filterwarnings("ignore", category=UserWarning, module="optuna")
+set_seed(42)
+
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import optuna
+from optuna.storages import JournalStorage
+from optuna.storages.journal import JournalFileBackend
+from optuna.samplers import TPESampler
+from optuna.pruners import MedianPruner
+
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+
+# ==========================================
+# グローバル設定・パラメータ
+# ==========================================
+EXPERIMENT_NAME = "MothEye_Square_N16_Algo2a_Softmax_15_2_5"
+CHECKPOINT_FILE = f"ckpt_{EXPERIMENT_NAME}.pth"
+RESULT_IMG_FILE = f"result_{EXPERIMENT_NAME}.png"
+STRUCTURE_FILE  = f"optimized_structure_{EXPERIMENT_NAME}.csv"
+JOURNAL_FILE    = f"optuna_journal_{EXPERIMENT_NAME}.log"
+STUDY_NAME      = f"rcwa_study_{EXPERIMENT_NAME}"
+
+# クラスター用並列制御ロックファイル
+LOCK_STARTUP_FILE  = f"lock_startup_{EXPERIMENT_NAME}.lock"
+LOCK_RECOVERY_FILE = f"lock_recovery_{EXPERIMENT_NAME}.lock"
+LOCK_FINAL_FILE    = f"lock_finalize_{EXPERIMENT_NAME}.lock"
+
+GEOMETRY_MODEL_TYPE = "monotonic_softmax"
+
+# --- ジオメトリパラメータ ---
+PERIOD       = 200.0
+TOTAL_HEIGHT = 500.0
+N_LAYERS     = 15
+LAYER_HEIGHT = TOTAL_HEIGHT / N_LAYERS
+ZETA_DEG     = 90.0  # 正方格子
+
+L = [PERIOD, PERIOD]
+
+N_FIXED      = 2.5
+EPS_MATERIAL = float(N_FIXED ** 2)
+EPS_AIR      = 1.0
+
+R_PHYSICAL_MIN = 0.0   
+R_PHYSICAL_MAX = PERIOD / 2.0
+
+# --- 学習ステップの設定 ---
+N_STEPS         = 500    # Optuna探索時のステップ数
+PATIENCE        = 100
+N_STEPS_FINAL   = 500    # 最終検証時のステップ数
+PATIENCE_FINAL  = 100
+
+N_TRIALS        = 30
+MAX_RUNTIME_SEC = 86400
+
+INCIDENT_ANGLE = 0.0
+AZIMUTH_ANGLE  = 0.0
+
+dtype_optim_sim  = torch.complex128
+dtype_optim_geo  = torch.float64
+dtype_verify_sim = torch.complex128
+dtype_verify_geo = torch.float64
+
+order_optim  = [8, 8]
+order_verify = [16, 16]
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"[{EXPERIMENT_NAME}] Device: {device} | Order: {order_optim}")
+
+
+def simulate_broadband_square_nvm(radii_tensor, wl_list, used_order, d_sim, nx_ny_val=512):
+    total_loss = torch.tensor(0.0, dtype=torch.float64 if d_sim == torch.complex128 else torch.float32, device=device, requires_grad=False)
+    count = 0
+    eps_air_t = torch.tensor(EPS_AIR,      dtype=d_sim, device=device)
+    eps_sub_t = torch.tensor(EPS_MATERIAL, dtype=d_sim, device=device)
+
+    for wl in wl_list:
+        try:
+            wl_val   = wl.item(); freq_now = 1.0 / wl_val
+            sim = CustomRCWA_NVM(freq=freq_now, order=used_order, L=L, zeta_deg=ZETA_DEG, dtype=d_sim, device=device, use_group_theory=True)
+            sim.add_input_layer(eps=eps_air_t)
+            sim.add_output_layer(eps=eps_sub_t)
+            sim.set_incident_angle(inc_ang=INCIDENT_ANGLE, azi_ang=AZIMUTH_ANGLE)
+
+            for r in radii_tensor:
+                sim.add_layer_circle_nvm(thickness=LAYER_HEIGHT, R=r, eps_bg=eps_air_t, eps_cyl=eps_sub_t, nx=nx_ny_val, ny=nx_ny_val)
+
+            #sim.solve_global_smatrix_quarter()
+            sim.solve_global_smatrix_quarter_algo2a()
+            
+            if INCIDENT_ANGLE == 0.0:
+                r_TM = sim.S_parameters(orders=[0,0], direction='forward', port='reflection', polarization='pp', ref_order=[0,0])
+                wl_loss = torch.abs(r_TM)**2
+            else:
+                r_TM = sim.S_parameters(orders=[0,0], direction='forward', port='reflection', polarization='pp', ref_order=[0,0])
+                r_TE = sim.S_parameters(orders=[0,0], direction='forward', port='reflection', polarization='ss', ref_order=[0,0])
+                wl_loss = (torch.abs(r_TM)**2 + torch.abs(r_TE)**2) / 2.0
+            
+            total_loss = total_loss + wl_loss
+            count += 1
+            del sim, r_TM, wl_loss
+
+        except (torch._C._LinAlgError, RuntimeError) as e:
+            err_str = str(e)
+            if "CUDA out of memory" in err_str:
+                print(f"\n[FATAL] CUDA OOM detected at wl={wl.item():.2f}nm. Stopping script to resume later.", flush=True)
+                torch.cuda.empty_cache()
+                gc.collect()
+                sys.exit(1) # OOM発生時は直ちにスクリプトを終了
+            
+            print(f"[Error] Evaluation stopped at wl={wl.item():.2f}nm due to numerical error: {err_str[:80]}")
+            raise e
+
+    if count == 0:
+        return torch.tensor(float('inf'), dtype=torch.float32, device=device)
+
+    return total_loss / count
+
+
+def train_model(lr, init_top, init_btm, delta_ratio, wl_tensor, n_steps, patience_val, trial=None, param_str="final", verbose=False, resume_path=None):
+    if GEOMETRY_MODEL_TYPE == "independent":
+        model = IndependentRadiiModel(init_top, init_btm, N_LAYERS, R_PHYSICAL_MIN, R_PHYSICAL_MAX, dtype_optim_geo).to(device)
+    elif GEOMETRY_MODEL_TYPE == "monotonic_sigmoid":
+        model = MonotonicSigmoidModel(init_top, init_btm, N_LAYERS, R_PHYSICAL_MIN, R_PHYSICAL_MAX, dtype_optim_geo).to(device)
+    elif GEOMETRY_MODEL_TYPE == "monotonic_softmax":
+        model = MonotonicSoftmaxModel(init_top, init_btm, N_LAYERS, R_PHYSICAL_MIN, R_PHYSICAL_MAX, dtype_optim_geo).to(device)
+    else:
+        raise ValueError(f"Unknown GEOMETRY_MODEL_TYPE: {GEOMETRY_MODEL_TYPE}")
+    
+    optimizer      = optim.Adam(model.parameters(), lr=lr)
+    scheduler      = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=40, min_lr=lr*0.001)
+    early_stopping = EarlyStopping(patience=patience_val)
+
+    best_loss  = float('inf'); best_state = None; loss_history = []; start_step = 0
+    temp_ckpt  = f"temp_{EXPERIMENT_NAME}_{param_str}.pth" 
+
+    load_target = resume_path if resume_path is not None else temp_ckpt
+
+    if os.path.exists(load_target):
+        try:
+            ckpt = torch.load(load_target, map_location=device)
+            model.load_state_dict(ckpt['model_state'])
+            optimizer.load_state_dict(ckpt['optimizer_state'])
+            scheduler.load_state_dict(ckpt['scheduler_state'])
+            loss_history              = ckpt['loss_history']
+            start_step                = ckpt['step'] + 1
+            early_stopping.best_loss  = ckpt['early_stopping_state']['best_loss']
+            early_stopping.counter    = ckpt['early_stopping_state'].get('counter', 0)
+            best_state                = ckpt.get('best_model_state')
+            best_loss                 = ckpt.get('best_loss', float('inf'))
+            print(f"[Checkpoint] Resumed from step {start_step}.")
+        except Exception as e:
+            print(f"[Checkpoint] Failed to load {load_target}: {e}. Starting fresh.")
+
+    for step in range(start_step, n_steps):
+        try:
+            optimizer.zero_grad()
+            total_loss_val = 0.0
+            has_bad_grad = False
+
+            for wl in wl_tensor:
+                radii = model.get_radii()
+                loss_optical = simulate_broadband_square_nvm(radii, [wl], order_optim, dtype_optim_sim, nx_ny_val=512)
+                loss_val = loss_optical.item()
+
+                if np.isnan(loss_val) or np.isinf(loss_val):
+                    print(f"[Error] NaN/Inf loss detected at step {step}, wl={wl.item():.2f}nm.")
+                    has_bad_grad = True
+                    del loss_optical, radii
+                    torch.cuda.empty_cache()
+                    gc.collect()
+                    break
+
+                loss_scaled = loss_optical / len(wl_tensor)
+                loss_scaled.backward()
+                total_loss_val += loss_val / len(wl_tensor)
+                del loss_optical, loss_scaled, radii
+                if hasattr(torch.backends.cuda, 'cufft_plan_cache'):
+                    torch.backends.cuda.cufft_plan_cache.clear()
+
+            if has_bad_grad:
+                print(f"[Error] Aborting optimization loop immediately due to NaN/Inf loss.")
+                torch.cuda.empty_cache()
+                if trial is not None:
+                    raise optuna.exceptions.TrialPruned("Trial pruned due to NaN/Inf calculation.")
+                else:
+                    raise ValueError("Calculation failed with NaN/Inf during final verification.")
+
+            for param in model.parameters():
+                if param.grad is not None and (torch.isnan(param.grad).any() or torch.isinf(param.grad).any()):
+                    has_bad_grad = True
+                    break
+            
+            if has_bad_grad:
+                print(f"[Error] NaN/Inf gradient detected at step {step}. Aborting optimization loop immediately.")
+                torch.cuda.empty_cache()
+                if trial is not None:
+                    raise optuna.exceptions.TrialPruned("Trial pruned due to NaN/Inf gradient.")
+                else:
+                    raise ValueError("Gradient failed with NaN/Inf during final verification.")
+            else:
+                if early_stopping(total_loss_val):
+                    best_state = copy.deepcopy(model.state_dict())
+                    best_loss = total_loss_val
+
+                optimizer.step()
+
+            loss_history.append(total_loss_val)
+            scheduler.step(total_loss_val)
+            
+            if verbose and step % 10 == 0:
+                print(f"  Step {step:03d}/{n_steps} | Loss: {total_loss_val:.6e}", flush=True)
+
+            gc.collect()
+            torch.cuda.empty_cache()
+
+        except RuntimeError as e:
+            if "CUDA out of memory" in str(e):
+                print(f"\n[FATAL] CUDA OOM detected at step {step}. Stopping execution to resume later.", flush=True)
+                torch.cuda.empty_cache()
+                gc.collect()
+                sys.exit(1) # OOM発生時は直ちにスクリプトを終了
+            else:
+                raise e
+
+        if trial is not None:
+            torch.save({'trial_id':                 trial.number,
+                        'step':                     step,
+                        'model_state':              model.state_dict(),
+                        'optimizer_state':          optimizer.state_dict(),
+                        'scheduler_state':          scheduler.state_dict(),
+                        'loss_history':             loss_history,
+                        'early_stopping_state':{'best_loss': early_stopping.best_loss,
+                                                'counter':   early_stopping.counter},
+                        'params':              {'lr': lr, 'init_top': init_top, 'delta_ratio': delta_ratio},
+                        'best_model_state':    best_state,
+                        'best_loss':           best_loss}, temp_ckpt)
+
+        if trial is not None and step % 10 == 0:
+            trial.report(total_loss_val, step)
+            if trial.should_prune():
+                if os.path.exists(temp_ckpt): os.remove(temp_ckpt)
+                raise optuna.exceptions.TrialPruned()
+        
+        if early_stopping.early_stop:
+            if verbose:
+                print(f"Early stopping triggered at step {step}.")
+            break
+
+    if trial is not None and os.path.exists(temp_ckpt):
+        try:
+            os.remove(temp_ckpt)
+        except FileNotFoundError:
+            pass
+
+    if best_state is not None:
+        model.load_state_dict(best_state)
+    with torch.no_grad():
+        final_radii = model.get_radii()
+    
+    return {'best_loss':    best_loss,
+            'best_params':  best_state,
+            'loss_history': loss_history,
+            'final_radii':  final_radii.detach().cpu().numpy()}
+
+
+# ==========================================
+# Optuna Objective
+# ==========================================
+def objective(trial):
+    lr       = trial.suggest_float("lr", 1e-2, 1, log=True)  
+    INIT_TOP_MIN = 1.0
+    INIT_TOP_MAX = R_PHYSICAL_MAX - 1.0
+    init_top = trial.suggest_float("init_top", INIT_TOP_MIN, INIT_TOP_MAX)
+    delta_ratio = trial.suggest_float("delta_ratio", 0.0, 1.0)
+
+    max_delta = max(R_PHYSICAL_MAX - init_top, 0.0)
+    delta     = delta_ratio * max_delta
+    init_btm  = min(init_top + delta, R_PHYSICAL_MAX)
+
+    param_str = f"lr_{lr:.6e}_top_{init_top:.4f}_ratio_{delta_ratio:.4f}"
+
+    current_params = {'lr': lr, 'init_top': init_top, 'delta_ratio': delta_ratio}
+    resume_path = None
+    prefix = f"temp_{EXPERIMENT_NAME}_"
+
+    for filepath in glob.glob(f"{prefix}*.pth"):
+        if filepath == f"temp_{EXPERIMENT_NAME}_final.pth" or filepath.endswith(".lock_rec"):
+            continue
+        try:
+            ckpt = torch.load(filepath, map_location='cpu')
+            if 'params' in ckpt:
+                p = ckpt['params']
+                match_lr    = abs(current_params['lr'] - p.get('lr', 0)) < 1e-6
+                match_top   = abs(current_params['init_top'] - p.get('init_top', 0)) < 1e-3
+                match_ratio = abs(current_params['delta_ratio'] - p.get('delta_ratio', 0)) < 1e-3
+                
+                if match_lr and match_top and match_ratio:
+                    resume_path = filepath
+                    break
+        except Exception:
+            pass
+
+    try:
+        result = train_model(
+            lr=lr, init_top=init_top, init_btm=init_btm, delta_ratio=delta_ratio,
+            wl_tensor=WL_OPTIM, n_steps=N_STEPS, patience_val=PATIENCE, 
+            trial=trial, param_str=param_str, verbose=False, resume_path=resume_path
+        )
+        if np.isnan(result['best_loss']) or np.isinf(result['best_loss']):
+            raise ValueError(f"Trial finalized with invalid loss: {result['best_loss']}")
+        
+        trial.set_user_attr("final_radii", result['final_radii'].tolist())
+        trial.set_user_attr("loss_history", result['loss_history'])
+        
+        return result['best_loss']
+        
+    except optuna.exceptions.TrialPruned:
+        raise
+    except ValueError as e:
+        if "設定エラー" in str(e):
+            print(f"\n[Warning in Trial {trial.number}] {e}. Pruning trial.")
+            raise optuna.exceptions.TrialPruned()
+        raise e
+    except Exception as e:
+        if "CUDA out of memory" in str(e):
+            print(f"\n[FATAL Objective Error in Trial {trial.number}] CUDA OOM detected. Stopping script to resume later.", flush=True)
+            torch.cuda.empty_cache()
+            gc.collect()
+            sys.exit(1) # OOM発生時は直ちにスクリプトを終了
+        
+        print(f"\n[Objective Error in Trial {trial.number}] {traceback.format_exc()}")
+        gc.collect()
+        raise optuna.exceptions.TrialPruned()
+
+
+def plot_all_results(study, result, R0, wl_arr, final_radii_np, loss_history, max_valid_trials=30):
+    plt.rcParams.update({
+        'font.size': 30, 'axes.labelsize': 30, 'xtick.labelsize': 30, 'ytick.labelsize': 30,
+        'legend.fontsize': 30, 'xtick.direction': 'in', 'ytick.direction': 'in',
+        'xtick.major.width': 2.0, 'ytick.major.width': 2.0, 'xtick.major.size': 10.0,
+        'ytick.major.size': 10.0, 'axes.linewidth': 2.0
+    })
+
+    fig, ax = plt.subplots(2, 2, figsize=(16, 12))
+    
+    valid_trials = [t for t in study.trials if t.state in [optuna.trial.TrialState.COMPLETE, optuna.trial.TrialState.PRUNED]]
+    valid_trials.sort(key=lambda t: t.number)
+    target_valid_trials = valid_trials[:max_valid_trials]
+    valid_idx_map = {t.number: i+1 for i, t in enumerate(target_valid_trials)}
+    completed_trials = [t for t in target_valid_trials if t.state == optuna.trial.TrialState.COMPLETE]
+    
+    if len(completed_trials) > 0:
+        trial_nums = [valid_idx_map[t.number] for t in completed_trials]
+        trial_vals = [t.value for t in completed_trials]
+        best_vals = np.minimum.accumulate(trial_vals)
+
+        ax[0, 0].scatter(trial_nums, trial_vals, alpha=0.5, label='Trial Loss', color='blue', s=40)
+        
+        extended_trial_nums = list(trial_nums)
+        extended_best_vals = list(best_vals)
+        current_max_x = len(target_valid_trials)
+        
+        if extended_trial_nums[-1] < current_max_x:
+            extended_trial_nums.append(current_max_x)
+            extended_best_vals.append(extended_best_vals[-1])
+            
+        ax[0, 0].plot(extended_trial_nums, extended_best_vals, color='red', linewidth=3, label='Best Loss')
+        ax[0, 0].set_xlabel("Valid Trial Number", fontweight='bold')
+        ax[0, 0].set_ylabel("Objective Value (Loss)", fontweight='bold')
+        ax[0, 0].set_xlim(0, max_valid_trials + 1)
+        ax[0, 0].legend()
+        ax[0, 0].grid(True, alpha=0.3)
+
+    if len(loss_history) > 0:
+        ax[0, 1].plot(loss_history, label='Total Loss', color='green', linewidth=2.5)
+        
+        max_loss = float(max(loss_history))
+        min_loss = float(min(loss_history))
+        ax[0, 1].set_ylim(min_loss * 0.8, max_loss * 1.2)
+        ax[0, 1].set_xlim(0, len(loss_history))
+    else:
+        ax[0, 1].text(0.5, 0.5, "No Loss History Data\n(Please recalculate final step)", 
+                      transform=ax[0, 1].transAxes, fontsize=24, ha='center', va='center', color='red')
+        ax[0, 1].set_xlim(0, 300)
+        ax[0, 1].set_ylim(0, 0.01)
+
+    ax[0, 1].set_xlabel("Steps", fontweight='bold')
+    ax[0, 1].set_ylabel("Loss", fontweight='bold')
+    ax[0, 1].grid(True, alpha=0.3)
+    ax[0, 1].legend()
+
+    ax[1, 0].plot(wl_arr, R0, label='Incidence 0°', color='blue', linewidth=3)
+
+    # NaN（エラー）の検出
+    nan_mask = np.isnan(R0)
+    has_nan = nan_mask.any()
+
+    # エラー表示用テキストと背景色の分岐
+    if has_nan:
+        avg_val = np.nanmean(R0) # 描画のために残りの正常値で一旦平均を出す
+        avg_text = f"Avg: {avg_val:.4f}%\n[WARNING: NaN Detected!]"
+        box_facecolor = '#FFDDDD' # 薄い赤色
+        box_edgecolor = 'red'
+        
+        # どの波長でエラーが起きたか、下部（y=0付近）に赤いバツ印をプロット
+        ax[1, 0].scatter(wl_arr[nan_mask], np.zeros(nan_mask.sum()), 
+                         color='red', marker='x', s=200, linewidths=3, label='Simulation Error', zorder=5)
+    else:
+        avg_val = R0.mean()
+        avg_text = f"Avg: {avg_val:.4f}%"
+        box_facecolor = 'white'
+        box_edgecolor = 'black'
+
+    ax[1, 0].text(0.5, 0.7, avg_text, transform=ax[1, 0].transAxes, 
+                  fontsize=30, fontweight='bold', va='top', ha='center', 
+                  bbox=dict(boxstyle='round', facecolor=box_facecolor, edgecolor=box_edgecolor, linewidth=2, alpha=0.9))
+
+    max_val = np.nanmax(R0) if not np.isnan(np.nanmax(R0)) else 0.0
+    ax[1, 0].set_ylim(0, max(1.0, max_val * 1.2)) 
+    
+    ax[1, 0].set_xlabel("Wavelength (nm)", fontweight='bold')
+    ax[1, 0].set_ylabel("Reflectance (%)", fontweight='bold')
+    ax[1, 0].legend()
+    ax[1, 0].grid(True, alpha=0.3)
+
+    ax[1, 1].axvline(x=PERIOD/2, color='black', linestyle='--', linewidth=2.5)
+    ax[1, 1].axvline(x=-PERIOD/2, color='black', linestyle='--', linewidth=2.5)
+    
+    for i, r in enumerate(final_radii_np):
+        rect = plt.Rectangle((-r, i*LAYER_HEIGHT), 2*r, LAYER_HEIGHT, facecolor='#CAEEFB', edgecolor='black', linewidth=1.5, alpha=0.9)
+        ax[1, 1].add_patch(rect)
+        
+    substrate_height = max(30, TOTAL_HEIGHT * 0.2)
+    sub_rect = plt.Rectangle((-PERIOD/2, TOTAL_HEIGHT), PERIOD, substrate_height, facecolor='#CAEEFB', edgecolor='black', linewidth=1.5)
+    ax[1, 1].add_patch(sub_rect)
+    ax[1, 1].set_xlabel("Position (nm)", fontweight='bold')
+    ax[1, 1].set_ylabel("Depth (nm)", fontweight='bold')
+    ax[1, 1].invert_yaxis() 
+    ax[1, 1].set_xlim(-PERIOD/2 - 10, PERIOD/2 + 10)
+    ax[1, 1].set_ylim(TOTAL_HEIGHT + substrate_height + 5, -5)
+    z_step = 50 if TOTAL_HEIGHT <= 500 else 100
+    ax[1, 1].set_yticks(np.arange(0, int(TOTAL_HEIGHT) + 1, z_step))
+    ax[1, 1].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(RESULT_IMG_FILE, dpi=300)
+    print(f"Saved visualization to {RESULT_IMG_FILE}")
+
+def finalize_and_verify(study):
+    best_trial = study.best_trial
+    best_trial_params = best_trial.params
+    best_trial_num = best_trial.number
+
+    print(f"\nExecuting final verification phase for Best Trial #{best_trial_num}...")
+    final_radii_np = None
+    loss_history = []
+    result = {} 
+    verify_data_file = f"verify_spectrum_{EXPERIMENT_NAME}.csv"
+
+    # 新規実行時は、objective関数で保存された正しいDBの値をそのまま利用する
+    if "final_radii" in best_trial.user_attrs:
+        print("[*] Retrieving optimized structure directly from Optuna database...")
+        final_radii_np = np.array(best_trial.user_attrs["final_radii"])
+        loss_history = best_trial.user_attrs.get("loss_history", [])
+        
+    else:
+        # 万が一DBに無かった場合のみ再計算する（通常はここに入りません）
+        print("[*] No radii found in DB. Safely recalculating best structure...")
+        
+        init_top     = best_trial_params['init_top']
+        init_top     = min(init_top, PERIOD/2)
+        max_delta    = max(R_PHYSICAL_MAX - init_top, 0.0)
+        delta        = best_trial_params['delta_ratio'] * max_delta
+        init_btm     = min(init_top + delta, R_PHYSICAL_MAX)
+
+        safe_param_str = f"final_trial_{best_trial_num}"
+        
+        result = train_model(
+            lr=best_trial_params['lr'], init_top=init_top, init_btm=init_btm, 
+            delta_ratio=best_trial_params['delta_ratio'], 
+            wl_tensor=WL_OPTIM, n_steps=N_STEPS_FINAL, patience_val=PATIENCE_FINAL,
+            trial=None, param_str=safe_param_str, verbose=True
+        )
+        final_radii_np = result['final_radii']
+        loss_history   = result['loss_history']
+        
+    result['trial_number'] = best_trial_num
+
+    with open(STRUCTURE_FILE, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Layer', 'Position', 'Radius_nm', 'Diameter_nm', 'Gap_nm'])
+        for i, r in enumerate(final_radii_np):
+            writer.writerow([i+1, "Mid", f"{r:.4f}", f"{2*r:.4f}", f"{PERIOD - 2*r:.4f}"])
+            
+    torch.save(result, CHECKPOINT_FILE)
+
+    # =========================================================
+    # 波長スイープのレジューム（再開）処理
+    # =========================================================
+    wl_detailed  = torch.linspace(400.0, 700.0, 101, dtype=dtype_verify_geo, device=device)
+    total_pts = len(wl_detailed)
+    
+    calculated_results = []
+    start_idx = 0
+
+    if os.path.exists(verify_data_file):
+        print(f"[*] Checking existing verification spectrum in {verify_data_file}...")
+        with open(verify_data_file, 'r') as f:
+            reader = csv.reader(f)
+            header = next(reader, None)
+            for row in reader:
+                if len(row) == 2:
+                    calculated_results.append((float(row[0]), float(row[1])))
+        
+        start_idx = len(calculated_results)
+        if start_idx > 0:
+            print(f"[*] Found {start_idx}/{total_pts} calculated points. Resuming from index {start_idx}.")
+    else:
+        print("[*] No existing verification data found. Starting fresh verification loop...")
+        with open(verify_data_file, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['Wavelength_nm', 'Reflectance_pct'])
+
+    if start_idx < total_pts:
+        radii_verify = torch.tensor(final_radii_np, dtype=dtype_verify_geo, device=device)
+        
+        with open(verify_data_file, 'a', newline='') as f:
+            writer = csv.writer(f)
+            
+            with torch.no_grad():
+                for i in range(start_idx, total_pts):
+                    wl = wl_detailed[i]
+                    wl_val = wl.item()
+                    print(f"[{i+1:3d}/{total_pts}] Simulating wavelength: {wl_val:.2f} nm ... ", end="", flush=True)
+                    
+                    try:
+                        sim0 = CustomRCWA_NVM(freq=1.0/wl_val, order=order_verify, L=L, zeta_deg=ZETA_DEG, dtype=dtype_verify_sim, device=device, use_group_theory=False)
+                        sim0.add_input_layer(eps=torch.tensor(EPS_AIR,      dtype=dtype_verify_sim, device=device))
+                        sim0.add_output_layer(eps=torch.tensor(EPS_MATERIAL, dtype=dtype_verify_sim, device=device))
+                        sim0.set_incident_angle(inc_ang=INCIDENT_ANGLE, azi_ang=AZIMUTH_ANGLE)
+
+                        for r in radii_verify:
+                            sim0.add_layer_circle_nvm(thickness=LAYER_HEIGHT, R=r,
+                                                      eps_bg=torch.tensor(EPS_AIR,      dtype=dtype_verify_sim, device=device),
+                                                      eps_cyl=torch.tensor(EPS_MATERIAL, dtype=dtype_verify_sim, device=device), nx=1024, ny=1024)
+
+                        sim0.solve_global_smatrix_quarter_algo2a()
+                        
+                        if INCIDENT_ANGLE == 0.0:
+                            r_TM = sim0.S_parameters(orders=[0,0], direction='forward', port='reflection', polarization='pp', ref_order=[0,0])
+                            wl_loss = torch.abs(r_TM)**2
+                        else:
+                            r_TM = sim0.S_parameters(orders=[0,0], direction='forward', port='reflection', polarization='pp', ref_order=[0,0])
+                            r_TE = sim0.S_parameters(orders=[0,0], direction='forward', port='reflection', polarization='ss', ref_order=[0,0])
+                            wl_loss = (torch.abs(r_TM)**2 + torch.abs(r_TE)**2) / 2.0
+                        
+                        if np.isnan(wl_loss.item()) or np.isinf(wl_loss.item()):
+                            raise ValueError("Numerical NaN/Inf detected.")
+
+                        val_pct = wl_loss.item() * 100.0
+                        print(f"Done. Reflectance: {val_pct:.4f}%", flush=True)
+                        
+                    except Exception as e:
+                        err_str = str(e)
+                        print(f"FAILED! Error: {err_str[:40]}", flush=True)
+                        if "CUDA out of memory" in err_str:
+                            print(f"\n[FATAL] CUDA OOM at wl={wl_val:.2f}nm during verification. Stopping execution to resume later.", flush=True)
+                            torch.cuda.empty_cache()
+                            gc.collect()
+                            sys.exit(1) # OOM発生時は直ちにスクリプトを終了
+                        
+                        val_pct = float('nan')
+                        
+                    finally:
+                        if 'sim0' in locals():
+                            del sim0
+                        torch.cuda.empty_cache(); gc.collect()
+
+                    writer.writerow([f"{wl_val:.2f}", f"{val_pct:.6f}"])
+                    f.flush() 
+                    os.fsync(f.fileno()) 
+                    
+                    calculated_results.append((wl_val, val_pct))
+
+    else:
+        print("[*] Verification already 100% complete. Skipping simulation loop.")
+
+    wl_arr = np.array([res[0] for res in calculated_results])
+    R0_pct = np.array([res[1] for res in calculated_results])
+
+    R0_valid = R0_pct[~np.isnan(R0_pct)]
+    if len(R0_valid) > 0:
+        print(f"\nFinal Averaged Reflectance (NVM): {R0_valid.mean():.4f}%")
+    else:
+        print(f"\nFinal Averaged Reflectance (NVM): NaN (All valid points failed)")
+        
+    plot_all_results(study, result, R0_pct, wl_arr, final_radii_np, loss_history)
+
+# ==========================================
+# メイン並列実行エントリポイント
+# ==========================================
+if __name__ == "__main__":
+    start_time = time.time()
+    WL_OPTIM = torch.linspace(400.0, 700.0, 31, dtype=dtype_optim_geo, device=device)
+
+    storage = JournalStorage(JournalFileBackend(JOURNAL_FILE))
+    sampler = TPESampler(multivariate=True)
+    pruner  = MedianPruner(n_startup_trials=10, n_warmup_steps=50, interval_steps=10)
+    study   = optuna.create_study(study_name=STUDY_NAME, storage=storage, sampler=sampler, pruner=pruner, load_if_exists=True, direction="minimize")
+    
+    is_master = os.environ.get("IS_MASTER", "false").lower() == "true"
+
+    if is_master and safe_acquire_lock(LOCK_STARTUP_FILE):
+        try:
+            print("[Startup Master] Managing stale trials and rescheduling...")
+            interrupted_params = []
+            for t in study.trials:
+                if t.state == optuna.trial.TrialState.RUNNING:
+                    interrupted_params.append(t.params)
+
+            optuna.storages.fail_stale_trials(study)
+
+            for params in interrupted_params:
+                already_enqueued = any(
+                    t.params == params and t.state in [optuna.trial.TrialState.WAITING, optuna.trial.TrialState.RUNNING, optuna.trial.TrialState.COMPLETE, optuna.trial.TrialState.PRUNED]
+                    for t in study.trials
+                )
+                if not already_enqueued:
+                    study.enqueue_trial(params)
+                    print(f"[Recovery] Interrupted trial rescheduled with params: {params}")
+        finally:
+            if os.path.exists(LOCK_STARTUP_FILE):
+                os.remove(LOCK_STARTUP_FILE)
+    else:
+        if not is_master:
+            print("[Startup Worker] 通常のワーカーモードとして起動しました。安全のため起動時リカバリをスキップして即座にループに参加します。")
+        else:
+            print("[Startup Worker] Master node is handling startup recovery. Waiting a few seconds...")
+            time.sleep(5.0)
+
+    # =========================================================
+    # 【モード判定】起動時の完了トライアル数をチェックして分岐
+    # =========================================================
+    valid_trials_initial = [t for t in study.trials if t.state in [optuna.trial.TrialState.COMPLETE, optuna.trial.TrialState.PRUNED]]
+    n_valid_initial = len(valid_trials_initial)
+
+    if n_valid_initial < N_TRIALS:
+        # ---------------------------------------------------------
+        # 【モード1：最適化ワーカー】
+        # 目標トライアル数に達していない場合は最適化ループを回す
+        # ---------------------------------------------------------
+        print(f"\n[Mode: Optimization Worker] Target trials not reached ({n_valid_initial}/{N_TRIALS}). Entering optimization loop.")
+        try:
+            while True:
+                valid_trials = [t for t in study.trials if t.state in [optuna.trial.TrialState.COMPLETE, optuna.trial.TrialState.PRUNED]]
+                n_valid = len(valid_trials)
+                
+                if n_valid >= N_TRIALS or (time.time() - start_time) > MAX_RUNTIME_SEC:
+                    break
+
+                print(f"[Node Execution] Processing Optimization Loop (Global Progress: {n_valid}/{N_TRIALS})")
+                
+                if safe_acquire_lock(LOCK_RECOVERY_FILE):
+                    try:
+                        AGE_30_MIN = 5 * 60
+                        AGE_12_HOURS = 24 * 60 * 60
+                        prefix = f"temp_{EXPERIMENT_NAME}_"
+                        
+                        for filepath in glob.glob(f"{prefix}*.pth"):
+                            if filepath == f"temp_{EXPERIMENT_NAME}_final.pth" or filepath.endswith(".lock_rec"):
+                                continue
+                            
+                            try:
+                                mtime = os.path.getmtime(filepath)
+                                age = time.time() - mtime
+                                
+                                if age < AGE_30_MIN:
+                                    continue
+                                
+                                recovery_path = filepath + ".lock_rec"
+                                try:
+                                    os.rename(filepath, recovery_path)
+                                except (FileNotFoundError, FileExistsError):
+                                    continue
+                                
+                                should_delete = False
+                                is_stale_garbage = False
+                                try:
+                                    if age <= AGE_12_HOURS:
+                                        ckpt = torch.load(recovery_path, map_location='cpu')
+                                        if 'params' in ckpt:
+                                            p = ckpt['params']
+                                            
+                                            already_completed = False
+                                            already_active = False
+                                            stale_trial_ids = []
+                                            
+                                            for t in study.trials:
+                                                match_lr    = abs(t.params.get('lr', 0) - p.get('lr', 0)) < 1e-6
+                                                match_top   = abs(t.params.get('init_top', 0) - p.get('init_top', 0)) < 1e-3
+                                                match_ratio = abs(t.params.get('delta_ratio', 0) - p.get('delta_ratio', 0)) < 1e-3
+                                                
+                                                if match_lr and match_top and match_ratio:
+                                                    if t.state in [optuna.trial.TrialState.COMPLETE, optuna.trial.TrialState.PRUNED]:
+                                                        already_completed = True
+                                                    elif t.state in [optuna.trial.TrialState.WAITING, optuna.trial.TrialState.RUNNING]:
+                                                        already_active = True
+                                                        stale_trial_ids.append(t._trial_id)
+                                            
+                                            if already_completed:
+                                                print(f"[Cache Recovery] すでに完了（COMPLETE/PRUNED）済みのパラメータのため、古いキャッシュを安全に削除します。")
+                                                should_delete = True
+                                                
+                                            elif already_active:
+                                                print(f"[Cache Recovery] 30分以上放置されたアクティブトライアル({len(stale_trial_ids)}件)を検出。FAILに落として再キューイングします。")
+                                                for tid in stale_trial_ids:
+                                                    print(f"[Info] トライアル {tid} は放置されています。状態変更はOptunaの標準機能(fail_stale_trials)に委ねます。")
+                                                
+                                                if len(p) == 3:
+                                                    already_queued = any(
+                                                        t.state == optuna.trial.TrialState.WAITING and
+                                                        abs(t.params.get('lr', 0) - p.get('lr', 0)) < 1e-6 and
+                                                        abs(t.params.get('init_top', 0) - p.get('init_top', 0)) < 1e-3 and
+                                                        abs(t.params.get('delta_ratio', 0) - p.get('delta_ratio', 0)) < 1e-3
+                                                        for t in study.trials
+                                                    )
+                                                    if not already_queued:
+                                                        study.enqueue_trial(p)
+                                                        os.utime(recovery_path, None)
+                                                should_delete = False
+                                                
+                                            else:
+                                                if len(p) == 3:
+                                                    already_queued = any(
+                                                        t.state == optuna.trial.TrialState.WAITING and
+                                                        abs(t.params.get('lr', 0) - p.get('lr', 0)) < 1e-6 and
+                                                        abs(t.params.get('init_top', 0) - p.get('init_top', 0)) < 1e-3 and
+                                                        abs(t.params.get('delta_ratio', 0) - p.get('delta_ratio', 0)) < 1e-3
+                                                        for t in study.trials
+                                                    )
+                                                    if not already_queued:
+                                                        study.enqueue_trial(p)
+                                                        print(f"[Cache Recovery] {age/3600:.1f}時間経過した中断キャッシュを発見。再開のために優先キューへ追加しました: {p}")
+                                                should_delete = False
+                                                
+                                    else:
+                                        print(f"[Cache Recovery] 12時間以上経過した古いキャッシュのため完全に破棄します。")
+                                        should_delete = True
+                                        is_stale_garbage = True
+                                        
+                                except Exception as e:
+                                    print(f"[Warning] Corrupted cache {recovery_path}: {e}")
+                                    should_delete = True
+                                finally:
+                                    if should_delete:
+                                        if os.path.exists(recovery_path):
+                                            os.remove(recovery_path)
+                                    else:
+                                        if os.path.exists(recovery_path):
+                                            os.rename(recovery_path, filepath)
+                                if is_stale_garbage:
+                                    continue
+                                
+                                break
+                            except Exception as e:
+                                print(f"[Warning] Error checking stale cache {filepath}: {e}")
+                    finally:
+                        if os.path.exists(LOCK_RECOVERY_FILE):
+                            os.remove(LOCK_RECOVERY_FILE)
+
+                study.optimize(objective, n_trials=1)
+
+        except KeyboardInterrupt:
+            print("\nProcess interrupted by user.")
+
+        # 【重要】最適化モードで完了または中断した場合は、絶対に検証へ進まないようにプロセスを終了
+        print("\n[Optimization Worker] Finished targeted trials or interrupted. Exiting cleanly to free up VRAM for verification.")
+        sys.exit(0)
+
+    else:
+        # ---------------------------------------------------------
+        # 【モード2：検証専用実行】
+        # 起動時にすでに目標トライアル数に達している場合のみ検証を行う
+        # ---------------------------------------------------------
+        print(f"\n[Mode: Final Verification] Target trials already completed ({n_valid_initial}/{N_TRIALS}). Proceeding directly to final verification.")
+        
+        complete_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
+        if len(complete_trials) > 0:
+            if safe_acquire_lock(LOCK_FINAL_FILE):
+                try:
+                    finalize_and_verify(study)
+                except Exception as final_err:
+                    print(f"[Critical Error] Finalization failed: {final_err}. Releasing lock file.")
+                    raise final_err
+                finally:
+                    if os.path.exists(LOCK_FINAL_FILE):
+                        os.remove(LOCK_FINAL_FILE)
+            else:
+                print("\n[Worker Info] Another active node or job is currently executing final verification. Exiting cleanly.")
