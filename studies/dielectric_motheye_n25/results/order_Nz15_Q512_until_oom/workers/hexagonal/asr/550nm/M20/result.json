@@ -1,0 +1,41 @@
+{
+  "status": "completed",
+  "result": {
+    "lattice": "hexagonal",
+    "method": "asr",
+    "wavelength_nm": 550.0,
+    "order": 20,
+    "slices": 15,
+    "grid": 512,
+    "retained_scalar_harmonics": 1261,
+    "eigen_dimension": 421,
+    "full_dimension": 3362,
+    "reflectance": 0.006408441145816416,
+    "transmittance": 0.9935915587826215,
+    "absorptance": 7.156208958747357e-11,
+    "energy_residual": -7.156208958747357e-11,
+    "runtime_seconds": 35.88359371526167,
+    "device": "cuda:0",
+    "base_fill_fraction": 0.8184769631106908,
+    "asr_profile": "local-radial",
+    "gradient_layer_checkpointing": false,
+    "fixed_asr_interfaces": true,
+    "physical": true,
+    "peak_cuda_allocated_bytes": 15233627136,
+    "peak_cuda_reserved_bytes": 16068378624
+  },
+  "runtime_environment": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "cuda": "12.4",
+    "device": "cuda:0",
+    "cpu_threads": 4,
+    "gpu": "NVIDIA H100 MIG 4g.47gb",
+    "gpu_total_bytes": 49794777088
+  },
+  "process_wall_seconds": 40.03581905597821,
+  "order": 20,
+  "lattice": "hexagonal",
+  "method": "asr",
+  "wavelength_nm": 550.0
+}

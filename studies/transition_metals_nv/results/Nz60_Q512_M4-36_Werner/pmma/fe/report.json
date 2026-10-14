@@ -1,8 +1,8 @@
 {
-  "status": "running",
+  "status": "requested_range_complete",
   "material": "Fe",
   "structure": "pmma",
-  "completed_cases": 46,
+  "completed_cases": 51,
   "complete_orders": [
     4,
     6,
@@ -18,9 +18,11 @@
     26,
     28,
     30,
-    32
+    32,
+    34,
+    36
   ],
-  "last_complete_order": 32,
+  "last_complete_order": 36,
   "failure": null,
   "method": "NV",
   "fixed_slices": 60,
@@ -203,12 +205,36 @@
           "absorptance": 2.1800779879788124e-05
         },
         "passed": true
+      },
+      {
+        "coarse": 32,
+        "fine": 34,
+        "maximum_absolute_power_change": 2.3907529155042795e-05,
+        "maximum_change_pp": 0.0023907529155042795,
+        "per_metric": {
+          "reflectance": 1.321272693712884e-05,
+          "transmittance": 1.0694802217863647e-05,
+          "absorptance": 2.3907529155042795e-05
+        },
+        "passed": true
+      },
+      {
+        "coarse": 34,
+        "fine": 36,
+        "maximum_absolute_power_change": 2.3008646234612407e-05,
+        "maximum_change_pp": 0.0023008646234612407,
+        "per_metric": {
+          "reflectance": 1.192477633873458e-05,
+          "transmittance": 1.1083869895865683e-05,
+          "absorptance": 2.3008646234612407e-05
+        },
+        "passed": true
       }
     ],
     "tail_two_steps_passed": true,
-    "requested_range_complete": false,
-    "passed_at_fixed_Nz_Q": false,
-    "working_order": null,
+    "requested_range_complete": true,
+    "passed_at_fixed_Nz_Q": true,
+    "working_order": 34,
     "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
   }
 }

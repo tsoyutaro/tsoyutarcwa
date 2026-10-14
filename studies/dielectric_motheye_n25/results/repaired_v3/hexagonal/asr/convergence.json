@@ -1,5 +1,5 @@
 {
-  "status": "audit_running",
+  "status": "converged",
   "physical_signature": "a80403f447d54a6bb23b5e317f2a798269222c9c6f1b3e4940e65d26f477cd3d",
   "lattice": "hexagonal",
   "method": "asr",
@@ -8412,8 +8412,342 @@
     ]
   },
   "final_spectrum_complete": true,
-  "audit": null,
-  "audit_history": [],
+  "audit": {
+    "settings": {
+      "physical_signature": "a80403f447d54a6bb23b5e317f2a798269222c9c6f1b3e4940e65d26f477cd3d",
+      "numerical": {
+        "order": 16,
+        "slices": 60,
+        "grid": 384
+      },
+      "refinements": {
+        "order": {
+          "order": 20,
+          "slices": 60,
+          "grid": 384
+        },
+        "slices": {
+          "order": 16,
+          "slices": 100,
+          "grid": 384
+        },
+        "grid": {
+          "order": 16,
+          "slices": 60,
+          "grid": 512
+        }
+      },
+      "wavelengths": [
+        400.0,
+        430.0,
+        436.0,
+        475.0,
+        495.0,
+        505.0,
+        550.0,
+        600.0,
+        645.0,
+        650.0,
+        700.0
+      ],
+      "steps_nm": {
+        "height_nm": 0.1,
+        "base_radius_nm": 0.02
+      },
+      "atol_per_nm": 1e-07,
+      "rtol": 0.05,
+      "energy_tolerance": 1e-06,
+      "repeats": 3,
+      "integration": {
+        "device": "cuda:0",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4",
+        "gpu": "NVIDIA H100",
+        "cpu_threads": 4
+      },
+      "check_gradients": true,
+      "checkpoint_layers": true,
+      "audit_source_sha256": "83b5721c6421b94e3cdeff93c3b19dbf4539b204c0552887401de7c2e2a80f0e"
+    },
+    "objective_definition": "trapezoidal wavelength average of R over audit wavelengths",
+    "forward": {
+      "median_seconds": 744.0445547450217,
+      "samples_seconds": [
+        754.1455652639852,
+        744.0445547450217,
+        740.9561095060199
+      ],
+      "max_peak_cuda_allocated_mb": 15196.443359375
+    },
+    "gradient": {
+      "median_seconds": 2868.9109005589853,
+      "samples_seconds": [
+        2881.142569751013,
+        2861.628799461003,
+        2868.9109005589853
+      ],
+      "max_peak_cuda_allocated_mb": 35456.888671875
+    },
+    "gradient_passed": true,
+    "coverage": "height and base radius only; not a proof for all per-slice design variables",
+    "forward_physical": true,
+    "objective": 0.005900736494597381,
+    "gradient_per_nm": {
+      "height_nm": -3.2364923750430596e-06,
+      "base_radius_nm": -0.0007630332170113668
+    },
+    "fd_checks": [
+      {
+        "parameter": "height_nm",
+        "autograd_per_nm": -3.2364923750430596e-06,
+        "fd_h_per_nm": -3.2364979526142493e-06,
+        "fd_half_h_per_nm": -3.2364937718049047e-06,
+        "passed": true
+      },
+      {
+        "parameter": "base_radius_nm",
+        "autograd_per_nm": -0.0007630332170113668,
+        "fd_h_per_nm": -0.000763033148913606,
+        "fd_half_h_per_nm": -0.0007630331978575062,
+        "passed": true
+      }
+    ],
+    "refinement_checks": [
+      {
+        "axis": "order",
+        "numerical": {
+          "order": 20,
+          "slices": 60,
+          "grid": 384
+        },
+        "per_parameter": {
+          "height_nm": {
+            "baseline": -3.2364923750430596e-06,
+            "refined": -2.978353922207784e-06,
+            "passed": true
+          },
+          "base_radius_nm": {
+            "baseline": -0.0007630332170113668,
+            "refined": -0.0007716915219747308,
+            "passed": true
+          }
+        },
+        "passed": true
+      },
+      {
+        "axis": "slices",
+        "numerical": {
+          "order": 16,
+          "slices": 100,
+          "grid": 384
+        },
+        "per_parameter": {
+          "height_nm": {
+            "baseline": -3.2364923750430596e-06,
+            "refined": -3.3425673534369437e-06,
+            "passed": true
+          },
+          "base_radius_nm": {
+            "baseline": -0.0007630332170113668,
+            "refined": -0.0007614412371454991,
+            "passed": true
+          }
+        },
+        "passed": true
+      },
+      {
+        "axis": "grid",
+        "numerical": {
+          "order": 16,
+          "slices": 60,
+          "grid": 512
+        },
+        "per_parameter": {
+          "height_nm": {
+            "baseline": -3.2364923750430596e-06,
+            "refined": -3.2368950780826078e-06,
+            "passed": true
+          },
+          "base_radius_nm": {
+            "baseline": -0.0007630332170113668,
+            "refined": -0.0007632079787099897,
+            "passed": true
+          }
+        },
+        "passed": true
+      }
+    ],
+    "auxiliary_physical": true
+  },
+  "audit_history": [
+    {
+      "settings": {
+        "physical_signature": "a80403f447d54a6bb23b5e317f2a798269222c9c6f1b3e4940e65d26f477cd3d",
+        "numerical": {
+          "order": 16,
+          "slices": 60,
+          "grid": 384
+        },
+        "refinements": {
+          "order": {
+            "order": 20,
+            "slices": 60,
+            "grid": 384
+          },
+          "slices": {
+            "order": 16,
+            "slices": 100,
+            "grid": 384
+          },
+          "grid": {
+            "order": 16,
+            "slices": 60,
+            "grid": 512
+          }
+        },
+        "wavelengths": [
+          400.0,
+          430.0,
+          436.0,
+          475.0,
+          495.0,
+          505.0,
+          550.0,
+          600.0,
+          645.0,
+          650.0,
+          700.0
+        ],
+        "steps_nm": {
+          "height_nm": 0.1,
+          "base_radius_nm": 0.02
+        },
+        "atol_per_nm": 1e-07,
+        "rtol": 0.05,
+        "energy_tolerance": 1e-06,
+        "repeats": 3,
+        "integration": {
+          "device": "cuda:0",
+          "torch_version": "2.6.0+cu124",
+          "cuda_version": "12.4",
+          "gpu": "NVIDIA H100",
+          "cpu_threads": 4
+        },
+        "check_gradients": true,
+        "checkpoint_layers": true,
+        "audit_source_sha256": "83b5721c6421b94e3cdeff93c3b19dbf4539b204c0552887401de7c2e2a80f0e"
+      },
+      "objective_definition": "trapezoidal wavelength average of R over audit wavelengths",
+      "forward": {
+        "median_seconds": 744.0445547450217,
+        "samples_seconds": [
+          754.1455652639852,
+          744.0445547450217,
+          740.9561095060199
+        ],
+        "max_peak_cuda_allocated_mb": 15196.443359375
+      },
+      "gradient": {
+        "median_seconds": 2868.9109005589853,
+        "samples_seconds": [
+          2881.142569751013,
+          2861.628799461003,
+          2868.9109005589853
+        ],
+        "max_peak_cuda_allocated_mb": 35456.888671875
+      },
+      "gradient_passed": true,
+      "coverage": "height and base radius only; not a proof for all per-slice design variables",
+      "forward_physical": true,
+      "objective": 0.005900736494597381,
+      "gradient_per_nm": {
+        "height_nm": -3.2364923750430596e-06,
+        "base_radius_nm": -0.0007630332170113668
+      },
+      "fd_checks": [
+        {
+          "parameter": "height_nm",
+          "autograd_per_nm": -3.2364923750430596e-06,
+          "fd_h_per_nm": -3.2364979526142493e-06,
+          "fd_half_h_per_nm": -3.2364937718049047e-06,
+          "passed": true
+        },
+        {
+          "parameter": "base_radius_nm",
+          "autograd_per_nm": -0.0007630332170113668,
+          "fd_h_per_nm": -0.000763033148913606,
+          "fd_half_h_per_nm": -0.0007630331978575062,
+          "passed": true
+        }
+      ],
+      "refinement_checks": [
+        {
+          "axis": "order",
+          "numerical": {
+            "order": 20,
+            "slices": 60,
+            "grid": 384
+          },
+          "per_parameter": {
+            "height_nm": {
+              "baseline": -3.2364923750430596e-06,
+              "refined": -2.978353922207784e-06,
+              "passed": true
+            },
+            "base_radius_nm": {
+              "baseline": -0.0007630332170113668,
+              "refined": -0.0007716915219747308,
+              "passed": true
+            }
+          },
+          "passed": true
+        },
+        {
+          "axis": "slices",
+          "numerical": {
+            "order": 16,
+            "slices": 100,
+            "grid": 384
+          },
+          "per_parameter": {
+            "height_nm": {
+              "baseline": -3.2364923750430596e-06,
+              "refined": -3.3425673534369437e-06,
+              "passed": true
+            },
+            "base_radius_nm": {
+              "baseline": -0.0007630332170113668,
+              "refined": -0.0007614412371454991,
+              "passed": true
+            }
+          },
+          "passed": true
+        },
+        {
+          "axis": "grid",
+          "numerical": {
+            "order": 16,
+            "slices": 60,
+            "grid": 512
+          },
+          "per_parameter": {
+            "height_nm": {
+              "baseline": -3.2364923750430596e-06,
+              "refined": -3.2368950780826078e-06,
+              "passed": true
+            },
+            "base_radius_nm": {
+              "baseline": -0.0007630332170113668,
+              "refined": -0.0007632079787099897,
+              "passed": true
+            }
+          },
+          "passed": true
+        }
+      ],
+      "auxiliary_physical": true
+    }
+  ],
   "numerical_refinements": [],
   "integration": {
     "device": "cuda:0",
@@ -8424,5 +8758,6 @@
   },
   "anchor_refinements": [],
   "mean_anchor_reflectance": 0.006231248454757117,
-  "mean_spectrum_reflectance": 0.005844482419269777
+  "mean_spectrum_reflectance": 0.005844482419269777,
+  "completed_cases": 320
 }
