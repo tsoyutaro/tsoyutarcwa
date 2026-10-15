@@ -1,0 +1,1504 @@
+{
+  "status": "some_stopped",
+  "dry_run": false,
+  "materials": [
+    "Cu",
+    "Ag",
+    "Al"
+  ],
+  "structures": [
+    "metal",
+    "pmma"
+  ],
+  "method": "NV",
+  "material_data_files": {
+    "Cu": "Cu.csv",
+    "Ag": "Ag.csv",
+    "Al": "Rakic (Al).csv"
+  },
+  "jobs": [
+    {
+      "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/results/Nz60_Q512_M4-36/metal/cu",
+      "status": "oom",
+      "material": "Cu",
+      "structure": "metal",
+      "completed_cases": 51,
+      "complete_orders": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36
+      ],
+      "last_complete_order": 36,
+      "failure": {
+        "status": "oom",
+        "order": 38,
+        "wavelength_nm": 400.0,
+        "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 619.03 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 236, in worker\n    row=compute_case(identity,order,wave,device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 137, in compute_case\n    sim.add_layer_circle_nvm(g[\"height_nm\"] / identity[\"slices\"] / period, radius / period, 1., eps, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 105, in add_layer_circle_nvm\n    super().add_layer_circle_nvm(*values, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 790, in add_layer_circle_nvm\n    ) = self._d6_source_eigendecomposition(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1317, in _d6_source_eigendecomposition\n    self._install_polarization_basis(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1526, in _install_polarization_basis\n    torch.matmul(old_electric, old_electric.mH)\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 619.03 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)\n"
+      },
+      "method": "NV",
+      "fixed_slices": 60,
+      "fixed_grid": 512,
+      "wavelengths_nm": [
+        400.0,
+        550.0,
+        700.0
+      ],
+      "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Cu.csv",
+      "material_sha256_lf": "f4a953048fa54f340cc21d3e5439dad5e1d683b41b59a72d2a1644c58043a3e2",
+      "order_convergence": {
+        "tolerance": 0.0005,
+        "tolerance_pp": 0.05,
+        "comparisons": [
+          {
+            "coarse": 4,
+            "fine": 6,
+            "maximum_absolute_power_change": 0.05861754471870906,
+            "maximum_change_pp": 5.861754471870906,
+            "per_metric": {
+              "reflectance": 0.05185818993782115,
+              "power_into_substrate": 0.0067593547808879745,
+              "motheye_absorptance": 0.05861754471870906
+            },
+            "passed": false
+          },
+          {
+            "coarse": 6,
+            "fine": 8,
+            "maximum_absolute_power_change": 0.13531491790408168,
+            "maximum_change_pp": 13.531491790408168,
+            "per_metric": {
+              "reflectance": 0.12760074229480062,
+              "power_into_substrate": 0.007714175609281171,
+              "motheye_absorptance": 0.13531491790408168
+            },
+            "passed": false
+          },
+          {
+            "coarse": 8,
+            "fine": 10,
+            "maximum_absolute_power_change": 0.022512417578570587,
+            "maximum_change_pp": 2.2512417578570587,
+            "per_metric": {
+              "reflectance": 0.021854510660187287,
+              "power_into_substrate": 0.0006579069183832859,
+              "motheye_absorptance": 0.022512417578570587
+            },
+            "passed": false
+          },
+          {
+            "coarse": 10,
+            "fine": 12,
+            "maximum_absolute_power_change": 0.01291989946619243,
+            "maximum_change_pp": 1.291989946619243,
+            "per_metric": {
+              "reflectance": 0.01291989946619243,
+              "power_into_substrate": 0.0005145186849666583,
+              "motheye_absorptance": 0.012509514417733403
+            },
+            "passed": false
+          },
+          {
+            "coarse": 12,
+            "fine": 14,
+            "maximum_absolute_power_change": 0.010657717225626306,
+            "maximum_change_pp": 1.0657717225626306,
+            "per_metric": {
+              "reflectance": 0.009579102507248471,
+              "power_into_substrate": 0.0010786147183777933,
+              "motheye_absorptance": 0.010657717225626306
+            },
+            "passed": false
+          },
+          {
+            "coarse": 14,
+            "fine": 16,
+            "maximum_absolute_power_change": 0.0015760554745296723,
+            "maximum_change_pp": 0.15760554745296723,
+            "per_metric": {
+              "reflectance": 0.0003134132748169316,
+              "power_into_substrate": 0.0015760554745296723,
+              "motheye_absorptance": 0.0012626421997127268
+            },
+            "passed": false
+          },
+          {
+            "coarse": 16,
+            "fine": 18,
+            "maximum_absolute_power_change": 0.005892129249507827,
+            "maximum_change_pp": 0.5892129249507827,
+            "per_metric": {
+              "reflectance": 0.005666064282044303,
+              "power_into_substrate": 0.00034696529319358516,
+              "motheye_absorptance": 0.005892129249507827
+            },
+            "passed": false
+          },
+          {
+            "coarse": 18,
+            "fine": 20,
+            "maximum_absolute_power_change": 0.0003547641107212174,
+            "maximum_change_pp": 0.03547641107212174,
+            "per_metric": {
+              "reflectance": 0.00015643511946328292,
+              "power_into_substrate": 0.00019832899125792058,
+              "motheye_absorptance": 0.0003547641107212174
+            },
+            "passed": true
+          },
+          {
+            "coarse": 20,
+            "fine": 22,
+            "maximum_absolute_power_change": 0.004013001918754422,
+            "maximum_change_pp": 0.4013001918754422,
+            "per_metric": {
+              "reflectance": 0.004013001918754422,
+              "power_into_substrate": 0.0002830948915995557,
+              "motheye_absorptance": 0.003997615151548173
+            },
+            "passed": false
+          },
+          {
+            "coarse": 22,
+            "fine": 24,
+            "maximum_absolute_power_change": 0.007251877662755257,
+            "maximum_change_pp": 0.7251877662755257,
+            "per_metric": {
+              "reflectance": 0.007089648174191332,
+              "power_into_substrate": 0.00035177914008611977,
+              "motheye_absorptance": 0.007251877662755257
+            },
+            "passed": false
+          },
+          {
+            "coarse": 24,
+            "fine": 26,
+            "maximum_absolute_power_change": 0.01756455400838608,
+            "maximum_change_pp": 1.756455400838608,
+            "per_metric": {
+              "reflectance": 0.01679188668074394,
+              "power_into_substrate": 0.0007726673276420987,
+              "motheye_absorptance": 0.01756455400838608
+            },
+            "passed": false
+          },
+          {
+            "coarse": 26,
+            "fine": 28,
+            "maximum_absolute_power_change": 0.012349062329805705,
+            "maximum_change_pp": 1.2349062329805705,
+            "per_metric": {
+              "reflectance": 0.011932778044562942,
+              "power_into_substrate": 0.00041628428524276284,
+              "motheye_absorptance": 0.012349062329805705
+            },
+            "passed": false
+          },
+          {
+            "coarse": 28,
+            "fine": 30,
+            "maximum_absolute_power_change": 0.006570228744813722,
+            "maximum_change_pp": 0.6570228744813722,
+            "per_metric": {
+              "reflectance": 0.005960342001697372,
+              "power_into_substrate": 0.0006098867431164057,
+              "motheye_absorptance": 0.006570228744813722
+            },
+            "passed": false
+          },
+          {
+            "coarse": 30,
+            "fine": 32,
+            "maximum_absolute_power_change": 0.004056775702222293,
+            "maximum_change_pp": 0.4056775702222293,
+            "per_metric": {
+              "reflectance": 0.0037175621807407078,
+              "power_into_substrate": 0.00033921352148155726,
+              "motheye_absorptance": 0.004056775702222293
+            },
+            "passed": false
+          },
+          {
+            "coarse": 32,
+            "fine": 34,
+            "maximum_absolute_power_change": 0.003949621401444503,
+            "maximum_change_pp": 0.3949621401444503,
+            "per_metric": {
+              "reflectance": 0.00393393929457031,
+              "power_into_substrate": 6.198679451337868e-05,
+              "motheye_absorptance": 0.003949621401444503
+            },
+            "passed": false
+          },
+          {
+            "coarse": 34,
+            "fine": 36,
+            "maximum_absolute_power_change": 0.0013492203833217475,
+            "maximum_change_pp": 0.13492203833217475,
+            "per_metric": {
+              "reflectance": 0.0013036356632799562,
+              "power_into_substrate": 6.686932555796665e-05,
+              "motheye_absorptance": 0.0013492203833217475
+            },
+            "passed": false
+          }
+        ],
+        "tail_two_steps_passed": false,
+        "requested_range_complete": false,
+        "passed_at_fixed_Nz_Q": false,
+        "working_order": null,
+        "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+      }
+    },
+    {
+      "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/results/Nz60_Q512_M4-36/pmma/cu",
+      "status": "oom",
+      "material": "Cu",
+      "structure": "pmma",
+      "completed_cases": 51,
+      "complete_orders": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36
+      ],
+      "last_complete_order": 36,
+      "failure": {
+        "status": "oom",
+        "order": 38,
+        "wavelength_nm": 400.0,
+        "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 618.05 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 236, in worker\n    row=compute_case(identity,order,wave,device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 132, in compute_case\n    sim.add_layer_circle_shell_nvm(thickness, layer.core_radius_nm / period,\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 995, in add_layer_circle_shell_nvm\n    self.add_layer_circle_nvm(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 105, in add_layer_circle_nvm\n    super().add_layer_circle_nvm(*values, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 790, in add_layer_circle_nvm\n    ) = self._d6_source_eigendecomposition(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1317, in _d6_source_eigendecomposition\n    self._install_polarization_basis(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1526, in _install_polarization_basis\n    torch.matmul(old_electric, old_electric.mH)\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 618.05 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)\n"
+      },
+      "method": "NV",
+      "fixed_slices": 60,
+      "fixed_grid": 512,
+      "wavelengths_nm": [
+        400.0,
+        550.0,
+        700.0
+      ],
+      "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Cu.csv",
+      "material_sha256_lf": "f4a953048fa54f340cc21d3e5439dad5e1d683b41b59a72d2a1644c58043a3e2",
+      "order_convergence": {
+        "tolerance": 0.0005,
+        "tolerance_pp": 0.05,
+        "comparisons": [
+          {
+            "coarse": 4,
+            "fine": 6,
+            "maximum_absolute_power_change": 0.07954005202198333,
+            "maximum_change_pp": 7.954005202198333,
+            "per_metric": {
+              "reflectance": 0.07227339300102642,
+              "transmittance": 0.007266659020956898,
+              "absorptance": 0.07954005202198333
+            },
+            "passed": false
+          },
+          {
+            "coarse": 6,
+            "fine": 8,
+            "maximum_absolute_power_change": 0.03601163782617578,
+            "maximum_change_pp": 3.601163782617578,
+            "per_metric": {
+              "reflectance": 0.03601163782617578,
+              "transmittance": 0.0034511831993236236,
+              "absorptance": 0.0325604546268522
+            },
+            "passed": false
+          },
+          {
+            "coarse": 8,
+            "fine": 10,
+            "maximum_absolute_power_change": 0.01732895468469775,
+            "maximum_change_pp": 1.732895468469775,
+            "per_metric": {
+              "reflectance": 0.01732895468469775,
+              "transmittance": 0.0011035451543698893,
+              "absorptance": 0.01622540953032786
+            },
+            "passed": false
+          },
+          {
+            "coarse": 10,
+            "fine": 12,
+            "maximum_absolute_power_change": 0.00207424089624042,
+            "maximum_change_pp": 0.20742408962404202,
+            "per_metric": {
+              "reflectance": 0.00207424089624042,
+              "transmittance": 0.0005572969467880426,
+              "absorptance": 0.0015169439494523984
+            },
+            "passed": false
+          },
+          {
+            "coarse": 12,
+            "fine": 14,
+            "maximum_absolute_power_change": 0.003144400409486159,
+            "maximum_change_pp": 0.3144400409486159,
+            "per_metric": {
+              "reflectance": 0.003144400409486159,
+              "transmittance": 0.000180253614143637,
+              "absorptance": 0.0029937721555231
+            },
+            "passed": false
+          },
+          {
+            "coarse": 14,
+            "fine": 16,
+            "maximum_absolute_power_change": 0.015514501671082814,
+            "maximum_change_pp": 1.5514501671082814,
+            "per_metric": {
+              "reflectance": 0.015074215207650288,
+              "transmittance": 0.00044028646343252653,
+              "absorptance": 0.015514501671082814
+            },
+            "passed": false
+          },
+          {
+            "coarse": 16,
+            "fine": 18,
+            "maximum_absolute_power_change": 0.01063441983811747,
+            "maximum_change_pp": 1.063441983811747,
+            "per_metric": {
+              "reflectance": 0.008891746215765273,
+              "transmittance": 0.0017426736223521769,
+              "absorptance": 0.01063441983811747
+            },
+            "passed": false
+          },
+          {
+            "coarse": 18,
+            "fine": 20,
+            "maximum_absolute_power_change": 0.002075932080084719,
+            "maximum_change_pp": 0.20759320800847192,
+            "per_metric": {
+              "reflectance": 0.002075932080084719,
+              "transmittance": 0.0013182755606073182,
+              "absorptance": 0.000757656519477401
+            },
+            "passed": false
+          },
+          {
+            "coarse": 20,
+            "fine": 22,
+            "maximum_absolute_power_change": 0.0024193721357164133,
+            "maximum_change_pp": 0.24193721357164133,
+            "per_metric": {
+              "reflectance": 0.0024193721357164133,
+              "transmittance": 0.00048820400855251883,
+              "absorptance": 0.0019311681271638736
+            },
+            "passed": false
+          },
+          {
+            "coarse": 22,
+            "fine": 24,
+            "maximum_absolute_power_change": 0.0010204291952736755,
+            "maximum_change_pp": 0.10204291952736755,
+            "per_metric": {
+              "reflectance": 0.0010204291952736755,
+              "transmittance": 7.00678667778995e-05,
+              "absorptance": 0.0009503613284957968
+            },
+            "passed": false
+          },
+          {
+            "coarse": 24,
+            "fine": 26,
+            "maximum_absolute_power_change": 0.0060011407753237656,
+            "maximum_change_pp": 0.6001140775323766,
+            "per_metric": {
+              "reflectance": 0.005820563246128785,
+              "transmittance": 0.00018057752919500153,
+              "absorptance": 0.0060011407753237656
+            },
+            "passed": false
+          },
+          {
+            "coarse": 26,
+            "fine": 28,
+            "maximum_absolute_power_change": 0.005776832752975192,
+            "maximum_change_pp": 0.5776832752975192,
+            "per_metric": {
+              "reflectance": 0.005510383738397739,
+              "transmittance": 0.00026644901457744535,
+              "absorptance": 0.005776832752975192
+            },
+            "passed": false
+          },
+          {
+            "coarse": 28,
+            "fine": 30,
+            "maximum_absolute_power_change": 0.001416051566222598,
+            "maximum_change_pp": 0.1416051566222598,
+            "per_metric": {
+              "reflectance": 0.001416051566222598,
+              "transmittance": 0.0004133338090331756,
+              "absorptance": 0.0010027177571894086
+            },
+            "passed": false
+          },
+          {
+            "coarse": 30,
+            "fine": 32,
+            "maximum_absolute_power_change": 0.0003779699321637617,
+            "maximum_change_pp": 0.03779699321637617,
+            "per_metric": {
+              "reflectance": 0.0001457009472205506,
+              "transmittance": 0.0003779699321637617,
+              "absorptance": 0.00023226898494321802
+            },
+            "passed": true
+          },
+          {
+            "coarse": 32,
+            "fine": 34,
+            "maximum_absolute_power_change": 0.0036299235392640017,
+            "maximum_change_pp": 0.36299235392640017,
+            "per_metric": {
+              "reflectance": 0.0034629370166772144,
+              "transmittance": 0.0001669865225867942,
+              "absorptance": 0.0036299235392640017
+            },
+            "passed": false
+          },
+          {
+            "coarse": 34,
+            "fine": 36,
+            "maximum_absolute_power_change": 0.004123322126901419,
+            "maximum_change_pp": 0.41233221269014186,
+            "per_metric": {
+              "reflectance": 0.0036201899713784735,
+              "transmittance": 0.0005031321555229243,
+              "absorptance": 0.004123322126901419
+            },
+            "passed": false
+          }
+        ],
+        "tail_two_steps_passed": false,
+        "requested_range_complete": false,
+        "passed_at_fixed_Nz_Q": false,
+        "working_order": null,
+        "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+      }
+    },
+    {
+      "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/results/Nz60_Q512_M4-36/metal/ag",
+      "status": "oom",
+      "material": "Ag",
+      "structure": "metal",
+      "completed_cases": 51,
+      "complete_orders": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36
+      ],
+      "last_complete_order": 36,
+      "failure": {
+        "status": "oom",
+        "order": 38,
+        "wavelength_nm": 400.0,
+        "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 619.03 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 236, in worker\n    row=compute_case(identity,order,wave,device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 137, in compute_case\n    sim.add_layer_circle_nvm(g[\"height_nm\"] / identity[\"slices\"] / period, radius / period, 1., eps, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 105, in add_layer_circle_nvm\n    super().add_layer_circle_nvm(*values, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 790, in add_layer_circle_nvm\n    ) = self._d6_source_eigendecomposition(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1317, in _d6_source_eigendecomposition\n    self._install_polarization_basis(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1526, in _install_polarization_basis\n    torch.matmul(old_electric, old_electric.mH)\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 619.03 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)\n"
+      },
+      "method": "NV",
+      "fixed_slices": 60,
+      "fixed_grid": 512,
+      "wavelengths_nm": [
+        400.0,
+        550.0,
+        700.0
+      ],
+      "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Ag.csv",
+      "material_sha256_lf": "74a77865964c13711550e1f036ad28fb68b324ce1953cfa29bd6f8b3e9d0c7c4",
+      "order_convergence": {
+        "tolerance": 0.0005,
+        "tolerance_pp": 0.05,
+        "comparisons": [
+          {
+            "coarse": 4,
+            "fine": 6,
+            "maximum_absolute_power_change": 0.12670455285515936,
+            "maximum_change_pp": 12.670455285515935,
+            "per_metric": {
+              "reflectance": 0.11696281095807426,
+              "power_into_substrate": 0.009741741897085036,
+              "motheye_absorptance": 0.12670455285515936
+            },
+            "passed": false
+          },
+          {
+            "coarse": 6,
+            "fine": 8,
+            "maximum_absolute_power_change": 0.19113790620234405,
+            "maximum_change_pp": 19.113790620234404,
+            "per_metric": {
+              "reflectance": 0.1816046274830455,
+              "power_into_substrate": 0.009533278719298668,
+              "motheye_absorptance": 0.19113790620234405
+            },
+            "passed": false
+          },
+          {
+            "coarse": 8,
+            "fine": 10,
+            "maximum_absolute_power_change": 0.07087721777626999,
+            "maximum_change_pp": 7.0877217776269985,
+            "per_metric": {
+              "reflectance": 0.0697642434638549,
+              "power_into_substrate": 0.0016035050123273404,
+              "motheye_absorptance": 0.07087721777626999
+            },
+            "passed": false
+          },
+          {
+            "coarse": 10,
+            "fine": 12,
+            "maximum_absolute_power_change": 0.07900668243217435,
+            "maximum_change_pp": 7.900668243217435,
+            "per_metric": {
+              "reflectance": 0.07900668243217435,
+              "power_into_substrate": 0.0014291731022040427,
+              "motheye_absorptance": 0.07868143383643993
+            },
+            "passed": false
+          },
+          {
+            "coarse": 12,
+            "fine": 14,
+            "maximum_absolute_power_change": 0.10080444556077517,
+            "maximum_change_pp": 10.080444556077516,
+            "per_metric": {
+              "reflectance": 0.10080444556077517,
+              "power_into_substrate": 0.001685288406441325,
+              "motheye_absorptance": 0.10002842436953381
+            },
+            "passed": false
+          },
+          {
+            "coarse": 14,
+            "fine": 16,
+            "maximum_absolute_power_change": 0.08537514294933202,
+            "maximum_change_pp": 8.537514294933201,
+            "per_metric": {
+              "reflectance": 0.08537514294933202,
+              "power_into_substrate": 0.00484386504142037,
+              "motheye_absorptance": 0.08498057906177008
+            },
+            "passed": false
+          },
+          {
+            "coarse": 16,
+            "fine": 18,
+            "maximum_absolute_power_change": 0.05761328157804135,
+            "maximum_change_pp": 5.761328157804135,
+            "per_metric": {
+              "reflectance": 0.05607730617143225,
+              "power_into_substrate": 0.0015359754066089706,
+              "motheye_absorptance": 0.05761328157804135
+            },
+            "passed": false
+          },
+          {
+            "coarse": 18,
+            "fine": 20,
+            "maximum_absolute_power_change": 0.01672720343854578,
+            "maximum_change_pp": 1.672720343854578,
+            "per_metric": {
+              "reflectance": 0.01636456405848119,
+              "power_into_substrate": 0.003193534567816063,
+              "motheye_absorptance": 0.01672720343854578
+            },
+            "passed": false
+          },
+          {
+            "coarse": 20,
+            "fine": 22,
+            "maximum_absolute_power_change": 0.011548833628010735,
+            "maximum_change_pp": 1.1548833628010735,
+            "per_metric": {
+              "reflectance": 0.011548833628010735,
+              "power_into_substrate": 0.0025522137128979536,
+              "motheye_absorptance": 0.011478581442959143
+            },
+            "passed": false
+          },
+          {
+            "coarse": 22,
+            "fine": 24,
+            "maximum_absolute_power_change": 0.023289177845487924,
+            "maximum_change_pp": 2.3289177845487923,
+            "per_metric": {
+              "reflectance": 0.02143622169274262,
+              "power_into_substrate": 0.0018529561527453157,
+              "motheye_absorptance": 0.023289177845487924
+            },
+            "passed": false
+          },
+          {
+            "coarse": 24,
+            "fine": 26,
+            "maximum_absolute_power_change": 0.03567789369580665,
+            "maximum_change_pp": 3.567789369580665,
+            "per_metric": {
+              "reflectance": 0.03567789369580665,
+              "power_into_substrate": 0.002204568583670498,
+              "motheye_absorptance": 0.03561892581856266
+            },
+            "passed": false
+          },
+          {
+            "coarse": 26,
+            "fine": 28,
+            "maximum_absolute_power_change": 0.01436360693202432,
+            "maximum_change_pp": 1.436360693202432,
+            "per_metric": {
+              "reflectance": 0.013732384997812652,
+              "power_into_substrate": 0.0014529652717813826,
+              "motheye_absorptance": 0.01436360693202432
+            },
+            "passed": false
+          },
+          {
+            "coarse": 28,
+            "fine": 30,
+            "maximum_absolute_power_change": 0.03916949292161509,
+            "maximum_change_pp": 3.916949292161509,
+            "per_metric": {
+              "reflectance": 0.03788176074414107,
+              "power_into_substrate": 0.0013924419440987362,
+              "motheye_absorptance": 0.03916949292161509
+            },
+            "passed": false
+          },
+          {
+            "coarse": 30,
+            "fine": 32,
+            "maximum_absolute_power_change": 0.019461885033314474,
+            "maximum_change_pp": 1.9461885033314474,
+            "per_metric": {
+              "reflectance": 0.019461885033314474,
+              "power_into_substrate": 0.0021471997329025917,
+              "motheye_absorptance": 0.01925036273397318
+            },
+            "passed": false
+          },
+          {
+            "coarse": 32,
+            "fine": 34,
+            "maximum_absolute_power_change": 0.027531256305424634,
+            "maximum_change_pp": 2.7531256305424634,
+            "per_metric": {
+              "reflectance": 0.027531256305424634,
+              "power_into_substrate": 0.0012461085849071046,
+              "motheye_absorptance": 0.026285147720517543
+            },
+            "passed": false
+          },
+          {
+            "coarse": 34,
+            "fine": 36,
+            "maximum_absolute_power_change": 0.0170207831158794,
+            "maximum_change_pp": 1.70207831158794,
+            "per_metric": {
+              "reflectance": 0.016710950966044358,
+              "power_into_substrate": 0.0012948062692383286,
+              "motheye_absorptance": 0.0170207831158794
+            },
+            "passed": false
+          }
+        ],
+        "tail_two_steps_passed": false,
+        "requested_range_complete": false,
+        "passed_at_fixed_Nz_Q": false,
+        "working_order": null,
+        "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+      }
+    },
+    {
+      "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/results/Nz60_Q512_M4-36/pmma/ag",
+      "status": "oom",
+      "material": "Ag",
+      "structure": "pmma",
+      "completed_cases": 51,
+      "complete_orders": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36
+      ],
+      "last_complete_order": 36,
+      "failure": {
+        "status": "oom",
+        "order": 38,
+        "wavelength_nm": 400.0,
+        "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 618.05 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 236, in worker\n    row=compute_case(identity,order,wave,device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 132, in compute_case\n    sim.add_layer_circle_shell_nvm(thickness, layer.core_radius_nm / period,\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 995, in add_layer_circle_shell_nvm\n    self.add_layer_circle_nvm(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 105, in add_layer_circle_nvm\n    super().add_layer_circle_nvm(*values, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 790, in add_layer_circle_nvm\n    ) = self._d6_source_eigendecomposition(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1317, in _d6_source_eigendecomposition\n    self._install_polarization_basis(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1526, in _install_polarization_basis\n    torch.matmul(old_electric, old_electric.mH)\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 618.05 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)\n"
+      },
+      "method": "NV",
+      "fixed_slices": 60,
+      "fixed_grid": 512,
+      "wavelengths_nm": [
+        400.0,
+        550.0,
+        700.0
+      ],
+      "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Ag.csv",
+      "material_sha256_lf": "74a77865964c13711550e1f036ad28fb68b324ce1953cfa29bd6f8b3e9d0c7c4",
+      "order_convergence": {
+        "tolerance": 0.0005,
+        "tolerance_pp": 0.05,
+        "comparisons": [
+          {
+            "coarse": 4,
+            "fine": 6,
+            "maximum_absolute_power_change": 0.3540672385212112,
+            "maximum_change_pp": 35.40672385212112,
+            "per_metric": {
+              "reflectance": 0.3540672385212112,
+              "transmittance": 0.34042839993235735,
+              "absorptance": 0.07115087302552736
+            },
+            "passed": false
+          },
+          {
+            "coarse": 6,
+            "fine": 8,
+            "maximum_absolute_power_change": 0.05553115453269136,
+            "maximum_change_pp": 5.553115453269136,
+            "per_metric": {
+              "reflectance": 0.05421846070243286,
+              "transmittance": 0.022570899800574355,
+              "absorptance": 0.05553115453269136
+            },
+            "passed": false
+          },
+          {
+            "coarse": 8,
+            "fine": 10,
+            "maximum_absolute_power_change": 0.1206306953468903,
+            "maximum_change_pp": 12.063069534689031,
+            "per_metric": {
+              "reflectance": 0.1206306953468903,
+              "transmittance": 0.02113148873823971,
+              "absorptance": 0.09949920660865064
+            },
+            "passed": false
+          },
+          {
+            "coarse": 10,
+            "fine": 12,
+            "maximum_absolute_power_change": 0.13990160483210612,
+            "maximum_change_pp": 13.990160483210612,
+            "per_metric": {
+              "reflectance": 0.13990160483210612,
+              "transmittance": 0.049092258966418376,
+              "absorptance": 0.11697500417983903
+            },
+            "passed": false
+          },
+          {
+            "coarse": 12,
+            "fine": 14,
+            "maximum_absolute_power_change": 0.03440807424302211,
+            "maximum_change_pp": 3.4408074243022115,
+            "per_metric": {
+              "reflectance": 0.0343357160920037,
+              "transmittance": 0.023423453664448285,
+              "absorptance": 0.03440807424302211
+            },
+            "passed": false
+          },
+          {
+            "coarse": 14,
+            "fine": 16,
+            "maximum_absolute_power_change": 0.07168973142278567,
+            "maximum_change_pp": 7.168973142278567,
+            "per_metric": {
+              "reflectance": 0.054172049034054676,
+              "transmittance": 0.017517682388731033,
+              "absorptance": 0.07168973142278567
+            },
+            "passed": false
+          },
+          {
+            "coarse": 16,
+            "fine": 18,
+            "maximum_absolute_power_change": 0.09626936844406134,
+            "maximum_change_pp": 9.626936844406133,
+            "per_metric": {
+              "reflectance": 0.09626936844406134,
+              "transmittance": 0.014770579809890777,
+              "absorptance": 0.08149878863417048
+            },
+            "passed": false
+          },
+          {
+            "coarse": 18,
+            "fine": 20,
+            "maximum_absolute_power_change": 0.014570364588390783,
+            "maximum_change_pp": 1.4570364588390783,
+            "per_metric": {
+              "reflectance": 0.014456520878752266,
+              "transmittance": 0.012426764011588173,
+              "absorptance": 0.014570364588390783
+            },
+            "passed": false
+          },
+          {
+            "coarse": 20,
+            "fine": 22,
+            "maximum_absolute_power_change": 0.03752840200736479,
+            "maximum_change_pp": 3.752840200736479,
+            "per_metric": {
+              "reflectance": 0.03752840200736479,
+              "transmittance": 0.005403670813846621,
+              "absorptance": 0.03212473119351811
+            },
+            "passed": false
+          },
+          {
+            "coarse": 22,
+            "fine": 24,
+            "maximum_absolute_power_change": 0.060268795828566535,
+            "maximum_change_pp": 6.026879582856654,
+            "per_metric": {
+              "reflectance": 0.060268795828566535,
+              "transmittance": 0.015928125066925602,
+              "absorptance": 0.044340670761641054
+            },
+            "passed": false
+          },
+          {
+            "coarse": 24,
+            "fine": 26,
+            "maximum_absolute_power_change": 0.030961612855485376,
+            "maximum_change_pp": 3.0961612855485376,
+            "per_metric": {
+              "reflectance": 0.030961612855485376,
+              "transmittance": 0.004881926941312386,
+              "absorptance": 0.029737479053021654
+            },
+            "passed": false
+          },
+          {
+            "coarse": 26,
+            "fine": 28,
+            "maximum_absolute_power_change": 0.018972558280297425,
+            "maximum_change_pp": 1.8972558280297425,
+            "per_metric": {
+              "reflectance": 0.018972558280297425,
+              "transmittance": 0.003948561937180411,
+              "absorptance": 0.018665470622833746
+            },
+            "passed": false
+          },
+          {
+            "coarse": 28,
+            "fine": 30,
+            "maximum_absolute_power_change": 0.02017007024304604,
+            "maximum_change_pp": 2.017007024304604,
+            "per_metric": {
+              "reflectance": 0.02017007024304604,
+              "transmittance": 0.011197462594928608,
+              "absorptance": 0.013833674551482822
+            },
+            "passed": false
+          },
+          {
+            "coarse": 30,
+            "fine": 32,
+            "maximum_absolute_power_change": 0.04858602979119114,
+            "maximum_change_pp": 4.858602979119114,
+            "per_metric": {
+              "reflectance": 0.04858602979119114,
+              "transmittance": 0.0013080515138717674,
+              "absorptance": 0.04727797827731928
+            },
+            "passed": false
+          },
+          {
+            "coarse": 32,
+            "fine": 34,
+            "maximum_absolute_power_change": 0.038122493288561876,
+            "maximum_change_pp": 3.8122493288561876,
+            "per_metric": {
+              "reflectance": 0.038122493288561876,
+              "transmittance": 0.0024767284201794833,
+              "absorptance": 0.035645764868382446
+            },
+            "passed": false
+          },
+          {
+            "coarse": 34,
+            "fine": 36,
+            "maximum_absolute_power_change": 0.032290421803845226,
+            "maximum_change_pp": 3.2290421803845226,
+            "per_metric": {
+              "reflectance": 0.032290421803845226,
+              "transmittance": 0.0015340836014350531,
+              "absorptance": 0.032046684361235256
+            },
+            "passed": false
+          }
+        ],
+        "tail_two_steps_passed": false,
+        "requested_range_complete": false,
+        "passed_at_fixed_Nz_Q": false,
+        "working_order": null,
+        "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+      }
+    },
+    {
+      "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/results/Nz60_Q512_M4-36/metal/al",
+      "status": "oom",
+      "material": "Al",
+      "structure": "metal",
+      "completed_cases": 51,
+      "complete_orders": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36
+      ],
+      "last_complete_order": 36,
+      "failure": {
+        "status": "oom",
+        "order": 38,
+        "wavelength_nm": 400.0,
+        "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 619.03 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 236, in worker\n    row=compute_case(identity,order,wave,device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 137, in compute_case\n    sim.add_layer_circle_nvm(g[\"height_nm\"] / identity[\"slices\"] / period, radius / period, 1., eps, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 105, in add_layer_circle_nvm\n    super().add_layer_circle_nvm(*values, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 790, in add_layer_circle_nvm\n    ) = self._d6_source_eigendecomposition(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1317, in _d6_source_eigendecomposition\n    self._install_polarization_basis(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1526, in _install_polarization_basis\n    torch.matmul(old_electric, old_electric.mH)\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 619.03 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)\n"
+      },
+      "method": "NV",
+      "fixed_slices": 60,
+      "fixed_grid": 512,
+      "wavelengths_nm": [
+        400.0,
+        550.0,
+        700.0
+      ],
+      "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Rakic (Al).csv",
+      "material_sha256_lf": "17c2b6f74ad902c711c1dfbd6bb621022276d79ee09e0f72fb47ad394d463dc4",
+      "order_convergence": {
+        "tolerance": 0.0005,
+        "tolerance_pp": 0.05,
+        "comparisons": [
+          {
+            "coarse": 4,
+            "fine": 6,
+            "maximum_absolute_power_change": 0.06164365372376357,
+            "maximum_change_pp": 6.164365372376357,
+            "per_metric": {
+              "reflectance": 0.058261936540686066,
+              "power_into_substrate": 0.0033817171830775455,
+              "motheye_absorptance": 0.06164365372376357
+            },
+            "passed": false
+          },
+          {
+            "coarse": 6,
+            "fine": 8,
+            "maximum_absolute_power_change": 0.04276198712102042,
+            "maximum_change_pp": 4.276198712102042,
+            "per_metric": {
+              "reflectance": 0.04112981977892999,
+              "power_into_substrate": 0.0016321673420902905,
+              "motheye_absorptance": 0.04276198712102042
+            },
+            "passed": false
+          },
+          {
+            "coarse": 8,
+            "fine": 10,
+            "maximum_absolute_power_change": 0.03134382154735105,
+            "maximum_change_pp": 3.1343821547351047,
+            "per_metric": {
+              "reflectance": 0.029780480521527375,
+              "power_into_substrate": 0.0027442483535373013,
+              "motheye_absorptance": 0.03134382154735105
+            },
+            "passed": false
+          },
+          {
+            "coarse": 10,
+            "fine": 12,
+            "maximum_absolute_power_change": 0.024641317071181668,
+            "maximum_change_pp": 2.4641317071181668,
+            "per_metric": {
+              "reflectance": 0.02240586008285189,
+              "power_into_substrate": 0.004267283682188636,
+              "motheye_absorptance": 0.024641317071181668
+            },
+            "passed": false
+          },
+          {
+            "coarse": 12,
+            "fine": 14,
+            "maximum_absolute_power_change": 0.01817053660389034,
+            "maximum_change_pp": 1.8170536603890342,
+            "per_metric": {
+              "reflectance": 0.017893614122464485,
+              "power_into_substrate": 0.0034197797644370115,
+              "motheye_absorptance": 0.01817053660389034
+            },
+            "passed": false
+          },
+          {
+            "coarse": 14,
+            "fine": 16,
+            "maximum_absolute_power_change": 0.01872851231809769,
+            "maximum_change_pp": 1.872851231809769,
+            "per_metric": {
+              "reflectance": 0.017375124601875458,
+              "power_into_substrate": 0.001709852787711949,
+              "motheye_absorptance": 0.01872851231809769
+            },
+            "passed": false
+          },
+          {
+            "coarse": 16,
+            "fine": 18,
+            "maximum_absolute_power_change": 0.01091588511375996,
+            "maximum_change_pp": 1.091588511375996,
+            "per_metric": {
+              "reflectance": 0.010591678828636764,
+              "power_into_substrate": 0.0009650894261479248,
+              "motheye_absorptance": 0.01091588511375996
+            },
+            "passed": false
+          },
+          {
+            "coarse": 18,
+            "fine": 20,
+            "maximum_absolute_power_change": 0.010151147209766453,
+            "maximum_change_pp": 1.0151147209766453,
+            "per_metric": {
+              "reflectance": 0.010151147209766453,
+              "power_into_substrate": 0.0008787543992155311,
+              "motheye_absorptance": 0.009720557161342902
+            },
+            "passed": false
+          },
+          {
+            "coarse": 20,
+            "fine": 22,
+            "maximum_absolute_power_change": 0.004880750971794856,
+            "maximum_change_pp": 0.4880750971794856,
+            "per_metric": {
+              "reflectance": 0.004880750971794856,
+              "power_into_substrate": 0.00031026897890544525,
+              "motheye_absorptance": 0.0045704819928894524
+            },
+            "passed": false
+          },
+          {
+            "coarse": 22,
+            "fine": 24,
+            "maximum_absolute_power_change": 0.00666173629455763,
+            "maximum_change_pp": 0.666173629455763,
+            "per_metric": {
+              "reflectance": 0.006447207961515378,
+              "power_into_substrate": 0.00021452833304229368,
+              "motheye_absorptance": 0.00666173629455763
+            },
+            "passed": false
+          },
+          {
+            "coarse": 24,
+            "fine": 26,
+            "maximum_absolute_power_change": 0.003765140136168965,
+            "maximum_change_pp": 0.3765140136168965,
+            "per_metric": {
+              "reflectance": 0.0033828985790065325,
+              "power_into_substrate": 0.0003822415571624743,
+              "motheye_absorptance": 0.003765140136168965
+            },
+            "passed": false
+          },
+          {
+            "coarse": 26,
+            "fine": 28,
+            "maximum_absolute_power_change": 0.0043120104559961625,
+            "maximum_change_pp": 0.43120104559961625,
+            "per_metric": {
+              "reflectance": 0.0038260432392491772,
+              "power_into_substrate": 0.00048596721674694365,
+              "motheye_absorptance": 0.0043120104559961625
+            },
+            "passed": false
+          },
+          {
+            "coarse": 28,
+            "fine": 30,
+            "maximum_absolute_power_change": 0.003473912457183259,
+            "maximum_change_pp": 0.3473912457183259,
+            "per_metric": {
+              "reflectance": 0.0031896581903845256,
+              "power_into_substrate": 0.00033001278880270823,
+              "motheye_absorptance": 0.003473912457183259
+            },
+            "passed": false
+          },
+          {
+            "coarse": 30,
+            "fine": 32,
+            "maximum_absolute_power_change": 0.0046493077503285685,
+            "maximum_change_pp": 0.46493077503285685,
+            "per_metric": {
+              "reflectance": 0.003999711480565715,
+              "power_into_substrate": 0.0006495962697629087,
+              "motheye_absorptance": 0.0046493077503285685
+            },
+            "passed": false
+          },
+          {
+            "coarse": 32,
+            "fine": 34,
+            "maximum_absolute_power_change": 0.005017965928938106,
+            "maximum_change_pp": 0.5017965928938106,
+            "per_metric": {
+              "reflectance": 0.0045371798570386646,
+              "power_into_substrate": 0.00048078607189951106,
+              "motheye_absorptance": 0.005017965928938106
+            },
+            "passed": false
+          },
+          {
+            "coarse": 34,
+            "fine": 36,
+            "maximum_absolute_power_change": 0.004638835103445205,
+            "maximum_change_pp": 0.46388351034452047,
+            "per_metric": {
+              "reflectance": 0.003992123778875867,
+              "power_into_substrate": 0.0006467113245692685,
+              "motheye_absorptance": 0.004638835103445205
+            },
+            "passed": false
+          }
+        ],
+        "tail_two_steps_passed": false,
+        "requested_range_complete": false,
+        "passed_at_fixed_Nz_Q": false,
+        "working_order": null,
+        "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+      }
+    },
+    {
+      "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/results/Nz60_Q512_M4-36/pmma/al",
+      "status": "oom",
+      "material": "Al",
+      "structure": "pmma",
+      "completed_cases": 51,
+      "complete_orders": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36
+      ],
+      "last_complete_order": 36,
+      "failure": {
+        "status": "oom",
+        "order": 38,
+        "wavelength_nm": 400.0,
+        "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 618.05 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 236, in worker\n    row=compute_case(identity,order,wave,device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 132, in compute_case\n    sim.add_layer_circle_shell_nvm(thickness, layer.core_radius_nm / period,\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 995, in add_layer_circle_shell_nvm\n    self.add_layer_circle_nvm(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 105, in add_layer_circle_nvm\n    super().add_layer_circle_nvm(*values, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 790, in add_layer_circle_nvm\n    ) = self._d6_source_eigendecomposition(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1317, in _d6_source_eigendecomposition\n    self._install_polarization_basis(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1526, in _install_polarization_basis\n    torch.matmul(old_electric, old_electric.mH)\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.10 GiB. GPU 0 has a total capacity of 93.09 GiB of which 1.01 GiB is free. Including non-PyTorch memory, this process has 92.06 GiB memory in use. Of the allocated memory 90.51 GiB is allocated by PyTorch, and 618.05 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)\n"
+      },
+      "method": "NV",
+      "fixed_slices": 60,
+      "fixed_grid": 512,
+      "wavelengths_nm": [
+        400.0,
+        550.0,
+        700.0
+      ],
+      "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Rakic (Al).csv",
+      "material_sha256_lf": "17c2b6f74ad902c711c1dfbd6bb621022276d79ee09e0f72fb47ad394d463dc4",
+      "order_convergence": {
+        "tolerance": 0.0005,
+        "tolerance_pp": 0.05,
+        "comparisons": [
+          {
+            "coarse": 4,
+            "fine": 6,
+            "maximum_absolute_power_change": 0.019250782201985284,
+            "maximum_change_pp": 1.9250782201985284,
+            "per_metric": {
+              "reflectance": 0.019219933449799997,
+              "transmittance": 6.887817488207852e-05,
+              "absorptance": 0.019250782201985284
+            },
+            "passed": false
+          },
+          {
+            "coarse": 6,
+            "fine": 8,
+            "maximum_absolute_power_change": 0.02091381181794949,
+            "maximum_change_pp": 2.091381181794949,
+            "per_metric": {
+              "reflectance": 0.020689110885881212,
+              "transmittance": 0.0002552416171470906,
+              "absorptance": 0.02091381181794949
+            },
+            "passed": false
+          },
+          {
+            "coarse": 8,
+            "fine": 10,
+            "maximum_absolute_power_change": 0.019638992340932304,
+            "maximum_change_pp": 1.9638992340932304,
+            "per_metric": {
+              "reflectance": 0.019638992340932304,
+              "transmittance": 0.00040739012396534893,
+              "absorptance": 0.019559408611772522
+            },
+            "passed": false
+          },
+          {
+            "coarse": 10,
+            "fine": 12,
+            "maximum_absolute_power_change": 0.013889721773208685,
+            "maximum_change_pp": 1.3889721773208685,
+            "per_metric": {
+              "reflectance": 0.013641663108785784,
+              "transmittance": 0.00024805866442283826,
+              "absorptance": 0.013889721773208685
+            },
+            "passed": false
+          },
+          {
+            "coarse": 12,
+            "fine": 14,
+            "maximum_absolute_power_change": 0.018532702878391594,
+            "maximum_change_pp": 1.8532702878391594,
+            "per_metric": {
+              "reflectance": 0.01825741346287274,
+              "transmittance": 0.00027528941551874654,
+              "absorptance": 0.018532702878391594
+            },
+            "passed": false
+          },
+          {
+            "coarse": 14,
+            "fine": 16,
+            "maximum_absolute_power_change": 0.007657145385102426,
+            "maximum_change_pp": 0.7657145385102426,
+            "per_metric": {
+              "reflectance": 0.007657145385102426,
+              "transmittance": 0.00013928764221044637,
+              "absorptance": 0.0076290563543766066
+            },
+            "passed": false
+          },
+          {
+            "coarse": 16,
+            "fine": 18,
+            "maximum_absolute_power_change": 0.005129992533796479,
+            "maximum_change_pp": 0.5129992533796479,
+            "per_metric": {
+              "reflectance": 0.005129992533796479,
+              "transmittance": 0.00017369850669134677,
+              "absorptance": 0.004956294027105068
+            },
+            "passed": false
+          },
+          {
+            "coarse": 18,
+            "fine": 20,
+            "maximum_absolute_power_change": 0.003996966391319634,
+            "maximum_change_pp": 0.3996966391319634,
+            "per_metric": {
+              "reflectance": 0.003969756790005441,
+              "transmittance": 0.00015958588198845163,
+              "absorptance": 0.003996966391319634
+            },
+            "passed": false
+          },
+          {
+            "coarse": 20,
+            "fine": 22,
+            "maximum_absolute_power_change": 0.004183165454148763,
+            "maximum_change_pp": 0.4183165454148763,
+            "per_metric": {
+              "reflectance": 0.004176185398064025,
+              "transmittance": 3.537542262020991e-05,
+              "absorptance": 0.004183165454148763
+            },
+            "passed": false
+          },
+          {
+            "coarse": 22,
+            "fine": 24,
+            "maximum_absolute_power_change": 0.0023849354371522358,
+            "maximum_change_pp": 0.23849354371522358,
+            "per_metric": {
+              "reflectance": 0.0023849354371522358,
+              "transmittance": 0.00010339422309714149,
+              "absorptance": 0.0023348847598538836
+            },
+            "passed": false
+          },
+          {
+            "coarse": 24,
+            "fine": 26,
+            "maximum_absolute_power_change": 0.0028526307671024043,
+            "maximum_change_pp": 0.2852630767102404,
+            "per_metric": {
+              "reflectance": 0.002843503121778057,
+              "transmittance": 8.937408833197046e-05,
+              "absorptance": 0.0028526307671024043
+            },
+            "passed": false
+          },
+          {
+            "coarse": 26,
+            "fine": 28,
+            "maximum_absolute_power_change": 0.003864551138023642,
+            "maximum_change_pp": 0.3864551138023642,
+            "per_metric": {
+              "reflectance": 0.003855850097876534,
+              "transmittance": 8.701040147171026e-06,
+              "absorptance": 0.003864551138023642
+            },
+            "passed": false
+          },
+          {
+            "coarse": 28,
+            "fine": 30,
+            "maximum_absolute_power_change": 0.0010476206104433894,
+            "maximum_change_pp": 0.10476206104433894,
+            "per_metric": {
+              "reflectance": 0.0010224156102874304,
+              "transmittance": 5.483024946722256e-05,
+              "absorptance": 0.0010476206104433894
+            },
+            "passed": false
+          },
+          {
+            "coarse": 30,
+            "fine": 32,
+            "maximum_absolute_power_change": 0.0022529179549766187,
+            "maximum_change_pp": 0.22529179549766187,
+            "per_metric": {
+              "reflectance": 0.0022529179549766187,
+              "transmittance": 2.7997412102218327e-05,
+              "absorptance": 0.002246097875558739
+            },
+            "passed": false
+          },
+          {
+            "coarse": 32,
+            "fine": 34,
+            "maximum_absolute_power_change": 0.0020014175306579673,
+            "maximum_change_pp": 0.20014175306579673,
+            "per_metric": {
+              "reflectance": 0.001976465961941787,
+              "transmittance": 2.4951568716151916e-05,
+              "absorptance": 0.0020014175306579673
+            },
+            "passed": false
+          },
+          {
+            "coarse": 34,
+            "fine": 36,
+            "maximum_absolute_power_change": 0.0007221859530885388,
+            "maximum_change_pp": 0.07221859530885388,
+            "per_metric": {
+              "reflectance": 0.0007221859530885388,
+              "transmittance": 3.4814245002225304e-05,
+              "absorptance": 0.0007163217648167297
+            },
+            "passed": false
+          }
+        ],
+        "tail_two_steps_passed": false,
+        "requested_range_complete": false,
+        "passed_at_fixed_Nz_Q": false,
+        "working_order": null,
+        "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+      }
+    }
+  ],
+  "interpretation": "Order-only convergence checks at fixed Nz/Q; no final spectrum or layer/grid sweep."
+}
