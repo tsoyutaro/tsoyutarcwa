@@ -23,6 +23,8 @@ if os.environ.get("N25_DEPENDENCY_PATH"):
 from Optimization.dielectric_motheye_n25.common import (conditions, device_setup, load_config,
     runtime_environment, signature_for, sources, write_csv, write_json)
 from Optimization.dielectric_motheye_n25.geometry import baseline_logits, profile_rows, radii_values
+from nv_runtime_policy import (check_runtime, execution_sources, persist_manifest,
+    reconcile_manifest, record_runtime)
 
 
 def storage_and_pruner(folder, config):
@@ -46,8 +48,7 @@ def worker(request_path, result_path):
         device = device_setup(request["device"], c["cpu_threads"])
         torch.manual_seed(c["seed"]+request.get("trial_number", 0))
         environment = runtime_environment(device)
-        if request.get("runtime_environment") not in (None, environment):
-            raise RuntimeError("Runtime differs from this experiment; use a new output directory.")
+        check_runtime(request.get("runtime_environment"), environment)
         if request["mode"] == "preflight":
             outcome = {"status": "ready"}
         elif request["mode"] == "train":
@@ -321,24 +322,14 @@ def main(argv=None):
             raise ValueError("Invalid verification orders or insufficient verification grid.")
         if args.timeout_hours < 0:
             raise ValueError("Timeout hours must be nonnegative; 0 means no limit.")
-        identity = {"version": 1, "config": c, "source_sha256": sources(), "requested_device": args.device}
-        signature = signature_for(identity)
+        identity = {"version": 1, "config": c, "source_sha256": execution_sources(sources()), "requested_device": args.device}
         manifest_path = output/"manifest.json"
-        if manifest_path.exists():
-            previous = json.loads(manifest_path.read_text(encoding="utf-8"))
-            if previous["signature"] != signature:
-                raise ValueError("Configuration/source/device differs from existing experiment; choose a new --output-root.")
-        else:
-            previous = {"signature": signature, **identity, "runtime_environment": None}
-            write_json(manifest_path, previous)
-        write_json(output/"resolved_config.json", c)
-        write_csv(output/"baseline_profile.csv", profile_rows(baseline_logits(c), c))
+        original_manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else None
+        previous, migration = reconcile_manifest(original_manifest, identity)
+        signature = previous["signature"]  # Keep existing Adam/shape/audit identities.
     except (ValueError, OSError) as error:
         p.error(str(error))
-    if args.prepare_only:
-        print(f"Prepared NV-only {lattices}; Adam M={c['optimization_order']} Q={c['optimization_grid']}; verification {conditions(c, orders)}.")
-        print(f"Optimization wavelengths={len(c['optimization_wavelengths_nm'])}; output: {output}")
-        return 0
+    output.mkdir(parents=True, exist_ok=True)
     lock = output/"controller.lock"
     if lock.exists() and args.recover_lock:
         (lock/"owner.json").unlink(missing_ok=True)
@@ -351,12 +342,24 @@ def main(argv=None):
     status, reports = "running", {}
     deadline = time.time()+args.timeout_hours*3600 if args.timeout_hours else None
     try:
+        if args.prepare_only:
+            persist_manifest(manifest_path, original_manifest, previous)
+            write_json(output/"resolved_config.json", c)
+            write_csv(output/"baseline_profile.csv", profile_rows(baseline_logits(c), c))
+            status = "prepared"
+            print(f"Prepared NV-only {lattices}; Adam M={c['optimization_order']} Q={c['optimization_grid']}; verification {conditions(c, orders)}.")
+            print(f"GPU policy: same-model CUDA/MIG changes allowed; software/configuration/physics sources remain checked. Output: {output}")
+            return 0
         preflight = launch(output/"preflight", {"mode": "preflight", "config": c, "device": args.device,
             "runtime_environment": previous.get("runtime_environment")})
         if preflight["status"] != "ready":
             raise RuntimeError(f"Preflight failed: {preflight.get('error')}")
-        previous["runtime_environment"] = preflight["runtime_environment"]
-        write_json(manifest_path, previous)
+        record_runtime(previous, preflight["runtime_environment"])
+        persist_manifest(manifest_path, original_manifest, previous)
+        write_json(output/"resolved_config.json", c)
+        write_csv(output/"baseline_profile.csv", profile_rows(baseline_logits(c), c))
+        if migration:
+            print("GPU-policy source upgrade recorded; existing checkpoint signature preserved.", flush=True)
         for lattice in lattices:
             folder = output/lattice
             folder.mkdir(exist_ok=True)
@@ -414,8 +417,9 @@ def main(argv=None):
         print(traceback.format_exc(), file=sys.stderr, flush=True)
         write_json(output/"controller_error.json", {"error": str(error), "traceback": traceback.format_exc()})
     finally:
-        write_json(output/"workflow.json", {"status": status, "requested_lattices": lattices, "signature": signature,
-                                          "reports": {l: str(output/l/"report.json") for l in lattices}})
+        if status != "prepared":
+            write_json(output/"workflow.json", {"status": status, "requested_lattices": lattices, "signature": signature,
+                                              "reports": {l: str(output/l/"report.json") for l in lattices}})
         (lock/"owner.json").unlink(missing_ok=True)
         lock.rmdir()
     try:
