@@ -186,6 +186,43 @@ class WorkflowTests(unittest.TestCase):
         self.assertFalse(passed)
         self.assertTrue(all(c["delta_R_pp"] is None and not c["passed"] for c in comparisons))
 
+    def test_orders_only_runs_all_groups_at_one_Nz_without_claiming_layer_convergence(self):
+        self.args.orders_only, self.args.slices = True, "210"
+        self.plan = workflow.build_plan(self.args)
+        self.assertEqual(self.plan["layer_plan"]["jobs"], [])
+        summary = self.run_workflow()
+        self.assertEqual(len(self.attempts), 12)
+        self.assertEqual({nz for _, _, nz, _ in self.attempts}, {210})
+        self.assertEqual(summary["layer_gate_passed"], 0)
+        self.assertTrue(summary["orders_only"])
+        self.assertTrue(all(g["order_range_complete"] and g["layer_status"] == "not_checked_orders_only"
+                            and not g["layer_gate_passed"] for g in summary["groups"]))
+
+    def test_orders_only_OOM_stops_new_higher_orders_and_continues_other_groups(self):
+        self.args.orders_only, self.args.slices = True, "210"
+        self.plan = workflow.build_plan(self.args)
+        self.failures[("Au", "metal", 210, 6)] = "oom"
+        summary = self.run_workflow()
+        self.assertNotIn(("Au", "metal", 210, 8), self.attempts)
+        self.assertIn(("Ag", "pmma", 210, 8), self.attempts)
+        self.assertEqual(sum(g["order_range_complete"] for g in summary["groups"]), 3)
+
+    def test_orders_only_reuses_previously_checked_high_order(self):
+        job = next(j for j in self.plan["layer_plan"]["jobs"]
+                   if j["material"] == "Au" and j["structure"] == "metal" and j["slices"] == 210)
+        self.fake_run_job(job["plan"], self.reuse / "old_layer_check")
+        self.attempts.clear()
+        self.args.orders_only, self.args.slices = True, "210"
+        self.plan = workflow.build_plan(self.args)
+        self.run_workflow()
+        self.assertEqual(len(self.attempts), 11)
+        self.assertNotIn(("Au", "metal", 210, 8), self.attempts)
+
+    def test_orders_only_requires_one_fixed_slice_count(self):
+        self.args.orders_only = True
+        with self.assertRaisesRegex(ValueError, "exactly one slice count"):
+            workflow.build_plan(self.args)
+
 
 if __name__ == "__main__":
     unittest.main()

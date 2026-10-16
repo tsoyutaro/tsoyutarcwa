@@ -14,6 +14,31 @@ python -u run_au_ag_nv_layer_then_order.py \
   --output-root studies/au_ag_nv_order_slices/results/auto_Nz180-240_M4-36_Q512
 ```
 
+## 210層固定で次数走査だけを実行
+
+更新版の同じ実行ファイルで `--orders-only` を指定します。Au 700 nm・Ag 550 nmの
+両構造を、層数の合否判定を挟まず210層固定で計算します。
+
+```bash
+python -u run_au_ag_nv_layer_then_order.py \
+  --device cuda:0 \
+  --cases Au:700,Ag:550 --structures both \
+  --orders-only --slices 210 \
+  --start-order 4 --step 2 --max-order 36 \
+  --grid 512 --tolerance 0.005 \
+  --output-root studies/au_ag_nv_order_slices/results/orders_only_Nz210_M4-36_Q512
+```
+
+全4組×17次数＝68条件。既存結果の条件が一致すれば再利用します。
+`order_cases.csv` にR/T/Aと吸収成分等、`comparison_changes.csv` に次数間の変化、
+`figures/` にR・T・Aを横3列にしたPNG/SVGを保存します。
+単体のTは半無限金属基板への遠方透過として0になります。
+PMMA複合は形状210層と上面キャップ1層で総211層です。
+次数走査中にOOMや計算エラーが発生したら、その組の未計算の高次数を省き、
+他の材料・構造を続けます。すでに保存された高次数の有効値は保持します。
+このモードでは `layer_status=not_checked_orders_only` と記録し、層数収束の合格を意味しません。
+以下は通常の層数確認付きモードの説明です。
+
 1. 各材料・構造・波長についてM=36、Nz=180→210→240を確認します。
 2. 180→210と210→240の両区間でR・全Aの絶対差がそれぞれ0.005以下
    （0.5パーセントポイント以下）の組だけ、Nz=240、M=4,6,…,36を実行します。

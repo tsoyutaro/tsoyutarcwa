@@ -1,4 +1,4 @@
-"""Check NV height slices, then sweep orders only for groups passing R/A checks.
+"""Check NV slices then sweep orders, or use --orders-only at fixed Nz.
 
 Uses the existing Au/Ag workers unchanged. Checkpoints, never pasted/rounded
 CSV values, can be reused after validating solver/data/fixed-condition identity.
@@ -34,20 +34,26 @@ def build_plan(args):
     if orders[-1] != args.max_order:
         raise ValueError("max-order must be reached exactly by start-order + n*step.")
     slices = grid.integer_list(args.slices)
-    if len(slices) < 3 or min(slices) < 2:
+    if args.orders_only and (len(slices) != 1 or min(slices) < 2):
+        raise ValueError("--orders-only requires exactly one slice count >= 2, e.g. --slices 210.")
+    if not args.orders_only and (len(slices) < 3 or min(slices) < 2):
         raise ValueError("Use at least three distinct slice counts >= 2 (default 180,210,240).")
     base = grid.build_parser().parse_args([])
     for name in ("device", "cases", "structures", "grid", "tolerance", "cpu_threads"):
         setattr(base, name, getattr(args, name))
     base.orders, base.slices = str(args.max_order), ",".join(map(str, slices))
     layers = grid.build_plan(base)
+    if args.orders_only:
+        layers["jobs"] = []
     base.orders, base.slices = ",".join(map(str, orders)), str(slices[-1])
     sweep = grid.build_plan(base)
-    return dict(version=1, method="NV", controller_sha256=grid.nv.digest(Path(__file__)),
+    return dict(version=1, method="NV", orders_only=args.orders_only, controller_sha256=grid.nv.digest(Path(__file__)),
                 layer_plan=layers, order_plan=sweep,
                 reuse_roots=[str(p.resolve()) for p in (args.reuse_root or [RESULTS])],
-                gate="Every adjacent Nz pair must have both abs(delta R) and abs(delta A) <= tolerance.",
-                interpretation="Gate at the stated wavelength, M and Q only; not a full-spectrum/grid error bound.")
+                gate="Bypassed: fixed-Nz order sweep; layer convergence is not evaluated." if args.orders_only else
+                     "Every adjacent Nz pair must have both abs(delta R) and abs(delta A) <= tolerance.",
+                interpretation="Order convergence at the specified Nz, wavelengths and Q only." if args.orders_only else
+                               "Gate at the stated wavelength, M and Q only; not a full-spectrum/grid error bound.")
 
 
 class ReuseCatalog:
@@ -213,7 +219,8 @@ def export(output, saved, catalog):
     for event in catalog.imports:
         if event not in saved["reuse_audit"]:
             saved["reuse_audit"].append(event)
-    summary = dict(status=saved["status"], method="NV", groups=groups, unique_saved_cases=len(unique),
+    summary = dict(status=saved["status"], method="NV", orders_only=saved["plan"].get("orders_only", False),
+                   groups=groups, unique_saved_cases=len(unique),
                    layer_gate_passed=sum(g["layer_gate_passed"] for g in groups),
                    reused_cases=len(saved["reuse_audit"]), reused_sources=saved["reuse_audit"],
                    cache_notes=catalog.notes, gate=saved["plan"]["gate"],
@@ -229,22 +236,26 @@ def plot_results(output, saved):
     import matplotlib.pyplot as plt
     for state in saved["groups"].values():
         job = state["job"]
-        fig, axes = plt.subplots(2, 3, figsize=(14, 8), layout="constrained")
+        series = [(state["order_rows"], "order", saved["plan"]["order_plan"]["orders"])]
+        if not saved["plan"].get("orders_only", False):
+            series.insert(0, (state["layer_rows"], "slices", saved["plan"]["layer_plan"]["slices"]))
+        fig, axes = plt.subplots(len(series), 3, figsize=(14, 4 * len(series)),
+                                 squeeze=False, layout="constrained")
         fig.suptitle(f"{job['material']} / {job['structure']} | NV | {job['wavelength_nm']:g} nm\n"
                      f"P=200 nm, h=500 nm, Q={saved['plan']['order_plan']['grid']}; normal x polarization")
-        for i, (rows, axis, values) in enumerate((
-                (state["layer_rows"], "slices", saved["plan"]["layer_plan"]["slices"]),
-                (state["order_rows"], "order", saved["plan"]["order_plan"]["orders"]))):
+        fields = (("reflectance", "Reflectance R"), ("transmittance", "Transmittance T"),
+                  ("absorptance", "Total absorptance A")) if saved["plan"].get("orders_only", False) else (
+                  ("reflectance", "Reflectance R"), ("absorptance", "Total absorptance A"),
+                  ("transmittance", "Transmittance T"))
+        for i, (rows, axis, values) in enumerate(series):
             lookup = {int(r[axis]): r for r in rows}
-            for j, (name, label) in enumerate((("reflectance", "Reflectance R"),
-                                                ("absorptance", "Total absorptance A"),
-                                                ("transmittance", "Transmittance T"))):
+            for j, (name, label) in enumerate(fields):
                 ax = axes[i, j]
                 y = [100 * lookup[v][name] if v in lookup else float("nan") for v in values]
                 ax.plot(values, y, "o-")  # NaN breaks lines at missing/failed conditions.
                 ax.set(xlabel="Profile slices Nz" if axis == "slices" else "Fourier order M",
                        ylabel=label + " (%)", xticks=values)
-                ax.set_title(f"M={saved['plan']['order_plan']['orders'][-1]}" if i == 0 else
+                ax.set_title(f"M={saved['plan']['order_plan']['orders'][-1]}" if axis == "slices" else
                              f"Nz={job['slices']}; {state['order_status']}")
                 ax.ticklabel_format(axis="y", style="plain", useOffset=False)
                 ax.grid(alpha=.25)
@@ -279,7 +290,8 @@ def execute(plan, output, *, retry_failures=False, no_plots=False):
             state = dict(job=order_job, layer_rows=[], order_rows=[], comparisons=[],
                          layer_status="running", layer_gate_passed=False, order_status="pending")
             saved["groups"][key] = state
-            print(f"\n=== LAYER CHECK {key} ===", flush=True)
+            orders_only = plan.get("orders_only", False)
+            print(f"\n=== {'FIXED NZ ORDER SWEEP' if orders_only else 'LAYER CHECK'} {key} ===", flush=True)
             for job in plan["layer_plan"]["jobs"]:
                 if group_key(job) != key:
                     continue
@@ -289,19 +301,24 @@ def execute(plan, output, *, retry_failures=False, no_plots=False):
                     state.update(layer_status=report["status"], layer_failure=report.get("failure"))
                     print(f"CONTINUE other groups after {report['status']}; skip higher Nz and order sweep for {key}.", flush=True)
                     break
-            lookup = {(int(r["slices"]), int(r["order"]), float(r["wavelength_nm"])): r for r in state["layer_rows"]}
-            passed, comparisons = layer_gate(lookup, plan["layer_plan"]["slices"],
-                                              plan["order_plan"]["orders"][-1], order_job["wavelength_nm"],
-                                              plan["order_plan"]["tolerance"])
-            passed = passed and state["layer_status"] not in grid.FAILURE_STATUSES
-            state.update(layer_gate_passed=passed, comparisons=comparisons)
-            if state["layer_status"] == "running":
-                state["layer_status"] = "passed" if passed else "not_converged"
-            if not passed:
+            if orders_only:
+                passed = False
+                state["layer_status"] = "not_checked_orders_only"
+            else:
+                lookup = {(int(r["slices"]), int(r["order"]), float(r["wavelength_nm"])): r for r in state["layer_rows"]}
+                passed, comparisons = layer_gate(lookup, plan["layer_plan"]["slices"],
+                                                  plan["order_plan"]["orders"][-1], order_job["wavelength_nm"],
+                                                  plan["order_plan"]["tolerance"])
+                passed = passed and state["layer_status"] not in grid.FAILURE_STATUSES
+                state.update(layer_gate_passed=passed, comparisons=comparisons)
+                if state["layer_status"] == "running":
+                    state["layer_status"] = "passed" if passed else "not_converged"
+            if not passed and not orders_only:
                 state["order_status"] = "skipped_layer_gate"
                 print(f"SKIP order sweep: {key}; layer gate={state['layer_status']}.", flush=True)
             else:
-                print(f"PASS layer gate: {key}; sweep M={plan['order_plan']['orders']} at Nz={order_job['slices']}.", flush=True)
+                print(f"{'ORDERS ONLY' if orders_only else 'PASS layer gate'}: {key}; "
+                      f"sweep M={plan['order_plan']['orders']} at Nz={order_job['slices']}.", flush=True)
                 cached, report = run_job(order_job, output / "order_sweep" / order_job["relative_output"], catalog, retry_failures)
                 state.update(order_rows=list(cached["cases"].values()), order_status=report["status"],
                              order_failure=report.get("failure"))
@@ -330,6 +347,7 @@ def build_parser():
     p.add_argument("--cases", default="Au:700,Ag:550")
     p.add_argument("--structures", choices=("both", "metal", "pmma"), default="both")
     p.add_argument("--slices", default="180,210,240")
+    p.add_argument("--orders-only", action="store_true", help="Sweep orders at one fixed Nz, bypassing layer checks.")
     p.add_argument("--start-order", type=int, default=4)
     p.add_argument("--step", type=int, default=2)
     p.add_argument("--max-order", type=int, default=36, help="Layer checks also use this order.")
@@ -352,7 +370,7 @@ def main(argv=None):
         if args.dry_run:
             grid.nv.write_json(args.output_root.resolve() / "workflow_plan_preview.json", plan)
             print(f"Preflight: {len(plan['order_plan']['jobs'])} groups; Nz={plan['layer_plan']['slices']}; "
-                  f"check M={args.max_order}; conditional orders={plan['order_plan']['orders']}. No RCWA calculation.")
+                  f"orders-only={args.orders_only}; orders={plan['order_plan']['orders']}. No RCWA calculation.")
             return 0
         summary = execute(plan, args.output_root, retry_failures=args.retry_failures, no_plots=args.no_plots)
         errors = {"calculation_failed", "job_setup_failed"}
