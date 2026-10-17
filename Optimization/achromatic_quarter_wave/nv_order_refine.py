@@ -41,6 +41,25 @@ def verify_sources(expected):
     return canonical, serialized_differences
 
 
+def verified_reuse_directories(directories, identity):
+    """Reuse refinement caches only when their physical calculation agrees."""
+    verified = []
+    for directory in directories:
+        directory = directory.resolve()
+        path = directory / "refinement_metadata.json"
+        if not path.is_file():
+            raise ValueError(f"Reuse directory must contain refinement_metadata.json: {directory}")
+        metadata = json.loads(path.read_text(encoding="utf-8"))
+        previous = metadata["identity"]
+        for key in ("model", "shape", "grid", "layers", "device", "normalized_source_sha256"):
+            if previous.get(key) != identity[key]:
+                raise ValueError(f"Reuse calculation differs in {key}: {directory}")
+        if metadata.get("dtype") != "complex128":
+            raise ValueError(f"Reuse calculation must use complex128: {directory}")
+        verified.append((directory, previous["orders"], previous["wavelengths"]))
+    return verified
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--reference", type=Path, required=True)
@@ -53,6 +72,8 @@ def main():
     p.add_argument("--threads", type=int, default=1)
     p.add_argument("--phase-tol", type=float)
     p.add_argument("--power-tol", type=float)
+    p.add_argument("--reuse", type=Path, nargs="+", default=[],
+                   help="Reuse compatible earlier refinement outputs after checking their physical settings and source hashes")
     p.add_argument("--cache-only", action="store_true", help="Read cached results only; never initialize CUDA or solve RCWA")
     p.add_argument("--output", type=Path, required=True)
     args = p.parse_args()
@@ -81,6 +102,7 @@ def main():
                     phase_tol=phase_tol, power_tol=power_tol, energy_tol=a["energy_tol"],
                     normalized_source_sha256=canonical,
                     driver_sha256=hashlib.sha256(Path(__file__).read_bytes().replace(b"\r\n", b"\n")).hexdigest())
+    reuse = verified_reuse_directories(args.reuse, identity)
     out = args.output.resolve()
     if (out / "run_metadata.json").exists():
         raise ValueError("Use a separate refinement output directory; keep the reference experiment unchanged.")
@@ -89,6 +111,7 @@ def main():
     if path.exists() and json.loads(path.read_text(encoding="utf-8"))["identity"] != identity:
         raise ValueError("Refinement settings or physics sources changed; choose a new --output.")
     save_json(path, dict(identity=identity, reference_directory=str(reference),
+                         reuse_directories=[str(directory) for directory, _, _ in reuse],
                          reference_files_differing_only_by_newlines=eol_changes,
                          dtype="complex128", scope="Order convergence at fixed Q and fixed z slices"))
     torch.set_num_threads(args.threads)
@@ -97,10 +120,15 @@ def main():
         for w in args.wavelengths:
             key = f"{args.shape}_M{m}_Q{args.grid}_Z{args.layers}_w{w:g}"
             own, previous = out / "cache" / (key + ".json"), reference / "cache" / (key + ".json")
-            if own.exists() or previous.exists():
-                source = own if own.exists() else previous
+            candidates = [(own, "output_cache"), (previous, "reference_cache")]
+            candidates.extend((directory / "cache" / (key + ".json"), "refinement_cache")
+                              for directory, orders, wavelengths in reuse
+                              if m in orders and w in wavelengths)
+            cached = next(((path, label) for path, label in candidates if path.is_file()), None)
+            if cached is not None:
+                source, origin = cached
                 result = json.loads(source.read_text(encoding="utf-8"))
-                origin, elapsed = ("output_cache" if own.exists() else "reference_cache"), 0.
+                elapsed = 0.
                 reused += 1
             else:
                 if args.cache_only:
@@ -116,12 +144,13 @@ def main():
                 elapsed = time.perf_counter() - start
                 result["seconds"] = elapsed
                 save_json(own, result)
+                source = own
                 origin = "computed"
                 computed += 1
             if abs(result["wavelength_nm"] - w) > 1e-9:
                 raise ValueError(f"Cached wavelength disagrees with filename: {key}")
             rows.append(dict(shape=args.shape, order=m, grid=args.grid, layers=args.layers,
-                             origin=origin, new_calculation_seconds=elapsed, **result))
+                             origin=origin, cache_source=str(source), new_calculation_seconds=elapsed, **result))
             save_csv(out / "order_spectra.csv", rows)
             print(key, origin, f"{elapsed:.2f} s", flush=True)
     comparisons = []

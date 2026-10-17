@@ -86,3 +86,36 @@ python Optimization/achromatic_quarter_wave/nv_order_refine.py --reference Optim
 - CUDAでのM=13新規計算はこの環境では未実行。実行環境はCPUのみ。
 
 ZIPは作成していない。
+
+## 2026-10-18：M11→13の追加結果と次の比較
+
+以下はユーザーが提示したCUDA実行結果の記録。M13のキャッシュ本体はこのローカル環境にはまだない。
+
+| 断面・波長 | M11の位相差 | M13の位相差 | 位相差の変化 | 各偏光の透過位相の最大変化 | パワーの最大変化 |
+|---|---:|---:|---:|---:|---:|
+| 長方形550 nm | 119.975304° | 119.512206° | 0.463098° | 0.396880° | 0.078934ポイント |
+| 長方形700 nm | 95.032748° | 94.663837° | 0.368911° | 0.331161° | 0.026646ポイント |
+| 楕円400 nm | −170.342027° | −170.333016° | 0.009011° | 0.154072° | 0.235339ポイント |
+
+楕円400 nmは偏光間の位相差だけなら0.1°の基準内だが、各偏光の透過位相とパワー変化は基準外。
+ほぼ共通する透過位相の変化が位相差では相殺されていると解釈できる。
+この一対での位相差の一致は絶対誤差が0.009°という保証にはならず、低反射・偏光変換特性を含む収束完了とはしない。
+また、約−170°は代表形状の応答であり、90°を狙った最適化結果ではない。
+
+次は同じQ=1024・30層で、長方形550/700 nm、楕円400 nmのM13→15を比較する。
+`nv_order_refine.py`に`--reuse`を追加した。過去の次数追加実験について材料、形状、Q、層数、デバイス、
+NVソースのハッシュと精度を照合してからキャッシュを再利用する。
+NVの演算や既定の収束基準は変更していない。更新版を計算環境へ反映後、リポジトリのルートで実行：
+
+```bash
+python Optimization/achromatic_quarter_wave/nv_order_refine.py --reference Optimization/achromatic_quarter_wave/results/nv_convergence_M7_9_11_Q512_1024_cuda_run01 --reuse Optimization/achromatic_quarter_wave/results/nv_rectangle_M11_13_focus --shape rectangle --orders 13 15 --grid 1024 --layers 30 --wavelengths 550 700 --device cuda --output Optimization/achromatic_quarter_wave/results/nv_rectangle_M13_15_focus
+```
+
+```bash
+python Optimization/achromatic_quarter_wave/nv_order_refine.py --reference Optimization/achromatic_quarter_wave/results/nv_convergence_M7_9_11_Q512_1024_cuda_run01 --reuse Optimization/achromatic_quarter_wave/results/nv_ellipse_M11_13_focus --shape ellipse --orders 13 15 --grid 1024 --layers 30 --wavelengths 400 --device cuda --output Optimization/achromatic_quarter_wave/results/nv_ellipse_M13_15_focus
+```
+
+M13は`refinement_cache`となり、新規計算はM15の3点だけ。
+引数・ドライバーが変わるので、M11→13の出力フォルダはそのまま保存し、新しい出力先を使う。
+この3点を通過しても、残りの波長、最終次数でのQ/z、最適化後の形状、400–700 nmの波長走査は別途確認する。
+不規則な次数依存性や停滞が続く場合は、法線場の拡張や別方式との照合に戻る。
