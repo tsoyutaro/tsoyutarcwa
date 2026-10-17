@@ -1,0 +1,78 @@
+{
+  "arguments": {
+    "mode": "converge",
+    "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/achromatic_quarter_wave/results/nv_convergence_M5_7_9_cuda_run01",
+    "device": "cuda",
+    "threads": 1,
+    "index": 2.5,
+    "substrate_index": 1.5,
+    "period": 200.0,
+    "height": 500.0,
+    "orders": [
+      5,
+      7,
+      9
+    ],
+    "grids": [
+      256,
+      512
+    ],
+    "layers": [
+      30,
+      60
+    ],
+    "wavelengths": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "shapes": [
+      "rectangle",
+      "ellipse"
+    ],
+    "x_knots": [
+      90.5,
+      92.3,
+      94.1
+    ],
+    "y_knots": [
+      48.2,
+      50.0,
+      51.8
+    ],
+    "radii": [
+      30.0,
+      70.0
+    ],
+    "circle_knots": [
+      10.0,
+      50.0,
+      90.0
+    ],
+    "phase_tol": 0.1,
+    "power_tol": 0.001,
+    "energy_tol": 1e-07,
+    "equality_tol": 1e-08,
+    "equality_phase_tol": 1e-06,
+    "operator_tol": 1e-09,
+    "require_convergence": false
+  },
+  "source_sha256": {
+    "Optimization/achromatic_quarter_wave/nv_convergence.py": "3f32d154cd7ae8ad10b05e65f69fa17ea7c2ffbc097aa86d41e3f71ebc90efd2",
+    "Optimization/achromatic_quarter_wave/nv_shapes.py": "9989913516c0be43475de8806d5d9cdf8a6ea723c407d691fcc77f8ce21548d5",
+    "Optimization/achromatic_quarter_wave/model.py": "d86d74ed3ae5a051108396887b2f74fc55d23d2e94875f7c77091092c6a0f9a1",
+    "Optimization/achromatic_quarter_wave/geometry.py": "acb5ba783af100479b58ac7ca880c73d41ed5cc69467707f6ea7f6ffc3d91328",
+    "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+    "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+    "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+    "rcwa_ext/auto.py": "a1ee2421cd89eabe21eb365c7131f509009f746cf0e671302094b00262430727",
+    "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+    "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+    "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+    "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+    "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+    "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956"
+  },
+  "materials": "real constant n, air inclusion background, mu=1",
+  "nv": "analytic epsilon and inverse-epsilon; symmetric NV factorization; no Lanczos; no group reduction"
+}
