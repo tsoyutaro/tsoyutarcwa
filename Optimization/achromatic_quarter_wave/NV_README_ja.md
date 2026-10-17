@@ -3,6 +3,7 @@
 周期200 nm、高さ500 nm、構造n=2.5、基板n=1.5、空気から垂直入射を既定値とする。
 **NV法の確認には `nv_convergence.py` を使用する。長方形・楕円・比較用の円をすべてNV法で計算する。**
 実行済みの結果と未収束の項目は[NV_RESULTS_ja.md](NV_RESULTS_ja.md)に記録した。
+更新されたCUDA結果の波長別評価と、M=11→13だけを追加する手順は[NV_NEXT_STEPS_ja.md](NV_NEXT_STEPS_ja.md)を参照。
 
 この環境のコード一式のルートは次の場所：
 
