@@ -1,0 +1,73 @@
+{
+  "checks": [
+    {
+      "name": "monotone_geometry",
+      "passed": true,
+      "detail": "Softmax round trip, bounds and both monotone axes"
+    },
+    {
+      "name": "ellipse_air_to_glass_fresnel",
+      "passed": true,
+      "detail": {
+        "Tx00": 0.9599999999999993,
+        "Rx_total": 0.039999999999999945,
+        "retardance_deg": 0.0
+      }
+    },
+    {
+      "name": "ellipse_equal_axes_zero_retardance",
+      "passed": true,
+      "detail": {
+        "phase_deg": -7.787444370235904e-13,
+        "cross_power": 2.90294369004143e-27
+      }
+    },
+    {
+      "name": "ellipse_axis_swap_and_power",
+      "passed": true,
+      "detail": {
+        "phase_a": 86.55516845554368,
+        "phase_b": -86.55516845554843,
+        "stokes3": 0.998189566588311,
+        "energy_error": 8.104628079763643e-15
+      }
+    },
+    {
+      "name": "rectangle_air_to_glass_fresnel",
+      "passed": true,
+      "detail": {
+        "Tx00": 0.9599999999999993,
+        "Rx_total": 0.039999999999999945,
+        "retardance_deg": 0.0
+      }
+    },
+    {
+      "name": "rectangle_equal_axes_zero_retardance",
+      "passed": true,
+      "detail": {
+        "phase_deg": -0.002262840928831604,
+        "cross_power": 1.7233032016420616e-27
+      }
+    },
+    {
+      "name": "rectangle_axis_swap_and_power",
+      "passed": true,
+      "detail": {
+        "phase_a": 103.57937371433779,
+        "phase_b": -103.59659143830284,
+        "stokes3": 0.972045544762502,
+        "energy_error": 1.2878587085651816e-14
+      }
+    },
+    {
+      "name": "propagating_diffraction_is_counted",
+      "passed": true,
+      "detail": {
+        "T00": 0.8125228373251442,
+        "T_total": 0.9435164990876912,
+        "energy_error": 3.9968028886505635e-15
+      }
+    }
+  ],
+  "passed": true
+}

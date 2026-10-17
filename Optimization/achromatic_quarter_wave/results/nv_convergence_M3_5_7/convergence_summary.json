@@ -1,0 +1,118 @@
+{
+  "within_requested_tolerances": false,
+  "comparisons": [
+    {
+      "shape": "rectangle",
+      "series": "orders",
+      "status": "needs_refinement",
+      "passed": false,
+      "compared_levels": [
+        5,
+        7
+      ],
+      "max_retardance_change_deg": 1.21724816038666,
+      "max_transmission_phase_change_deg": 0.9545885207820254,
+      "max_power_change": 0.0025528459176901164,
+      "max_energy_error": 1.2656542480726785e-13
+    },
+    {
+      "shape": "rectangle",
+      "series": "grids",
+      "status": "needs_refinement",
+      "passed": false,
+      "compared_levels": [
+        128,
+        256
+      ],
+      "max_retardance_change_deg": 0.8121532637275806,
+      "max_transmission_phase_change_deg": 0.7660132676125269,
+      "max_power_change": 0.0017936260780792024,
+      "max_energy_error": 1.2656542480726785e-13
+    },
+    {
+      "shape": "rectangle",
+      "series": "layers",
+      "status": "within_tolerance",
+      "passed": true,
+      "compared_levels": [
+        15,
+        30
+      ],
+      "max_retardance_change_deg": 0.005366440276063145,
+      "max_transmission_phase_change_deg": 0.0035204678529773006,
+      "max_power_change": 7.380573141470281e-05,
+      "max_energy_error": 8.970602038971265e-14
+    },
+    {
+      "shape": "rectangle",
+      "series": "orders_at_final_grid_layers",
+      "status": "needs_refinement",
+      "passed": false,
+      "compared_levels": [
+        5,
+        7
+      ],
+      "max_retardance_change_deg": 1.4336033284228193,
+      "max_transmission_phase_change_deg": 1.1478604398470273,
+      "max_power_change": 0.0030556536842742954,
+      "max_energy_error": 2.7644553313166398e-14
+    },
+    {
+      "shape": "ellipse",
+      "series": "orders",
+      "status": "needs_refinement",
+      "passed": false,
+      "compared_levels": [
+        5,
+        7
+      ],
+      "max_retardance_change_deg": 2.207364773305926,
+      "max_transmission_phase_change_deg": 1.558931480212188,
+      "max_power_change": 0.004505917831501227,
+      "max_energy_error": 4.82058837292243e-13
+    },
+    {
+      "shape": "ellipse",
+      "series": "grids",
+      "status": "needs_refinement",
+      "passed": false,
+      "compared_levels": [
+        128,
+        256
+      ],
+      "max_retardance_change_deg": 1.6166565791471896,
+      "max_transmission_phase_change_deg": 1.634782004779542,
+      "max_power_change": 0.012296375613222388,
+      "max_energy_error": 3.75921516138078e-13
+    },
+    {
+      "shape": "ellipse",
+      "series": "layers",
+      "status": "needs_refinement",
+      "passed": false,
+      "compared_levels": [
+        15,
+        30
+      ],
+      "max_retardance_change_deg": 0.1361588959910307,
+      "max_transmission_phase_change_deg": 0.13891132449520316,
+      "max_power_change": 0.000964255680808157,
+      "max_energy_error": 3.75921516138078e-13
+    },
+    {
+      "shape": "ellipse",
+      "series": "orders_at_final_grid_layers",
+      "status": "needs_refinement",
+      "passed": false,
+      "compared_levels": [
+        5,
+        7
+      ],
+      "max_retardance_change_deg": 3.1938810329350815,
+      "max_transmission_phase_change_deg": 2.4927416860844005,
+      "max_power_change": 0.011456928158579682,
+      "max_energy_error": 3.5083047578154947e-13
+    }
+  ],
+  "note": "Last-pair numerical convergence indicators at sampled wavelengths; not a proof over the continuous band."
+}

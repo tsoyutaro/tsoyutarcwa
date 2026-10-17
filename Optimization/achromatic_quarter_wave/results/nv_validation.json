@@ -1,0 +1,67 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "boundary_normals",
+      "passed": true,
+      "details": "Normals are perpendicular to ellipse tangent and parallel to rectangle face normals."
+    },
+    {
+      "name": "rectangle_fresnel",
+      "passed": true,
+      "details": {
+        "Tx00": 0.9599999999999995,
+        "Rx_total": 0.03999999999999997,
+        "energy_error": 4.440892098500626e-16
+      }
+    },
+    {
+      "name": "rectangle_equal_axes",
+      "passed": true,
+      "details": {
+        "phase_deg": 1.1067990602410834e-12,
+        "energy_error": 3.9968028886505635e-15
+      }
+    },
+    {
+      "name": "rectangle_axis_swap",
+      "passed": true,
+      "details": {
+        "phase_deg": 116.21313511638657,
+        "swapped_phase_deg": -116.21313511639075,
+        "energy_error": 3.1086244689504383e-15
+      }
+    },
+    {
+      "name": "ellipse_fresnel",
+      "passed": true,
+      "details": {
+        "Tx00": 0.9599999999999995,
+        "Rx_total": 0.03999999999999997,
+        "energy_error": 4.440892098500626e-16
+      }
+    },
+    {
+      "name": "ellipse_equal_axes",
+      "passed": true,
+      "details": {
+        "phase_deg": -1.207108482784824e-14,
+        "energy_error": 4.440892098500626e-15
+      }
+    },
+    {
+      "name": "ellipse_axis_swap",
+      "passed": true,
+      "details": {
+        "phase_deg": 88.04285354331098,
+        "swapped_phase_deg": -88.04285354330808,
+        "energy_error": 5.773159728050814e-15
+      }
+    },
+    {
+      "name": "constant_slab_splitting",
+      "passed": true,
+      "details": "Splitting an unchanged slab into 5 identical layers preserves transmission and retardance."
+    }
+  ]
+}
