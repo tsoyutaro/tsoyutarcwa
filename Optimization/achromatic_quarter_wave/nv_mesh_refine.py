@@ -1,7 +1,8 @@
 """Fixed-order NV grid/layer checks, reusing verified existing calculations.
 
 Vary Q at the smallest requested layer count, then vary the layer count at
-the largest requested Q. The numerical NV implementation is unchanged.
+the largest requested Q. Uses the original NV factors and modal/S solver.
+Optionally hold normal-field regularization fixed while varying its sampling.
 """
 from __future__ import annotations
 
@@ -37,15 +38,23 @@ def reuse_sources(directories, identity):
                 raise ValueError(f"Reuse calculation differs in {key}: {directory}")
         if metadata.get("dtype") != "complex128":
             raise ValueError(f"Reuse calculation must use complex128: {directory}")
+        if previous.get("normal_reference_grid") is not None:
+            for key in ("normal_reference_grid", "fixed_normal_sha256"):
+                if previous.get(key) != identity.get(key):
+                    raise ValueError(f"Reuse calculation differs in {key}: {directory}")
         sources.append((directory, previous))
     return sources
 
 
-def covers(settings, order, grid, layers, wavelength):
+def covers(settings, order, grid, layers, wavelength, normal_reference_grid=None):
     """Require the key to be covered by the source's declared settings."""
     grids = settings.get("grids", [settings.get("grid")])
     zlevels = settings.get("layer_counts", [settings.get("layers")])
-    return (order in settings["orders"] and grid in grids and layers in zlevels
+    # Legacy results agree with the fixed field only at its reference grid.
+    normal_matches = (normal_reference_grid is None
+                      or settings.get("normal_reference_grid") == normal_reference_grid
+                      or (settings.get("normal_reference_grid") is None and grid == normal_reference_grid))
+    return (normal_matches and order in settings["orders"] and grid in grids and layers in zlevels
             and wavelength in settings["wavelengths"])
 
 
@@ -60,6 +69,8 @@ def main():
     p.add_argument("--wavelengths", type=float, nargs="+", required=True)
     p.add_argument("--device", choices=("cpu", "cuda"))
     p.add_argument("--threads", type=int, default=1)
+    p.add_argument("--normal-reference-grid", type=int,
+                   help="Fix normal-field regularization to the legacy widths at this Q; vary only its sampling")
     p.add_argument("--cache-only", action="store_true")
     p.add_argument("--output", type=Path, required=True)
     args = p.parse_args()
@@ -70,6 +81,8 @@ def main():
         setattr(args, name, sorted(values))
     if min(args.order, args.threads) < 1 or max(len(args.grids), len(args.layers)) < 2:
         p.error("Require positive order/threads and at least two grid or layer levels.")
+    if args.normal_reference_grid is not None and args.normal_reference_grid < 1:
+        p.error("--normal-reference-grid must be positive.")
     reference = args.reference.resolve()
     meta = json.loads((reference / "run_metadata.json").read_text(encoding="utf-8"))
     a = meta["arguments"]
@@ -85,8 +98,12 @@ def main():
         wavelengths=args.wavelengths, device=device,
         phase_tol=a["phase_tol"], power_tol=a["power_tol"], energy_tol=a["energy_tol"],
         normalized_source_sha256=canonical,
+        normal_reference_grid=args.normal_reference_grid,
         driver_sha256=hashlib.sha256(Path(__file__).read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
     )
+    if args.normal_reference_grid is not None:
+        fixed_source = Path(__file__).with_name("nv_fixed_normal.py")
+        identity["fixed_normal_sha256"] = hashlib.sha256(fixed_source.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     extra = reuse_sources(args.reuse, identity)
     out = args.output.resolve()
     if (out / "run_metadata.json").exists():
@@ -112,7 +129,7 @@ def main():
             key = f"{args.shape}_M{args.order}_Q{grid}_Z{layers}_w{w:g}"
             cached = next(((d / "cache" / (key + ".json"), origin)
                            for d, settings, origin in sources
-                           if covers(settings, args.order, grid, layers, w)
+                           if covers(settings, args.order, grid, layers, w, args.normal_reference_grid)
                            and (d / "cache" / (key + ".json")).is_file()), None)
             if cached is not None:
                 source, origin = cached
@@ -126,7 +143,12 @@ def main():
                              n_substrate=a["substrate_index"], device=device,
                              order=args.order, grid=grid, layers=layers)
                 start = time.perf_counter()
-                simulation, result = simulate_nv([a["x_knots"], a["y_knots"]], args.shape, a["index"], w, cfg)
+                if args.normal_reference_grid is None:
+                    simulation, result = simulate_nv([a["x_knots"], a["y_knots"]], args.shape, a["index"], w, cfg)
+                else:
+                    from Optimization.achromatic_quarter_wave.nv_fixed_normal import simulate_fixed_nv
+                    simulation, result = simulate_fixed_nv([a["x_knots"], a["y_knots"]], args.shape,
+                                                           a["index"], w, cfg, args.normal_reference_grid)
                 del simulation
                 elapsed = time.perf_counter() - start
                 result["seconds"] = elapsed
@@ -162,12 +184,39 @@ def main():
                                     status="within_tolerance" if passed else "needs_refinement",
                                     passed=passed, **diff, energy_error=energy,
                                     retardance_from_deg=first["retardance_deg"], retardance_to_deg=last["retardance_deg"]))
+    width_comparisons = []
+    if args.normal_reference_grid is not None:
+        for row in rows:
+            if row["grid"] == args.normal_reference_grid:
+                continue
+            key = f"{args.shape}_M{args.order}_Q{row['grid']}_Z{row['layers']}_w{row['wavelength_nm']:g}"
+            previous = next((d / "cache" / (key + ".json")
+                             for d, settings, _ in sources
+                             if settings.get("normal_reference_grid") is None
+                             and covers(settings, args.order, row["grid"], row["layers"], row["wavelength_nm"])
+                             and (d / "cache" / (key + ".json")).is_file()), None)
+            if previous is None:
+                continue
+            legacy = json.loads(previous.read_text(encoding="utf-8"))
+            if abs(legacy["wavelength_nm"] - row["wavelength_nm"]) > 1e-9:
+                raise ValueError(f"Cached wavelength disagrees with filename: {key}")
+            width_comparisons.append(dict(
+                wavelength_nm=row["wavelength_nm"], grid=row["grid"], layers=row["layers"],
+                fixed_width_reference_grid=args.normal_reference_grid,
+                legacy_width_reference_grid=row["grid"],
+                retardance_fixed_width_deg=row["retardance_deg"],
+                retardance_legacy_width_deg=legacy["retardance_deg"],
+                legacy_cache_source=str(previous), **differences(row, legacy)))
     summary = dict(requested_mesh_checks_within_tolerances=all(r["passed"] for r in comparisons),
                    fixed_order=args.order, assessed_axes=sorted({r["axis"] for r in comparisons}),
+                   normal_reference_grid=args.normal_reference_grid,
                    reused_results=reused, new_calculations=computed, comparisons=comparisons,
+                   normal_width_comparisons=width_comparisons,
                    note="Only requested grid/layer last-pair changes are assessed; order and continuous-band accuracy are not certified.")
     save_csv(out / "mesh_comparisons.csv", comparisons)
     save_json(out / "mesh_summary.json", summary)
+    if width_comparisons:
+        save_csv(out / "normal_width_comparisons.csv", width_comparisons)
     print(json.dumps(summary, indent=2), flush=True)
 
 

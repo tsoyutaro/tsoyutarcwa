@@ -152,3 +152,48 @@ python Optimization/achromatic_quarter_wave/nv_mesh_refine.py --reference Optimi
 同じコマンドで再開でき、`--cache-only`を追加すると不足点の計算を禁止して保存結果だけを確認できる。
 格子依存性が基準内なら次に層数を確認し、その後必要に応じて楕円400 nmだけM17を追加する。
 格子依存性が残る場合は法線場の離散化・平滑化を先に確認する。
+
+## Q1024→2048の結果：法線場の平滑化幅を固定した診断
+
+ユーザー提示の楕円400 nm・M15・30層のCUDA結果では、Q1024→2048で次の変化が残った。
+
+- 位相差：−170.048546775°→−169.922095333°、差0.126451442°。
+- 各偏光の透過位相：最大0.125148304°。
+- パワー：最大0.00104199837（0.104199837ポイント）。
+
+いずれも現在の基準をわずかに超える。ここで層数やMだけを追加する前に、法線場の格子と平滑化幅を分離する。
+既存コードは端部平滑化に使う距離差の幅パラメータを`3 * max(Lx/Q, Ly/Q)`としている。
+周期200 nmではQ1024で0.5859375 nm、Q2048で0.29296875 nmとなり、同じ連続法線場を細かく標本化した比較ではなかった。
+これは法線場の正則化パラメータであり、実際の柱形状や誘電率の解析Fourier係数は変化していない。
+このコード上の事実だけで、観測された0.126°の主因が平滑化幅と断定はしない。
+
+既存の`nv_shapes.py`や`rcwa_ext`を変更せず、診断用の`nv_fixed_normal.py`を追加した。
+`nv_mesh_refine.py`の新しい`--normal-reference-grid`オプションで、
+端部・中心の平滑化パラメータを指定した参照Qで固定し、実際のサンプリングQだけを変える。
+実際のQが参照Qと同じなら元の法線射影場と一致する。
+過去の結果はその一致するQだけ再利用し、Q2048の旧平滑化幅の結果を新しい固定幅の結果として再利用しない。
+固定幅のキャッシュには追加モジュールのSHA256と参照Qを記録する。
+
+サーバーには次の2ファイルを反映する。自動転送は行っていない。
+
+1. 更新した`Optimization/achromatic_quarter_wave/nv_mesh_refine.py`
+2. 新規の`Optimization/achromatic_quarter_wave/nv_fixed_normal.py`
+
+```bash
+python Optimization/achromatic_quarter_wave/nv_mesh_refine.py --reference Optimization/achromatic_quarter_wave/results/nv_convergence_M7_9_11_Q512_1024_cuda_run01 --reuse Optimization/achromatic_quarter_wave/results/nv_ellipse_M13_15_focus Optimization/achromatic_quarter_wave/results/nv_ellipse_M15_Q1024_2048_Z30 --shape ellipse --order 15 --grids 1024 2048 --layers 30 --wavelengths 400 --normal-reference-grid 1024 --device cuda --output Optimization/achromatic_quarter_wave/results/nv_ellipse_M15_fixednormal_Qref1024_Q1024_2048_Z30
+```
+
+新規計算はQ2048で平滑化幅をQ1024相当に固定した1点だけ。
+出力`mesh_summary.json`の`comparisons`は同じ法線場でのQ1024→2048の比較。
+追加の`normal_width_comparisons`はQ2048同士で平滑化幅だけを変えた比較で、
+有限次数における法線場拡張への感度を示す。こちらはメッシュ収束の合否には混ぜない。
+両者の**符号付き**の差を合わせると元の比較となるが、出力する絶対差を単純に足すことはできない。
+固定幅での格子依存性が小さければ、その法線場でのM収束と層数確認へ進む。
+固定幅でも格子依存性が残れば、法線射影場のFourier積分・サンプリングを先に確認する。
+
+CPUで次を確認済み：参照Qでの長方形・楕円のP/Q行列と散乱応答の一致、精細化した固定幅法線場での
+Fresnel極限・軸交換対称性・エネルギー保存、旧キャッシュの誤混用防止、保存済み計算からの再開。
+M15・半径92.3/50 nmの代表断面では、法線射影行列のQ1024→2048の最大成分差が、
+旧方式の5.67693e-4から固定幅方式の1.34513e-5へ約1/42に減少した。
+これは1断面の射影行列の比較であり、透過位相の誤差が同じ割合で減ることや、
+CUDAでのM15の散乱応答の収束を保証するものではない。新しいM15・Q2048の透過応答は未計算。

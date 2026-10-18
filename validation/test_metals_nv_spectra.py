@@ -143,6 +143,64 @@ class SpectrumTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"Saved batch settings/source changed"):
             self.run_batch()
 
+    def test_removing_a_material_reuses_results_and_keeps_excluded_files(self):
+        self.run_batch()
+        before=list(self.attempts)
+        excluded=self.output/"metal/al/checkpoint.json"
+        excluded_bytes=excluded.read_bytes()
+        self.plan=deepcopy(self.plan)
+        self.plan["orders"]={"Cr":1}
+        self.plan["jobs"]=[j for j in self.plan["jobs"] if j["material"]=="Cr"]
+        _,summary=self.run_batch()
+        self.assertEqual(self.attempts,before)
+        self.assertEqual(summary["completed_cases"],6)
+        self.assertEqual(summary["requested_spectra"],2)
+        self.assertEqual(excluded.read_bytes(),excluded_bytes)
+        history=list((self.output/"batch_plan_history").glob("*.json"))
+        self.assertEqual(len(history),1)
+        self.assertIn("Al",spectra.read_json(history[0])["plan"]["orders"])
+
+    def test_adding_a_material_runs_only_the_new_material(self):
+        self.run_batch()
+        before=len(self.attempts)
+        args=spectra.build_parser().parse_args(["--device","cpu","--orders","Cr:1,Al:1,Fe:1",
+            "--wavelengths","400:410:5","--slices","2","--grid","32"])
+        self.plan=spectra.build_plan(args)
+        _,summary=self.run_batch()
+        self.assertEqual(len(self.attempts)-before,6)
+        self.assertTrue(all(m=="Fe" for m,_,_ in self.attempts[before:]))
+        self.assertEqual(summary["completed_cases"],18)
+
+    def test_changed_driver_only_reuses_unchanged_solver_results(self):
+        self.run_batch()
+        before=list(self.attempts)
+        self.plan=deepcopy(self.plan)
+        self.plan["driver_sha256"]="updated-orchestration-only"
+        _,summary=self.run_batch()
+        self.assertEqual(self.attempts,before)
+        self.assertEqual(summary["completed_cases"],12)
+
+    def test_changed_order_rejected_before_any_worker_or_batch_update(self):
+        self.run_batch()
+        before=list(self.attempts)
+        batch_bytes=(self.output/"batch_plan.json").read_bytes()
+        args=spectra.build_parser().parse_args(["--device","cpu","--orders","Cr:2,Al:1",
+            "--wavelengths","400:410:5","--slices","2","--grid","32"])
+        self.plan=spectra.build_plan(args)
+        with self.assertRaisesRegex(ValueError,"Saved settings/source differ"):
+            self.run_batch()
+        self.assertEqual(self.attempts,before)
+        self.assertEqual((self.output/"batch_plan.json").read_bytes(),batch_bytes)
+
+    def test_changed_solver_source_still_rejected(self):
+        self.run_batch()
+        before=list(self.attempts)
+        self.plan=deepcopy(self.plan)
+        self.plan["jobs"][0]["plan"]["identity"]["source_sha256"]["solver_changed.py"]="different"
+        with self.assertRaisesRegex(ValueError,"Saved settings/source differ"):
+            self.run_batch()
+        self.assertEqual(self.attempts,before)
+
     def test_invalid_wavelength_range_is_rejected(self):
         for value in ("400:700:7","400:700:0","400,400,700","nan,700"):
             with self.assertRaises(ValueError):

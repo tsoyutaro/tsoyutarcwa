@@ -181,10 +181,22 @@ def execute(plan,output):
     output=Path(output).resolve()
     signature=nv.identity_signature(plan)
     batch_path=output/"batch_plan.json"
-    if batch_path.exists() and read_json(batch_path)["signature"]!=signature:
-        raise ValueError("Saved batch settings/source changed; use a new --output-root.")
+    previous=read_json(batch_path) if batch_path.exists() else None
+    if previous and previous["signature"]!=signature:
+        # Materials/structures are scheduling choices. Validate shared batch
+        # conditions here, then every requested checkpoint's complete solver /
+        # material / order identity below before modifying any existing file.
+        fixed=("version","method","slices","grid","wavelengths_nm","means")
+        changed=[name for name in fixed if previous["plan"].get(name)!=plan.get(name)]
+        if changed:
+            raise ValueError("Saved batch settings/source changed "
+                             f"({', '.join(changed)}); use a new --output-root.")
     # Validate all cached results before modifying the batch or launching a worker.
     states={job["key"]:load_state(job,output,plan["wavelengths_nm"]) for job in plan["jobs"]}
+    if previous and previous["signature"]!=signature:
+        nv.write_json(output/"batch_plan_history"/f"plan_{uuid.uuid4().hex}.json",previous)
+        print("Batch selection updated; compatible saved wavelengths are reused. "
+              "Unrequested material/structure folders are retained.",flush=True)
     nv.write_json(batch_path,dict(signature=signature,plan=plan))
     export_batch(plan,states,output,"running")
     try:
