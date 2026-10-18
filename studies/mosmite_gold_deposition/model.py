@@ -1,6 +1,7 @@
 """Au-coated finite MOSMITE stack shared by evaporation and sputter entries."""
 from __future__ import annotations
 import argparse
+import gc
 import hashlib
 import json
 import math
@@ -10,6 +11,7 @@ import time
 import numpy as np
 
 from geometry import build_layers, cap_count, material_codes, nearest_radius, side_thickness, write_geometry
+from memory import POLICY, PARITY_TOL, compare_reference, memory_safe_class, tensor_storage_bytes
 from stack import finite_sample, load_nk, save_csv, silica_n, wavelengths
 
 HERE = Path(__file__).resolve().parent
@@ -47,6 +49,10 @@ def parser(mode):
         p.add_argument('--'+region+'-gold-csv', type=Path, help='Optional region-specific n,k; otherwise use --gold-csv.')
     p.add_argument('--order', type=int, default=7)
     p.add_argument('--grid', type=int, default=512)
+    p.add_argument('--layer-storage', choices=['full', 'reduced'], default='full',
+                   help='Reduced: release unused layer arrays and stream all four S blocks; no change to precision or physics.')
+    p.add_argument('--reference-dir', type=Path,
+                   help='Optional completed original run at identical conditions; require R/T/A and polarization parity within 1e-8.')
     p.add_argument('--basis', choices=['auto', 'full'], default='auto',
                    help='Auto: D6 source only if all layers are eligible; otherwise full rectangular harmonics.')
     p.add_argument('--coherence', choices=['phase-average', 'coherent'], default='phase-average')
@@ -118,7 +124,9 @@ def surface_rcwa(args, wl, indices, *, order=None, slices=None, grid=None, sourc
     layers = build_layers(args, nz)
     coalesced = sum(a.kind.startswith('coalesced') for a in layers)
     reduced = args.basis == 'auto' and coalesced == 0
-    sim = AutoRCWA(freq=args.period_nm/wl, order=[m, m], lattice=Lattice.triangular(1.),
+    storage = getattr(args, 'layer_storage', 'full')
+    solver_class = memory_safe_class(AutoRCWA) if storage == 'reduced' else AutoRCWA
+    sim = solver_class(freq=args.period_nm/wl, order=[m, m], lattice=Lattice.triangular(1.),
         cascade='redheffer', outputs=OutputSpec(smatrix_size='full', fields='none'),
         nvm=NVMOptions(grid=(ng, ng)),
         group_theory=GroupTheoryOptions(enabled=True, strict=True, symmetry='d6',
@@ -148,10 +156,15 @@ def surface_rcwa(args, wl, indices, *, order=None, slices=None, grid=None, sourc
                 inclusion = eps_gold if layer.kind == 'cap' else eps_resin
                 sim.add_structured_layer(LayerSpec(thickness, Circle(radius=radius/args.period_nm),
                     background=Material(bg), inclusion=Material(inclusion), method='nvm'))
+            if storage == 'reduced':
+                sim.release_completed_layer()
         if args.residual_um > 0:
             sim.add_structured_layer(LayerSpec(args.residual_um*1000/args.period_nm,
                 Circle(radius=.25), background=Material(indices['resin']**2),
                 inclusion=Material(indices['resin']**2), method='nvm'))
+            if storage == 'reduced':
+                sim.release_completed_layer()
+        retained_before_solve = tensor_storage_bytes(vars(sim))
         sim.solve_global_smatrix()
         zx = int(torch.nonzero(sim.order_x == 0)[0, 0])
         zy = int(torch.nonzero(sim.order_y == 0)[0, 0])
@@ -169,11 +182,21 @@ def surface_rcwa(args, wl, indices, *, order=None, slices=None, grid=None, sourc
         'harmonics': 1+3*m*(m+1) if reduced else (2*m+1)**2,
         'core_layers': nz, 'cap_layers': cap_count(args, nz),
         'total_pattern_layers': len(layers), 'coalesced_raster_layers': coalesced,
+        'layer_storage': storage,
+        'storage_policy': POLICY if storage == 'reduced' else 'original-full-storage',
+        'retained_before_solve_bytes': retained_before_solve,
+        'post_layer_retained_tensor_peak_bytes': getattr(sim, 'post_layer_retained_tensor_peak_bytes', None),
         'unpolarized': 'D6 x=y equality' if reduced else 'Jones x/y average including cross polarization'}
     return scattering, diagnostics
 
 
 def evaluate_case(args, functions, wl, m, nz, grid):
+    import torch
+    gc.collect()
+    if args.device == 'cuda':
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+        torch.cuda.reset_peak_memory_stats()
     started = time.perf_counter()
     indices = {key: f(wl) for key, f in functions.items()}
     scattering, diagnostic = surface_rcwa(args, wl, indices, order=m, slices=nz, grid=grid)
@@ -191,10 +214,14 @@ def evaluate_case(args, functions, wl, m, nz, grid):
         raise RuntimeError(f'Phase average not converged at {wl} nm: {phase_error}.')
     if not all(math.isfinite(result[key]) and -2e-6 <= result[key] <= 1+2e-6 for key in ['R', 'T', 'A']):
         raise RuntimeError(f'Nonphysical R/T/A at {wl} nm: {result}')
+    if args.device == 'cuda':
+        torch.cuda.synchronize()
     return {'wavelength_nm': float(wl), 'order': m, 'slices': nz, 'grid': grid,
         **result, 'phase_average_error': phase_error,
         'xy_power_difference': max(abs(result['R_x']-result['R_y']), abs(result['T_x']-result['T_y'])),
-        **diagnostic, 'seconds': time.perf_counter()-started}
+        **diagnostic, 'seconds': time.perf_counter()-started,
+        'peak_cuda_allocated_bytes': int(torch.cuda.max_memory_allocated()) if args.device == 'cuda' else None,
+        'peak_cuda_reserved_bytes': int(torch.cuda.max_memory_reserved()) if args.device == 'cuda' else None}
 
 
 def plot_spectra(args, output, rows):
@@ -220,6 +247,8 @@ def main(mode):
     wls = wavelengths(args.wavelengths)
     functions, provenance = load_materials(args, wls)
     output = (args.output_dir or HERE/'results'/mode/('convergence' if args.check_convergence else 'reference')).resolve()
+    if args.reference_dir and args.reference_dir.resolve() == output:
+        raise ValueError('--reference-dir and --output-dir must differ; preserve the original results.')
     output.mkdir(parents=True, exist_ok=True)
     layers = write_geometry(args, output)
     meta = {'arguments': {key: str(value) if isinstance(value, Path) else value for key, value in vars(args).items()},
@@ -241,7 +270,7 @@ def main(mode):
             'Uncoated film remains 55 um; gold is added outside that thickness.',
             'Glass rear-surface reflection is included. No diffuse scattering or instrument convolution.'],
         'status': 'prepared'}
-    for name in ['model.py', 'geometry.py', 'stack.py', 'run_evaporation.py', 'run_sputter.py']:
+    for name in ['model.py', 'geometry.py', 'stack.py', 'memory.py', 'run_evaporation.py', 'run_sputter.py']:
         meta.setdefault('study_sha256', {})[name] = hashlib.sha256((HERE/name).read_bytes()).hexdigest()
     if (args.solver_root/'rcwa_ext').is_dir():
         meta['solver_sha256'] = {str(p.relative_to(args.solver_root)): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -256,6 +285,9 @@ def main(mode):
     save_csv(output/'materials.csv', materials)
     def write_meta():
         (output/'settings.json').write_text(json.dumps(meta, ensure_ascii=False, indent=2, allow_nan=False), encoding='utf-8')
+    if args.reference_dir:
+        # Reject incompatible saved conditions before expensive RCWA solves.
+        compare_reference(args, meta, [])
     write_meta()
     if args.preview_only:
         print(f'Prepared {mode}: {len(layers)} pattern layers; side={side_thickness(args):g} nm; {output}', flush=True)
@@ -282,6 +314,22 @@ def main(mode):
             save_csv(output/'spectra.csv', rows)
             print(f'{mode} {wl:g} nm R={row["R"]:.8f} T={row["T"]:.8f} A={row["A"]:.8f} '
                   f'{row["basis"]} raster={row["coalesced_raster_layers"]}', flush=True)
+            if row['peak_cuda_allocated_bytes'] is not None:
+                print(f'  peak CUDA allocated={row["peak_cuda_allocated_bytes"]/2**30:.3f} GiB; '
+                      f'storage={row["layer_storage"]}', flush=True)
+            meta['completed_points'] = len(rows)
+            write_meta()
+        if args.reference_dir:
+            parity = compare_reference(args, meta, rows)
+            save_csv(output/'storage_parity.csv', parity)
+            meta['storage_parity'] = {'passed': all(r['passed'] for r in parity),
+                'reference_dir': str(args.reference_dir.resolve()), 'tolerance': PARITY_TOL,
+                'max_absolute_error': max(r['max_absolute_error'] for r in parity)}
+            write_meta()
+            if not meta['storage_parity']['passed']:
+                raise RuntimeError('Storage parity failed: inspect storage_parity.csv.')
+            print(f'PASS storage parity: max absolute power difference='
+                  f'{meta["storage_parity"]["max_absolute_error"]:.3g}', flush=True)
         if args.check_convergence:
             configs = [(args.order, args.slices, args.grid),
                        (args.order+2, args.slices, args.grid),

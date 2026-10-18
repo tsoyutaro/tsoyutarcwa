@@ -56,6 +56,57 @@ python studies/mosmite_gold_deposition/run_sputter.py --device cuda --wavelength
 3波長の収束確認は全81点の収束確認を意味しない。狭いスペクトル構造を見つけた場合は
 `--check-wavelengths "400,430,600,800"`などでその波長も指定する。
 
+## 高次数でGPUメモリが不足する場合（2026-10-18追加）
+
+`--layer-storage reduced`で、反射・透過に不要な層ごとのCartesian行列・材料格子を
+追加直後に解放する。D6では独立した縮約固有モードを保持し、4種類の層S行列は
+1層ずつ生成してRedheffer接続する。全矩形基底では、追加時に層Sを接続して消費する。
+真空蒸着・スパッタの両方に対応し、共有`rcwa_ext`の変更はない。
+既定値は`--layer-storage full`で従来の保持方法。材料・形状・次数・分割数・NVM・
+complex128・厚層の位相平均は変更しない。有限試料に必要なTf/Rf/Rb/Tbをすべて保持する。
+内部電磁場の復元や勾配計算には、この省メモリ設定を使わない。
+
+最初に、すでに完了したM=18、Nz=150、grid=512を再計算し、元のCSVと照合する。
+過去の設定ファイル・生のCSVを使うので、画面に丸めて表示された数値との比較ではない。
+
+```bash
+python studies/mosmite_gold_deposition/run_evaporation.py --device cuda --wavelengths "400,600,800" --slices 150 --order 18 --grid 512 --layer-storage reduced --reference-dir studies/mosmite_gold_deposition/results/evaporation/M18_Nz150_G512 --output-dir studies/mosmite_gold_deposition/results/evaporation/M18_Nz150_G512_reduced
+```
+
+材料データ・共有ソルバー・形状・厚層計算のソース、および数値条件の一致を先に確認する。
+R/T/A・偏光ごとのR/T・交差偏光の絶対差が1e-8以下なら、`PASS storage parity`を表示する。
+`storage_parity.csv`と`settings.json`にも保存し、不一致ならエラー終了する。
+`--reference-dir`と`--output-dir`には別のフォルダを指定する。
+
+照合に合格した後、層数と格子を固定したまま次の次数へ進める（bash/sh）。
+
+```bash
+for M in 20 22 24 26; do
+  python studies/mosmite_gold_deposition/run_evaporation.py \
+    --device cuda --wavelengths "400,600,800" \
+    --slices 150 --order "$M" --grid 512 --layer-storage reduced \
+    --output-dir "studies/mosmite_gold_deposition/results/evaporation/M${M}_Nz150_G512_reduced" \
+    || break
+done
+```
+
+各波長のCUDAピーク使用量（allocated/reserved）を`spectra.csv`に記録し、allocatedを画面表示する。
+`retained_before_solve_bytes`は接続直前に実際に参照されているテンソルの容量であり、
+一時作業領域やCUDAアロケータのキャッシュを含むピーク使用量とは異なる。
+波長間で不要なPython参照と未使用CUDAキャッシュも回収するが、実際に参照中の行列を
+解放する処理が主な対策である。環境変数による断片化対策だけには依存しない。
+
+CPUで小さい次数および150層の保持方法の同等性を検証するコマンド：
+
+```text
+python studies/mosmite_gold_deposition/validate_memory.py --device cpu
+```
+
+省メモリ化は収束の改善とは別であり、実行可能な最大次数を保証しない。
+高次数のCUDAピークやM=18とのGPU照合は実際の計算機で確認する。
+M=14/16/18の既存結果は特に600/800 nmで次数依存が残り、まだ収束済みではない。
+層数150とgrid512の十分性も、次数が安定した後に別々に確認する。
+
 ## 具体的な形状
 
 | 条件 | 真空蒸着 | スパッタ |
