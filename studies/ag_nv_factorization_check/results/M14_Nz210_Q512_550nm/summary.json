@@ -1,0 +1,43 @@
+{
+  "cases": [
+    {
+      "factorization": "symmetric-nv",
+      "grid": 512,
+      "order": 14,
+      "slices": 210,
+      "wavelength_nm": 550.0,
+      "status": "diagnostics_complete",
+      "reused_reference": true,
+      "R_percent": 112.50375329801183,
+      "A_percent": -12.503753298011834,
+      "motheye_A_percent": -35.3440655446206,
+      "substrate_A_percent": 22.8403122459718,
+      "negative_absorption_layers": 27,
+      "physical_result": false,
+      "diagnostic_checks_passed": true,
+      "max_boundary_residual": 5.652544036130958e-12,
+      "max_volume_flux_error": 1.3891110484109959e-10,
+      "error": ""
+    },
+    {
+      "factorization": "galerkin",
+      "grid": 512,
+      "order": 14,
+      "slices": 210,
+      "wavelength_nm": 550.0,
+      "status": "diagnostics_complete",
+      "reused_reference": false,
+      "R_percent": 16.023264807743924,
+      "A_percent": 83.97673519225609,
+      "motheye_A_percent": 82.44649554486406,
+      "substrate_A_percent": 1.5302396473978939,
+      "negative_absorption_layers": 0,
+      "physical_result": true,
+      "diagnostic_checks_passed": true,
+      "max_boundary_residual": 7.83647953347306e-13,
+      "max_volume_flux_error": 5.514035408826778e-13,
+      "error": ""
+    }
+  ],
+  "interpretation": "An ordinary Fourier control isolates the NV transverse correction; physical bounds alone do not establish convergence or accuracy."
+}
