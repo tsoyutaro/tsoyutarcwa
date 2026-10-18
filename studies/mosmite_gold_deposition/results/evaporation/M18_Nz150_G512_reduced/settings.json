@@ -1,0 +1,145 @@
+{
+  "arguments": {
+    "solver_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa",
+    "device": "cuda",
+    "threads": 2,
+    "wavelengths": "400,600,800",
+    "period_nm": 100.0,
+    "height_nm": 200.0,
+    "base_diameter_nm": 98.0,
+    "tip_diameter_nm": 50.0,
+    "top_gold_nm": 30.0,
+    "valley_gold_nm": 30.0,
+    "side_gold_nm": null,
+    "slices": 150,
+    "cap_slices": null,
+    "film_total_um": 55.0,
+    "residual_um": 0.0,
+    "adhesive_um": 20.0,
+    "adhesive_n": 1.5,
+    "adhesive_k": 0.0,
+    "glass_um": 1000.0,
+    "pet_nk_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/PET_Zhang_400_800nm.csv",
+    "resin_nk_csv": null,
+    "adhesive_nk_csv": null,
+    "gold_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/Au_Johnson_1972.csv",
+    "top_gold_csv": null,
+    "side_gold_csv": null,
+    "valley_gold_csv": null,
+    "order": 18,
+    "grid": 512,
+    "layer_storage": "reduced",
+    "reference_dir": "studies/mosmite_gold_deposition/results/evaporation/M18_Nz150_G512",
+    "basis": "auto",
+    "coherence": "phase-average",
+    "phase_points": 16,
+    "convergence_tol": 0.0001,
+    "check_convergence": false,
+    "check_wavelengths": "400,600,800",
+    "preview_only": false,
+    "output_dir": "studies/mosmite_gold_deposition/results/evaporation/M18_Nz150_G512_reduced",
+    "mode": "evaporation"
+  },
+  "geometry": {
+    "mode": "evaporation",
+    "side_radial_nm": 3.6,
+    "core_layers": 150,
+    "cap_layers": 23,
+    "total_pattern_layers": 173,
+    "coalesced_raster_layers": 0,
+    "height_including_gold_nm": 230.0,
+    "uniform_PET_equivalent_nm": 54800.0,
+    "top_cap_profile": "linear taper to original tip radius"
+  },
+  "material_provenance": {
+    "PET": {
+      "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/PET_Zhang_400_800nm.csv",
+      "sha256": "ada4e4239001834a5885661d8465a597c4e2b384cb82de7bf4d6ae97d8b50e59",
+      "range_nm": [
+        400.0,
+        800.0
+      ],
+      "interpolation": "linear n,k separately; no extrapolation"
+    },
+    "resin": {
+      "assumption": "PET n,k proxy for unknown surface resin"
+    },
+    "adhesive": {
+      "assumption": "constant n,k",
+      "n": 1.5,
+      "k": 0.0
+    },
+    "silica": {
+      "source": "https://doi.org/10.1364/JOSA.55.001205",
+      "k": 0.0
+    },
+    "Au_top": {
+      "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/Au_Johnson_1972.csv",
+      "sha256": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb",
+      "range_nm": [
+        187.9,
+        1937.0
+      ],
+      "interpolation": "linear n,k separately; no extrapolation"
+    },
+    "Au_side": {
+      "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/Au_Johnson_1972.csv",
+      "sha256": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb",
+      "range_nm": [
+        187.9,
+        1937.0
+      ],
+      "interpolation": "linear n,k separately; no extrapolation"
+    },
+    "Au_valley": {
+      "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/Au_Johnson_1972.csv",
+      "sha256": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb",
+      "range_nm": [
+        187.9,
+        1937.0
+      ],
+      "interpolation": "linear n,k separately; no extrapolation"
+    }
+  },
+  "assumptions": [
+    "Normal incidence; isotropic substrate/resin; unpolarized input.",
+    "Core+valley is 150 layers by default; top cap is additional (default 23).",
+    "Gold is a continuous local isotropic material; side island formation is not represented.",
+    "Evaporation defaults to ideal normal directional deposition with no shadowing.",
+    "Sputter defaults to a phenomenological 8 nm RADIAL shell, not a deposition transport calculation.",
+    "Periodic union is used when Au shells coalesce; it is not replaced by an isolated or clipped circle.",
+    "Uniform PET/adhesive/glass phases are averaged independently unless coherent is requested.",
+    "Resin optical constants default to the PET proxy; adhesive n,k default to constants.",
+    "Uncoated film remains 55 um; gold is added outside that thickness.",
+    "Glass rear-surface reflection is included. No diffuse scattering or instrument convolution."
+  ],
+  "status": "completed",
+  "study_sha256": {
+    "model.py": "a3eea0ee7be532d46f5f07b80e914c89e9f1c6ba9f82c0d7457da8e0833da684",
+    "geometry.py": "92a6c3b554a410e23864e54276b0e0b31f04e79a274767a043e707c1b58af907",
+    "stack.py": "50cf097daf0fb0486769cd2ef0beb13da0df2c40748cfd1b65fe09e17dfcfd91",
+    "memory.py": "dbbbb7e49bbfae7b340d2f2d83426f53fea0a821e12c3fcd2bfa804ee54ca84a",
+    "run_evaporation.py": "45d5209d1aeafd9d81d39da8ae3a90dcdd9595f545eba8858b59f7af17718bb4",
+    "run_sputter.py": "b534a57cdb5a8bec7f71046baa302edfd344870a0886c7053202d61ea7a0135c"
+  },
+  "solver_sha256": {
+    "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+    "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+    "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+    "rcwa_ext/auto.py": "a1ee2421cd89eabe21eb365c7131f509009f746cf0e671302094b00262430727",
+    "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+    "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+    "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+    "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+    "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+    "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956"
+  },
+  "torch": "2.6.0+cu124",
+  "completed_points": 3,
+  "storage_parity": {
+    "passed": true,
+    "reference_dir": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/results/evaporation/M18_Nz150_G512",
+    "tolerance": 1e-08,
+    "max_absolute_error": 0.0
+  }
+}
