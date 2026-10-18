@@ -1,0 +1,40 @@
+{
+  "identity": {
+    "version": 1,
+    "material": "Ag",
+    "structure": "metal",
+    "order": 14,
+    "wavelength_nm": 550.0,
+    "slices": 210,
+    "device": "cuda:0",
+    "cpu_threads": 4,
+    "quadrature": 16,
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 95.0
+    },
+    "ag_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Ag.csv",
+    "material_sha256": "74a77865964c13711550e1f036ad28fb68b324ce1953cfa29bd6f8b3e9d0c7c4",
+    "sources": {
+      "run_ag_nv_m14_diagnostics.py": "c03b02a67b638e22766c1b0baf8c86c7af3ef8715d0a7f2d43ef5eaad0e61556",
+      "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+      "studies/transition_metals_nv/runtime.py": "bb78d51bcba4947fb84bea849d40e5e510fd0aaf49cbf8e319efbb5d943938d0",
+      "studies/shared/tabulated_nk.py": "f9469c64ae70ca4bf20321693a7ddcf6a3468d274f839de085d3aad60e46598b",
+      "studies/gold_motheye/converge.py": "6c1ca77c2c9a9c23964286fd8a777a161388b55d6f389f0d22eadef7dcbf588f",
+      "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+      "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+      "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+      "rcwa_ext/auto.py": "a1ee2421cd89eabe21eb365c7131f509009f746cf0e671302094b00262430727",
+      "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+      "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+      "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+      "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+      "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+      "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956"
+    },
+    "method": "NV/D6 E1 x, complex128, Redheffer, Lanczos off; unchanged equations",
+    "grid": 512
+  }
+}
