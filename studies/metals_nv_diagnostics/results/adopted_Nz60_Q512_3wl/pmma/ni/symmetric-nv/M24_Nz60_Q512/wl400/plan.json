@@ -1,0 +1,91 @@
+{
+  "identity": {
+    "version": 1,
+    "material": "Ni",
+    "structure": "pmma",
+    "order": 24,
+    "slices": 60,
+    "grid": 512,
+    "wavelength_nm": 400.0,
+    "factorization": "symmetric-nv",
+    "device": "cuda:0",
+    "cpu_threads": 4,
+    "quadrature": 16,
+    "backend_identity": {
+      "material": "Ni",
+      "structure": "pmma",
+      "geometry": {
+        "period_nm": 200.0,
+        "height_nm": 500.0,
+        "tip_radius_nm": 5.0,
+        "base_radius_nm": 65.0,
+        "metal_side_thickness_nm": 30.0,
+        "metal_top_thickness_nm": 30.0,
+        "metal_valley_thickness_nm": 30.0,
+        "profile_power": 1.0
+      },
+      "slices": 60,
+      "grid": 512,
+      "requested_device": "cuda:0",
+      "cpu_threads": 4,
+      "metal_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/transition_metals_nv/data/Ni.csv",
+      "metal_sha256_lf": "0ba55eb31d284e9d2067774831c6e72f7d9d645f0e42320739d67c0a4730c926",
+      "material_range_nm": [
+        188.0,
+        1937.0
+      ],
+      "solver": "NV/NVM, D6 E1 x source, complex128, Redheffer, half S, Lanczos off",
+      "storage": "reduced",
+      "pmma": {
+        "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/transition_metals_nv/data/Szczurowski.csv",
+        "sha256_lf": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+        "policy": "linear-to-400",
+        "provenance": {
+          "csv": "Szczurowski.csv",
+          "sha256_lf": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+          "k": 0.0,
+          "tabulated_range_nm": [
+            404.7,
+            1083.0
+          ],
+          "interpolation": "linear n in wavelength_nm",
+          "shortwave_policy": "linear-to-400",
+          "extension_source_points": [
+            [
+              404.7,
+              1.5051867964397
+            ],
+            [
+              411.5,
+              1.5042437025881
+            ]
+          ],
+          "n_400nm": 1.5058386407194826
+        }
+      }
+    },
+    "sources": {
+      "run_transition_metals_nv.py": "1b3716ac205841dd2b40e57c80598695732a01bff2a1e9be8609d89a42ea3c29",
+      "studies/transition_metals_nv/runtime.py": "bb78d51bcba4947fb84bea849d40e5e510fd0aaf49cbf8e319efbb5d943938d0",
+      "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+      "studies/gold_motheye/converge.py": "6c1ca77c2c9a9c23964286fd8a777a161388b55d6f389f0d22eadef7dcbf588f",
+      "studies/shared/tabulated_nk.py": "f9469c64ae70ca4bf20321693a7ddcf6a3468d274f839de085d3aad60e46598b",
+      "studies/pmma_metal_motheye/model.py": "3def8fab3433b6cebfa74190aa272c4750ae2916b1c0cf5ddfd6825ed96109ba",
+      "studies/pmma_gold_motheye/geometry_preview.py": "d17db6225b9a509a8eca1e369695253a3d61914545f124ddd10cedabdd73a633",
+      "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+      "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+      "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+      "rcwa_ext/auto.py": "a1ee2421cd89eabe21eb365c7131f509009f746cf0e671302094b00262430727",
+      "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+      "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+      "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+      "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+      "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+      "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956",
+      "run_metals_nv_diagnostics.py": "197c161f2bb879d528dd6202dd326351cb0466c248ef0789eabb0c53dfacc5c2",
+      "run_ag_nv_m14_diagnostics.py": "c03b02a67b638e22766c1b0baf8c86c7af3ef8715d0a7f2d43ef5eaad0e61556",
+      "run_ag_nv_factorization_check.py": "02b5be0eacc0a80fc6a9b5c60e9ee7a5c18bf7e07cd0522681e4287d363f3220",
+      "run_metals_nv_spectra.py": "93614e052ede0de678cbbf6c5ddfb1b891f48eb811fb7e82b1f54309c54c5cb9"
+    }
+  }
+}
