@@ -1,0 +1,52 @@
+{
+  "identity": {
+    "material": "Ag",
+    "structure": "metal",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 95.0,
+      "profile_power": 1.0
+    },
+    "slices": 90,
+    "grid": 512,
+    "wavelengths_nm": [
+      550.0
+    ],
+    "start_order": 30,
+    "step": 2,
+    "requested_device": "cuda:0",
+    "cpu_threads": 4,
+    "tolerance": 0.005,
+    "metal_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Ag.csv",
+    "metal_sha256_lf": "74a77865964c13711550e1f036ad28fb68b324ce1953cfa29bd6f8b3e9d0c7c4",
+    "material_range_nm": [
+      187.9,
+      1937.0
+    ],
+    "solver": "NV/NVM, D6 E1 x source, complex128, Redheffer, half S, Lanczos off",
+    "source_sha256": {
+      "run_cu_ag_al_motheye_order_nv.py": "0038dbe5c55267829cc9e1f406fe0381065802a0d0223094943d9e559cc79d44",
+      "studies/transition_metals_nv/runtime.py": "bb78d51bcba4947fb84bea849d40e5e510fd0aaf49cbf8e319efbb5d943938d0",
+      "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+      "studies/gold_motheye/converge.py": "6c1ca77c2c9a9c23964286fd8a777a161388b55d6f389f0d22eadef7dcbf588f",
+      "studies/shared/tabulated_nk.py": "f9469c64ae70ca4bf20321693a7ddcf6a3468d274f839de085d3aad60e46598b",
+      "studies/pmma_metal_motheye/model.py": "3def8fab3433b6cebfa74190aa272c4750ae2916b1c0cf5ddfd6825ed96109ba",
+      "studies/pmma_gold_motheye/geometry_preview.py": "d17db6225b9a509a8eca1e369695253a3d61914545f124ddd10cedabdd73a633",
+      "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+      "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+      "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+      "rcwa_ext/auto.py": "a1ee2421cd89eabe21eb365c7131f509009f746cf0e671302094b00262430727",
+      "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+      "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+      "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+      "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+      "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+      "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956"
+    },
+    "storage": "reduced",
+    "pmma": null
+  },
+  "max_order": 36
+}

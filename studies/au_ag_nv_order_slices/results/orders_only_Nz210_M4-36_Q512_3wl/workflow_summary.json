@@ -1,0 +1,197 @@
+{
+  "status": "interrupted",
+  "method": "NV",
+  "orders_only": true,
+  "groups": [
+    {
+      "material": "Au",
+      "structure": "metal",
+      "wavelength_nm": 400.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "requested_range_complete",
+      "order_range_complete": true,
+      "order_tail_R_A_passed": true,
+      "layer_failure": null,
+      "order_failure": null
+    },
+    {
+      "material": "Au",
+      "structure": "pmma",
+      "wavelength_nm": 400.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "requested_range_complete",
+      "order_range_complete": true,
+      "order_tail_R_A_passed": true,
+      "layer_failure": null,
+      "order_failure": null
+    },
+    {
+      "material": "Au",
+      "structure": "metal",
+      "wavelength_nm": 550.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "requested_range_complete",
+      "order_range_complete": true,
+      "order_tail_R_A_passed": true,
+      "layer_failure": null,
+      "order_failure": null
+    },
+    {
+      "material": "Au",
+      "structure": "pmma",
+      "wavelength_nm": 550.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "requested_range_complete",
+      "order_range_complete": true,
+      "order_tail_R_A_passed": true,
+      "layer_failure": null,
+      "order_failure": null
+    },
+    {
+      "material": "Au",
+      "structure": "metal",
+      "wavelength_nm": 700.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "requested_range_complete",
+      "order_range_complete": true,
+      "order_tail_R_A_passed": true,
+      "layer_failure": null,
+      "order_failure": null
+    },
+    {
+      "material": "Au",
+      "structure": "pmma",
+      "wavelength_nm": 700.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "requested_range_complete",
+      "order_range_complete": true,
+      "order_tail_R_A_passed": true,
+      "layer_failure": null,
+      "order_failure": null
+    },
+    {
+      "material": "Ag",
+      "structure": "metal",
+      "wavelength_nm": 400.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "requested_range_complete",
+      "order_range_complete": true,
+      "order_tail_R_A_passed": false,
+      "layer_failure": null,
+      "order_failure": null
+    },
+    {
+      "material": "Ag",
+      "structure": "pmma",
+      "wavelength_nm": 400.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "requested_range_complete",
+      "order_range_complete": true,
+      "order_tail_R_A_passed": false,
+      "layer_failure": null,
+      "order_failure": null
+    },
+    {
+      "material": "Ag",
+      "structure": "metal",
+      "wavelength_nm": 550.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "calculation_failed",
+      "order_range_complete": false,
+      "order_tail_R_A_passed": false,
+      "layer_failure": null,
+      "order_failure": {
+        "status": "calculation_failed",
+        "order": 14,
+        "wavelength_nm": 550.0,
+        "error": "ValueError: Nonphysical power result (not CUDA OOM): {'reflectance': 1.125037533208257, 'transmittance': 0.0, 'absorptance': -0.12503753320825695, 'motheye_absorptance': -0.35344065573211936, 'substrate_absorptance': 0.22840312252386244, 'power_into_substrate': 0.22840312252386244}",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 237, in worker\n    validate_case(row,identity)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 181, in validate_case\n    raise ValueError(f\"Nonphysical power result (not CUDA OOM): {values}\")\nValueError: Nonphysical power result (not CUDA OOM): {'reflectance': 1.125037533208257, 'transmittance': 0.0, 'absorptance': -0.12503753320825695, 'motheye_absorptance': -0.35344065573211936, 'substrate_absorptance': 0.22840312252386244, 'power_into_substrate': 0.22840312252386244}\n",
+        "power_diagnostics": {
+          "reflectance": 1.125037533208257,
+          "transmittance": 0.0,
+          "absorptance": -0.12503753320825695,
+          "motheye_absorptance": -0.35344065573211936,
+          "substrate_absorptance": 0.22840312252386244,
+          "power_into_substrate": 0.22840312252386244
+        }
+      }
+    },
+    {
+      "material": "Ag",
+      "structure": "pmma",
+      "wavelength_nm": 550.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "requested_range_complete",
+      "order_range_complete": true,
+      "order_tail_R_A_passed": false,
+      "layer_failure": null,
+      "order_failure": null
+    },
+    {
+      "material": "Ag",
+      "structure": "metal",
+      "wavelength_nm": 700.0,
+      "layer_status": "not_checked_orders_only",
+      "layer_gate_passed": false,
+      "order_status": "pending",
+      "order_range_complete": false,
+      "order_tail_R_A_passed": false,
+      "layer_failure": null,
+      "order_failure": null
+    }
+  ],
+  "unique_saved_cases": 159,
+  "layer_gate_passed": 0,
+  "reused_cases": 4,
+  "reused_sources": [
+    {
+      "material": "Au",
+      "structure": "metal",
+      "wavelength_nm": 700.0,
+      "slices": 210,
+      "order": 36,
+      "source": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/au_ag_nv_order_slices/results/auto_Nz180-240_M4-36_Q512/layer_check/metal/au/wl700/Nz210/checkpoint.json",
+      "destination": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/au_ag_nv_order_slices/results/orders_only_Nz210_M4-36_Q512_3wl/order_sweep/metal/au/wl700/Nz210/checkpoint.json"
+    },
+    {
+      "material": "Au",
+      "structure": "pmma",
+      "wavelength_nm": 700.0,
+      "slices": 210,
+      "order": 36,
+      "source": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/au_ag_nv_order_slices/results/auto_Nz180-240_M4-36_Q512/layer_check/pmma/au/wl700/Nz210/checkpoint.json",
+      "destination": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/au_ag_nv_order_slices/results/orders_only_Nz210_M4-36_Q512_3wl/order_sweep/pmma/au/wl700/Nz210/checkpoint.json"
+    },
+    {
+      "material": "Ag",
+      "structure": "metal",
+      "wavelength_nm": 550.0,
+      "slices": 210,
+      "order": 36,
+      "source": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/au_ag_nv_order_slices/results/auto_Nz180-240_M4-36_Q512/layer_check/metal/ag/wl550/Nz210/checkpoint.json",
+      "destination": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/au_ag_nv_order_slices/results/orders_only_Nz210_M4-36_Q512_3wl/order_sweep/metal/ag/wl550/Nz210/checkpoint.json"
+    },
+    {
+      "material": "Ag",
+      "structure": "pmma",
+      "wavelength_nm": 550.0,
+      "slices": 210,
+      "order": 36,
+      "source": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/au_ag_nv_order_slices/results/auto_Nz180-240_M4-36_Q512/layer_check/pmma/ag/wl550/Nz210/checkpoint.json",
+      "destination": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/au_ag_nv_order_slices/results/orders_only_Nz210_M4-36_Q512_3wl/order_sweep/pmma/ag/wl550/Nz210/checkpoint.json"
+    }
+  ],
+  "cache_notes": [],
+  "gate": "Bypassed: fixed-Nz order sweep; layer convergence is not evaluated.",
+  "interpretation": "Order convergence at the specified Nz, wavelengths and Q only."
+}

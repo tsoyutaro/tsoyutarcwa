@@ -1,0 +1,69 @@
+{
+  "status": "requested_range_complete",
+  "material": "Au",
+  "structure": "pmma",
+  "completed_cases": 4,
+  "complete_orders": [
+    30,
+    32,
+    34,
+    36
+  ],
+  "last_complete_order": 36,
+  "failure": null,
+  "method": "NV",
+  "fixed_slices": 120,
+  "fixed_grid": 512,
+  "wavelengths_nm": [
+    700.0
+  ],
+  "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye_nv/data/au_measured_nk.csv",
+  "material_sha256_lf": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99",
+  "order_convergence": {
+    "tolerance": 0.005,
+    "tolerance_pp": 0.5,
+    "comparisons": [
+      {
+        "coarse": 30,
+        "fine": 32,
+        "maximum_absolute_power_change": 0.002540050984197073,
+        "maximum_change_pp": 0.2540050984197073,
+        "per_metric": {
+          "reflectance": 0.002540050984197073,
+          "transmittance": 0.00043972636930304093,
+          "absorptance": 0.0021003246148940113
+        },
+        "passed": true
+      },
+      {
+        "coarse": 32,
+        "fine": 34,
+        "maximum_absolute_power_change": 0.001664569449771558,
+        "maximum_change_pp": 0.1664569449771558,
+        "per_metric": {
+          "reflectance": 0.001664569449771558,
+          "transmittance": 0.0005953641219922853,
+          "absorptance": 0.0010692053277792657
+        },
+        "passed": true
+      },
+      {
+        "coarse": 34,
+        "fine": 36,
+        "maximum_absolute_power_change": 0.0007818187028082874,
+        "maximum_change_pp": 0.07818187028082874,
+        "per_metric": {
+          "reflectance": 0.0007684261964895356,
+          "transmittance": 0.0007818187028082874,
+          "absorptance": 1.3392506318765651e-05
+        },
+        "passed": true
+      }
+    ],
+    "tail_two_steps_passed": true,
+    "requested_range_complete": true,
+    "passed_at_fixed_Nz_Q": true,
+    "working_order": 34,
+    "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+  }
+}

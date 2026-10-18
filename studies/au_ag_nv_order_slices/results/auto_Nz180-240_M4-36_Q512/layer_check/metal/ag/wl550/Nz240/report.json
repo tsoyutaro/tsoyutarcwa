@@ -1,0 +1,33 @@
+{
+  "status": "oom",
+  "material": "Ag",
+  "structure": "metal",
+  "completed_cases": 0,
+  "complete_orders": [],
+  "last_complete_order": null,
+  "failure": {
+    "status": "oom",
+    "order": 36,
+    "wavelength_nm": 550.0,
+    "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 976.00 MiB. GPU 0 has a total capacity of 93.09 GiB of which 79.44 MiB is free. Including non-PyTorch memory, this process has 93.00 GiB memory in use. Of the allocated memory 83.69 GiB is allocated by PyTorch, and 8.36 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 236, in worker\n    row=compute_case(identity,order,wave,device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 137, in compute_case\n    sim.add_layer_circle_nvm(g[\"height_nm\"] / identity[\"slices\"] / period, radius / period, 1., eps, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 105, in add_layer_circle_nvm\n    super().add_layer_circle_nvm(*values, **options)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/nvm.py\", line 790, in add_layer_circle_nvm\n    ) = self._d6_source_eigendecomposition(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 1210, in _d6_source_eigendecomposition\n    ) = self._d6_symmetrized_cartesian_pq(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 884, in _d6_symmetrized_cartesian_pq\n    p_symmetric = p_symmetric + self._d6_transform_intertwiner(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/rcwa_ext/symmetry.py\", line 698, in _d6_transform_intertwiner\n    blocks\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 976.00 MiB. GPU 0 has a total capacity of 93.09 GiB of which 79.44 MiB is free. Including non-PyTorch memory, this process has 93.00 GiB memory in use. Of the allocated memory 83.69 GiB is allocated by PyTorch, and 8.36 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)\n"
+  },
+  "method": "NV",
+  "fixed_slices": 240,
+  "fixed_grid": 512,
+  "wavelengths_nm": [
+    550.0
+  ],
+  "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Ag.csv",
+  "material_sha256_lf": "74a77865964c13711550e1f036ad28fb68b324ce1953cfa29bd6f8b3e9d0c7c4",
+  "order_convergence": {
+    "tolerance": 0.005,
+    "tolerance_pp": 0.5,
+    "comparisons": [],
+    "tail_two_steps_passed": false,
+    "requested_range_complete": false,
+    "passed_at_fixed_Nz_Q": false,
+    "working_order": null,
+    "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+  }
+}

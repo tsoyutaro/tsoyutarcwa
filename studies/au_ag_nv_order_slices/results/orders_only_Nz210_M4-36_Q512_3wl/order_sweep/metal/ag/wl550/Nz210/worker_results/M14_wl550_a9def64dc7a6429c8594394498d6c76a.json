@@ -1,0 +1,15 @@
+{
+  "status": "calculation_failed",
+  "order": 14,
+  "wavelength_nm": 550.0,
+  "error": "ValueError: Nonphysical power result (not CUDA OOM): {'reflectance': 1.125037533208257, 'transmittance': 0.0, 'absorptance': -0.12503753320825695, 'motheye_absorptance': -0.35344065573211936, 'substrate_absorptance': 0.22840312252386244, 'power_into_substrate': 0.22840312252386244}",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 237, in worker\n    validate_case(row,identity)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 181, in validate_case\n    raise ValueError(f\"Nonphysical power result (not CUDA OOM): {values}\")\nValueError: Nonphysical power result (not CUDA OOM): {'reflectance': 1.125037533208257, 'transmittance': 0.0, 'absorptance': -0.12503753320825695, 'motheye_absorptance': -0.35344065573211936, 'substrate_absorptance': 0.22840312252386244, 'power_into_substrate': 0.22840312252386244}\n",
+  "power_diagnostics": {
+    "reflectance": 1.125037533208257,
+    "transmittance": 0.0,
+    "absorptance": -0.12503753320825695,
+    "motheye_absorptance": -0.35344065573211936,
+    "substrate_absorptance": 0.22840312252386244,
+    "power_into_substrate": 0.22840312252386244
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "status": "requested_grid_complete",
+  "method": "NV",
+  "orders": [
+    30,
+    32,
+    34,
+    36
+  ],
+  "slices": [
+    60,
+    90,
+    120
+  ],
+  "grid": 512,
+  "tolerance_pp": 0.5,
+  "cases": [
+    [
+      "Au",
+      700.0
+    ],
+    [
+      "Ag",
+      550.0
+    ]
+  ],
+  "structures": [
+    "metal",
+    "pmma"
+  ],
+  "planned_cases": 48,
+  "counts": {
+    "ok": 48,
+    "oom": 0,
+    "calculation_failed": 0,
+    "job_setup_failed": 0,
+    "fixed_grid_limit": 0,
+    "skipped_dominated": 0,
+    "pending": 0
+  },
+  "failures": [],
+  "pruning_rule": "same material/structure/wavelength, M>=failed_M AND Nz>=failed_Nz",
+  "interpretation": "R/A adjacent differences at fixed other axis; incomplete comparisons are omitted, never treated as converged."
+}

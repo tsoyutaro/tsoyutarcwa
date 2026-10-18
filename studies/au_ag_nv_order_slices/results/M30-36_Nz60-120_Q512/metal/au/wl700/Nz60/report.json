@@ -1,0 +1,69 @@
+{
+  "status": "requested_range_complete",
+  "material": "Au",
+  "structure": "metal",
+  "completed_cases": 4,
+  "complete_orders": [
+    30,
+    32,
+    34,
+    36
+  ],
+  "last_complete_order": 36,
+  "failure": null,
+  "method": "NV",
+  "fixed_slices": 60,
+  "fixed_grid": 512,
+  "wavelengths_nm": [
+    700.0
+  ],
+  "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye_nv/data/au_measured_nk.csv",
+  "material_sha256_lf": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99",
+  "order_convergence": {
+    "tolerance": 0.005,
+    "tolerance_pp": 0.5,
+    "comparisons": [
+      {
+        "coarse": 30,
+        "fine": 32,
+        "maximum_absolute_power_change": 0.008619982391030984,
+        "maximum_change_pp": 0.8619982391030984,
+        "per_metric": {
+          "reflectance": 0.008390000460501978,
+          "power_into_substrate": 0.00022998193052899824,
+          "motheye_absorptance": 0.008619982391030984
+        },
+        "passed": false
+      },
+      {
+        "coarse": 32,
+        "fine": 34,
+        "maximum_absolute_power_change": 0.0011141738075821639,
+        "maximum_change_pp": 0.11141738075821639,
+        "per_metric": {
+          "reflectance": 0.0011141738075821639,
+          "power_into_substrate": 8.265982329270366e-05,
+          "motheye_absorptance": 0.0010315139842894672
+        },
+        "passed": true
+      },
+      {
+        "coarse": 34,
+        "fine": 36,
+        "maximum_absolute_power_change": 0.006945809052312901,
+        "maximum_change_pp": 0.6945809052312901,
+        "per_metric": {
+          "reflectance": 0.006743111185442352,
+          "power_into_substrate": 0.00020269786687054925,
+          "motheye_absorptance": 0.006945809052312901
+        },
+        "passed": false
+      }
+    ],
+    "tail_two_steps_passed": false,
+    "requested_range_complete": true,
+    "passed_at_fixed_Nz_Q": false,
+    "working_order": null,
+    "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "status": "calculation_failed",
+  "material": "Ag",
+  "structure": "metal",
+  "completed_cases": 6,
+  "complete_orders": [
+    4,
+    6,
+    8,
+    10,
+    12,
+    36
+  ],
+  "last_complete_order": 36,
+  "failure": {
+    "status": "calculation_failed",
+    "order": 14,
+    "wavelength_nm": 550.0,
+    "error": "ValueError: Nonphysical power result (not CUDA OOM): {'reflectance': 1.125037533208257, 'transmittance': 0.0, 'absorptance': -0.12503753320825695, 'motheye_absorptance': -0.35344065573211936, 'substrate_absorptance': 0.22840312252386244, 'power_into_substrate': 0.22840312252386244}",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 237, in worker\n    validate_case(row,identity)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/run_cu_ag_al_motheye_order_nv.py\", line 181, in validate_case\n    raise ValueError(f\"Nonphysical power result (not CUDA OOM): {values}\")\nValueError: Nonphysical power result (not CUDA OOM): {'reflectance': 1.125037533208257, 'transmittance': 0.0, 'absorptance': -0.12503753320825695, 'motheye_absorptance': -0.35344065573211936, 'substrate_absorptance': 0.22840312252386244, 'power_into_substrate': 0.22840312252386244}\n",
+    "power_diagnostics": {
+      "reflectance": 1.125037533208257,
+      "transmittance": 0.0,
+      "absorptance": -0.12503753320825695,
+      "motheye_absorptance": -0.35344065573211936,
+      "substrate_absorptance": 0.22840312252386244,
+      "power_into_substrate": 0.22840312252386244
+    }
+  },
+  "method": "NV",
+  "fixed_slices": 210,
+  "fixed_grid": 512,
+  "wavelengths_nm": [
+    550.0
+  ],
+  "material_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/cu_ag_al_motheye_nv/data/Ag.csv",
+  "material_sha256_lf": "74a77865964c13711550e1f036ad28fb68b324ce1953cfa29bd6f8b3e9d0c7c4",
+  "order_convergence": {
+    "tolerance": 0.005,
+    "tolerance_pp": 0.5,
+    "comparisons": [
+      {
+        "coarse": 4,
+        "fine": 6,
+        "maximum_absolute_power_change": 0.06723537162470927,
+        "maximum_change_pp": 6.723537162470928,
+        "per_metric": {
+          "reflectance": 0.06723537162470927,
+          "power_into_substrate": 0.003088000708866643,
+          "motheye_absorptance": 0.0641473709158426
+        },
+        "passed": false
+      },
+      {
+        "coarse": 6,
+        "fine": 8,
+        "maximum_absolute_power_change": 0.01208135443445757,
+        "maximum_change_pp": 1.208135443445757,
+        "per_metric": {
+          "reflectance": 0.01208135443445757,
+          "power_into_substrate": 0.0005376880257265612,
+          "motheye_absorptance": 0.011543666408731001
+        },
+        "passed": false
+      },
+      {
+        "coarse": 8,
+        "fine": 10,
+        "maximum_absolute_power_change": 0.007634486386412065,
+        "maximum_change_pp": 0.7634486386412065,
+        "per_metric": {
+          "reflectance": 0.006762317407194907,
+          "power_into_substrate": 0.0008721689792171756,
+          "motheye_absorptance": 0.007634486386412065
+        },
+        "passed": false
+      },
+      {
+        "coarse": 10,
+        "fine": 12,
+        "maximum_absolute_power_change": 0.059445723490062635,
+        "maximum_change_pp": 5.944572349006264,
+        "per_metric": {
+          "reflectance": 0.0569836031573262,
+          "power_into_substrate": 0.0024621203327364546,
+          "motheye_absorptance": 0.059445723490062635
+        },
+        "passed": false
+      }
+    ],
+    "tail_two_steps_passed": false,
+    "requested_range_complete": false,
+    "passed_at_fixed_Nz_Q": false,
+    "working_order": null,
+    "interpretation": "Only two refinements at the available high-order tail; Nz and Q convergence not checked."
+  }
+}
