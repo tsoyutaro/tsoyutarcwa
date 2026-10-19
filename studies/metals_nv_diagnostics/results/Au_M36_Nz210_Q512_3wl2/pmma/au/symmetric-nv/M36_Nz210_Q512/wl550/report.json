@@ -1,0 +1,141 @@
+{
+  "status": "diagnostics_complete",
+  "signature": "57b15bde9cf0f22fec083ad783bf7a06e3a9cccea19aed87ea5127dffd12eddd",
+  "identity": {
+    "version": 1,
+    "material": "Au",
+    "structure": "pmma",
+    "order": 36,
+    "slices": 210,
+    "grid": 512,
+    "wavelength_nm": 550.0,
+    "factorization": "symmetric-nv",
+    "device": "cuda:0",
+    "cpu_threads": 4,
+    "quadrature": 16,
+    "backend_identity": {
+      "material": "Au",
+      "structure": "pmma",
+      "geometry": {
+        "period_nm": 200.0,
+        "height_nm": 500.0,
+        "tip_radius_nm": 5.0,
+        "base_radius_nm": 65.0,
+        "metal_side_thickness_nm": 30.0,
+        "metal_top_thickness_nm": 30.0,
+        "metal_valley_thickness_nm": 30.0,
+        "profile_power": 1.0
+      },
+      "slices": 210,
+      "grid": 512,
+      "requested_device": "cuda:0",
+      "cpu_threads": 4,
+      "metal_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye_nv/data/au_measured_nk.csv",
+      "metal_sha256_lf": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99",
+      "gold_model": "csv",
+      "anchor_epsilon": {
+        "550.0": {
+          "real": -5.937013405970148,
+          "imag": 2.0924622686567167
+        }
+      },
+      "material_range_nm": [
+        187.9,
+        1937.0
+      ],
+      "solver": "NV/NVM, D6 E1 x source, complex128, Redheffer, half S, Lanczos off",
+      "storage": "reduced",
+      "pmma": {
+        "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye_nv/data/Szczurowski.csv",
+        "sha256_lf": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+        "policy": "linear-to-400",
+        "provenance": {
+          "csv": "Szczurowski.csv",
+          "sha256_lf": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+          "k": 0.0,
+          "tabulated_range_nm": [
+            404.7,
+            1083.0
+          ],
+          "interpolation": "linear n in wavelength_nm",
+          "shortwave_policy": "linear-to-400",
+          "extension_source_points": [
+            [
+              404.7,
+              1.5051867964397
+            ],
+            [
+              411.5,
+              1.5042437025881
+            ]
+          ],
+          "n_400nm": 1.5058386407194826
+        }
+      }
+    },
+    "sources": {
+      "run_gold_motheye_order_nv.py": "01a780fbbff2f8c4c54ed41872e2d21a3cab7d4ec2156ff34cedf69db583a57c",
+      "studies/gold_motheye_nv/runtime.py": "cff8eab1c8300abe4c1d0792c9e9b28201271e29b1deedc45caed6957996e996",
+      "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a",
+      "studies/gold_motheye/converge.py": "6c1ca77c2c9a9c23964286fd8a777a161388b55d6f389f0d22eadef7dcbf588f",
+      "studies/shared/tabulated_nk.py": "f9469c64ae70ca4bf20321693a7ddcf6a3468d274f839de085d3aad60e46598b",
+      "studies/shared/gold_dispersion.py": "9e2be950cc9ecc0bb02548e0b6035dc7648197507b238a4b4f40736ab43b8297",
+      "studies/pmma_metal_motheye/model.py": "3def8fab3433b6cebfa74190aa272c4750ae2916b1c0cf5ddfd6825ed96109ba",
+      "studies/pmma_gold_motheye/geometry_preview.py": "d17db6225b9a509a8eca1e369695253a3d61914545f124ddd10cedabdd73a633",
+      "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+      "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+      "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+      "rcwa_ext/auto.py": "a1ee2421cd89eabe21eb365c7131f509009f746cf0e671302094b00262430727",
+      "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+      "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+      "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+      "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+      "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+      "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956",
+      "run_metals_nv_diagnostics.py": "197c161f2bb879d528dd6202dd326351cb0466c248ef0789eabb0c53dfacc5c2",
+      "run_ag_nv_m14_diagnostics.py": "c03b02a67b638e22766c1b0baf8c86c7af3ef8715d0a7f2d43ef5eaad0e61556",
+      "run_ag_nv_factorization_check.py": "02b5be0eacc0a80fc6a9b5c60e9ee7a5c18bf7e07cd0522681e4287d363f3220",
+      "run_metals_nv_spectra.py": "93614e052ede0de678cbbf6c5ddfb1b891f48eb811fb7e82b1f54309c54c5cb9"
+    }
+  },
+  "result": {
+    "reflectance": 0.020608281146542905,
+    "absorptance": 0.9502049316988217,
+    "transmittance_far": 0.029186787154635463,
+    "substrate_absorptance": 0.0,
+    "motheye_absorptance": null,
+    "negative_absorption_layers": 0,
+    "minimum_layer_absorptance": 0.002102675285018396,
+    "total_negative_loss_sector": -0.0006881974781805169,
+    "max_boundary_residual": 2.6332417598676375e-12,
+    "original_scattering_amplitude_parity_residual": 9.489697842530021e-14,
+    "layer_sum_power_balance_error": 2.864375403532904e-14,
+    "max_volume_flux_error": 1.517147518725892e-12,
+    "summed_volume_flux_error": 2.2047173114936314e-12,
+    "incident_power": 0.5,
+    "reduced_dimension": 1333,
+    "layer_count": 211,
+    "power_into_substrate": 0.029186787154635463,
+    "transmittance": 0.029186787154635463,
+    "pattern_absorptance": 0.950204931698793,
+    "original_power_parity_max_error": 2.1163626406917047e-16,
+    "original_powers": {
+      "reflectance": 0.020608281146542694,
+      "transmittance": 0.029186787154635584,
+      "absorptance": 0.9502049316988217,
+      "power_into_substrate": 0.029186787154635584
+    },
+    "far_field_physical": true,
+    "layer_flux_passive": true,
+    "physical_result": true,
+    "diagnostic_checks_passed": true,
+    "epsilon_real": -5.937013405970148,
+    "epsilon_imag": 2.0924622686567167,
+    "pmma_index": 1.492401592592772,
+    "total_pattern_layers": 211,
+    "runtime_seconds": 2521.2270080693997,
+    "peak_cuda_allocated_bytes": 92246439424,
+    "peak_cuda_reserved_bytes": 97985232896,
+    "interpretation": "Passivity, diagnostic consistency and refinement stability are separate. Negative loss is retained. Mode proxies are not additive powers."
+  }
+}
