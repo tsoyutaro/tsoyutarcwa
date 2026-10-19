@@ -1,0 +1,756 @@
+{
+  "paper": {
+    "title": "Fast Fourier factorization for differential method and RCWA: a powerful tool for the modeling of non-lamellar metallic diffraction gratings",
+    "authors": "Habib Mohamad et al.",
+    "doi": "10.1007/s11082-020-2240-y",
+    "year": 2020,
+    "source_path": "C:\\Users\\tsoyu\\Downloads\\Fast Fourier factorization for differential method and RCWA a powerful tool for the modeling of non-lamellar metallic diffraction gratings.pdf",
+    "source_sha256": "37dcfbaed907ab896a85dba0094d05368b25a759829b2dfacf46d69a0e489525"
+  },
+  "created_utc": "2026-10-19T12:27:08.928734+00:00",
+  "created_japan": "2026-10-19T21:27:08.928765+09:00",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "versions": {
+    "numpy": "2.3.0",
+    "scipy": "1.15.3",
+    "matplotlib": "3.10.3"
+  },
+  "command": [
+    "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\paper_reproductions\\mohamad2020\\reproduce.py",
+    "--study",
+    "fig5",
+    "--profile",
+    "paper",
+    "--orders",
+    "20,30,50",
+    "--output-dir",
+    "paper_reproductions/mohamad2020/results/fig5_verified"
+  ],
+  "blas_thread_environment": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "arguments": {
+    "study": "fig5",
+    "profile": "paper",
+    "orders": [
+      20,
+      30,
+      50
+    ],
+    "section_nm": 1.0,
+    "dm_substeps": 4,
+    "nfft": 4096,
+    "sampling": "entrance",
+    "include_nfft1024": false,
+    "field_order": 50,
+    "field_nx": 256,
+    "gold_data": null,
+    "wavelengths": [
+      400.0,
+      405.0,
+      410.0,
+      415.0,
+      420.0,
+      425.0,
+      430.0,
+      435.0,
+      440.0,
+      445.0,
+      450.0,
+      455.0,
+      460.0,
+      465.0,
+      470.0,
+      475.0,
+      480.0,
+      485.0,
+      490.0,
+      495.0,
+      500.0,
+      505.0,
+      510.0,
+      515.0,
+      520.0,
+      525.0,
+      530.0,
+      535.0,
+      540.0,
+      545.0,
+      550.0,
+      555.0,
+      560.0,
+      565.0,
+      570.0,
+      575.0,
+      580.0,
+      585.0,
+      590.0,
+      595.0,
+      600.0,
+      605.0,
+      610.0,
+      615.0,
+      620.0,
+      625.0,
+      630.0,
+      635.0,
+      640.0,
+      645.0,
+      650.0,
+      655.0,
+      660.0,
+      665.0,
+      670.0,
+      675.0,
+      680.0,
+      685.0,
+      690.0,
+      695.0,
+      700.0,
+      705.0,
+      710.0,
+      715.0,
+      720.0,
+      725.0,
+      730.0,
+      735.0,
+      740.0,
+      745.0,
+      750.0,
+      755.0,
+      760.0,
+      765.0,
+      770.0,
+      775.0,
+      780.0,
+      785.0,
+      790.0,
+      795.0,
+      800.0,
+      805.0,
+      810.0,
+      815.0,
+      820.0,
+      825.0,
+      830.0,
+      835.0,
+      840.0,
+      845.0,
+      850.0
+    ],
+    "output_dir": "paper_reproductions\\mohamad2020\\results\\fig5_verified",
+    "section_override": false
+  },
+  "profile_note": "Paper-oriented numerical settings; assess convergence and geometry assumptions separately",
+  "definitions": {
+    "N": "maximum Fourier order; field has 2*N+1 harmonics",
+    "section_nm": "thickness of each cascaded S-matrix section",
+    "integration_step_nm": "section_nm/dm_substeps for DM; section_nm for RCWA",
+    "relative_error": "abs(R_minus_1 - 0.8785309971543)/0.8785309971543 (Fig.5)"
+  },
+  "limitations": [
+    "C-Method / commercial MC-Grating comparison is not implemented.",
+    "Fig.8 labels 283.2 nm; it is interpreted as peak-to-valley relief, and gold thickness 50 nm is modeled vertically.",
+    "GIL is a horizontal refractive-index interpolation on each z slice, followed by epsilon=n**2.",
+    "Fig.10b requires a user-supplied dispersive gold CSV; the paper gives n at only 810 nm.",
+    "Field plots reconstruct truncated Fourier coefficients directly; interface Gibbs effects remain."
+  ],
+  "source_hashes": {
+    "geometries.py": "068163730c3631681a573e5d275061a3f5f49c1523bdf9b2554b34eab6e0ea6f",
+    "reproduce.py": "3243e006fbf386a0ce27a97c13827f13f070b60279a25e412805029d602f3510",
+    "solver.py": "b0d0c345d4ce3b620e1da6e66457dfb1b25b71ee78d0f2a1c042b907b5a2ab0c",
+    "__init__.py": "47437a36c0c2ca8e43e75ccce891f34b30193c429ac1621f46ab633f3ba36df6"
+  },
+  "computations": [
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa, NFFT=4096",
+        "method": "rcwa",
+        "N": 20,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 1.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.7205025444411643,
+        "R0": 0.0008938205114159014,
+        "T0": 0.0038938158539826235,
+        "R": 0.7213963649525803,
+        "T": 0.01844506015081309,
+        "A": 0.2601585748966066,
+        "relative_error": 0.17987806147422766,
+        "elapsed_s": 1.067767600005027,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 20,
+        "retained_orders": 41,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 200,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa, NFFT=4096",
+        "method": "rcwa",
+        "N": 30,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 1.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.7774489931821345,
+        "R0": 0.0013485014121830097,
+        "T0": 0.0038310334855651,
+        "R": 0.7787974945943175,
+        "T": 0.018578401514185272,
+        "A": 0.20262410389149726,
+        "relative_error": 0.1150579823587171,
+        "elapsed_s": 2.6794659000006504,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 30,
+        "retained_orders": 61,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 200,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa, NFFT=4096",
+        "method": "rcwa",
+        "N": 50,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 1.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8152020843943334,
+        "R0": 0.001825769919418035,
+        "T0": 0.0035371618015203844,
+        "R": 0.8170278543137515,
+        "T": 0.017397609178735826,
+        "A": 0.1655745365075127,
+        "relative_error": 0.07208500663619037,
+        "elapsed_s": 8.531962500012014,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 50,
+        "retained_orders": 101,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 200,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa-fff, NFFT=4096",
+        "method": "rcwa-fff",
+        "N": 20,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 1.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8754874141989627,
+        "R0": 0.0021749448036103335,
+        "T0": 0.003353068248072968,
+        "R": 0.8776623590025731,
+        "T": 0.0167772812556131,
+        "A": 0.10556035974181384,
+        "relative_error": 0.003464400192134367,
+        "elapsed_s": 1.2195470000151545,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 20,
+        "retained_orders": 41,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 200,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa-fff, NFFT=4096",
+        "method": "rcwa-fff",
+        "N": 30,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 1.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8752462393851577,
+        "R0": 0.0021473777931672166,
+        "T0": 0.0033684635788915765,
+        "R": 0.8773936171783249,
+        "T": 0.016800291789984833,
+        "A": 0.1058060910316903,
+        "relative_error": 0.003738920743584728,
+        "elapsed_s": 2.3194094999926165,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 30,
+        "retained_orders": 61,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 200,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa-fff, NFFT=4096",
+        "method": "rcwa-fff",
+        "N": 50,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 1.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8728722043148949,
+        "R0": 0.002188755961404672,
+        "T0": 0.00339016215090616,
+        "R": 0.8750609602762995,
+        "T": 0.016980678459280137,
+        "A": 0.10795836126442032,
+        "relative_error": 0.00644119883957982,
+        "elapsed_s": 8.494478599983267,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 50,
+        "retained_orders": 101,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 200,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "dm-fff, NFFT=4096",
+        "method": "dm-fff",
+        "N": 20,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 0.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.878045451908967,
+        "R0": 0.0022517239545976975,
+        "T0": 0.0031626725238951842,
+        "R": 0.8802971758635647,
+        "T": 0.015873231512152614,
+        "A": 0.10382959262428268,
+        "relative_error": 0.0005526785587598169,
+        "elapsed_s": 4.271939099999145,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 20,
+        "retained_orders": 41,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 200,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 0.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "dm-fff, NFFT=4096",
+        "method": "dm-fff",
+        "N": 30,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 0.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8785091380408162,
+        "R0": 0.0022186560438156007,
+        "T0": 0.0031652811770157435,
+        "R": 0.8807277940846318,
+        "T": 0.01589100710409675,
+        "A": 0.1033811988112715,
+        "relative_error": 2.488143680149192e-05,
+        "elapsed_s": 7.881213699991349,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 30,
+        "retained_orders": 61,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 200,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 0.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "dm-fff, NFFT=4096",
+        "method": "dm-fff",
+        "N": 50,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 0.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.878213089879177,
+        "R0": 0.002162993891794705,
+        "T0": 0.003162378732161889,
+        "R": 0.8803760837709718,
+        "T": 0.01588111271521487,
+        "A": 0.10374280351381338,
+        "relative_error": 0.0003618623317251107,
+        "elapsed_s": 24.699913099990226,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 50,
+        "retained_orders": 101,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 200,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 0.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    }
+  ],
+  "updated_utc": "2026-10-19T12:28:10.904380+00:00",
+  "failed_computations": 0
+}

@@ -1,0 +1,34 @@
+{
+  "wavelength_nm": 810,
+  "angle_deg": 15,
+  "nfft": 4096,
+  "dm_substeps": 4,
+  "sampling": "entrance",
+  "orders_N": [
+    20,
+    40
+  ],
+  "gil_nm": [
+    0,
+    1
+  ],
+  "height_nm": 283.2,
+  "vertical_film_nm": 50,
+  "n_metal": {
+    "real": 0.16,
+    "imag": 5.26
+  },
+  "n_in": 1.55,
+  "n_out": 1,
+  "period_nm": 400,
+  "section_nm": {
+    "rcwa-fff": 1,
+    "dm-fff": 4
+  },
+  "source_hashes": {
+    "solver.py": "b0d0c345d4ce3b620e1da6e66457dfb1b25b71ee78d0f2a1c042b907b5a2ab0c",
+    "geometries.py": "068163730c3631681a573e5d275061a3f5f49c1523bdf9b2554b34eab6e0ea6f"
+  },
+  "probe_script_sha256": "6d5cfab5e35b5417d9a39276efd8c65e54f065e6bfe6153848064b307acef190",
+  "note": "Eight computed points; not a demonstration of convergence for all N."
+}

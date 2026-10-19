@@ -1,0 +1,3208 @@
+{
+  "paper": {
+    "title": "Fast Fourier factorization for differential method and RCWA: a powerful tool for the modeling of non-lamellar metallic diffraction gratings",
+    "authors": "Habib Mohamad et al.",
+    "doi": "10.1007/s11082-020-2240-y",
+    "year": 2020,
+    "source_path": "C:\\Users\\tsoyu\\Downloads\\Fast Fourier factorization for differential method and RCWA a powerful tool for the modeling of non-lamellar metallic diffraction gratings.pdf",
+    "source_sha256": "37dcfbaed907ab896a85dba0094d05368b25a759829b2dfacf46d69a0e489525"
+  },
+  "created_utc": "2026-10-19T12:28:03.960863+00:00",
+  "created_japan": "2026-10-19T21:28:03.960894+09:00",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "versions": {
+    "numpy": "2.3.0",
+    "scipy": "1.15.3",
+    "matplotlib": "3.10.3"
+  },
+  "command": [
+    "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\paper_reproductions\\mohamad2020\\reproduce.py",
+    "--study",
+    "all",
+    "--profile",
+    "quick",
+    "--output-dir",
+    "paper_reproductions/mohamad2020/results/all_quick"
+  ],
+  "blas_thread_environment": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "arguments": {
+    "study": "all",
+    "profile": "quick",
+    "orders": [
+      2,
+      6,
+      10
+    ],
+    "section_nm": 5.0,
+    "dm_substeps": 4,
+    "nfft": 4096,
+    "sampling": "entrance",
+    "include_nfft1024": false,
+    "field_order": 8,
+    "field_nx": 256,
+    "gold_data": null,
+    "wavelengths": [
+      400.0,
+      450.0,
+      500.0,
+      550.0,
+      600.0,
+      650.0,
+      700.0,
+      750.0,
+      800.0,
+      850.0
+    ],
+    "output_dir": "paper_reproductions\\mohamad2020\\results\\all_quick",
+    "section_override": false
+  },
+  "profile_note": "NOT paper settings: reduced quick demonstration",
+  "definitions": {
+    "N": "maximum Fourier order; field has 2*N+1 harmonics",
+    "section_nm": "thickness of each cascaded S-matrix section",
+    "integration_step_nm": "section_nm/dm_substeps for DM; section_nm for RCWA",
+    "relative_error": "abs(R_minus_1 - 0.8785309971543)/0.8785309971543 (Fig.5)"
+  },
+  "limitations": [
+    "C-Method / commercial MC-Grating comparison is not implemented.",
+    "Fig.8 labels 283.2 nm; it is interpreted as peak-to-valley relief, and gold thickness 50 nm is modeled vertically.",
+    "GIL is a horizontal refractive-index interpolation on each z slice, followed by epsilon=n**2.",
+    "Fig.10b requires a user-supplied dispersive gold CSV; the paper gives n at only 810 nm.",
+    "Field plots reconstruct truncated Fourier coefficients directly; interface Gibbs effects remain."
+  ],
+  "source_hashes": {
+    "geometries.py": "068163730c3631681a573e5d275061a3f5f49c1523bdf9b2554b34eab6e0ea6f",
+    "reproduce.py": "3243e006fbf386a0ce27a97c13827f13f070b60279a25e412805029d602f3510",
+    "solver.py": "b0d0c345d4ce3b620e1da6e66457dfb1b25b71ee78d0f2a1c042b907b5a2ab0c",
+    "__init__.py": "47437a36c0c2ca8e43e75ccce891f34b30193c429ac1621f46ab633f3ba36df6"
+  },
+  "computations": [
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa, NFFT=4096",
+        "method": "rcwa",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.13768424598129803,
+        "R0": 0.053057331483435284,
+        "T0": 0.003129879314457104,
+        "R": 0.1907415774647333,
+        "T": 0.021105857098235467,
+        "A": 0.7881525654370313,
+        "relative_error": 0.8432790118649439,
+        "elapsed_s": 0.056176999991294,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa, NFFT=4096",
+        "method": "rcwa",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.45220703023585923,
+        "R0": 0.007196621898717078,
+        "T0": 0.009778703777429596,
+        "R": 0.4594036521345763,
+        "T": 0.0448068038139736,
+        "A": 0.49578954405145004,
+        "relative_error": 0.48526912345650997,
+        "elapsed_s": 0.07842010003514588,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa, NFFT=4096",
+        "method": "rcwa",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.5649558624281675,
+        "R0": 0.0044074024215231735,
+        "T0": 0.006009863742992689,
+        "R": 0.5693632648496907,
+        "T": 0.02579149444118559,
+        "A": 0.4048452407091237,
+        "relative_error": 0.35693121328883287,
+        "elapsed_s": 0.0791421000030823,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa-fff, NFFT=4096",
+        "method": "rcwa-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.9786508306729215,
+        "R0": 0.02713000910682606,
+        "T0": 0.00163535365662679,
+        "R": 1.0057808397797476,
+        "T": 0.00724476945735466,
+        "A": -0.013025609237102297,
+        "relative_error": 0.11396277859623086,
+        "elapsed_s": 0.05912789999274537,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=1.0057808, T=0.0072447695, A=-0.013025609; finite values preserved"
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa-fff, NFFT=4096",
+        "method": "rcwa-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8902576396922923,
+        "R0": 0.0011959538927341549,
+        "T0": 0.004371441921933366,
+        "R": 0.8914535935850265,
+        "T": 0.02091785541776857,
+        "A": 0.08762855099720492,
+        "relative_error": 0.01334801227956294,
+        "elapsed_s": 0.06664710002951324,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "rcwa-fff, NFFT=4096",
+        "method": "rcwa-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8515911363748846,
+        "R0": 0.003015546114452297,
+        "T0": 0.0043110767047957604,
+        "R": 0.8546066824893369,
+        "T": 0.021059898264288668,
+        "A": 0.12433341924637442,
+        "relative_error": 0.030664667344325814,
+        "elapsed_s": 0.09681339998496696,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "dm-fff, NFFT=4096",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.98628642624875,
+        "R0": 0.02808907890767909,
+        "T0": 0.0012407350670624636,
+        "R": 1.0143755051564292,
+        "T": 0.00566782300320917,
+        "A": -0.02004332815963833,
+        "relative_error": 0.12265410036013148,
+        "elapsed_s": 0.4908024999895133,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=1.0143755, T=0.005667823, A=-0.020043328; finite values preserved"
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "dm-fff, NFFT=4096",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8990630246298612,
+        "R0": 0.0027533954720973496,
+        "T0": 0.0032433151566595396,
+        "R": 0.9018164201019585,
+        "T": 0.016007524552021167,
+        "A": 0.08217605534602032,
+        "relative_error": 0.02337086288596261,
+        "elapsed_s": 0.5486464999848977,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig5",
+        "curve": "dm-fff, NFFT=4096",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8929824703051613,
+        "R0": 0.002419325885859157,
+        "T0": 0.003206277686688287,
+        "R": 0.8954017961910204,
+        "T": 0.016047286013293773,
+        "A": 0.08855091779568577,
+        "relative_error": 0.016449588230434502,
+        "elapsed_s": 0.5968094000127167,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig6",
+        "curve": "rcwa",
+        "method": "rcwa",
+        "N": 8,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.538618600570874,
+        "R0": 0.0035399296692958677,
+        "T0": 0.005961510129139683,
+        "R": 0.5421585302401698,
+        "T": 0.025734959774120856,
+        "A": 0.4321065099857093,
+        "relative_error": null,
+        "elapsed_s": 0.10602329997345805,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 8,
+        "retained_orders": 17,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig6",
+        "curve": "rcwa-fff",
+        "method": "rcwa-fff",
+        "N": 8,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8780735400693377,
+        "R0": 0.0009699324471426301,
+        "T0": 0.004068974275177335,
+        "R": 0.8790434725164803,
+        "T": 0.020202165212475687,
+        "A": 0.10075436227104402,
+        "relative_error": null,
+        "elapsed_s": 0.11054770002374426,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 8,
+        "retained_orders": 17,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig6",
+        "curve": "dm-fff",
+        "method": "dm-fff",
+        "N": 8,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.8991920991642457,
+        "R0": 0.002713228600078058,
+        "T0": 0.0032384689555291996,
+        "R": 0.9019053277643237,
+        "T": 0.016182701380237804,
+        "A": 0.08191197085543844,
+        "relative_error": null,
+        "elapsed_s": 0.5555891999974847,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "sinusoidal_aluminium",
+        "period_nm": 500.0,
+        "depth_nm": 200.0,
+        "height_nm": 200.0,
+        "film_nm": 0.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "n_metal": {
+          "real": 1.3,
+          "imag": 7.6
+        },
+        "computational_z_direction": "down",
+        "film_thickness_convention": "semi-infinite metal",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 632.8,
+        "angle_deg": 40,
+        "N": 8,
+        "retained_orders": 17,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 40,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9a",
+        "curve": "DM-FFF, Dz=1 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 4.0,
+        "integration_step_nm": 1.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.0,
+        "R0": 1.380909497726268,
+        "T0": 0.13934631536003067,
+        "R": 1.380909497726268,
+        "T": 0.13934631536003067,
+        "A": -0.5202558130862986,
+        "relative_error": null,
+        "elapsed_s": 0.9493247999926098,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=1.3809095, T=0.13934632, A=-0.52025581; finite values preserved"
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 4.0,
+        "sections": 84,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig9a",
+        "curve": "DM-FFF, Dz=1 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 4.0,
+        "integration_step_nm": 1.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.0,
+        "R0": 0.31457487397296846,
+        "T0": 0.31421039172539383,
+        "R": 0.31457487397296846,
+        "T": 0.31421039172539383,
+        "A": 0.3712147343016377,
+        "relative_error": null,
+        "elapsed_s": 1.0351081999833696,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 4.0,
+        "sections": 84,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9a",
+        "curve": "DM-FFF, Dz=1 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 4.0,
+        "integration_step_nm": 1.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.0,
+        "R0": 0.27495389497199124,
+        "T0": 0.35520429430495487,
+        "R": 0.27495389497199124,
+        "T": 0.35520429430495487,
+        "A": 0.36984181072305394,
+        "relative_error": null,
+        "elapsed_s": 1.1380414000013843,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 4.0,
+        "sections": 84,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9a",
+        "curve": "DM-FFF, Dz=0.5 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 2.0,
+        "integration_step_nm": 0.5,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.0,
+        "R0": 1.3044851307144458,
+        "T0": 0.12744443459220062,
+        "R": 1.3044851307144458,
+        "T": 0.12744443459220062,
+        "A": -0.43192956530664645,
+        "relative_error": null,
+        "elapsed_s": 1.8810192000237294,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=1.3044851, T=0.12744443, A=-0.43192957; finite values preserved"
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 2.0,
+        "sections": 167,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 0.5,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig9a",
+        "curve": "DM-FFF, Dz=0.5 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 2.0,
+        "integration_step_nm": 0.5,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.0,
+        "R0": 0.3212341268274666,
+        "T0": 0.3053384789834724,
+        "R": 0.3212341268274666,
+        "T": 0.3053384789834724,
+        "A": 0.37342739418906107,
+        "relative_error": null,
+        "elapsed_s": 1.97399069997482,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 2.0,
+        "sections": 167,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 0.5,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9a",
+        "curve": "DM-FFF, Dz=0.5 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 2.0,
+        "integration_step_nm": 0.5,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.0,
+        "R0": 0.28600245783454487,
+        "T0": 0.34031571050542964,
+        "R": 0.28600245783454487,
+        "T": 0.34031571050542964,
+        "A": 0.37368183166002555,
+        "relative_error": null,
+        "elapsed_s": 2.2690268000005744,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 2.0,
+        "sections": 167,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 0.5,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9a",
+        "curve": "DM-FFF, Dz=0.25 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 0.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.0,
+        "R0": 1.2884108874924425,
+        "T0": 0.12295123867469782,
+        "R": 1.2884108874924425,
+        "T": 0.12295123867469782,
+        "A": -0.4113621261671403,
+        "relative_error": null,
+        "elapsed_s": 3.768816199968569,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=1.2884109, T=0.12295124, A=-0.41136213; finite values preserved"
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 334,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 0.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig9a",
+        "curve": "DM-FFF, Dz=0.25 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 0.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.0,
+        "R0": 0.3226448020575195,
+        "T0": 0.316381261699936,
+        "R": 0.3226448020575195,
+        "T": 0.316381261699936,
+        "A": 0.36097393624254454,
+        "relative_error": null,
+        "elapsed_s": 3.9657579000340775,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 334,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 0.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9a",
+        "curve": "DM-FFF, Dz=0.25 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "integration_step_nm": 0.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0.0,
+        "R_minus_1": 0.0,
+        "R0": 0.27149626498398005,
+        "T0": 0.37057358986621014,
+        "R": 0.27149626498398005,
+        "T": 0.37057358986621014,
+        "A": 0.3579301451498098,
+        "relative_error": null,
+        "elapsed_s": 4.787339599977713,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0.0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 1.0,
+        "sections": 334,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 0.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=0 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0,
+        "R_minus_1": 0.0,
+        "R0": 1.2389198660172878,
+        "T0": 0.09630734736647827,
+        "R": 1.2389198660172878,
+        "T": 0.09630734736647827,
+        "A": -0.33522721338376604,
+        "relative_error": null,
+        "elapsed_s": 0.7094530000467785,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=1.2389199, T=0.096307347, A=-0.33522721; finite values preserved"
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=0 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0,
+        "R_minus_1": 0.0,
+        "R0": 0.39450020473517855,
+        "T0": 0.3000808032707128,
+        "R": 0.39450020473517855,
+        "T": 0.3000808032707128,
+        "A": 0.30541899199410866,
+        "relative_error": null,
+        "elapsed_s": 0.792981399979908,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=0 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 0,
+        "R_minus_1": 0.0,
+        "R0": 0.2833879986832406,
+        "T0": 0.33543161339881683,
+        "R": 0.2833879986832406,
+        "T": 0.33543161339881683,
+        "A": 0.38118038791794256,
+        "relative_error": null,
+        "elapsed_s": 0.9066359999706037,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=1 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 1,
+        "R_minus_1": 0.0,
+        "R0": 1.1430571997426946,
+        "T0": 0.09206948561839397,
+        "R": 1.1430571997426946,
+        "T": 0.09206948561839397,
+        "A": -0.23512668536108855,
+        "relative_error": null,
+        "elapsed_s": 0.8446497999830171,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=1.1430572, T=0.092069486, A=-0.23512669; finite values preserved"
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 1,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=1 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 1,
+        "R_minus_1": 0.0,
+        "R0": 0.3562776371970814,
+        "T0": 0.25697117590771446,
+        "R": 0.3562776371970814,
+        "T": 0.25697117590771446,
+        "A": 0.38675118689520416,
+        "relative_error": null,
+        "elapsed_s": 0.9045979999937117,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 1,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=1 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 1,
+        "R_minus_1": 0.0,
+        "R0": 0.3360754588896098,
+        "T0": 0.44033084373789416,
+        "R": 0.3360754588896098,
+        "T": 0.44033084373789416,
+        "A": 0.22359369737249607,
+        "relative_error": null,
+        "elapsed_s": 1.0304570000153035,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 1,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=5 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 5,
+        "R_minus_1": 0.0,
+        "R0": 0.8177465211319517,
+        "T0": 0.005730279636403855,
+        "R": 0.8177465211319517,
+        "T": 0.005730279636403855,
+        "A": 0.17652319923164447,
+        "relative_error": null,
+        "elapsed_s": 0.8285106000257656,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 5,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=5 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 5,
+        "R_minus_1": 0.0,
+        "R0": 0.47082195715719116,
+        "T0": 0.2835042079021205,
+        "R": 0.47082195715719116,
+        "T": 0.2835042079021205,
+        "A": 0.24567383494068828,
+        "relative_error": null,
+        "elapsed_s": 0.9267338999779895,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 5,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=5 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 5,
+        "R_minus_1": 0.0,
+        "R0": 0.2647518247928,
+        "T0": 0.2714539569832471,
+        "R": 0.2647518247928,
+        "T": 0.2714539569832471,
+        "A": 0.4637942182239529,
+        "relative_error": null,
+        "elapsed_s": 1.0259160999557935,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 5,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=7 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 7,
+        "R_minus_1": 0.0,
+        "R0": 0.6272507518962922,
+        "T0": 0.009171038553787201,
+        "R": 0.6272507518962922,
+        "T": 0.009171038553787201,
+        "A": 0.3635782095499206,
+        "relative_error": null,
+        "elapsed_s": 0.8326783999800682,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 7,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=7 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 7,
+        "R_minus_1": 0.0,
+        "R0": 0.3616662640677749,
+        "T0": 0.27899212880508684,
+        "R": 0.3616662640677749,
+        "T": 0.27899212880508684,
+        "A": 0.35934160712713825,
+        "relative_error": null,
+        "elapsed_s": 0.8875056999968365,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 7,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=7 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 7,
+        "R_minus_1": 0.0,
+        "R0": 0.22681458984167646,
+        "T0": 0.22517240307526123,
+        "R": 0.22681458984167646,
+        "T": 0.22517240307526123,
+        "A": 0.5480130070830623,
+        "relative_error": null,
+        "elapsed_s": 0.9883768000290729,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 7,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=10 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 10,
+        "R_minus_1": 0.0,
+        "R0": 0.2861552243772056,
+        "T0": 0.026263653069717948,
+        "R": 0.2861552243772056,
+        "T": 0.026263653069717948,
+        "A": 0.6875811225530765,
+        "relative_error": null,
+        "elapsed_s": 0.813501600001473,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 10,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=10 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 10,
+        "R_minus_1": 0.0,
+        "R0": 0.20499167962221068,
+        "T0": 0.203377832520079,
+        "R": 0.20499167962221068,
+        "T": 0.203377832520079,
+        "A": 0.5916304878577103,
+        "relative_error": null,
+        "elapsed_s": 0.9042130000307225,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 10,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig9b",
+        "curve": "DM-FFF, GIL=10 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "gil_nm": 10,
+        "R_minus_1": 0.0,
+        "R0": 0.19295721806372582,
+        "T0": 0.1723379656174078,
+        "R": 0.19295721806372582,
+        "T": 0.1723379656174078,
+        "A": 0.6347048163188664,
+        "relative_error": null,
+        "elapsed_s": 1.0214076000265777,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 10,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 11,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "dm-fff, GIL=0 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 0,
+        "R_minus_1": 0.0,
+        "R0": 1.0405982375637712,
+        "T0": 0.14232461223183698,
+        "R": 1.0405982375637712,
+        "T": 0.14232461223183698,
+        "A": -0.18292284979560822,
+        "relative_error": null,
+        "elapsed_s": 0.731351199967321,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=1.0405982, T=0.14232461, A=-0.18292285; finite values preserved"
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "dm-fff, GIL=0 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 0,
+        "R_minus_1": 0.0,
+        "R0": 0.42792328908421157,
+        "T0": 0.3554603207251506,
+        "R": 0.42792328908421157,
+        "T": 0.3554603207251506,
+        "A": 0.2166163901906379,
+        "relative_error": null,
+        "elapsed_s": 0.7758748999913223,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "dm-fff, GIL=0 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 0,
+        "R_minus_1": 0.0,
+        "R0": 0.3260354577851629,
+        "T0": 0.3875477736981522,
+        "R": 0.3260354577851629,
+        "T": 0.3875477736981522,
+        "A": 0.28641676851668485,
+        "relative_error": null,
+        "elapsed_s": 0.9657497999724001,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "dm-fff, GIL=1 nm",
+        "method": "dm-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 1,
+        "R_minus_1": 0.0,
+        "R0": 0.9664090434800211,
+        "T0": 0.13372316252739572,
+        "R": 0.9664090434800211,
+        "T": 0.13372316252739572,
+        "A": -0.10013220600741682,
+        "relative_error": null,
+        "elapsed_s": 0.8653933999594301,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=0.96640904, T=0.13372316, A=-0.10013221; finite values preserved"
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 1,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "dm-fff, GIL=1 nm",
+        "method": "dm-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 1,
+        "R_minus_1": 0.0,
+        "R0": 0.3966003038460878,
+        "T0": 0.31097229830812434,
+        "R": 0.3966003038460878,
+        "T": 0.31097229830812434,
+        "A": 0.29242739784578786,
+        "relative_error": null,
+        "elapsed_s": 1.0289262000005692,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 1,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "dm-fff, GIL=1 nm",
+        "method": "dm-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 1.25,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 1,
+        "R_minus_1": 0.0,
+        "R0": 0.46229212120842417,
+        "T0": 0.5715692912179506,
+        "R": 0.46229212120842417,
+        "T": 0.5715692912179506,
+        "A": -0.03386141242637475,
+        "relative_error": null,
+        "elapsed_s": 0.981523200054653,
+        "status": "UNPHYSICAL",
+        "error": "passive energy balance R=0.46229212, T=0.57156929, A=-0.033861412; finite values preserved"
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 1,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "dm-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 1.25,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": true
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "rcwa-fff, GIL=1 nm",
+        "method": "rcwa-fff",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 1,
+        "R_minus_1": 0.0,
+        "R0": 0.43933149124429993,
+        "T0": 0.20824195684881788,
+        "R": 0.43933149124429993,
+        "T": 0.20824195684881788,
+        "A": 0.3524265519068822,
+        "relative_error": null,
+        "elapsed_s": 0.08949149999534711,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 1,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "rcwa-fff, GIL=1 nm",
+        "method": "rcwa-fff",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 1,
+        "R_minus_1": 0.0,
+        "R0": 0.4819695141355629,
+        "T0": 0.32876323602178575,
+        "R": 0.4819695141355629,
+        "T": 0.32876323602178575,
+        "A": 0.18926724984265136,
+        "relative_error": null,
+        "elapsed_s": 0.10724169999593869,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 1,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "rcwa-fff, GIL=1 nm",
+        "method": "rcwa-fff",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 1,
+        "R_minus_1": 0.0,
+        "R0": 0.3358236996088277,
+        "T0": 0.48811651309590515,
+        "R": 0.3358236996088277,
+        "T": 0.48811651309590515,
+        "A": 0.1760597872952671,
+        "relative_error": null,
+        "elapsed_s": 0.14329020003788173,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 1,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa-fff",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "rcwa, GIL=0 nm",
+        "method": "rcwa",
+        "N": 2,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 0,
+        "R_minus_1": 0.0,
+        "R0": 0.051523986649894465,
+        "T0": 0.6819771881673704,
+        "R": 0.051523986649894465,
+        "T": 0.6819771881673704,
+        "A": 0.26649882518273516,
+        "relative_error": null,
+        "elapsed_s": 0.07872320001479238,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 2,
+        "retained_orders": 5,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "rcwa, GIL=0 nm",
+        "method": "rcwa",
+        "N": 6,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 0,
+        "R_minus_1": 0.0,
+        "R0": 0.014965747275006963,
+        "T0": 0.33340483094338946,
+        "R": 0.014965747275006963,
+        "T": 0.33340483094338946,
+        "A": 0.6516294217816035,
+        "relative_error": null,
+        "elapsed_s": 0.10057559999404475,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 6,
+        "retained_orders": 13,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    },
+    {
+      "row": {
+        "study": "fig10a",
+        "curve": "rcwa, GIL=0 nm",
+        "method": "rcwa",
+        "N": 10,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "integration_step_nm": 5.0,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "gil_nm": 0,
+        "R_minus_1": 0.0,
+        "R0": 0.1003345004176205,
+        "T0": 0.3278650616987116,
+        "R": 0.1003345004176205,
+        "T": 0.3278650616987116,
+        "A": 0.5718004378836679,
+        "relative_error": null,
+        "elapsed_s": 0.12548009998863563,
+        "status": "OK",
+        "error": ""
+      },
+      "geometry": {
+        "name": "triangular_gold",
+        "period_nm": 400.0,
+        "depth_nm": 333.2,
+        "height_nm": 283.2,
+        "film_nm": 50.0,
+        "gil_nm": 0,
+        "n_in": {
+          "real": 1.55,
+          "imag": 0.0
+        },
+        "n_out": {
+          "real": 1.0,
+          "imag": 0.0
+        },
+        "n_metal": {
+          "real": 0.16,
+          "imag": 5.26
+        },
+        "computational_z_direction": "up",
+        "film_thickness_convention": "vertical z offset",
+        "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary"
+      },
+      "solver": {
+        "method": "rcwa",
+        "wavelength_nm": 810,
+        "angle_deg": 15,
+        "N": 10,
+        "retained_orders": 21,
+        "nfft": 4096,
+        "section_nm": 5.0,
+        "sections": 67,
+        "dm_substeps": 4,
+        "sampling": "entrance",
+        "integration_step_nm": 5.0,
+        "precision": "complex128",
+        "time_convention": "exp(-i omega t)",
+        "power_warning": false
+      }
+    }
+  ],
+  "updated_utc": "2026-10-19T12:28:50.543627+00:00",
+  "failed_computations": 0
+}

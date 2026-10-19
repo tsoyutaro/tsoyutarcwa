@@ -24,6 +24,13 @@ from typing import Iterable
 
 HC_EV_NM = 1239.8419843320026
 
+# Reuse the existing measured table; do not copy optical constants into each
+# new reproduction. gold_motheye3 and gold_motheye_nv currently contain the
+# same table, but gold_motheye2 is the shared default location.
+DEFAULT_GOLD_CSV = (
+    Path(__file__).resolve().parents[1] / "gold_motheye2" / "data" / "au_measured_nk.csv"
+)
+
 
 def gold_epsilon_rakic_ld(wavelength_nm: float) -> complex:
     """Return bulk-Au relative permittivity from the Rakić LD fit.

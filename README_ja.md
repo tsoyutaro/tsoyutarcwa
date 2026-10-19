@@ -21,6 +21,7 @@ outputs/
 │  ├─ wang2022_fig8/          # ASR-RCWA論文 Fig. 8
 │  ├─ weiss2009/              # 円形 matched-coordinate ASR、Fig. 2～5
 │  ├─ peng2025/               # Ag–air–Ag円形構造
+│  ├─ mohamad2020/            # 1次元TM RCWA/FFF/DM、Fig. 5・6・9・10
 │  └─ vallius2002/            # 1次元parametric ASR、Fig. 6・7・9・11
 ├─ validation/                # solver横断の独立検証
 ├─ docs/                      # 数式導出・設計資料
@@ -47,6 +48,12 @@ Fig. 4(a) の図との一致と、Fig. 3・4(b) の高次数で残る収束問�
 Vallius & Honkanen (2002) の図6・7・9・11は
 [専用ガイド](paper_reproductions/vallius2002/README_ja.md)を参照してください。
 論文の未指定寸法などの仮定と、計算した曲線の一致範囲を保存しています。
+
+Mohamad et al. (2020) のRCWA・RCWA-FFF・DM-FFFとGILの計算は
+[専用ガイド](paper_reproductions/mohamad2020/README_ja.md)を参照してください。
+図5・6・9・10の実行、解析解による検証に対応します。図10bは既存のAu CSVと
+`studies/shared/gold_dispersion.py` の共通補間を使い、`--study all` に含まれます。
+形状の解釈と、未実施の高次数全掃引を含む再現範囲は専用ガイドに記載しています。
 
 ## よく使うコマンド
 
