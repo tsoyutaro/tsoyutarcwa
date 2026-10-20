@@ -223,7 +223,7 @@
     "torcwa": "0.1.4.2",
     "cuda": "12.4",
     "device": "cuda:0",
-    "gpu": "NVIDIA H100 MIG 4g.47gb",
+    "gpu": "NVIDIA H100 MIG 3g.47gb",
     "gpu_total_bytes": 49794777088,
     "optuna": "4.6.0"
   },
@@ -394,6 +394,38 @@
         "gpu": {
           "previous": "NVIDIA H100 MIG 3g.47gb",
           "current": "NVIDIA H100 MIG 4g.47gb"
+        }
+      },
+      "note": "Same numerical model; hardware changes can alter timings and floating-point rounding."
+    },
+    {
+      "utc": "2026-10-19T15:07:29.501286+00:00",
+      "kind": "gpu-configuration-change",
+      "policy": "same-gpu-model-cuda-hardware-only-v1",
+      "previous": {
+        "python": "3.9.25",
+        "torch": "2.6.0+cu124",
+        "torcwa": "0.1.4.2",
+        "cuda": "12.4",
+        "device": "cuda:0",
+        "gpu": "NVIDIA H100 MIG 4g.47gb",
+        "gpu_total_bytes": 49794777088,
+        "optuna": "4.6.0"
+      },
+      "current": {
+        "python": "3.9.25",
+        "torch": "2.6.0+cu124",
+        "torcwa": "0.1.4.2",
+        "cuda": "12.4",
+        "device": "cuda:0",
+        "gpu": "NVIDIA H100 MIG 3g.47gb",
+        "gpu_total_bytes": 49794777088,
+        "optuna": "4.6.0"
+      },
+      "differences": {
+        "gpu": {
+          "previous": "NVIDIA H100 MIG 4g.47gb",
+          "current": "NVIDIA H100 MIG 3g.47gb"
         }
       },
       "note": "Same numerical model; hardware changes can alter timings and floating-point rounding."
