@@ -15,6 +15,7 @@ outputs/
 ├─ studies/                   # モスアイなどの応用・収束計算
 │  ├─ shared/                 # 共通材料モデル（金分散）
 │  ├─ gold_motheye/           # 金モスアイ／金基板
+│  ├─ gold_motheye_fff2d/     # 傾斜3成分法線FFF・次数収束・独立物理検査
 │  ├─ pmma_gold_motheye/      # 非接触金被覆PMMAモスアイ
 │  └─ mosmite_gold_30nm/      # Au 30 nm合体を扱うASR/周期ラスタ混成モデル
 ├─ paper_reproductions/       # 論文ごとの再現実装
@@ -54,6 +55,11 @@ Mohamad et al. (2020) のRCWA・RCWA-FFF・DM-FFFとGILの計算は
 図5・6・9・10の実行、解析解による検証に対応します。図10bは既存のAu CSVと
 `studies/shared/gold_dispersion.py` の共通補間を使い、`--study all` に含まれます。
 形状の解釈と、未実施の高次数全掃引を含む再現範囲は専用ガイドに記載しています。
+
+2次元周期の金モスアイに対する傾斜法線FFFとスライスNVの比較は
+[専用ガイド](studies/gold_motheye_fff2d/README_ja.md)を参照してください。
+次数・層数・法線格子・DM刻みの収束と、独立なパワー・体積吸収・受動性診断を用意しました。
+低次数Auで非物理値を検出しており、高次数収束・全条件の物理妥当性は未確認です。
 
 ## よく使うコマンド
 

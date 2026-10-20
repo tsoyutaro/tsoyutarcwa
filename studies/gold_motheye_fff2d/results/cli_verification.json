@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "check_count": 6,
+  "checks": [
+    {
+      "name": "resume preserves completed numerical cases",
+      "passed": true,
+      "returncode": 1
+    },
+    {
+      "name": "mismatched checkpoint rejected",
+      "passed": true,
+      "returncode": 2
+    },
+    {
+      "name": "incomplete DM convergence returns requested exit2",
+      "passed": true,
+      "returncode": 2
+    },
+    {
+      "name": "DM-step axis planning",
+      "passed": true,
+      "returncode": 0
+    },
+    {
+      "name": "overlapping geometry rejected",
+      "passed": true,
+      "returncode": 2
+    },
+    {
+      "name": "insufficient normal grid rejected",
+      "passed": true,
+      "returncode": 2
+    }
+  ]
+}

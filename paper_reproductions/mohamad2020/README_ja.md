@@ -8,6 +8,12 @@ graded index layer（GIL）を対象にしています。既存の `rcwa_ext` �
 設定変更は不要です。実装を用意したことと、論文の全曲線との定量的一致は区別してください。
 MC-Grating/C-Methodは実装していません。
 
+2026-10-20修正: 旧 `results/paper/` の高次数DM結果には固定刻みRK4による人工的な増幅が
+混入していました。既定を誤差制御付きの行列指数積分に変更し、GILの配置を図7に合わせて
+元の界面を中心にδ/2ずつ置く形に修正しました。旧結果は変更していません。
+原因と修正後の検証は [修正報告](FIX_20261020_ja.md) を参照してください。
+同じ微分方程式を解きますが、修正後の積分法は論文の固定RK4と異なります。
+
 ## 実行コマンド
 
 PowerShellで、既存の `paper_reproductions/` がある `outputs/` を作業ディレクトリにします。
@@ -16,7 +22,7 @@ Python 3.10以上が必要です。
 ```powershell
 Set-Location 'C:\Users\tsoyu\Documents\Codex\2026-08-06\files-mentioned-by-the-user-extensions\outputs'
 python -m pip install -r paper_reproductions/mohamad2020/requirements.txt
-python -m unittest paper_reproductions.mohamad2020.validation.test_solver paper_reproductions.mohamad2020.validation.test_materials -v
+python -m unittest discover -s paper_reproductions/mohamad2020/validation -t . -v
 python -m paper_reproductions.mohamad2020.reproduce --study smoke --output-dir paper_reproductions/mohamad2020/results/smoke
 ```
 
@@ -47,13 +53,22 @@ python -m paper_reproductions.mohamad2020.reproduce --study fig10a --profile pap
 図10bを含めて全studyを一括計算する場合:
 
 ```powershell
-python -m paper_reproductions.mohamad2020.reproduce --study all --profile paper --output-dir paper_reproductions/mohamad2020/results/paper
+python -m paper_reproductions.mohamad2020.reproduce --study all --profile paper --output-dir paper_reproductions/mohamad2020/results/paper_fixed_20261020
+```
+
+まず今回の異常点一つを確認する場合（`--gil-thicknesses` は図9bだけに適用）:
+
+```powershell
+python -m paper_reproductions.mohamad2020.reproduce --study fig9b --profile paper --orders 60 --gil-thicknesses 5 --output-dir paper_reproductions/mohamad2020/results/check_fixed_n60
 ```
 
 `paper` の高次数掃引は、密行列演算と多数のz断面を使うため長時間かかります。
 まず `--orders 10,20,30` のような限定した次数で実行できます。
-各点が終わるたびにCSVと設定JSONを更新しますが、同じ出力先の再実行は上書きです。
-同時実行には別々の `--output-dir` を指定してください。
+各点が終わるたびにCSVと設定JSONを更新します。既存の非空フォルダへの出力は拒否します。
+再実行・同時実行には別々の `--output-dir` を指定してください。明示的に上書きする場合だけ
+`--overwrite` を指定します。中断した旧RK4実行からの再開・異なる実装の結果の混合は行いません。
+出力先の指定を省略すると `results/<profile>_<dm-integrator>/` になります。
+既に起動済みのPythonプロセスにはソース更新が反映されないため、旧実行を止めて起動し直してください。
 
 モジュール起動以外に、作業ディレクトリに依存しない直接起動もできます。
 
@@ -68,7 +83,7 @@ python 'C:\Users\tsoyu\Documents\Codex\2026-08-06\files-mentioned-by-the-user-ex
 | `smoke` | 正弦波格子、3手法、N=2、粗いz分割での実行確認 |
 | `fig5` | λ=632.8 nm、θ=40°、3手法のR−1と参照値に対する相対誤差 |
 | `fig6` | 同格子の各手法の電場絶対値。paperではN=50、quickではN=8 |
-| `fig9a` | λ=810 nm、θ=11°、GILなし、DM-FFFの積分刻みDz=1,0.5,0.25 nm |
+| `fig9a` | λ=810 nm、θ=11°、GILなし、DM-FFFの最大試行刻みDz=1,0.5,0.25 nm |
 | `fig9b` | λ=810 nm、θ=11°、DM-FFF、GIL厚さδ=0,1,5,7,10 nm |
 | `fig10a` | λ=810 nm、θ=15°、DM-FFFのδ=0,1、RCWA-FFFのδ=1、RCWAのδ=0 |
 | `fig10b` | θ=15°、DM-FFFのδ=0,0.3 nm、既存の共通Au CSVによるT0波長掃引 |
@@ -81,16 +96,28 @@ python 'C:\Users\tsoyu\Documents\Codex\2026-08-06\files-mentioned-by-the-user-ex
 `paper` の既定次数は2,4,...,100に、論文が離散的発散を報告したN=95を加えます。
 `--orders` を明示した場合は、その指定だけを使用します。
 
-`--section-nm` は一つのS行列を構成する厚さです。DM-FFFはその中を
-`--dm-substeps`（既定4）に分けて積分します。したがって、section=1 nmなら
-DMの積分刻みは0.25 nm、RCWAの断面間隔は1 nmです。図9aは論文のDzを積分刻みと解釈し、
+`--section-nm` は出力・場の再構成に用いる外側の区間幅です。DM-FFFの最大試行刻みは
+`section_nm / dm_substeps`（既定4分割）です。したがって、section=1 nmなら
+DMの最大刻みは0.25 nm、RCWAの断面間隔は1 nmです。図9aは論文のDzを刻みの上限と解釈し、
 Dzに合わせてsectionを4,2,1 nmに変更します。CSVには両方の厚さを記録します。
-`paper` の図9b・10a・10bではDM-FFFのsection=dm_substeps nm、積分刻みDz=1 nmです。
+`paper` の図9b・10a・10bではDM-FFFのsection=dm_substeps nm、最大試行刻みDz=1 nmです。
 既定のdm_substeps=4ならsection=4 nmです。
 図10aのRCWA・RCWA-FFFはsection=1 nmです。図5・6は全手法でsection=1 nmです。
 明示した `--section-nm` はこれらの図別既定値を上書きします。図9aを上書きした場合は、
 指定sectionに対応するDzの1曲線だけを計算します。
-z方向の材料評価点は既定 `--sampling entrance` で、`midpoint` への変更は別設定として記録します。
+`--sampling entrance/midpoint` はRCWAの凍結断面の評価位置です。DMは積分法固有の評価点を使います。
+
+既定の `--dm-integrator cf4-adaptive` は、滑らかなGILでは4次のcommutator-free Magnus法と
+一歩対二つの半歩の比較で誤差制御します。既定は `--dm-rtol 1e-6 --dm-atol 1e-9`、
+局所誤差が大きければ刻みを縮めます。GILなしではFFTの各x点を界面が横切るzをすべて解き、
+その間の定数行列を指数関数で積分します。評価点が薄い区間を見落とす問題も避けます。
+S行列は外側のsectionより短い各内部区間で合成します。実際の刻み範囲、採用・棄却数を
+`settings.json` の `integration_diagnostics` に保存します。
+高次数では旧版より長時間かかります。まず少数のNで計算し、許容誤差・NFFTを変えて収束を確認してください。
+
+`--dm-integrator rk4` は固定刻みRK4との比較専用です。高次数での人工的増幅が残るため、
+物理結果の採用には使わないでください。`--dm-integrator cf4` は誤差制御なしの固定Magnusで、
+これも刻みを半分にした独立の確認が必要です。修正版の図9aは元論文の数値発散を同じ形で再現する設定ではありません。
 
 ## 図10b: 既存の共通Au CSVを使用
 
@@ -127,7 +154,8 @@ PNGは計算した値のプロットです。`settings.json` に実行日時、�
 元PDFがユーザー指定の場所に存在すれば、そのSHA-256も保存します。
 図6には再解析用の複素フーリエ係数と絶対値マップをNPZで保存します。
 
-保存済みの実行・精度確認は [検証結果](results/ASSESSMENT_ja.md) を参照してください。
+旧実装の実行記録は [旧検証結果](results/ASSESSMENT_ja.md) を参照してください。
+この記録は高次数でのRK4異常を検証していないため、修正後の高次数検証とは区別してください。
 `results/all_shared_gold_quick/` は図10bを含む全studyの出力確認、
 `results/all_quick/` は前版の5studyの記録です。`results/fig5_verified/` は論文のz分割・FFT条件で
 N=20,30,50を計算した結果です。高次数の全掃引は未実行です。
@@ -135,8 +163,9 @@ N=20,30,50を計算した結果です。高次数の全掃引は未実行です�
 数値線形代数の例外・警告・非有限値は `FAILED` としてNaNと原因を保存します。
 有限値でも受動系のエネルギー収支を破る点は `UNPHYSICAL` として値を保存し、そのまま描きます。
 発散自体が図9・10で検討されているため、R0>1の値を1に切り詰めたり隠したりしません。
-`FAILED` があるとCLI終了コードは1です。`UNPHYSICAL` のみの場合は終了コード0ですが、
-値の収束・妥当性を確認してください。
+CLI終了コードは、`FAILED` があれば1、`UNPHYSICAL` のみなら3、全点OKなら0です。
+吸収Aは残差 `1-R-T` なので、`R+T+A=1` は独立した検証ではありません。
+受動性に加え、次数・z積分許容誤差・NFFTに対する収束を確認してください。
 
 BLASの並列数は、環境変数に指定がない場合に1へ設定します。既存の環境設定を優先します。
 使用した値はJSONに保存します。GPUバックエンドはありません。
@@ -144,8 +173,8 @@ BLASの並列数は、環境変数に指定がない場合に1へ設定します
 ## 再現の範囲と制約
 
 - 図8には283.2 nmの寸法が明記されており、ここでは三角波の谷から山までの高さと解釈しています。50 nmの金薄膜厚さをz方向の厚さと解釈しています。法線方向一定厚さのコーティングとは異なり、この解釈による系統差があり得ます。
-- GILは各z断面の界面に沿うx方向の厚さδとして扱い、屈折率を線形補間した後で `epsilon=n**2` を計算します。εそのものの線形補間や法線方向の一定厚さとは異なります。
+- GILは各z断面で元の界面を中心に両側へδ/2ずつ配置し、屈折率を線形補間した後で `epsilon=n**2` を計算します。`--gil-side dielectric` は旧配置の比較用、`--gil-side metal` は別の片側配置の比較用です。εそのものの線形補間や法線方向の一定厚さとは異なります。
 - 外部MC-GratingによるC-Methodの比較曲線は含めません。図10bには既存プロジェクトのAu CSVを採用しており、論文で使われた分散表と同一であることは確認できていません。
 - 図6は計算領域内のS行列境界におけるExを直接フーリエ再合成します。界面付近のGibbs振動とz分割への依存が残るため、論文画像との画素単位の一致を保証しません。表示上端は高さ200 nm、下端は0 nmで、論文図の共通高さオフセットは省略します。
 - `quick` は動作確認専用です。`paper` でもN、z刻み、FFT点数、形状解釈を個別に確認し、収束した値を評価してください。
-- DMでは標準的な4次Runge–Kuttaを積分刻み `section_nm/dm_substeps` で実行します。論文のns=4という記述には内部の評価点・実装の全詳細がないため、原著コードと完全に同じ段階処理であるとは保証しません。
+- 修正後の既定DMは論文の固定RK4を置き換えています。幾何形状・GIL・有限Fourier展開による差は残ります。元論文の全曲線の一致を確認したことにはなりません。

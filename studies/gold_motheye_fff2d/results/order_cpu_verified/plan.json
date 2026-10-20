@@ -1,0 +1,59 @@
+{
+  "identity": {
+    "axis": "order",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 95.0,
+      "lattice": "triangular",
+      "gil_nm": 0.0,
+      "gil_rings": 12
+    },
+    "ordering": "symmetric",
+    "fixed_order": null,
+    "fixed_slices": 24,
+    "fixed_grid": 64,
+    "fixed_dm_step": 0.5,
+    "volume_absorption": false,
+    "absorption_quadrature": 7,
+    "loss_diagnostics": false,
+    "material_sha256": "6e72f596e70f5b3eb66501b8bbf10dea1ff105047804abbe433e603a17e61b22",
+    "material_interpolation": "shared linear epsilon",
+    "sources": {
+      "studies/gold_motheye_fff2d/model.py": "a52816033dcfcb1e7a371419351a12affb04c36280a4cbf33534afbf83654838",
+      "studies/gold_motheye_fff2d/solver.py": "2d8398f5597eac9203407952a932deb97d613ac3bf6bdc966016c9f0ce85f837",
+      "studies/gold_motheye_fff2d/run.py": "f569b8bda641848ccff44df8ea4f6f17cfb5ddb748b4ce872fad6ce655aac225",
+      "studies/gold_motheye_fff2d/validate.py": "efbfd57db432a880c4bf6fcb20c28524bf9e1dd4559f7515797648b46c2a5f7a",
+      "studies/shared/gold_dispersion.py": "ae27eb171da5364d87945f68b75b684227c4e509f8076da00a82259cf05ed60c"
+    }
+  },
+  "signature": "926a89afcfe5d04f569195e43a117bf610292f39a2856fd826b0b55ce7b2db94",
+  "requested_values": [
+    1,
+    2,
+    3
+  ],
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "methods": [
+    "rcwa-fff",
+    "slice-nvm"
+  ],
+  "polarizations": [
+    "x"
+  ],
+  "device": "cpu",
+  "max_scalar_harmonics": 37,
+  "max_field_dimension": 148,
+  "one_dense_complex_matrix_gib": 0.00032639503479003906,
+  "indicative_twenty_matrix_gib": 0.006527900695800781,
+  "memory_note": "Indicative dense-matrix footprint, not a guaranteed peak or allocation promise; volume fields store layer S matrices.",
+  "gold_csv": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\gold_motheye2\\data\\au_measured_nk.csv",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "torch": "2.8.0+cpu",
+  "platform": "Windows-11-10.0.26300-SP0"
+}

@@ -1,0 +1,207 @@
+{
+  "axis": "order",
+  "values": [
+    1,
+    2,
+    3
+  ],
+  "case_count": 18,
+  "failed_cases": 0,
+  "unphysical_cases": 1,
+  "all_requested_cases_complete": true,
+  "passive_flux_bounds_passed": false,
+  "independent_physics_suite_passed": true,
+  "axis_converged": false,
+  "passed": false,
+  "tolerance_absolute": 0.0005,
+  "physical_tolerance": 1e-06,
+  "curves": [
+    {
+      "method": "rcwa-fff",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 1.5483851625805304e-05,
+            "P_sub": 0.010876295367497062,
+            "A_moth": 0.01086081151587126
+          },
+          "max_change": 0.010876295367497062
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 9.324085463494416e-05,
+            "P_sub": 0.002695674315546223,
+            "A_moth": 0.0026024334609112687
+          },
+          "max_change": 0.002695674315546223
+        }
+      ]
+    },
+    {
+      "method": "rcwa-fff",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.046642491898744476,
+            "P_sub": 0.03406106610620517,
+            "A_moth": 0.012581425792539291
+          },
+          "max_change": 0.046642491898744476
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 0.01783235829634945,
+            "P_sub": 0.014139117538696053,
+            "A_moth": 0.03197147583504567
+          },
+          "max_change": 0.03197147583504567
+        }
+      ]
+    },
+    {
+      "method": "rcwa-fff",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": false,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.5709812404447774,
+            "P_sub": 0.012181632720079546,
+            "A_moth": 0.5831628731648568
+          },
+          "max_change": 0.5831628731648568
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 2.0208008636987183,
+            "P_sub": 0.013868413277341111,
+            "A_moth": 2.0346692769760595
+          },
+          "max_change": 2.0346692769760595
+        }
+      ]
+    },
+    {
+      "method": "slice-nvm",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 2.3276626006710687e-05,
+            "P_sub": 0.009705959096880518,
+            "A_moth": 0.009682682470873782
+          },
+          "max_change": 0.009705959096880518
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 0.00014302493189337925,
+            "P_sub": 0.0017653361969258569,
+            "A_moth": 0.0019083611288192026
+          },
+          "max_change": 0.0019083611288192026
+        }
+      ]
+    },
+    {
+      "method": "slice-nvm",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.04488454070692087,
+            "P_sub": 0.03244386867268531,
+            "A_moth": 0.0124406720342356
+          },
+          "max_change": 0.04488454070692087
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 0.01908697708124231,
+            "P_sub": 0.0036106444516040004,
+            "A_moth": 0.015476332629638323
+          },
+          "max_change": 0.01908697708124231
+        }
+      ]
+    },
+    {
+      "method": "slice-nvm",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.4940936419764617,
+            "P_sub": 0.019275815620687108,
+            "A_moth": 0.5133694575971489
+          },
+          "max_change": 0.5133694575971489
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 0.32422946307618716,
+            "P_sub": 0.01523473230419059,
+            "A_moth": 0.33946419538037775
+          },
+          "max_change": 0.33946419538037775
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Order convergence at fixed slices/grid does not establish slice/grid/DM-step convergence.",
+    "No monotonic convergence is assumed; only the final two complete refinement differences are tested.",
+    "Passive R/A bounds alone do not validate a solution. The independent suite is low-order.",
+    "GIL changes the modeled structure; compare separate runs rather than treating it as a neutral numerical filter.",
+    "GPU path is implemented but must be validated on the requested GPU before trusting high-order results."
+  ]
+}

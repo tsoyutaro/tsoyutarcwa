@@ -24,10 +24,13 @@ class Geometry:
     film_nm: float = 0.0
     gil_nm: float = 0.0
     n_metal: complex = 0.16 + 5.26j
+    gil_side: str = "centered"
 
     def __post_init__(self) -> None:
         if self.name not in {"sinusoidal_aluminium", "triangular_gold"}:
             raise ValueError(f"Unsupported geometry: {self.name!r}")
+        if self.gil_side not in ("centered", "metal", "dielectric"):
+            raise ValueError("gil_side must be centered, metal or dielectric")
         if not np.isfinite(self.period_nm) or self.period_nm <= 0:
             raise ValueError("period_nm must be finite and positive")
         for field in ("depth_nm", "height_nm", "film_nm", "gil_nm"):
@@ -65,11 +68,30 @@ class Geometry:
         c = 1.0 / np.sqrt(1.0 + slope * slope)
         return c, slope * c
 
+    def constant_slice_boundaries(self, x: np.ndarray):
+        """Exact z jumps of the sampled sharp profile; None for a smooth GIL.
+
+        At fixed FFT abscissae epsilon is constant between these crossings.
+        Providing the crossings prevents an adaptive quadrature from accepting
+        a step whose sample points all miss a thin material interval.
+        """
+        if self.gil_nm > 0:
+            return None
+        surface = self.surface_nm(x)
+        edges = surface if self.name == "sinusoidal_aluminium" else np.concatenate((surface, surface + self.film_nm))
+        edges = np.unique(np.round(edges, decimals=11))
+        return edges[(edges > 0) & (edges < self.depth_nm)]
+
+    def integration_planes(self):
+        """Corner planes where horizontal GIL strips can appear/disappear."""
+        return np.array([self.film_nm, self.height_nm]) if self.gil_nm else np.array([])
+
     def sample(self, x: np.ndarray, z_nm: float) -> np.ndarray:
         """Sample relative permittivity at one computational z position.
 
-        For the gold film, a positive GIL width adds a horizontal linear-n
-        transition on the dielectric side of each metal/dielectric interface.
+        For the gold film, a GIL of total width delta is centered at each
+        original interface, delta/2 on either side (paper Fig.7b,c). One-sided
+        conventions are available only for diagnostic comparison.
         The closest periodic metal boundary is used if transitions overlap.
         """
         if not np.isfinite(z_nm):
@@ -85,6 +107,35 @@ class Geometry:
         n = np.where(metal, self.n_metal, np.where(below, self.n_in, self.n_out)).astype(complex)
         if self.gil_nm <= 0:
             return n * n
+
+        if self.gil_side in ("centered", "metal"):
+            distance = np.full_like(x, np.inf, dtype=float)
+            neighbor_n = np.full_like(n, self.n_out)
+            slope = 2.0 * self.height_nm / self.period_nm
+            for level, dielectric in ((z_nm, self.n_in), (z_nm - self.film_nm, self.n_out)):
+                # Only real cross-section interfaces are included. Clipping an
+                # absent crossing to the valley/apex would invent a GIL there.
+                if not 0 <= level <= self.height_nm:
+                    continue
+                for endpoint in (level / slope, self.period_nm - level / slope):
+                    dx = np.abs(x - endpoint)
+                    dx = np.minimum(dx, self.period_nm - dx)
+                    nearer = dx < distance
+                    neighbor_n = np.where(nearer, dielectric, neighbor_n)
+                    distance = np.minimum(distance, dx)
+            if self.gil_side == "centered":
+                # Figure 7 marks x1,x2 at the midpoints of the ramps, not at
+                # their dielectric endpoints. Delta is the entire ramp width.
+                signed_distance = np.where(metal, distance, -distance)
+                fraction = np.clip(.5 + signed_distance / self.gil_nm, 0., 1.)
+                neighbor_n = np.where(metal, neighbor_n, np.where(below, self.n_in, self.n_out))
+                in_gil = distance < .5 * self.gil_nm
+            else:
+                fraction = np.minimum(distance / self.gil_nm, 1.0)
+                in_gil = metal & (distance < self.gil_nm)
+            graded_n = neighbor_n + fraction * (self.n_metal - neighbor_n)
+            n = np.where(in_gil, graded_n, n)
+            return np.asarray(n * n, dtype=complex)
 
         # At fixed z the Au set is the inverse image of
         # max(0, z-t) <= f(x) <= min(H, z).  Its four endpoints are
@@ -128,7 +179,7 @@ class Geometry:
             "n_metal": parts(self.n_metal),
             "computational_z_direction": "down" if self.name == "sinusoidal_aluminium" else "up",
             "film_thickness_convention": "vertical z offset" if self.film_nm else "semi-infinite metal",
-            "gil_convention": "horizontal, dielectric side, linear complex n, nearest periodic boundary",
+            "gil_convention": f"horizontal, {self.gil_side} side, linear complex n, nearest periodic boundary",
         }
 
 
@@ -151,6 +202,7 @@ def triangular_gold(
     height_nm: float = 283.2,
     film_nm: float = 50.0,
     n_metal: complex = 0.16 + 5.26j,
+    gil_side: str = "centered",
 ) -> Geometry:
     """Paper Fig. 8: triangular corrugated Au film, illuminated from n=1.55."""
     return Geometry(
@@ -163,4 +215,5 @@ def triangular_gold(
         film_nm=film_nm,
         gil_nm=gil_nm,
         n_metal=n_metal,
+        gil_side=gil_side,
     )

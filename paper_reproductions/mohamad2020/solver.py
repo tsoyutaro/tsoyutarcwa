@@ -14,6 +14,8 @@ from scipy.linalg import expm, solve as linear_solve, LinAlgWarning
 
 
 METHODS = ("rcwa", "rcwa-fff", "dm-fff")
+DM_INTEGRATORS = ("cf4-adaptive", "cf4", "rk4")
+SOLVER_REVISION = "2026-10-20-adaptive-dm-centered-gil"
 
 
 def _solve(a, b):
@@ -106,6 +108,10 @@ class PropagationMatrix:
                       + self.orders * wavelength_nm / geometry.period_nm)
         self.identity = np.eye(len(self.orders), dtype=complex)
         self.fff = fff
+        boundaries = getattr(geometry, "constant_slice_boundaries", None)
+        self.constant_slices = boundaries(self.x) if boundaries is not None else None
+        planes = getattr(geometry, "integration_planes", None)
+        self.integration_planes = planes() if planes is not None else np.array([])
         if fff:
             c, s = geometry.tangent(self.x)
             c, s = np.broadcast_arrays(c, s, self.x)[:2]
@@ -157,6 +163,117 @@ def _rk4_propagator(generator, z0, dz, k0, substeps):
     return p
 
 
+def _cf4_propagator(generator, z0, dz, k0):
+    """Fourth-order commutator-free Magnus step, exact for constant K.
+
+    The right exponential acts first. See Alvermann et al. (2012),
+    doi:10.1088/1367-2630/14/10/105008, Eqs. (11)-(12).
+    """
+    c = np.sqrt(3.) / 6
+    a, b = (3 - 2 * np.sqrt(3.)) / 12, (3 + 2 * np.sqrt(3.)) / 12
+    early = 1j * k0 * generator(z0 + (.5 - c) * dz)
+    late = 1j * k0 * generator(z0 + (.5 + c) * dz)
+    return expm(dz * (a * early + b * late)) @ expm(dz * (b * early + a * late))
+
+
+def _propagator_scattering(propagator):
+    if not np.isfinite(propagator).all():
+        raise FloatingPointError("Non-finite local propagation; reduce integration step")
+    return transfer_to_scattering(_reference_transfer(propagator))
+
+
+def _scattering_error(coarse, fine, rtol, atol):
+    # Scattering blocks stay bounded for decaying modes, whereas full transfer
+    # matrices contain both exp(+kappa*h) and exp(-kappa*h). Test all blocks,
+    # including evanescent couplings; no incident-mode-only acceptance test.
+    return max(float(np.max(np.abs(a - b))) /
+               (atol + rtol * max(float(np.max(np.abs(a))), float(np.max(np.abs(b)))))
+               for a, b in zip(vars(coarse).values(), vars(fine).values())) / 15.
+
+
+def _dm_section(generator, z0, dz, k0, substeps, integrator, rtol, atol,
+                min_step_nm, diagnostics):
+    """Compose local scattering blocks, never a section-wide growing transfer."""
+    size = len(generator.orders)
+    total = transparent(size)
+    end, z = z0 + dz, z0
+    max_step = dz / substeps
+    planes = generator.integration_planes
+    planes = planes[(planes > z0 + 1e-10) & (planes < end - 1e-10)]
+    if integrator == "cf4-adaptive" and len(planes):
+        cuts = np.concatenate(([z0], np.sort(planes), [end]))
+        for start, stop in zip(cuts[:-1], cuts[1:]):
+            internal_count = max(1, int(np.ceil((stop - start) / max_step)))
+            block = _dm_section(generator, start, stop - start, k0, internal_count,
+                                integrator, rtol, atol, min_step_nm, diagnostics)
+            total = cascade(total, block)
+        return total
+    if integrator == "cf4-adaptive" and generator.constant_slices is not None:
+        # Exact exponential on each constant slice of the *sampled* material.
+        # This resolves every FFT-grid crossing, including ones that an error
+        # estimator sampling only the interior of a trial step could miss.
+        edges = generator.constant_slices
+        cuts = np.concatenate(([z0], edges[(edges > z0 + 1e-10) & (edges < end - 1e-10)], [end]))
+        for start, stop in zip(cuts[:-1], cuts[1:]):
+            parts = max(1, int(np.ceil((stop - start) / max_step)))
+            matrix = 1j * k0 * generator(.5 * (start + stop))
+            while True:
+                h = (stop - start) / parts
+                try:
+                    block = _propagator_scattering(expm(h * matrix))
+                    break
+                except (np.linalg.LinAlgError, LinAlgWarning, ArithmeticError, RuntimeWarning):
+                    diagnostics["rejected_steps"] += 1
+                    if h <= min_step_nm:
+                        raise FloatingPointError(f"Ill-conditioned constant slice at z={start:.12g} nm")
+                    parts *= 2
+            for _ in range(parts):
+                total = cascade(total, block)
+            diagnostics["accepted_steps"] += parts
+            diagnostics["constant_slice_steps"] += parts
+            diagnostics["min_accepted_step_nm"] = min(diagnostics["min_accepted_step_nm"], h)
+            diagnostics["max_accepted_step_nm"] = max(diagnostics["max_accepted_step_nm"], h)
+        return total
+    h = max_step
+    while z < end:
+        h = min(h, end - z)
+        if h <= 8 * np.finfo(float).eps * max(1., abs(end)):
+            break
+        if integrator == "rk4":
+            block = _propagator_scattering(_rk4_propagator(generator, z, h, k0, 1))
+            error = 0.
+        elif integrator == "cf4":
+            block = _propagator_scattering(_cf4_propagator(generator, z, h, k0))
+            error = 0.
+        else:
+            try:
+                coarse = _propagator_scattering(_cf4_propagator(generator, z, h, k0))
+                left = _propagator_scattering(_cf4_propagator(generator, z, .5 * h, k0))
+                right = _propagator_scattering(_cf4_propagator(generator, z + .5 * h, .5 * h, k0))
+                block = cascade(left, right)
+                error = _scattering_error(coarse, block, rtol, atol)
+            except (np.linalg.LinAlgError, LinAlgWarning, ArithmeticError, RuntimeWarning):
+                error = np.inf
+            if not np.isfinite(error) or error > 1.:
+                diagnostics["rejected_steps"] += 1
+                if h <= min_step_nm * (1 + 1e-10):
+                    raise FloatingPointError(
+                        f"DM local error control failed at z={z:.12g} nm, h={h:.6g} nm; "
+                        "minimum step reached. Refine nfft / investigate the generator.")
+                factor = max(.1, .8 * error ** (-.2)) if np.isfinite(error) else .25
+                h = max(min_step_nm, h * min(.5, factor))
+                continue
+            diagnostics["max_accepted_error_ratio"] = max(diagnostics["max_accepted_error_ratio"], error)
+        total = cascade(total, block)
+        diagnostics["accepted_steps"] += 1
+        diagnostics["min_accepted_step_nm"] = min(diagnostics["min_accepted_step_nm"], h)
+        diagnostics["max_accepted_step_nm"] = max(diagnostics["max_accepted_step_nm"], h)
+        z = min(end, z + h)
+        if integrator == "cf4-adaptive":
+            h = min(max_step, h * min(2., max(.5, .9 * max(error, 1e-16) ** (-.2))))
+    return total
+
+
 @dataclass
 class Result:
     orders: np.ndarray
@@ -186,7 +303,9 @@ class Result:
 def solve(geometry, wavelength_nm: float, angle_deg: float, max_order: int,
           method: str = "dm-fff", section_nm: float = 1., nfft: int = 4096,
           dm_substeps: int = 4, sampling: str = "entrance",
-          store_fields: bool = False) -> Result:
+          store_fields: bool = False, dm_integrator: str = "cf4-adaptive",
+          dm_rtol: float = 1e-6, dm_atol: float = 1e-9,
+          dm_min_step_nm: float = 1e-5) -> Result:
     """Solve a TM grating with illumination from computational z=0.
 
     Geometry needs period_nm, depth_nm, n_in, n_out, sample(x,z)->epsilon,
@@ -196,6 +315,10 @@ def solve(geometry, wavelength_nm: float, angle_deg: float, max_order: int,
     """
     if method not in METHODS:
         raise ValueError(f"method must be one of {METHODS}")
+    if dm_integrator not in DM_INTEGRATORS:
+        raise ValueError(f"dm_integrator must be one of {DM_INTEGRATORS}")
+    if any(not np.isfinite(v) or v <= 0 for v in (dm_rtol, dm_atol, dm_min_step_nm)):
+        raise ValueError("DM tolerances and minimum step must be finite and positive")
     if sampling not in ("entrance", "midpoint"):
         raise ValueError("sampling must be entrance or midpoint")
     if not isinstance(max_order, (int, np.integer)) or max_order < 0:
@@ -223,16 +346,18 @@ def solve(geometry, wavelength_nm: float, angle_deg: float, max_order: int,
     count = int(np.ceil(depth / section_nm)) if depth else 0
     # Keep full-size sections, with only the last shortened when needed.
     boundaries = np.minimum(np.arange(count + 1) * section_nm, depth)
+    diagnostics = {"accepted_steps": 0, "rejected_steps": 0, "constant_slice_steps": 0,
+                   "min_accepted_step_nm": np.inf, "max_accepted_step_nm": 0.,
+                   "max_accepted_error_ratio": 0.}
     for a, b in zip(boundaries[:-1], boundaries[1:]):
         dz = b - a
         if method == "dm-fff":
-            p = _rk4_propagator(generator, a, dz, k0, dm_substeps)
+            block = _dm_section(generator, a, dz, k0, dm_substeps, dm_integrator,
+                                dm_rtol, dm_atol, dm_min_step_nm, diagnostics)
         else:
             sample = a if sampling == "entrance" else .5 * (a + b)
             p = expm(1j * k0 * dz * generator(sample))
-        if not np.isfinite(p).all():
-            raise FloatingPointError("Non-finite local propagation; refine section_nm")
-        block = transfer_to_scattering(_reference_transfer(p))
+            block = _propagator_scattering(p)
         total = cascade(total, block)
         if store_fields:
             blocks.append(block)
@@ -249,13 +374,20 @@ def solve(geometry, wavelength_nm: float, angle_deg: float, max_order: int,
     if not np.isfinite(reflectance).all() or not np.isfinite(transmittance).all():
         raise FloatingPointError("Non-finite power efficiency")
     refl, tran = float(reflectance.sum()), float(transmittance.sum())
-    metadata = {"method": method, "wavelength_nm": wavelength_nm,
+    metadata = {"solver_revision": SOLVER_REVISION, "method": method, "wavelength_nm": wavelength_nm,
                 "angle_deg": angle_deg, "N": int(max_order), "retained_orders": size,
                 "nfft": int(nfft), "section_nm": section_nm, "sections": count,
                 "dm_substeps": int(dm_substeps), "sampling": sampling,
+                "dm_integrator": dm_integrator if method == "dm-fff" else None,
+                "dm_rtol": dm_rtol if method == "dm-fff" else None,
+                "dm_atol": dm_atol if method == "dm-fff" else None,
+                "dm_min_step_nm": dm_min_step_nm if method == "dm-fff" else None,
                 "integration_step_nm": section_nm / dm_substeps if method == "dm-fff" else section_nm,
                 "precision": "complex128", "time_convention": "exp(-i omega t)",
                 "power_warning": bool(refl < -1e-8 or tran < -1e-8 or refl + tran > 1 + 1e-5)}
+    if method == "dm-fff":
+        metadata["integration_step_note"] = "maximum trial step; exact exponentials between sampled sharp interfaces, otherwise adaptive CF4 accepts two half steps" if dm_integrator == "cf4-adaptive" else "fixed internal step"
+        metadata["integration_diagnostics"] = diagnostics
     fields = None
     if store_fields:
         blocks.append(exit_block)

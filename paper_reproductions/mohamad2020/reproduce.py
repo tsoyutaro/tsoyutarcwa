@@ -29,10 +29,10 @@ from scipy.linalg import LinAlgWarning
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from paper_reproductions.mohamad2020.geometries import sinusoidal_aluminium, triangular_gold
-    from paper_reproductions.mohamad2020.solver import solve
+    from paper_reproductions.mohamad2020.solver import DM_INTEGRATORS, SOLVER_REVISION, solve
 else:
     from .geometries import sinusoidal_aluminium, triangular_gold
-    from .solver import solve
+    from .solver import DM_INTEGRATORS, SOLVER_REVISION, solve
 
 from studies.shared import gold_dispersion
 
@@ -42,7 +42,7 @@ METHODS = ("rcwa", "rcwa-fff", "dm-fff")
 STUDIES = ("smoke", "fig5", "fig6", "fig9a", "fig9b", "fig10a", "fig10b", "all")
 CSV_COLUMNS = (
     "study", "curve", "method", "N", "nfft", "section_nm", "integration_step_nm",
-    "dm_substeps", "sampling", "wavelength_nm", "angle_deg", "gil_nm", "R_minus_1",
+    "dm_substeps", "dm_integrator", "sampling", "wavelength_nm", "angle_deg", "gil_nm", "gil_side", "R_minus_1",
     "R0", "T0", "R", "T", "A", "relative_error", "elapsed_s", "status", "error",
 )
 PAPER_PDF = Path(r"C:\Users\tsoyu\Downloads\Fast Fourier factorization for differential method and RCWA a powerful tool for the modeling of non-lamellar metallic diffraction gratings.pdf")
@@ -112,10 +112,13 @@ class Runner:
             for wavelength in args.wavelengths:
                 self.gold_model(wavelength)
         self.out = args.output_dir.resolve()
+        if self.out.exists() and any(self.out.iterdir()) and not args.overwrite:
+            raise ValueError(f"Output folder is not empty: {self.out}. Use a new --output-dir; --overwrite explicitly replaces generated files.")
         self.out.mkdir(parents=True, exist_ok=True)
         self.failed = 0
         self.records = []
         self.meta = {
+            "solver_revision": SOLVER_REVISION,
             "paper": {
                 "title": "Fast Fourier factorization for differential method and RCWA: a powerful tool for the modeling of non-lamellar metallic diffraction gratings",
                 "authors": "Habib Mohamad et al.",
@@ -134,15 +137,17 @@ class Runner:
             "definitions": {
                 "N": "maximum Fourier order; field has 2*N+1 harmonics",
                 "section_nm": "thickness of each cascaded S-matrix section",
-                "integration_step_nm": "section_nm/dm_substeps for DM; section_nm for RCWA",
+                "integration_step_nm": "maximum trial step section_nm/dm_substeps for adaptive DM; fixed step for other integrators; section_nm for RCWA",
+                "dm_integrator": "cf4-adaptive: fourth-order Magnus with local scattering step-doubling error control; rk4: legacy fixed explicit integration for diagnosis",
                 "relative_error": "abs(R_minus_1 - 0.8785309971543)/0.8785309971543 (Fig.5)",
             },
             "limitations": [
                 "C-Method / commercial MC-Grating comparison is not implemented.",
                 "Fig.8 labels 283.2 nm; it is interpreted as peak-to-valley relief, and gold thickness 50 nm is modeled vertically.",
-                "GIL is a horizontal refractive-index interpolation on each z slice, followed by epsilon=n**2.",
+                "GIL has total horizontal width delta, centered on each original interface (Fig.7b,c), followed by epsilon=n**2; one-sided options are diagnostic.",
                 "Fig.10b uses the project's existing Au CSV with the shared linear-epsilon interpolation; the paper does not identify its full dispersion table.",
                 "Field plots reconstruct truncated Fourier coefficients directly; interface Gibbs effects remain.",
+                "The default adaptive Magnus integrator solves the paper's ODE, but differs from the original fixed RK4 discretization. Local error estimates do not certify Fourier/geometry convergence.",
             ],
             "source_hashes": {path.name: sha256(path) for path in Path(__file__).parent.glob("*.py")},
             "computations": [],
@@ -165,6 +170,7 @@ class Runner:
     def save_metadata(self):
         self.meta["updated_utc"] = datetime.now(timezone.utc).isoformat()
         self.meta["failed_computations"] = self.failed
+        self.meta["unphysical_computations"] = sum(row["status"] == "UNPHYSICAL" for row in self.records)
         (self.out / "settings.json").write_text(json.dumps(serializable(self.meta), ensure_ascii=False, indent=2), encoding="utf-8")
 
     def compute(self, study, curve, geom, wavelength, angle, order, method, *, section=None, nfft=None, gil=0.0, fields=False):
@@ -173,6 +179,8 @@ class Runner:
         row = dict.fromkeys(CSV_COLUMNS, np.nan)
         row.update(study=study, curve=curve, method=method, N=order, nfft=nfft,
                    section_nm=section, dm_substeps=self.args.dm_substeps, sampling=self.args.sampling,
+                   dm_integrator=self.args.dm_integrator if method == "dm-fff" else "",
+                   gil_side=self.args.gil_side if geom.name == "triangular_gold" else "",
                    integration_step_nm=section / self.args.dm_substeps if method.startswith("dm") else section,
                    wavelength_nm=wavelength, angle_deg=angle, gil_nm=gil, status="OK", error="")
         result = None
@@ -183,6 +191,8 @@ class Runner:
                 warnings.simplefilter("error", LinAlgWarning)
                 result = solve(geom, wavelength, angle, order, method=method, section_nm=section,
                                nfft=nfft, dm_substeps=self.args.dm_substeps,
+                               dm_integrator=self.args.dm_integrator, dm_rtol=self.args.dm_rtol,
+                               dm_atol=self.args.dm_atol, dm_min_step_nm=self.args.dm_min_step_nm,
                                sampling=self.args.sampling, store_fields=fields)
             values = [result.reflection(-1), result.reflection(0), result.transmission(0), result.R, result.T, result.A]
             if not np.isfinite(values).all():
@@ -279,17 +289,17 @@ class Runner:
     def fig9a(self):
         steps = (self.args.section_nm / self.args.dm_substeps,) if self.args.section_override else (1.0, .5, .25)
         for dz in steps:
-            # Paper Dz is the DM integration step; four steps form one S section.
+            # Dz is a maximum step for adaptive DM, fixed for the legacy RK4.
             for order in self.args.orders:
-                self.compute("fig9a", f"DM-FFF, Dz={dz:g} nm", triangular_gold(), 810, 11,
+                self.compute("fig9a", f"DM-FFF, Dz={dz:g} nm", triangular_gold(gil_side=self.args.gil_side), 810, 11,
                              order, "dm-fff", section=dz * self.args.dm_substeps)
         self.plot("fig9a", "Zero-order reflectance R0", "R0")
 
     def fig9b(self):
         section = float(self.args.dm_substeps) if self.args.profile == "paper" else self.args.section_nm
-        for gil in (0, 1, 5, 7, 10):
+        for gil in self.args.gil_thicknesses:
             for order in self.args.orders:
-                self.compute("fig9b", f"DM-FFF, GIL={gil:g} nm", triangular_gold(gil_nm=gil),
+                self.compute("fig9b", f"DM-FFF, GIL={gil:g} nm", triangular_gold(gil_nm=gil, gil_side=self.args.gil_side),
                              810, 11, order, "dm-fff", gil=gil, section=section)
         self.plot("fig9b", "Zero-order reflectance R0", "R0")
 
@@ -298,7 +308,7 @@ class Runner:
         for method, gil in curves:
             section = (float(self.args.dm_substeps) if method == "dm-fff" else 1.0) if self.args.profile == "paper" else self.args.section_nm
             for order in self.args.orders:
-                self.compute("fig10a", f"{method}, GIL={gil} nm", triangular_gold(gil_nm=gil),
+                self.compute("fig10a", f"{method}, GIL={gil} nm", triangular_gold(gil_nm=gil, gil_side=self.args.gil_side),
                              810, 15, order, method, gil=gil, section=section)
         self.plot("fig10a", "Zero-order reflectance R0", "R0")
 
@@ -311,7 +321,7 @@ class Runner:
                 # Au studies. GIL needs n, so recover the passive square root.
                 metal = cmath.sqrt(self.gold_model(wavelength))
                 self.compute("fig10b", f"DM-FFF, GIL={gil} nm, N={order}",
-                             triangular_gold(gil_nm=gil, n_metal=metal), wavelength, 15, order, "dm-fff", gil=gil, section=section)
+                             triangular_gold(gil_nm=gil, n_metal=metal, gil_side=self.args.gil_side), wavelength, 15, order, "dm-fff", gil=gil, section=section)
         self.plot("fig10b", "Zero-order transmittance T0", "T0", xlabel="Wavelength (nm)", xkey="wavelength_nm")
 
 
@@ -322,8 +332,17 @@ def main(argv=None):
     parser.add_argument("--orders", type=lambda value: number_list(value, integer=True), help="Maximum orders N: 2,6,10 or inclusive 2:100:2")
     parser.add_argument("--section-nm", type=float, help="Override all section thicknesses; quick default 5 nm; paper Fig.5/6 1 nm, Fig.9/10 DM step 1 nm")
     parser.add_argument("--dm-substeps", type=int, default=4)
+    parser.add_argument("--dm-integrator", choices=DM_INTEGRATORS, default="cf4-adaptive",
+                        help="Adaptive Magnus is the corrected default; rk4 retains the unsafe fixed-step method for comparisons")
+    parser.add_argument("--dm-rtol", type=float, default=1e-6, help="Relative local error in each scattering block's maximum-entry norm")
+    parser.add_argument("--dm-atol", type=float, default=1e-9, help="Local scattering step-doubling absolute tolerance")
+    parser.add_argument("--dm-min-step-nm", type=float, default=1e-5)
     parser.add_argument("--nfft", type=int, default=4096)
     parser.add_argument("--sampling", choices=("entrance", "midpoint"), default="entrance")
+    parser.add_argument("--gil-side", choices=("centered", "metal", "dielectric"), default="centered",
+                        help="Paper Fig.7 centers total width delta on the interface; one-sided options are diagnostic")
+    parser.add_argument("--gil-thicknesses", type=number_list, default=[0., 1., 5., 7., 10.],
+                        help="Fig.9b only: GIL thicknesses in nm; restrict to 5 for the N=60 regression")
     parser.add_argument("--include-nfft1024", action="store_true", help="Add DM-FFF NFFT=1024 to Fig.5")
     parser.add_argument("--field-order", type=int, help="Fig.6 N (quick 8; paper 50)")
     parser.add_argument("--field-nx", type=int, default=256)
@@ -331,24 +350,33 @@ def main(argv=None):
                         default=gold_dispersion.DEFAULT_GOLD_CSV,
                         help="Au CSV for fig10b (shared existing table by default); n,k or epsilon_real,epsilon_imag")
     parser.add_argument("--wavelengths", type=number_list, help="Fig.10b wavelengths in nm; values or inclusive start:stop:step")
-    parser.add_argument("--output-dir", type=Path, help="Output folder (default results/<profile> beside this script)")
+    parser.add_argument("--output-dir", type=Path, help="Output folder (default results/<profile>_<integrator>; old results/paper is preserved)")
+    parser.add_argument("--overwrite", action="store_true", help="Allow replacing generated files in a nonempty output folder")
     args = parser.parse_args(argv)
     args.section_override = args.section_nm is not None
     args.orders = args.orders or (sorted([*range(2, 101, 2), 95]) if args.profile == "paper" else [2, 6, 10])
     args.section_nm = args.section_nm if args.section_nm is not None else (1.0 if args.profile == "paper" else 5.0)
     args.field_order = args.field_order if args.field_order is not None else (50 if args.profile == "paper" else 8)
     args.wavelengths = args.wavelengths or number_list("400:850:5" if args.profile == "paper" else "400:850:50")
-    args.output_dir = args.output_dir or Path(__file__).parent / "results" / args.profile
+    args.output_dir = args.output_dir or Path(__file__).parent / "results" / f"{args.profile}_{args.dm_integrator}"
     if args.section_nm <= 0 or not np.isfinite(args.section_nm) or args.dm_substeps < 1 or args.field_order < 1 or args.field_nx < 2:
         parser.error("section-nm, dm-substeps and field-order must be positive; field-nx must be >= 2")
     if args.nfft <= 4 * max(max(args.orders), args.field_order):
         parser.error("nfft must exceed four times the largest N to retain epsilon Fourier coefficients")
     if any(value <= 0 for value in args.wavelengths):
         parser.error("wavelengths must be positive")
+    if any(value < 0 for value in args.gil_thicknesses):
+        parser.error("GIL thicknesses must be nonnegative")
+    if any(not np.isfinite(v) or v <= 0 for v in (args.dm_rtol, args.dm_atol, args.dm_min_step_nm)):
+        parser.error("DM tolerances and minimum step must be finite and positive")
     if args.study in ("fig10b", "all") and not args.gold_data.is_file():
         parser.error(f"Gold CSV does not exist: {args.gold_data}")
     if args.profile == "quick":
         print("QUICK DEMONSTRATION: reduced N and section settings; not the paper's numerical settings.", flush=True)
+    if args.dm_integrator == "rk4":
+        print("LEGACY FIXED RK4: high-order metallic gratings can produce artificial gain. Check step refinement; use cf4-adaptive for reliable integration.", flush=True)
+    elif args.dm_integrator == "cf4-adaptive":
+        print("DM uses adaptive CF4 Magnus; Dz is a maximum trial step. This corrects the fixed-RK4 integration, not the paper's Fourier truncation errors.", flush=True)
     try:
         runner = Runner(args)
     except (OSError, ValueError) as error:
@@ -359,7 +387,7 @@ def main(argv=None):
     runner.save_metadata()
     unphysical = sum(row["status"] == "UNPHYSICAL" for row in runner.records)
     print(f"Saved: {runner.out}; {len(runner.records)} computations; {runner.failed} FAILED; {unphysical} UNPHYSICAL.", flush=True)
-    return 1 if runner.failed else 0
+    return 1 if runner.failed else (3 if unphysical else 0)
 
 
 if __name__ == "__main__":

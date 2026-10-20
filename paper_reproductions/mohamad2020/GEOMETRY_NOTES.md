@@ -41,23 +41,29 @@ The paper specifies a horizontal layer of width `delta` within each sampled
 z section and a linear variation of both the real and imaginary parts of
 the refractive index (Figures 7b–c). This implementation therefore interpolates
 **complex refractive index**, then squares it to obtain permittivity:
-`n(d) = (1-d/delta)*n_metal + (d/delta)*n_dielectric` for `0 <= d < delta`.
+`u = clip(1/2+d/delta, 0, 1)` and
+`n(d) = (1-u)*n_dielectric + u*n_metal`, where d is the signed horizontal
+distance from the original interface, positive into the metal.
 The phrase “linear permittivity” elsewhere in the text does not uniquely
 specify the same operation.
 
-Here the transition extends horizontally **outside the original metal**,
-replacing the adjacent dielectric at both gold interfaces. This explicit
-choice preserves the sharp metal domain; Figure 7 can also be read as a
-transition replacing part of the metal. The paper does not supply enough
-coordinates or source code to eliminate that ambiguity. GIL results should
-therefore be assessed as a documented reproduction of the method, rather than
-an exact digit-for-digit reproduction of Figures 9–10.
+The corrected default centers the full width delta on the original interface,
+delta/2 on each side. Figure 7b,c labels x1,x2 at the **middle** of the ramps:
+each ramp spans [xi-delta/2,xi+delta/2]. This positioning is clear in an enlarged
+view of the figure. The old implementation extended the entire width into the
+dielectric. `--gil-side dielectric` preserves the old geometry for diagnosis;
+`--gil-side metal` is a separate one-sided comparison, not the paper default.
 
 At each z, the distance is measured to the closest periodic metal boundary.
 This construction handles the valley, apex, and intervals crossing the unit
 cell boundary. If two transitions overlap, the nearest interface determines
 the interpolation. No GIL is added at z values with no metal cross-section.
-The dielectric endpoint is the original local substrate or air index.
+Only actual intersections f(x)=z or f(x)=z-t are used. Clipping an absent
+intersection to a valley/apex would invent a GIL inside continuous
+gold. Each interface retains its own dielectric endpoint (substrate 1.55 or
+air 1); the local metal value alone cannot identify that endpoint.
+The horizontal slice construction can introduce corner-plane jumps at z=t
+and z=H; the integrator explicitly splits at those planes.
 
 ## Limits on quantitative comparison
 

@@ -1,0 +1,57 @@
+{
+  "axis": "order",
+  "values": [
+    1,
+    2,
+    3
+  ],
+  "case_count": 3,
+  "failed_cases": 0,
+  "unphysical_cases": 3,
+  "all_requested_cases_complete": true,
+  "passive_flux_bounds_passed": false,
+  "independent_physics_suite_passed": true,
+  "axis_converged": false,
+  "passed": false,
+  "tolerance_absolute": 0.0005,
+  "physical_tolerance": 1e-06,
+  "curves": [
+    {
+      "method": "rcwa-fff",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": false,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.5111006511954573,
+            "P_sub": 0.018005471534120694,
+            "A_moth": 0.5291061227295781
+          },
+          "max_change": 0.5291061227295781
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 0.05552412654878003,
+            "P_sub": 0.007669121982548724,
+            "A_moth": 0.06319324853132874
+          },
+          "max_change": 0.06319324853132874
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Order convergence at fixed slices/grid does not establish slice/grid/DM-step convergence.",
+    "No monotonic convergence is assumed; only the final two complete refinement differences are tested.",
+    "Passive R/A bounds alone do not validate a solution. The independent suite is low-order.",
+    "GIL changes the modeled structure; compare separate runs rather than treating it as a neutral numerical filter.",
+    "GPU path is implemented but must be validated on the requested GPU before trusting high-order results."
+  ]
+}

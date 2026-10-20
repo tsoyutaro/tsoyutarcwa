@@ -303,7 +303,8 @@ class SolverTests(unittest.TestCase):
         errors = []
         for step in (20.0, 10.0):
             result = self.run_solver(geometry, "dm-fff", wavelength_nm=450.0,
-                                     max_order=0, section_nm=step, dm_substeps=4)
+                                     max_order=0, section_nm=step, dm_substeps=4,
+                                     dm_integrator="rk4")
             errors.append(max(abs(result.r[0] - expected[0]),
                               abs(result.t[0] - expected[1])))
         self.assertGreater(errors[0], 1e-12)

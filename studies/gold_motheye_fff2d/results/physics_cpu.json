@@ -1,0 +1,121 @@
+{
+  "passed": true,
+  "check_count": 12,
+  "passed_count": 12,
+  "checks": [
+    {
+      "name": "rcwa-fff: absorbing planar film vs Fresnel/Fabry-Perot",
+      "passed": true,
+      "details": {
+        "R": 0.12718721047840373,
+        "T": 0.6157480035848667,
+        "independent_volume_A": 0.2570647859367302,
+        "max_error": 1.2212453270876722e-15
+      }
+    },
+    {
+      "name": "dm-fff: absorbing planar film vs Fresnel/Fabry-Perot",
+      "passed": true,
+      "details": {
+        "R": 0.12718721049038584,
+        "T": 0.6157480036773861,
+        "independent_volume_A": 0.2570647859533438,
+        "max_error": 9.252065780174235e-11
+      }
+    },
+    {
+      "name": "direct: lossless tapered 2D array conserves power",
+      "passed": true,
+      "details": {
+        "R": 0.01773592842049844,
+        "T": 0.9822640715795021,
+        "energy_error": 6.661338147750939e-16
+      }
+    },
+    {
+      "name": "slice-nvm: lossless tapered 2D array conserves power",
+      "passed": true,
+      "details": {
+        "R": 0.020199131723989697,
+        "T": 0.9798008682760111,
+        "energy_error": 8.881784197001252e-16
+      }
+    },
+    {
+      "name": "rcwa-fff: lossless tapered 2D array conserves power",
+      "passed": true,
+      "details": {
+        "R": 0.01988841659013313,
+        "T": 0.9801115834098674,
+        "energy_error": 4.440892098500626e-16
+      }
+    },
+    {
+      "name": "dm-fff: lossless tapered 2D array conserves power",
+      "passed": true,
+      "details": {
+        "R": 0.02012274456783258,
+        "T": 0.9798772554320005,
+        "energy_error": 1.6686652060116103e-13
+      }
+    },
+    {
+      "name": "Full three-component normal: nonzero mixed blocks and lossless Hermiticity",
+      "passed": true,
+      "details": {
+        "hermitian_error": 5.566699766528931e-17,
+        "mixed_xz_yz_max": 0.045178837290704654
+      }
+    },
+    {
+      "name": "Vector Maxwell operator reduces to original 1D TM equations",
+      "passed": true,
+      "details": {
+        "max_matrix_error": 5.5672565026351674e-14,
+        "note": "paper-left reduces to the 1D paper; default uses symmetric ordering"
+      }
+    },
+    {
+      "name": "D6 normal-incidence x/y equality and port-normalized reciprocity",
+      "passed": true,
+      "details": {
+        "xy_power_error": 3.3306690738754696e-16,
+        "zero_order_reciprocity_error": 7.108895957933346e-16
+      }
+    },
+    {
+      "name": "Lossless patterned array: arbitrary open-channel superpositions",
+      "passed": true,
+      "details": {
+        "open_incident_channels": 14,
+        "power_gram_error": 1.9991248677517594e-15
+      }
+    },
+    {
+      "name": "Patterned lossy 3D-normal medium: independent volume loss vs boundary flux",
+      "passed": true,
+      "details": {
+        "A_flux": 0.02775196672779945,
+        "A_volume": 0.027751966727799927,
+        "error": 4.787836793695988e-16
+      }
+    },
+    {
+      "name": "DM-FFF RK4 step refinement against exact constant generator",
+      "passed": true,
+      "details": {
+        "step_nm": [
+          10,
+          5
+        ],
+        "errors": [
+          1.0496387572778154e-05,
+          8.016634823748703e-07
+        ]
+      }
+    }
+  ],
+  "device": "cpu",
+  "ordering": "symmetric",
+  "scope": "Low-order implementation/physical consistency; not convergence of the Au moth-eye sweep"
+}
