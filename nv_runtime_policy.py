@@ -19,6 +19,8 @@ from studies.shared.convergence_io import content_hash, signature_for, write_jso
 DRIVER = "Optimization/dielectric_motheye_n25/run.py"
 POLICY_SOURCE = "nv_runtime_policy.py"
 LEGACY_DRIVER_SHA256 = "2bc7ef243312b0afa0943ceea2db1b3169a613e579399f431d435548e8e8329a"
+GPU_POLICY_DRIVER_SHA256 = "13f939a63a5395ab1d2fc9a715edcb36dab2e31e063688978875a2b4765f82d1"
+GPU_POLICY_SOURCE_SHA256 = "eaeb877b73621568fa23d77952b846879cacf3f60f7065ef65150e084447ec4e"
 HARDWARE_FIELDS = frozenset(("device", "gpu", "gpu_total_bytes"))
 POLICY = "same-gpu-model-cuda-hardware-only-v1"
 
@@ -95,11 +97,15 @@ def reconcile_manifest(previous, identity):
     migration = None
     updated = copy.deepcopy(previous)
     if changed:
-        if not (changed == {DRIVER, POLICY_SOURCE} and POLICY_SOURCE not in expected_sources
-                and expected_sources.get(DRIVER) == LEGACY_DRIVER_SHA256
+        legacy_upgrade = (POLICY_SOURCE not in expected_sources
+                          and expected_sources.get(DRIVER) == LEGACY_DRIVER_SHA256)
+        oom_upgrade = (expected_sources.get(DRIVER) == GPU_POLICY_DRIVER_SHA256
+                       and expected_sources.get(POLICY_SOURCE) == GPU_POLICY_SOURCE_SHA256)
+        if not (changed == {DRIVER, POLICY_SOURCE} and (legacy_upgrade or oom_upgrade)
                 and DRIVER in current_sources and POLICY_SOURCE in current_sources):
-            raise ValueError("Source differs beyond the known GPU-policy upgrade: "+", ".join(sorted(changed)))
-        migration = {"utc": utc_now(), "kind": "known-gpu-policy-upgrade-v1",
+            raise ValueError("Source differs beyond a known controller-only upgrade: "+", ".join(sorted(changed)))
+        migration = {"utc": utc_now(),
+            "kind": "known-gpu-policy-upgrade-v1" if legacy_upgrade else "known-cuda-oom-stop-fix-v2",
             "previous_source_sha256": expected_sources, "current_source_sha256": current_sources,
             "checkpoint_signature_preserved": previous["signature"]}
         updated.setdefault("source_upgrade_history", []).append(migration)

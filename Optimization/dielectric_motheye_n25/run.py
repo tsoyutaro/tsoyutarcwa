@@ -38,6 +38,14 @@ def storage_and_pruner(folder, config):
     return storage, pruner
 
 
+def is_cuda_oom(error, device):
+    """CUDA allocation can fail before device_setup returns a device object."""
+    import torch
+    message = " ".join(str(error).lower().split())
+    return ((isinstance(error, torch.OutOfMemoryError) and device is not None and device.type == "cuda")
+            or "cuda out of memory" in message or "cuda error: out of memory" in message)
+
+
 def worker(request_path, result_path):
     request = json.loads(request_path.read_text(encoding="utf-8"))
     c, environment = request["config"], None
@@ -73,7 +81,7 @@ def worker(request_path, result_path):
     except (Exception, KeyboardInterrupt) as error:
         import torch
         message = str(error).lower()
-        confirmed = (isinstance(error, torch.OutOfMemoryError) and device is not None and device.type == "cuda") or "cuda out of memory" in message
+        confirmed = is_cuda_oom(error, device)
         cpu_oom = (isinstance(error, MemoryError) or isinstance(error, torch.OutOfMemoryError) and device is not None and device.type == "cpu"
                    or "defaultcpuallocator" in message and "not enough memory" in message)
         status = "interrupted" if isinstance(error, KeyboardInterrupt) else (
@@ -359,7 +367,7 @@ def main(argv=None):
         write_json(output/"resolved_config.json", c)
         write_csv(output/"baseline_profile.csv", profile_rows(baseline_logits(c), c))
         if migration:
-            print("GPU-policy source upgrade recorded; existing checkpoint signature preserved.", flush=True)
+            print(f"Controller source upgrade recorded ({migration['kind']}); existing checkpoint signature preserved.", flush=True)
         for lattice in lattices:
             folder = output/lattice
             folder.mkdir(exist_ok=True)

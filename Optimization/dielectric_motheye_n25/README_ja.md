@@ -229,6 +229,15 @@ M8/M16のGPU本計算や論文用の最適解ではない。
 GPU本計算、実際のCUDA OOM、GPUピークメモリの削減量は手元では実測していない。
 
 
+## CUDA OOM表記と同時実行からの復元（2026-10-21）
+
+`CUDA error: out of memory` もCUDA OOMとして停止する。端末のOOMを通常エラーとして
+FAILにして次の試行へ進める問題を修正した。既知のGPU/MIG対応版からのcontroller更新を
+記録し、保存済みのsignatureと物理計算・最適化条件を維持する。
+`--recover-lock` は前のジョブが停止したことを確認してから使う。他ホストの生存確認を行う機能ではない。
+誤実行でjournalにFAILが追記された場合は、ロック解除だけでは元に戻らない。
+事故前のjournal・sampler・Adam checkpointを一式で別フォルダに復元し、元の失敗記録は残す。
+
 ## GPU/MIG構成変更時の既存学習の再開
 
 同じGPUモデル内のMIG構成・メモリ容量・CUDA番号の変更を許容する。
