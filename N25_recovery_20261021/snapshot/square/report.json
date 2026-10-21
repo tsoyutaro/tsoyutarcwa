@@ -1,0 +1,114 @@
+{
+  "lattice": "square",
+  "initial_gradient_audit": {
+    "status": "completed",
+    "wavelengths_nm": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "variable_space": "all layers+1 softmax logits",
+    "direction_count": 2,
+    "records": [
+      {
+        "order": 8,
+        "objective": 0.008349593886126886,
+        "gradient_logits": [
+          -0.0009069325132304512,
+          -0.0007351449655089029,
+          -0.0007383019949868348,
+          -0.0005857435139746439,
+          -0.0003130703542190984,
+          -0.00012311768777574907,
+          -0.00018195155385888364,
+          -0.0003607368029394961,
+          -6.6161574223278e-05,
+          0.0009303772339374554,
+          0.0010963481116503027,
+          -0.0010074733297906007,
+          -0.0031741573094138673,
+          -0.0022113237121486563,
+          0.0016489928262447202,
+          0.006728397140237982
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.002861761571618298,
+            "fd_h": -0.0028617638857591707,
+            "fd_half_h": -0.0028617638999466066,
+            "passed": true
+          },
+          {
+            "direction": 1,
+            "autograd": 0.003304553800480523,
+            "fd_h": 0.0033045558209057746,
+            "fd_half_h": 0.003304555748928628,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      },
+      {
+        "order": 16,
+        "objective": 0.008311527170093784,
+        "gradient_logits": [
+          -0.0008822908093636909,
+          -0.0007253182793338407,
+          -0.0007310148468782482,
+          -0.0005755759092444274,
+          -0.0002989407248137108,
+          -0.00010609352862977074,
+          -0.00018026529659479168,
+          -0.00038348450453017167,
+          -8.252319563405316e-05,
+          0.0009657398511957816,
+          0.001156124623007722,
+          -0.0009886293605372437,
+          -0.003210592630899426,
+          -0.002259345696177718,
+          0.0016616572989920086,
+          0.006640553009441584
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.0028017137521889166,
+            "fd_h": -0.0028017162874253987,
+            "fd_half_h": -0.0028017161210341923,
+            "passed": true
+          },
+          {
+            "direction": 1,
+            "autograd": 0.003290214433563729,
+            "fd_h": 0.0032902164230153366,
+            "fd_half_h": 0.003290216407684718,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      }
+    ],
+    "order_gradient_norm_difference": 0.00013721223519112837,
+    "order_gradient_relative_difference": 0.01657009379335364,
+    "order_gradient_cosine": 0.9998716356849116,
+    "order_gradient_passed": true,
+    "passed": true,
+    "full_objective_wavelength_coverage": false,
+    "limits": "Directional FD checks, not exhaustive componentwise FD proof. Recheck at intermediate geometries; sampled wavelengths do not establish whole-band gradient convergence.",
+    "request_signature": "f6fca1a769c5da5e83f65e349ae41631c93ca2e85a77648ff17a22aa30dbbbfc",
+    "runtime_environment": {
+      "python": "3.9.25",
+      "torch": "2.6.0+cu124",
+      "torcwa": "0.1.4.2",
+      "cuda": "12.4",
+      "device": "cuda:0",
+      "gpu": "NVIDIA H100 MIG 4g.47gb",
+      "gpu_total_bytes": 49794777088,
+      "optuna": "4.6.0"
+    },
+    "process_wall_seconds": 311.5282285781577,
+    "peak_cuda_allocated_bytes": 12539392512,
+    "peak_cuda_reserved_bytes": 13639876608
+  }
+}
