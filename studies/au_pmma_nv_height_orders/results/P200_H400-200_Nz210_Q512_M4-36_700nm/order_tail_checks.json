@@ -1,0 +1,108 @@
+{
+  "tolerance_pp": 0.5,
+  "checks": [
+    {
+      "height_nm": 200.0,
+      "wavelength_nm": 700.0,
+      "tail_orders": [
+        32,
+        34,
+        36
+      ],
+      "comparisons": [
+        {
+          "coarse": 32,
+          "fine": 34,
+          "comparison_complete": true,
+          "delta_R_pp": 0.2545449944732354,
+          "delta_T_pp": 0.05146059305398509,
+          "delta_A_pp": 0.30600558752720985,
+          "maximum_change_pp": 0.30600558752720985
+        },
+        {
+          "coarse": 34,
+          "fine": 36,
+          "comparison_complete": true,
+          "delta_R_pp": 0.05927028206197349,
+          "delta_T_pp": 0.017112071266129902,
+          "delta_A_pp": 0.07638235332810162,
+          "maximum_change_pp": 0.07638235332810162
+        }
+      ],
+      "tail_complete": true,
+      "RTA_tail_within_tolerance": true,
+      "physical_tail_passed": true,
+      "consistency_tail_passed": true,
+      "sampled_tail_checks_passed": true
+    },
+    {
+      "height_nm": 300.0,
+      "wavelength_nm": 700.0,
+      "tail_orders": [
+        32,
+        34,
+        36
+      ],
+      "comparisons": [
+        {
+          "coarse": 32,
+          "fine": 34,
+          "comparison_complete": true,
+          "delta_R_pp": 0.3198611874692858,
+          "delta_T_pp": 0.005908574282480927,
+          "delta_A_pp": 0.3139526131868031,
+          "maximum_change_pp": 0.3198611874692858
+        },
+        {
+          "coarse": 34,
+          "fine": 36,
+          "comparison_complete": true,
+          "delta_R_pp": 0.1641171738072842,
+          "delta_T_pp": 0.0907732902516436,
+          "delta_A_pp": 0.07334388355564059,
+          "maximum_change_pp": 0.1641171738072842
+        }
+      ],
+      "tail_complete": true,
+      "RTA_tail_within_tolerance": true,
+      "physical_tail_passed": false,
+      "consistency_tail_passed": true,
+      "sampled_tail_checks_passed": false
+    },
+    {
+      "height_nm": 400.0,
+      "wavelength_nm": 700.0,
+      "tail_orders": [
+        32,
+        34,
+        36
+      ],
+      "comparisons": [
+        {
+          "coarse": 32,
+          "fine": 34,
+          "comparison_complete": true,
+          "delta_R_pp": 0.3301805725194953,
+          "delta_T_pp": 0.08033608862604957,
+          "delta_A_pp": 0.41051666114554664,
+          "maximum_change_pp": 0.41051666114554664
+        },
+        {
+          "coarse": 34,
+          "fine": 36,
+          "comparison_complete": true,
+          "delta_R_pp": 0.17014574400320726,
+          "delta_T_pp": 0.1561270851786727,
+          "delta_A_pp": 0.32627282918187817,
+          "maximum_change_pp": 0.32627282918187817
+        }
+      ],
+      "tail_complete": true,
+      "RTA_tail_within_tolerance": true,
+      "physical_tail_passed": false,
+      "consistency_tail_passed": true,
+      "sampled_tail_checks_passed": false
+    }
+  ],
+  "interpretation": "Last two adjacent refinements at fixed Nz/Q and sampled wavelengths only. Actual layer passivity and consistency are checked separately. This does not certify layer/grid convergence."
+}
