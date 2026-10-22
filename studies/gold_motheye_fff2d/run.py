@@ -300,7 +300,7 @@ def main(argv=None):
         elif (output/'physics_validation.json').exists():
             physics = json.loads((output/'physics_validation.json').read_text(encoding='utf-8'))
             if (physics.get('device')!=str(device) or physics.get('ordering')!=args.ordering
-                    or physics.get('sources')!=identity['sources']):
+                    or physics.get('sources')!=identity['sources'] or not physics.get('passed')):
                 physics = None
         if physics is None and not args.report_only:
             from studies.gold_motheye_fff2d.validate import checks

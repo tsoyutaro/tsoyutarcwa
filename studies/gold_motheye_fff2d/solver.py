@@ -25,6 +25,12 @@ class Backend:
             raise ValueError("CUDA was requested but is unavailable")
         if self.device.type not in ("cpu", "cuda"):
             raise ValueError("Only cpu and cuda devices are supported")
+        if self.device.type == "cuda":
+            # reset_peak_memory_stats(cuda:0) reaches the allocator without
+            # lazy initialization in PyTorch 2.6. An index-free 'cuda' happens
+            # to initialize via current_device(), hiding this on warm runs.
+            # Initialize before solve() accesses any allocator statistics.
+            torch.cuda.init()
 
     def array(self, value):
         return torch.as_tensor(value, dtype=torch.complex128, device=self.device)

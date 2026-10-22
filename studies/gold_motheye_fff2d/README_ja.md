@@ -5,6 +5,27 @@
 三角格子と三角錐は異なり、三角錐の面形状は今回実装していません。
 Mohamad2020の1D論文そのものに2Dモスアイの参照解があるわけではありません。
 
+## CUDA初回起動の修正（2026-10-22）
+
+ユーザ提供ログでは `--device cuda` の19検査と円柱18点は成功しています。
+`cuda:0` の初回起動はCUDA初期化前にメモリ統計をリセットしていたため、
+`RuntimeError: Invalid device argument` になりました。CUDA Backend作成時に
+`torch.cuda.init()` を呼ぶよう修正しました。相反性検査のKeyErrorは先行検査失敗の影響です。
+
+失敗時は例外名を標準出力、完全なスタックをJSONへ保存します。
+失敗済みの事前検査は次回実行で再試行します。
+単独validateの既定ファイル名もデバイスに合わせました（cuda:0ならphysics_cuda_0.json）。
+計算式、金CSV、物理検査の許容誤差は今回変更していません。
+
+```bash
+python -m unittest studies.gold_motheye_fff2d.validation.test_cuda_startup -v
+python -m studies.gold_motheye_fff2d.validate --device cuda:0 --json studies/gold_motheye_fff2d/results/physics_cuda_0_initfix_20261022.json
+```
+
+新しいPythonプロセスからのcuda/cuda:0起動を確認する実GPUテストを含みます。
+CUDAがない環境では実GPUテストのみSKIPし、初期化順序の回帰テストはCPUで実行します。
+修正版のGPU実機再検証は実行先で行ってください。
+
 ## 1Dの状況と今回の修正
 
 1Dの全条件が解決したという意味ではありません。保存済み

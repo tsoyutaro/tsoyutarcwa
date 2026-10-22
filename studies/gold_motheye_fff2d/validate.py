@@ -28,8 +28,11 @@ def checks(device="cpu",ordering="symmetric"):
             details = fn()
             report.append(dict(name=name,passed=True,details=details))
         except Exception as exc:
-            report.append(dict(name=name,passed=False,error=str(exc),traceback=traceback.format_exc(limit=4)))
+            report.append(dict(name=name,passed=False,error=str(exc),error_type=type(exc).__name__,
+                               traceback=traceback.format_exc()))
         print(f"{name}: {'PASS' if report[-1]['passed'] else 'FAIL'}",flush=True)
+        if not report[-1]['passed']:
+            print(f"  {report[-1]['error_type']}: {report[-1]['error']}",flush=True)
 
     def close(actual,expected,tolerance):
         error = abs(actual-expected)
@@ -94,6 +97,8 @@ def checks(device="cpu",ordering="symmetric"):
     check("Vector Maxwell operator reduces to original 1D TM equations",tm_reduction)
 
     def isotropy_reciprocity():
+        if "rcwa-fff" not in results:
+            raise RuntimeError("Requires the preceding rcwa-fff lossless tapered-array solve; see its failure above")
         x = results["rcwa-fff"]
         y = solve_case(g,550.,4.,order=1,slices=6,grid=48,device=device,epsilon_out=2.25,polarization="y")
         difference = max(close(x.R,y.R,2e-9),close(x.P_sub,y.P_sub,2e-9))
@@ -234,8 +239,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--device',default='cpu')
     parser.add_argument('--ordering',choices=('symmetric','paper-left'),default='symmetric')
-    parser.add_argument('--json',type=Path,default=Path(__file__).parent/'results/physics_cpu.json')
+    parser.add_argument('--json',type=Path,help='Default: results/physics_<device>.json')
     args = parser.parse_args(argv)
+    if args.json is None:
+        args.json = Path(__file__).parent/'results'/f"physics_{str(torch.device(args.device)).replace(':','_')}.json"
     torch.set_num_threads(1)
     result = checks(args.device,args.ordering)
     args.json.parent.mkdir(parents=True,exist_ok=True)
