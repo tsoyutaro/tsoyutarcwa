@@ -18,8 +18,13 @@ D_i  = sum_j C_ij E_j.
 
 The local cone normal in computational downward z is proportional to
 `(x/r, y/r, -dr/dz)`. A periodic nearest-image construction is used in the
-primitive cell. A smooth dyad continuation blends into an isotropic dyad
-at the axis and Voronoi seams, away from the true material interface.
+primitive cell. For slope s=dr/dz, a smooth dyad continuation blends into
+`diag(1/2,1/2,s*s)/(1+s*s)` at the axis and Voronoi seams.
+At s=0 this is exactly `diag(1/2,1/2,0)`, matching the existing NV
+continuation, with identically zero xz/yz/zz projection blocks. This fixes
+the former `diag(1/3,1/3,1/3)` continuation, whose Pzz stayed nonzero
+even for a vertical cylinder. The taper/seam weights are the same as in
+`rcwa_ext/nvm.py`; Q convergence is still required.
 The dyad is a continuation, not a unit-vector field at those artificial points.
 Disk and annular material Fourier coefficients are analytic Bessel integrals;
 only the normal dyad uses FFT sampling. Thus Q controls the normal-field
@@ -47,7 +52,17 @@ the two finite truncations need not agree point for point.
 RCWA-FFF freezes this generator at each section midpoint and exponentiates
 it locally. Exponential sections with a large estimated evanescent growth
 are subdivided while preserving their same frozen generator. DM-FFF applies
-standard RK4 to the varying generator. Only local transfers are converted
+adaptive fourth-order commutator-free Magnus (CF4) integration to the
+varying generator. One full step is compared to two half steps in every S
+block, using the fourth-order Richardson factor 15. Accepted half steps are
+composed as S matrices. `--dm-step-nm` caps trial length; an independent
+estimated evanescent-growth bound further caps local transfers. Cylinders
+and homogeneous films use exact constant-generator local exponentials.
+There is no discontinuous sampled-material crossing list in 2D: disk/ring
+material Fourier coefficients are analytical, unlike the sampled 1D TM
+material. Fixed CF4 and legacy RK4 remain explicit diagnostic choices.
+Reference: [Alvermann et al. (2012)](https://doi.org/10.1088/1367-2630/14/10/105008).
+Only local transfers are converted
 to scattering matrices; the stack uses Redheffer composition. No global
 growing transfer matrix is multiplied. CPU exponentials use SciPy and CUDA
 exponentials use PyTorch complex128. There is no autograd or mode reduction.
@@ -60,7 +75,9 @@ in the existing runners and is recorded explicitly in every result.
 Interface fields and per-order power use the full Cartesian admittance,
 including both polarizations. Absorption in the finite cone region is
 independently checked by integrating `k0 Im(E^H D)/(2 Pinc)` over z when
-requested. Volume loss uses the factorized constitutive operator; it does
+requested. Interior fields are reconstructed from left/right local S
+matrices, avoiding multiplication by a growing section transfer. Volume
+loss uses the factorized constitutive operator; it does
 not, by itself, prove convergence to the continuum material.
 
 In particular, Hermiticity for a real dielectric does not imply positive
@@ -72,3 +89,24 @@ averaging or by clipping scattering efficiencies. GIL can alter such behavior
 but also changes the material distribution, so its influence requires a
 separate convergence study. This research extension has not been validated
 against an independent high-order 3D full-wave solver.
+
+
+GIL has **total radial** width delta, centered at the nominal circle radius
+by default (r-delta/2 through r+delta/2). It is not constant thickness measured
+along the tilted surface normal. A fixed width is compatible with broadband
+material dispersion: the complex index of gold and each transition level
+are recomputed at every wavelength using the existing shared CSV loader.
+Linear complex n is squared for epsilon, and annular Bessel coefficients
+are summed. Compare delta, ring count, Fourier order and slices separately;
+GIL changes the physical model. Explicit `--gil-side dielectric` preserves
+the former outward-only placement for diagnostic comparisons.
+
+`--harmonic-shape rectangular` enables direct comparison to the existing
+`rcwa_ext.AutoRCWA` NV eigenmode solver. The independent validation adapter
+uses that solver's own material, projection and propagation routines, with
+Lanczos filtering and group reduction disabled. Both square and triangular
+cells are checked, for Au cylinders and lossless tapered slices. The native
+Torch Bessel implementation and SciPy j1 give small (~1e-8 in disk
+coefficients) backend differences; validation records material/projection
+residuals as well as all-order complex amplitudes and powers. Agreement is
+an implementation reduction check, not proof of high-order Au convergence.

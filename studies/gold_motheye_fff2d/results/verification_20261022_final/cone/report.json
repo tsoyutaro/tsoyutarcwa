@@ -1,0 +1,335 @@
+{
+  "axis": "order",
+  "values": [
+    1,
+    2,
+    3
+  ],
+  "case_count": 18,
+  "method_comparisons": [
+    {
+      "axis_value": 1,
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": 0.00010981599200339466,
+        "P_sub": -0.00037013982884245844,
+        "A_moth": 0.00026032383683904925
+      },
+      "max_order_power_difference": 0.0003001759518043469,
+      "both_physical": true
+    },
+    {
+      "axis_value": 1,
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": -0.0026292074988683023,
+        "P_sub": 0.0018943693634452252,
+        "A_moth": 0.0007348381354230771
+      },
+      "max_order_power_difference": 0.0026292074988683023,
+      "both_physical": true
+    },
+    {
+      "axis_value": 1,
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": -0.034728074471147764,
+        "P_sub": 0.011714929372514674,
+        "A_moth": 0.02301314509863317
+      },
+      "max_order_power_difference": 0.034728074471147764,
+      "both_physical": true
+    },
+    {
+      "axis_value": 2,
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": 0.0001442213709489862,
+        "P_sub": 0.0009036880029873115,
+        "A_moth": -0.0010479093739363954
+      },
+      "max_order_power_difference": 0.00018745567466126045,
+      "both_physical": true
+    },
+    {
+      "axis_value": 2,
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": -0.014285018994616698,
+        "P_sub": 0.0021342760518150983,
+        "A_moth": 0.012150742942801607
+      },
+      "max_order_power_difference": 0.014285018994616698,
+      "both_physical": true
+    },
+    {
+      "axis_value": 2,
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": 0.12585003553998464,
+        "P_sub": 0.014621735997241682,
+        "A_moth": -0.14047177153722631
+      },
+      "max_order_power_difference": 0.12585003553998464,
+      "both_physical": true
+    },
+    {
+      "axis_value": 3,
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": -6.985653946750862e-05,
+        "P_sub": 0.0015856770992494634,
+        "A_moth": -0.001515820559781944
+      },
+      "max_order_power_difference": 0.00036799164898255673,
+      "both_physical": true
+    },
+    {
+      "axis_value": 3,
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": 0.025077176805749675,
+        "P_sub": 0.015206864294405431,
+        "A_moth": -0.040284041100155044
+      },
+      "max_order_power_difference": 0.025077176805749675,
+      "both_physical": true
+    },
+    {
+      "axis_value": 3,
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": 2.4559932306294834,
+        "P_sub": 0.014321200164062839,
+        "A_moth": -2.4703144307935463
+      },
+      "max_order_power_difference": 2.4559932306294834,
+      "both_physical": false
+    }
+  ],
+  "failed_cases": 0,
+  "unphysical_cases": 1,
+  "all_requested_cases_complete": true,
+  "passive_flux_bounds_passed": false,
+  "independent_physics_suite_passed": true,
+  "axis_converged": false,
+  "passed": false,
+  "tolerance_absolute": 0.0005,
+  "physical_tolerance": 1e-06,
+  "curves": [
+    {
+      "method": "slice-nvm",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 7.72420242350282e-05,
+            "P_sub": 0.009929456529928122,
+            "A_moth": 0.01000669855416314
+          },
+          "max_change": 0.01000669855416314
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 0.00014748838776561094,
+            "P_sub": 0.001582184771073851,
+            "A_moth": 0.0017296731588395398
+          },
+          "max_change": 0.0017296731588395398
+        }
+      ]
+    },
+    {
+      "method": "slice-nvm",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.05125029290702987,
+            "P_sub": 0.03440397858523146,
+            "A_moth": 0.016846314321798506
+          },
+          "max_change": 0.05125029290702987
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 0.017820319768911082,
+            "P_sub": 0.0037993672298857195,
+            "A_moth": 0.014020952539025355
+          },
+          "max_change": 0.017820319768911082
+        }
+      ]
+    },
+    {
+      "method": "slice-nvm",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.5391025003629415,
+            "P_sub": 0.023298733869632875,
+            "A_moth": 0.5624012342325744
+          },
+          "max_change": 0.5624012342325744
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 0.2449479967339272,
+            "P_sub": 0.016432505186246595,
+            "A_moth": 0.2613805019201738
+          },
+          "max_change": 0.2613805019201738
+        }
+      ]
+    },
+    {
+      "method": "rcwa-fff",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.00011164740318061973,
+            "P_sub": 0.011203284361757892,
+            "A_moth": 0.011314931764938585
+          },
+          "max_change": 0.011314931764938585
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 6.658952265088387e-05,
+            "P_sub": 0.002264173867336003,
+            "A_moth": 0.0021975843446850885
+          },
+          "max_change": 0.002264173867336003
+        }
+      ]
+    },
+    {
+      "method": "rcwa-fff",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.06290610440277827,
+            "P_sub": 0.034643885273601335,
+            "A_moth": 0.028262219129177035
+          },
+          "max_change": 0.06290610440277827
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 0.02154187603145529,
+            "P_sub": 0.016871955472476052,
+            "A_moth": 0.038413831503931295
+          },
+          "max_change": 0.038413831503931295
+        }
+      ]
+    },
+    {
+      "method": "rcwa-fff",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": false,
+      "converged_at_fixed_other_parameters": false,
+      "differences": [
+        {
+          "from_value": 1,
+          "to_value": 2,
+          "errors": {
+            "R": 0.6996806103740739,
+            "P_sub": 0.026205540494359882,
+            "A_moth": 0.7258861508684338
+          },
+          "max_change": 0.7258861508684338
+        },
+        {
+          "from_value": 2,
+          "to_value": 3,
+          "errors": {
+            "R": 2.575091191823426,
+            "P_sub": 0.01613196935306775,
+            "A_moth": 2.5912231611764938
+          },
+          "max_change": 2.5912231611764938
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Order convergence at fixed slices/grid does not establish slice/grid/DM-step convergence.",
+    "No monotonic convergence is assumed; only the final two complete refinement differences are tested.",
+    "Passive R/A bounds alone do not validate a solution. The independent suite is low-order.",
+    "GIL changes the modeled structure; compare separate runs rather than treating it as a neutral numerical filter.",
+    "GPU path is implemented but must be validated on the requested GPU before trusting high-order results."
+  ]
+}

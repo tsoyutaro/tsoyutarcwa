@@ -1,0 +1,738 @@
+{
+  "lattice": "hexagonal",
+  "initial_gradient_audit": {
+    "status": "completed",
+    "wavelengths_nm": [
+      550.0
+    ],
+    "variable_space": "all layers+1 softmax logits",
+    "direction_count": 1,
+    "records": [
+      {
+        "order": 1,
+        "objective": 0.0013718737374320174,
+        "gradient_logits": [
+          0.00016332686695812388,
+          -0.000739164281202894,
+          -0.0008192145936874399,
+          0.0021385948753985516,
+          -0.00386344381234131,
+          0.003119900944874967
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.003592945468924003,
+            "fd_h": -0.003592945174862817,
+            "fd_half_h": -0.0035929454367644286,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      },
+      {
+        "order": 2,
+        "objective": 0.0013445209707746444,
+        "gradient_logits": [
+          4.9395725036340967e-05,
+          -0.0008456737241408874,
+          -0.0007617727292284658,
+          0.0020497391474836313,
+          -0.0037679220072042506,
+          0.0032762335880536265
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.0035573969692592328,
+            "fd_h": -0.0035573966570955767,
+            "fd_half_h": -0.0035573968679050282,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      }
+    ],
+    "order_gradient_norm_difference": 0.00026283794492090566,
+    "order_gradient_relative_difference": 0.047609851274104255,
+    "order_gradient_cosine": 0.9988660712416784,
+    "order_gradient_passed": true,
+    "passed": true,
+    "full_objective_wavelength_coverage": true,
+    "limits": "Directional FD checks, not exhaustive componentwise FD proof. Recheck at intermediate geometries; sampled wavelengths do not establish whole-band gradient convergence.",
+    "request_signature": "a0428dbd412f64e9b2106c63112926a86ba43e302fec9afc6419001df5c1197d",
+    "runtime_environment": {
+      "python": "3.13.5",
+      "torch": "2.8.0+cpu",
+      "torcwa": "0.1.4.2",
+      "cuda": null,
+      "device": "cpu",
+      "gpu": null,
+      "gpu_total_bytes": null,
+      "optuna": "4.5.0"
+    },
+    "process_wall_seconds": 7.306999100022949
+  },
+  "best": {
+    "trial_number": 0,
+    "objective": 0.0008020300792252684,
+    "params": {
+      "lr": 0.03,
+      "init_top": 14.000000000000005,
+      "delta_ratio": 0.8372190374306681
+    },
+    "logits": [
+      -0.2273629175772069,
+      0.1436551873744978,
+      0.14355402719126506,
+      0.02399335525656519,
+      0.14364142329144833,
+      -0.2274511836976254
+    ],
+    "radii_nm": [
+      13.101525783650285,
+      32.08688480845883,
+      51.07032337812393,
+      67.9145327771541,
+      86.89963048907904
+    ],
+    "trial_folder": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\d6_integration_smoke\\hexagonal\\trials\\trial_0000"
+  },
+  "verification": {
+    "baseline": {
+      "shape_id": "e9f75b890cedc439",
+      "logits": [
+        -0.1675916314624195,
+        0.08379581573120976,
+        0.08379581573120976,
+        0.08379581573120976,
+        0.08379581573120976,
+        -0.16759163146241995
+      ],
+      "radii_nm": [
+        14.000000000000005,
+        32.00000000000001,
+        50.00000000000001,
+        68.00000000000001,
+        86.00000000000001
+      ],
+      "conditions": [
+        {
+          "order": 1,
+          "grid": 32,
+          "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\d6_integration_smoke\\hexagonal\\verification\\baseline_e9f75b890cedc439\\M1_Q32.json",
+          "signature": "1320cb02eeb8d4446bd3498abf90463e686824bb15e8ceec9d107c8160338e2a",
+          "cases": {
+            "550": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 550.0,
+              "order": 1,
+              "grid": 32,
+              "reflectance": 0.001371873737432041,
+              "transmittance": 0.9986281262625674,
+              "energy_residual": -5.551115123125783e-16,
+              "material_index": 1.492401592592772,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 7,
+              "eigen_dimension": 3,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 6.334508999949321,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            },
+            "600": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 600.0,
+              "order": 1,
+              "grid": 32,
+              "reflectance": 0.0012884643122373233,
+              "transmittance": 0.9987115356877634,
+              "energy_residual": 6.661338147750939e-16,
+              "material_index": 1.4900742700941088,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 7,
+              "eigen_dimension": 3,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 6.801057799952105,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            }
+          },
+          "status": "completed",
+          "requested_wavelength_count": 2,
+          "complete": true,
+          "optimization_mean_reflectance": 0.001371873737432041,
+          "detailed_mean_reflectance": 0.001330169024834682
+        },
+        {
+          "order": 1,
+          "grid": 48,
+          "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\d6_integration_smoke\\hexagonal\\verification\\baseline_e9f75b890cedc439\\M1_Q48.json",
+          "signature": "7dc4267945b8c3f7e03b3719b5f042e48d5de52f267081496151cdb021d42043",
+          "cases": {
+            "550": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 550.0,
+              "order": 1,
+              "grid": 48,
+              "reflectance": 0.0013796688930939566,
+              "transmittance": 0.9986203311069063,
+              "energy_residual": 2.220446049250313e-16,
+              "material_index": 1.492401592592772,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 7,
+              "eigen_dimension": 3,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 6.601456600008532,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            },
+            "600": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 600.0,
+              "order": 1,
+              "grid": 48,
+              "reflectance": 0.0012992866466879469,
+              "transmittance": 0.9987007133533122,
+              "energy_residual": 2.220446049250313e-16,
+              "material_index": 1.4900742700941088,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 7,
+              "eigen_dimension": 3,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 6.642334200092591,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            }
+          },
+          "status": "completed",
+          "requested_wavelength_count": 2,
+          "complete": true,
+          "optimization_mean_reflectance": 0.0013796688930939566,
+          "detailed_mean_reflectance": 0.0013394777698909517
+        },
+        {
+          "order": 2,
+          "grid": 32,
+          "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\d6_integration_smoke\\hexagonal\\verification\\baseline_e9f75b890cedc439\\M2_Q32.json",
+          "signature": "11495ea36a94aa70cb3add254dfd67fe80b51b9578bac17f661bc61b519dafc6",
+          "cases": {
+            "550": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 550.0,
+              "order": 2,
+              "grid": 32,
+              "reflectance": 0.0013445209707745906,
+              "transmittance": 0.9986554790292242,
+              "energy_residual": -1.1102230246251565e-15,
+              "material_index": 1.492401592592772,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 19,
+              "eigen_dimension": 7,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 6.351522699929774,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            },
+            "600": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 600.0,
+              "order": 2,
+              "grid": 32,
+              "reflectance": 0.00135531559815894,
+              "transmittance": 0.9986446844018407,
+              "energy_residual": -3.3306690738754696e-16,
+              "material_index": 1.4900742700941088,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 19,
+              "eigen_dimension": 7,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 5.781911900034174,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            }
+          },
+          "status": "completed",
+          "requested_wavelength_count": 2,
+          "complete": true,
+          "optimization_mean_reflectance": 0.0013445209707745906,
+          "detailed_mean_reflectance": 0.0013499182844667653
+        },
+        {
+          "order": 2,
+          "grid": 48,
+          "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\d6_integration_smoke\\hexagonal\\verification\\baseline_e9f75b890cedc439\\M2_Q48.json",
+          "signature": "4a9dcc8a7261fb8fed5db6aab592140dcbc5ce2f773969a039bae1f524291bcc",
+          "cases": {
+            "550": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 550.0,
+              "order": 2,
+              "grid": 48,
+              "reflectance": 0.0013701414058473482,
+              "transmittance": 0.9986298585941529,
+              "energy_residual": 2.220446049250313e-16,
+              "material_index": 1.492401592592772,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 19,
+              "eigen_dimension": 7,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 6.24722160003148,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            },
+            "600": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 600.0,
+              "order": 2,
+              "grid": 48,
+              "reflectance": 0.0013845146749747554,
+              "transmittance": 0.9986154853250225,
+              "energy_residual": -2.6645352591003757e-15,
+              "material_index": 1.4900742700941088,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 19,
+              "eigen_dimension": 7,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 5.423983200103976,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            }
+          },
+          "status": "completed",
+          "requested_wavelength_count": 2,
+          "complete": true,
+          "optimization_mean_reflectance": 0.0013701414058473482,
+          "detailed_mean_reflectance": 0.0013773280404110518
+        }
+      ],
+      "comparisons": [
+        {
+          "axis": "grid",
+          "coarse": [
+            1,
+            32
+          ],
+          "fine": [
+            1,
+            48
+          ],
+          "max_abs_R_change": 1.0822334450623621e-05,
+          "passed": true
+        },
+        {
+          "axis": "order",
+          "coarse": [
+            1,
+            32
+          ],
+          "fine": [
+            2,
+            32
+          ],
+          "max_abs_R_change": 6.685128592161683e-05,
+          "passed": true
+        },
+        {
+          "axis": "order",
+          "coarse": [
+            1,
+            48
+          ],
+          "fine": [
+            2,
+            48
+          ],
+          "max_abs_R_change": 8.522802828680857e-05,
+          "passed": true
+        },
+        {
+          "axis": "grid",
+          "coarse": [
+            2,
+            32
+          ],
+          "fine": [
+            2,
+            48
+          ],
+          "max_abs_R_change": 2.9199076815815362e-05,
+          "passed": true
+        }
+      ],
+      "complete": true,
+      "limits": "Finite NV order/grid comparison for this stepped profile, not an exact-reference error bound."
+    },
+    "best": {
+      "shape_id": "09fb4c24b7e2a213",
+      "logits": [
+        -0.2273629175772069,
+        0.1436551873744978,
+        0.14355402719126506,
+        0.02399335525656519,
+        0.14364142329144833,
+        -0.2274511836976254
+      ],
+      "radii_nm": [
+        13.101525783650285,
+        32.08688480845883,
+        51.07032337812393,
+        67.9145327771541,
+        86.89963048907904
+      ],
+      "conditions": [
+        {
+          "order": 1,
+          "grid": 32,
+          "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\d6_integration_smoke\\hexagonal\\verification\\best_09fb4c24b7e2a213\\M1_Q32.json",
+          "signature": "cd3e00379b0b4c4d80801fa11c1cad6e8b5d6105d85201c209780965d02dac00",
+          "cases": {
+            "550": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 550.0,
+              "order": 1,
+              "grid": 32,
+              "reflectance": 0.0008020300792252859,
+              "transmittance": 0.9991979699207741,
+              "energy_residual": -5.551115123125783e-16,
+              "material_index": 1.492401592592772,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 7,
+              "eigen_dimension": 3,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 5.438706999993883,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            },
+            "600": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 600.0,
+              "order": 1,
+              "grid": 32,
+              "reflectance": 0.0009128004621256696,
+              "transmittance": 0.9990871995378744,
+              "energy_residual": 0.0,
+              "material_index": 1.4900742700941088,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 7,
+              "eigen_dimension": 3,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 6.636129799997434,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            }
+          },
+          "status": "completed",
+          "requested_wavelength_count": 2,
+          "complete": true,
+          "optimization_mean_reflectance": 0.0008020300792252859,
+          "detailed_mean_reflectance": 0.0008574152706754777
+        },
+        {
+          "order": 1,
+          "grid": 48,
+          "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\d6_integration_smoke\\hexagonal\\verification\\best_09fb4c24b7e2a213\\M1_Q48.json",
+          "signature": "39d78863864eb56079631e561e3596a78fe82a66615eb0cdaf67cd4a540d78df",
+          "cases": {
+            "550": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 550.0,
+              "order": 1,
+              "grid": 48,
+              "reflectance": 0.0008083893422889618,
+              "transmittance": 0.9991916106577102,
+              "energy_residual": -7.771561172376096e-16,
+              "material_index": 1.492401592592772,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 7,
+              "eigen_dimension": 3,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 6.404477400006726,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            },
+            "600": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 600.0,
+              "order": 1,
+              "grid": 48,
+              "reflectance": 0.000922821739333035,
+              "transmittance": 0.9990771782606684,
+              "energy_residual": 1.5543122344752192e-15,
+              "material_index": 1.4900742700941088,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 7,
+              "eigen_dimension": 3,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 5.953337499988265,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            }
+          },
+          "status": "completed",
+          "requested_wavelength_count": 2,
+          "complete": true,
+          "optimization_mean_reflectance": 0.0008083893422889618,
+          "detailed_mean_reflectance": 0.0008656055408109984
+        },
+        {
+          "order": 2,
+          "grid": 32,
+          "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\d6_integration_smoke\\hexagonal\\verification\\best_09fb4c24b7e2a213\\M2_Q32.json",
+          "signature": "9fc465c6dda6e8a96e2d52ee9ed440ca95150393ebc0a87b3788c8afb833a070",
+          "cases": {
+            "550": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 550.0,
+              "order": 2,
+              "grid": 32,
+              "reflectance": 0.0007820776350995095,
+              "transmittance": 0.9992179223649016,
+              "energy_residual": 1.1102230246251565e-15,
+              "material_index": 1.492401592592772,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 19,
+              "eigen_dimension": 7,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 6.615232299896888,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            },
+            "600": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 600.0,
+              "order": 2,
+              "grid": 32,
+              "reflectance": 0.0009758868957755146,
+              "transmittance": 0.9990241131042257,
+              "energy_residual": 1.1102230246251565e-15,
+              "material_index": 1.4900742700941088,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 19,
+              "eigen_dimension": 7,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 11.327102400013246,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            }
+          },
+          "status": "completed",
+          "requested_wavelength_count": 2,
+          "complete": true,
+          "optimization_mean_reflectance": 0.0007820776350995095,
+          "detailed_mean_reflectance": 0.000878982265437512
+        },
+        {
+          "order": 2,
+          "grid": 48,
+          "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\d6_integration_smoke\\hexagonal\\verification\\best_09fb4c24b7e2a213\\M2_Q48.json",
+          "signature": "9580262597106b0daa30e9a32d537d40730bb8fa039016bd5af823fd121c6ad3",
+          "cases": {
+            "550": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 550.0,
+              "order": 2,
+              "grid": 48,
+              "reflectance": 0.0008030401389238189,
+              "transmittance": 0.999196959861077,
+              "energy_residual": 8.881784197001252e-16,
+              "material_index": 1.492401592592772,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 19,
+              "eigen_dimension": 7,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 13.949058400001377,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            },
+            "600": {
+              "lattice": "hexagonal",
+              "wavelength_nm": 600.0,
+              "order": 2,
+              "grid": 48,
+              "reflectance": 0.0010018995029667552,
+              "transmittance": 0.9989981004970353,
+              "energy_residual": 1.9984014443252818e-15,
+              "material_index": 1.4900742700941088,
+              "pmma_shortwave_extrapolated": false,
+              "retained_scalar_harmonics": 19,
+              "eigen_dimension": 7,
+              "storage": "one-layer-streamed-Redheffer-response-vectors",
+              "maximum_retained_layer_modes": 1,
+              "checkpoint_layers": false,
+              "process_wall_seconds": 10.688176100025885,
+              "peak_cuda_allocated_bytes": null,
+              "peak_cuda_reserved_bytes": null
+            }
+          },
+          "status": "completed",
+          "requested_wavelength_count": 2,
+          "complete": true,
+          "optimization_mean_reflectance": 0.0008030401389238189,
+          "detailed_mean_reflectance": 0.000902469820945287
+        }
+      ],
+      "comparisons": [
+        {
+          "axis": "grid",
+          "coarse": [
+            1,
+            32
+          ],
+          "fine": [
+            1,
+            48
+          ],
+          "max_abs_R_change": 1.0021277207365384e-05,
+          "passed": true
+        },
+        {
+          "axis": "order",
+          "coarse": [
+            1,
+            32
+          ],
+          "fine": [
+            2,
+            32
+          ],
+          "max_abs_R_change": 6.308643364984494e-05,
+          "passed": true
+        },
+        {
+          "axis": "order",
+          "coarse": [
+            1,
+            48
+          ],
+          "fine": [
+            2,
+            48
+          ],
+          "max_abs_R_change": 7.907776363372016e-05,
+          "passed": true
+        },
+        {
+          "axis": "grid",
+          "coarse": [
+            2,
+            32
+          ],
+          "fine": [
+            2,
+            48
+          ],
+          "max_abs_R_change": 2.60126071912406e-05,
+          "passed": true
+        }
+      ],
+      "complete": true,
+      "limits": "Finite NV order/grid comparison for this stepped profile, not an exact-reference error bound."
+    }
+  },
+  "final_gradient_audit": {
+    "status": "completed",
+    "wavelengths_nm": [
+      550.0
+    ],
+    "variable_space": "all layers+1 softmax logits",
+    "direction_count": 1,
+    "records": [
+      {
+        "order": 1,
+        "objective": 0.0008020300792252684,
+        "gradient_logits": [
+          0.00011414658880452486,
+          -0.000583229825734285,
+          -0.0005572586421541132,
+          0.0015498361849228242,
+          -0.002954605353496389,
+          0.0024311110476574424
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.002673085362099463,
+            "fd_h": -0.0026730851319560294,
+            "fd_half_h": -0.002673085322390774,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      },
+      {
+        "order": 2,
+        "objective": 0.0007820776350995095,
+        "gradient_logits": [
+          3.091291097576737e-05,
+          -0.000678900667638797,
+          -0.00048106444160999967,
+          0.0014558020585311428,
+          -0.002857642561984346,
+          0.002530892701726234
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.0026070030104653067,
+            "fd_h": -0.002607002751099218,
+            "fd_half_h": -0.002607002910114272,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      }
+    ],
+    "order_gradient_norm_difference": 0.00022380100461109371,
+    "order_gradient_relative_difference": 0.05318698391440058,
+    "order_gradient_cosine": 0.9986145344583163,
+    "order_gradient_passed": false,
+    "passed": false,
+    "full_objective_wavelength_coverage": true,
+    "limits": "Directional FD checks, not exhaustive componentwise FD proof. Recheck at intermediate geometries; sampled wavelengths do not establish whole-band gradient convergence.",
+    "request_signature": "fc40b2b18cbaf6aa26a8dff76aca05451096a06d38f3ac1e4076c92eee2bfac4",
+    "runtime_environment": {
+      "python": "3.13.5",
+      "torch": "2.8.0+cpu",
+      "torcwa": "0.1.4.2",
+      "cuda": null,
+      "device": "cpu",
+      "gpu": null,
+      "gpu_total_bytes": null,
+      "optuna": "4.5.0"
+    },
+    "process_wall_seconds": 10.489705500076525
+  },
+  "status": "completed",
+  "scientific_scope": "NV-only; optimized finite 5-layer profile at M=1. Finite verification and sampled gradient checks are recorded separately; no global-optimum or publication-ready claim."
+}

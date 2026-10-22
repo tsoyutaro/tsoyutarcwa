@@ -1,0 +1,82 @@
+{
+  "axis": "order",
+  "values": [
+    1
+  ],
+  "case_count": 3,
+  "method_comparisons": [
+    {
+      "axis_value": 1,
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "rcwa-fff",
+      "differences": {
+        "R": -0.0034304359986756378,
+        "P_sub": 0.001552297542026293,
+        "A_moth": 0.0018781384566494141
+      },
+      "max_order_power_difference": 0.0034304359986756378,
+      "both_physical": true
+    },
+    {
+      "axis_value": 1,
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "baseline": "slice-nvm",
+      "method": "dm-fff",
+      "differences": {
+        "R": -0.008101806293332278,
+        "P_sub": 0.0026206666670730433,
+        "A_moth": 0.005481139626259179
+      },
+      "max_order_power_difference": 0.008101806293332278,
+      "both_physical": true
+    }
+  ],
+  "failed_cases": 0,
+  "unphysical_cases": 0,
+  "all_requested_cases_complete": true,
+  "passive_flux_bounds_passed": true,
+  "independent_physics_suite_passed": true,
+  "axis_converged": false,
+  "passed": false,
+  "tolerance_absolute": 0.0005,
+  "physical_tolerance": 1e-06,
+  "curves": [
+    {
+      "method": "slice-nvm",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": []
+    },
+    {
+      "method": "rcwa-fff",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": []
+    },
+    {
+      "method": "dm-fff",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "complete": true,
+      "passive_flux_bounds": true,
+      "converged_at_fixed_other_parameters": false,
+      "differences": []
+    }
+  ],
+  "limitations": [
+    "Order convergence at fixed slices/grid does not establish slice/grid/DM-step convergence.",
+    "No monotonic convergence is assumed; only the final two complete refinement differences are tested.",
+    "Passive R/A bounds alone do not validate a solution. The independent suite is low-order.",
+    "GIL changes the modeled structure; compare separate runs rather than treating it as a neutral numerical filter.",
+    "GPU path is implemented but must be validated on the requested GPU before trusting high-order results."
+  ]
+}

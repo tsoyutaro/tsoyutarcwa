@@ -1,0 +1,221 @@
+{
+  "status": "passed",
+  "suite": "quick",
+  "device": "cpu",
+  "orders": [
+    16
+  ],
+  "lattices": [
+    "hexagonal"
+  ],
+  "layers": 3,
+  "torch": "2.8.0+cpu",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "cuda_version": null,
+  "gpu": null,
+  "candidate_scope": "D6-native inputs, shared scalar multiplicity inverses, batched two-row E1 Reynolds contraction; cached geometry plan",
+  "tolerances": {
+    "matrix_relative": 2e-09,
+    "scalar_invariance_relative": 2e-09,
+    "field_relative": 2e-07,
+    "power_absolute": 1e-08,
+    "lossless_energy_absolute": 1e-06,
+    "gradient_atol": 1e-07,
+    "gradient_rtol": 2e-05,
+    "finite_difference_atol": 1e-06,
+    "finite_difference_rtol": 0.0003
+  },
+  "source_sha256": {
+    "block_assembly.py": "fc4248f150b970037115e70d07fc46a8ae409244fabd06f4f5e2c4b1d6548eb5",
+    "check_e1_identity.py": "04b50cd13d35b80317b492f61d993f63c960320beb8f015cb495e18ed857f1c1",
+    "d6_nvm.py": "a7635b6bf36abdb93248edf3b254b9cf8d35871c8aad13c47b8c0f29a8875240",
+    "io_utils.py": "9650995d80659b2c1fa41a619a890a20e66972cdc4aafdcb10e64cdab96e53e0",
+    "legacy_block_assembly.py": "ca8d8e6a09886cc37f18470332a28959c2745ee16c81ceb3690ccbdfe5c76c38",
+    "rcwa_ext/__init__.py": "9f879509554ab9e1ec6fca68161d34be4a9fac8038ba2bd163d12e63e35a975e",
+    "rcwa_ext/asr.py": "6bd2a78ef99764f1f3ab8ceb7f7877a10a34b30c6bda3f5640a53b383c5195e5",
+    "rcwa_ext/asr_maps.py": "658a4a44d3739f7a1e8498ccaff27e8390a44f5226268b27c1e6a6c7cf47eee8",
+    "rcwa_ext/auto.py": "768746c7ed35b98e4b1cb2eb84f071c7d65cbcb8d6aedd7e1e80c08e2fcd05a6",
+    "rcwa_ext/config.py": "d40b5ebfe478c219350ad256f203a04532eb0bbb79d22f41f16a9f011042af0e",
+    "rcwa_ext/fields.py": "72189b63b1fe8f913a23e3eaf88843bbd9d1809a6c502de024568d74f339a1d2",
+    "rcwa_ext/nvm.py": "c97f78d1bbe2332d568067b86632fbd7ee507de1a831467920acccee5bfc744b",
+    "rcwa_ext/reduced.py": "26f62f877efffc246b08a63fa2da3e084266d379abd645ed989f3ef525aadd7a",
+    "rcwa_ext/scattering.py": "6a188d97631d03a1ec929f86caf1ec33688a4068fce712d40b6c8e7fa69c09c7",
+    "rcwa_ext/symmetry.py": "8ee121e2921df69302b9199373ce502820ca3cdd474f030e6a8f27f590995e10",
+    "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569",
+    "runtime_policy.py": "578927cdd1e903d31c16f208aa10c7e180ae0d39ef0570539acbc9b64f5cab5a",
+    "validate.py": "af53e5d71f22165d3e9eebb9b528d610ca96afe19d43907076bc11a4336ecb34"
+  },
+  "pmma_sha256": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+  "cases": [
+    {
+      "type": "matrix",
+      "lattice": "hexagonal",
+      "order": 16,
+      "grid": 128,
+      "material": "n2.5",
+      "wavelength_nm": 550.0,
+      "radius_over_period": 0.27,
+      "errors": {
+        "P": 6.329584072289684e-16,
+        "Q": 1.7933530862735015e-16,
+        "PQ": 1.4028454334516568e-13
+      },
+      "input_errors": {
+        "eps": 4.901814980715985e-17,
+        "inverse_rule": 3.9586970684612804e-17,
+        "normal_projection": 0.0
+      },
+      "vector_invariance_error": 3.4591738114712754e-16,
+      "scalar_harmonics": 817,
+      "reference_PQ_dimension": 1634,
+      "candidate_PQ_dimension": 273,
+      "implementation": "d6-native-e1-pair-v1",
+      "scalar_inverse_block_sizes": [
+        81,
+        56,
+        64,
+        72,
+        136,
+        136
+      ],
+      "scalar_irrep_row_counts": [
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "scalar_invariance_error": 2.6077859234296857e-15,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "rectangular_material_matrices_assembled": false,
+      "hex_reynolds_operations": 0,
+      "hex_partner_rows": 2,
+      "full_convolution_and_normal_inputs_retained": false,
+      "native_star_normal_projection_retained": true,
+      "label": "matrix/hexagonal/M16/n2.5/r0.27",
+      "status": "passed",
+      "wall_seconds": 45.088456799974665
+    },
+    {
+      "type": "matrix",
+      "lattice": "hexagonal",
+      "order": 16,
+      "grid": 128,
+      "material": "n1.5",
+      "wavelength_nm": 400.0,
+      "radius_over_period": 0.005,
+      "errors": {
+        "P": 3.931601340833636e-16,
+        "Q": 2.071661343622259e-16,
+        "PQ": 8.615597004194732e-14
+      },
+      "input_errors": {
+        "eps": 2.1452626589431083e-19,
+        "inverse_rule": 1.2149905299247026e-19,
+        "normal_projection": 0.0
+      },
+      "vector_invariance_error": 3.3103096290015704e-16,
+      "scalar_harmonics": 817,
+      "reference_PQ_dimension": 1634,
+      "candidate_PQ_dimension": 273,
+      "implementation": "d6-native-e1-pair-v1",
+      "scalar_inverse_block_sizes": [
+        81,
+        56,
+        64,
+        72,
+        136,
+        136
+      ],
+      "scalar_irrep_row_counts": [
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "scalar_invariance_error": 5.08639501950542e-16,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "rectangular_material_matrices_assembled": false,
+      "hex_reynolds_operations": 0,
+      "hex_partner_rows": 2,
+      "full_convolution_and_normal_inputs_retained": false,
+      "native_star_normal_projection_retained": true,
+      "label": "matrix/hexagonal/M16/n1.5/r0.005",
+      "status": "passed",
+      "wall_seconds": 19.52183199999854
+    },
+    {
+      "type": "matrix",
+      "lattice": "hexagonal",
+      "order": 16,
+      "grid": 128,
+      "material": "PMMA",
+      "wavelength_nm": 700.0,
+      "radius_over_period": 0.495,
+      "errors": {
+        "P": 5.169222674892025e-16,
+        "Q": 1.969186153543606e-16,
+        "PQ": 1.4094246096657664e-13
+      },
+      "input_errors": {
+        "eps": 1.5764206925187562e-17,
+        "inverse_rule": 2.5709705697773685e-17,
+        "normal_projection": 0.0
+      },
+      "vector_invariance_error": 3.289223888611942e-16,
+      "scalar_harmonics": 817,
+      "reference_PQ_dimension": 1634,
+      "candidate_PQ_dimension": 273,
+      "implementation": "d6-native-e1-pair-v1",
+      "scalar_inverse_block_sizes": [
+        81,
+        56,
+        64,
+        72,
+        136,
+        136
+      ],
+      "scalar_irrep_row_counts": [
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "scalar_invariance_error": 2.0858397560885267e-15,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "rectangular_material_matrices_assembled": false,
+      "hex_reynolds_operations": 0,
+      "hex_partner_rows": 2,
+      "full_convolution_and_normal_inputs_retained": false,
+      "native_star_normal_projection_retained": true,
+      "label": "matrix/hexagonal/M16/PMMA/r0.495",
+      "status": "passed",
+      "wall_seconds": 19.15363019995857
+    },
+    {
+      "type": "negative_controls",
+      "lattice": "hexagonal",
+      "rejected": [
+        "symmetry_broken_scalar_matrix",
+        "off_centre_geometry",
+        "oblique_incidence"
+      ],
+      "label": "negative_controls/hexagonal",
+      "status": "passed",
+      "wall_seconds": 1.2993899000575766
+    }
+  ],
+  "failures": [],
+  "production_code_modified": false,
+  "passed_count": 4,
+  "failed_count": 0
+}

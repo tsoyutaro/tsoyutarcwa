@@ -1,0 +1,3354 @@
+{
+  "signature": "9e7493c7f4610a15bfdc51ff5d91c351b6811678be482df99f6ffb50ffcf2f8c",
+  "identity": {
+    "axis": "order",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 95.0,
+      "lattice": "triangular",
+      "gil_nm": 0.0,
+      "gil_rings": 12,
+      "gil_side": "centered",
+      "harmonic_shape": "auto"
+    },
+    "ordering": "symmetric",
+    "fixed_order": null,
+    "fixed_slices": 24,
+    "fixed_grid": 96,
+    "fixed_dm_step": 0.5,
+    "dm_integrator": "cf4-adaptive",
+    "dm_rtol": 1e-06,
+    "dm_atol": 1e-09,
+    "dm_min_step_nm": 1e-05,
+    "volume_absorption": false,
+    "absorption_quadrature": 7,
+    "loss_diagnostics": false,
+    "material_sha256": "6e72f596e70f5b3eb66501b8bbf10dea1ff105047804abbe433e603a17e61b22",
+    "material_interpolation": "shared linear epsilon",
+    "sources": {
+      "studies/gold_motheye_fff2d/model.py": "32046f07b6dee20fc8797b673ce8946bad355721059326ab1010a0cb7da60141",
+      "studies/gold_motheye_fff2d/solver.py": "095e92bcf05e52bb39e39bd7b851c0ef8e70bd052453a550e3c9e16608d6c59f",
+      "studies/gold_motheye_fff2d/integration.py": "02ec22554430eb37b69e39351ead8af4789ff537c9d7e8ed35e42cf60f6d4176",
+      "studies/gold_motheye_fff2d/native_reference.py": "733a20a8ac93e06bd6abea4a10a5433a70a8f3d437b6f9a2f3301700df1adb29",
+      "studies/gold_motheye_fff2d/run.py": "9bdf10b3a90d25e721e8de53b1f59ee49ef760dee055972508de2abc99f642e0",
+      "studies/gold_motheye_fff2d/validate.py": "ea700ffac63adea5e8c4ab32763b9cfd7a86959bc5dd209fc13ec4c7d732b3e6",
+      "studies/shared/gold_dispersion.py": "ae27eb171da5364d87945f68b75b684227c4e509f8076da00a82259cf05ed60c"
+    }
+  },
+  "cases": [
+    {
+      "axis_value": 1,
+      "method": "slice-nvm",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "order": 1,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 7,
+      "field_dimension": 28,
+      "epsilon_real": -1.658031421383648,
+      "epsilon_imag": 5.735361006289308,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.16632469999603927,
+      "local_exponential_subsections": 24,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.0006319299836167992,
+      "P_sub": 0.0238683653861979,
+      "A_moth": 0.9754997046301853,
+      "A_total": 0.9993680700163832,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -3.3881317890172014e-21,
+        9.317362419797304e-21,
+        1.6940658945086007e-21,
+        0.0006319299836167992,
+        1.6940658945086007e-21,
+        8.470329472543003e-22,
+        1.8634724839594607e-20
+      ],
+      "P_sub_orders": [
+        0.0029851939518220254,
+        0.0029851939518220237,
+        3.68685833067476e-05,
+        0.011853852412296306,
+        3.6868583306747596e-05,
+        0.002985193951822022,
+        0.002985193951822029
+      ],
+      "harmonic_indices": [
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:42.747908+00:00"
+    },
+    {
+      "axis_value": 1,
+      "method": "slice-nvm",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "order": 1,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 7,
+      "field_dimension": 28,
+      "epsilon_real": -5.937013405970148,
+      "epsilon_imag": 2.0924622686567167,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.14806989999487996,
+      "local_exponential_subsections": 24,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.1081242490123667,
+      "P_sub": 0.06998004162268395,
+      "A_moth": 0.8218957093649493,
+      "A_total": 0.8918757509876333,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        0.0,
+        8.893845946170154e-21,
+        0.0,
+        0.1081242490123667,
+        1.6704779438076223e-52,
+        4.235164736271502e-21,
+        5.929230630780102e-21
+      ],
+      "P_sub_orders": [
+        0.012248669766198504,
+        0.012248669766198495,
+        0.00010924751231780226,
+        0.020766867533254362,
+        0.00010924751231780215,
+        0.012248669766198487,
+        0.0122486697661985
+      ],
+      "harmonic_indices": [
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:42.903605+00:00"
+    },
+    {
+      "axis_value": 1,
+      "method": "slice-nvm",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "order": 1,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 7,
+      "field_dimension": 28,
+      "epsilon_real": -16.500759,
+      "epsilon_imag": 1.063618,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.129587100003846,
+      "local_exponential_subsections": 24,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.08835914462726498,
+      "P_sub": 0.016215382096467057,
+      "A_moth": 0.8954254732762679,
+      "A_total": 0.911640855372735,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        6.776263578034403e-21,
+        -2.744386749103933e-19,
+        0.0,
+        0.08835914462726498,
+        0.0,
+        9.147955830346444e-20,
+        2.168404344971009e-19
+      ],
+      "P_sub_orders": [
+        0.002487044383262159,
+        0.002487044383262161,
+        8.945319609768084e-06,
+        0.0062493139241988765,
+        8.945319609768017e-06,
+        0.002487044383262166,
+        0.0024870443832621593
+      ],
+      "harmonic_indices": [
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:43.040376+00:00"
+    },
+    {
+      "axis_value": 1,
+      "method": "rcwa-fff",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "order": 1,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 7,
+      "field_dimension": 28,
+      "epsilon_real": -1.658031421383648,
+      "epsilon_imag": 5.735361006289308,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.2702932000393048,
+      "local_exponential_subsections": 24,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.0007417459756201938,
+      "P_sub": 0.02349822555735544,
+      "A_moth": 0.9757600284670244,
+      "A_total": 0.9992582540243798,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -1.8912657525412425e-20,
+        2.0381730293306602e-21,
+        -3.3881317890172014e-21,
+        0.0007417459756201938,
+        -4.176194859519056e-53,
+        1.2440796412797536e-20,
+        9.132073962585426e-21
+      ],
+      "P_sub_orders": [
+        0.002970088773249344,
+        0.002970088773249343,
+        3.2097001933054954e-05,
+        0.01155367646049196,
+        3.209700193305501e-05,
+        0.002970088773249343,
+        0.0029700887732493427
+      ],
+      "harmonic_indices": [
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:43.318532+00:00"
+    },
+    {
+      "axis_value": 1,
+      "method": "rcwa-fff",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "order": 1,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 7,
+      "field_dimension": 28,
+      "epsilon_real": -5.937013405970148,
+      "epsilon_imag": 2.0924622686567167,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.22467030002735555,
+      "local_exponential_subsections": 24,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.1054950415134984,
+      "P_sub": 0.07187441098612918,
+      "A_moth": 0.8226305475003723,
+      "A_total": 0.8945049584865016,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        5.293955920339377e-23,
+        1.1117307432712692e-21,
+        -3.3409558876152446e-52,
+        0.1054950415134984,
+        0.0,
+        3.1763735522036263e-22,
+        1.1117307432712692e-21
+      ],
+      "P_sub_orders": [
+        0.012566303991968793,
+        0.012566303991968779,
+        9.551011150060555e-05,
+        0.02141817479525282,
+        9.551011150060566e-05,
+        0.012566303991968779,
+        0.012566303991968796
+      ],
+      "harmonic_indices": [
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:43.554730+00:00"
+    },
+    {
+      "axis_value": 1,
+      "method": "rcwa-fff",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "order": 1,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 7,
+      "field_dimension": 28,
+      "epsilon_real": -16.500759,
+      "epsilon_imag": 1.063618,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.16269679996185005,
+      "local_exponential_subsections": 24,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.05363107015611721,
+      "P_sub": 0.02793031146898173,
+      "A_moth": 0.918438618374901,
+      "A_total": 0.9463689298438828,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        1.3552527156068805e-20,
+        -4.1335207826009857e-19,
+        0.0,
+        0.05363107015611721,
+        -1.3552527156068805e-20,
+        6.776263578034403e-21,
+        1.2874900798265365e-19
+      ],
+      "P_sub_orders": [
+        0.004265643675886184,
+        0.004265643675886163,
+        2.0885497868986598e-05,
+        0.010825965769699075,
+        2.0885497868986815e-05,
+        0.004265643675886162,
+        0.004265643675886174
+      ],
+      "harmonic_indices": [
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:43.729232+00:00"
+    },
+    {
+      "axis_value": 2,
+      "method": "slice-nvm",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "order": 2,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 19,
+      "field_dimension": 76,
+      "epsilon_real": -1.658031421383648,
+      "epsilon_imag": 5.735361006289308,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.2975933999987319,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.0007091720078518274,
+      "P_sub": 0.03379782191612602,
+      "A_moth": 0.9654930060760222,
+      "A_total": 0.9992908279921482,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -1.7999450129153882e-21,
+        2.0472157091811552e-37,
+        1.4823076576950256e-21,
+        2.6469779601696886e-22,
+        -1.4717197458543468e-20,
+        -7.411538288475128e-22,
+        6.352747104407253e-22,
+        -2.6469779601696886e-23,
+        6.681911775230489e-52,
+        0.0007091720078518274,
+        -5.22024357439882e-54,
+        -2.6469779601696886e-23,
+        -3.705769144237564e-22,
+        2.0117032497289633e-21,
+        5.293955920339377e-22,
+        1.3234889800848443e-22,
+        -5.717472393966527e-21,
+        -1.202330232089596e-37,
+        -2.329340604949326e-21
+      ],
+      "P_sub_orders": [
+        0.0006522232163314015,
+        0.0008541235926661248,
+        0.0006522232163314007,
+        0.00021534956546321996,
+        0.003655920810494882,
+        0.003655920810494871,
+        0.00021534956546321958,
+        1.7782552573082882e-08,
+        1.3261000279282306e-05,
+        0.013969042795972067,
+        1.3261000279282372e-05,
+        1.7782552573083385e-08,
+        0.00021534956546321948,
+        0.0036559208104948782,
+        0.0036559208104948826,
+        0.00021534956546321996,
+        0.0006522232163314006,
+        0.0008541235926661253,
+        0.0006522232163314025
+      ],
+      "harmonic_indices": [
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:44.034877+00:00"
+    },
+    {
+      "axis_value": 2,
+      "method": "slice-nvm",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "order": 2,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 19,
+      "field_dimension": 76,
+      "epsilon_real": -5.937013405970148,
+      "epsilon_imag": 2.0924622686567167,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.2765362000791356,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.056873956105336826,
+      "P_sub": 0.10438402020791542,
+      "A_moth": 0.8387420236867478,
+      "A_total": 0.9431260438946631,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        2.4352197233561135e-21,
+        -7.671030597771761e-37,
+        5.293955920339377e-22,
+        1.0587911840678754e-21,
+        8.470329472543003e-21,
+        -1.0164395367051604e-20,
+        1.5881867761018131e-22,
+        -2.6469779601696886e-23,
+        1.6940658945086007e-21,
+        0.056873956105336826,
+        8.470329472543003e-22,
+        2.6469779601696886e-23,
+        2.80579663777987e-21,
+        1.3976043629695956e-20,
+        -1.207021949837378e-20,
+        2.117582368135751e-22,
+        4.235164736271502e-22,
+        -9.348476632616166e-37,
+        -7.623296525288703e-21
+      ],
+      "P_sub_orders": [
+        0.0032448213914649388,
+        0.0039234098742541084,
+        0.003244821391464939,
+        0.0009869091693354441,
+        0.01336939601482298,
+        0.013369396014822975,
+        0.0009869091693354428,
+        2.2824762440358553e-06,
+        1.4233672437261185e-05,
+        0.026099661859551156,
+        1.4233672437261442e-05,
+        2.2824762440358553e-06,
+        0.000986909169335442,
+        0.013369396014822961,
+        0.013369396014822992,
+        0.0009869091693354435,
+        0.0032448213914649405,
+        0.0039234098742541,
+        0.00324482139146495
+      ],
+      "harmonic_indices": [
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:44.320569+00:00"
+    },
+    {
+      "axis_value": 2,
+      "method": "slice-nvm",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "order": 2,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 19,
+      "field_dimension": 76,
+      "epsilon_real": -16.500759,
+      "epsilon_imag": 1.063618,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.2647387000033632,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.6274616449902065,
+      "P_sub": 0.03951411596609993,
+      "A_moth": 0.33302423904369355,
+      "A_total": 0.3725383550097935,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -1.8634724839594607e-19,
+        -1.3559120982445676e-34,
+        1.0757318430129614e-19,
+        -8.809142651444724e-20,
+        -2.168404344971009e-19,
+        -4.404571325722362e-19,
+        -9.740878893424454e-20,
+        -2.117582368135751e-22,
+        0.0,
+        0.6274616449902065,
+        0.0,
+        0.0,
+        6.183340514956392e-20,
+        -1.7618285302889447e-19,
+        -1.0842021724855044e-19,
+        4.0657581468206416e-20,
+        1.6432439176733427e-19,
+        -5.421010862427543e-20,
+        3.218725199566341e-20
+      ],
+      "P_sub_orders": [
+        0.0013540409849319163,
+        0.0010046123915461924,
+        0.0013540409849319046,
+        0.0002511594299237004,
+        0.00475519576942938,
+        0.004755195769429357,
+        0.0002511594299236991,
+        4.128955482803546e-07,
+        2.3959458716911453e-07,
+        0.01206200146559673,
+        2.3959458716911707e-07,
+        4.12895548280358e-07,
+        0.0002511594299236969,
+        0.004755195769429354,
+        0.00475519576942938,
+        0.0002511594299237023,
+        0.0013540409849319055,
+        0.0010046123915461985,
+        0.0013540409849319146
+      ],
+      "harmonic_indices": [
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:44.596142+00:00"
+    },
+    {
+      "axis_value": 2,
+      "method": "rcwa-fff",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "order": 2,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 19,
+      "field_dimension": 76,
+      "epsilon_real": -1.658031421383648,
+      "epsilon_imag": 5.735361006289308,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.21427370002493262,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.0008533933788008136,
+      "P_sub": 0.03470150991911333,
+      "A_moth": 0.9644450967020858,
+      "A_total": 0.9991466066211991,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        8.470329472543003e-22,
+        3.6272194936038352e-37,
+        -7.411538288475128e-22,
+        2.117582368135751e-22,
+        -1.2705494208814505e-21,
+        -8.258571235729428e-21,
+        -6.352747104407253e-22,
+        2.6469779601696886e-23,
+        0.0,
+        0.0008533933788008136,
+        0.0,
+        0.0,
+        0.0,
+        2.117582368135751e-21,
+        -2.541098841762901e-21,
+        -1.5881867761018131e-22,
+        -1.0587911840678754e-21,
+        4.888989200524409e-38,
+        4.235164736271502e-22
+      ],
+      "P_sub_orders": [
+        0.0006683974720283305,
+        0.0009580803504621563,
+        0.0006683974720283284,
+        0.00024128369134854996,
+        0.0037409895986554417,
+        0.0037409895986554404,
+        0.00024128369134854936,
+        2.7582552941059162e-08,
+        1.3056267160271741e-05,
+        0.014156498470633327,
+        1.3056267160271694e-05,
+        2.7582552941059268e-08,
+        0.00024128369134854939,
+        0.0037409895986554357,
+        0.0037409895986554417,
+        0.0002412836913485492,
+        0.000668397472028328,
+        0.0009580803504621579,
+        0.0006683974720283303
+      ],
+      "harmonic_indices": [
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:44.818549+00:00"
+    },
+    {
+      "axis_value": 2,
+      "method": "rcwa-fff",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "order": 2,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 19,
+      "field_dimension": 76,
+      "epsilon_real": -5.937013405970148,
+      "epsilon_imag": 2.0924622686567167,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.23374450008850545,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.04258893711072013,
+      "P_sub": 0.10651829625973051,
+      "A_moth": 0.8508927666295494,
+      "A_total": 0.9574110628892799,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        2.329340604949326e-21,
+        -8.470329472542998e-22,
+        -7.887994321305672e-21,
+        -1.7999450129153882e-21,
+        -1.4823076576950256e-21,
+        6.352747104407253e-22,
+        -7.940933880509066e-22,
+        -2.6469779601696886e-23,
+        0.0,
+        0.04258893711072013,
+        2.6727647100921956e-51,
+        0.0,
+        -1.2705494208814505e-21,
+        2.329340604949326e-20,
+        2.244637310223896e-20,
+        3.705769144237564e-22,
+        2.4881592825595072e-21,
+        -8.470329472543e-22,
+        2.064642808932357e-21
+      ],
+      "P_sub_orders": [
+        0.0032181680191741024,
+        0.003981063067605425,
+        0.003218168019174093,
+        0.0010004679303144794,
+        0.013739785350621703,
+        0.013739785350621687,
+        0.00100046793031448,
+        1.6419134241378617e-06,
+        1.3232571756255932e-05,
+        0.026692735953717836,
+        1.323257175625585e-05,
+        1.6419134241378414e-06,
+        0.0010004679303144781,
+        0.013739785350621678,
+        0.013739785350621685,
+        0.0010004679303144783,
+        0.0032181680191740846,
+        0.00398106306760543,
+        0.0032181680191740955
+      ],
+      "harmonic_indices": [
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:45.059856+00:00"
+    },
+    {
+      "axis_value": 2,
+      "method": "rcwa-fff",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "order": 2,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 19,
+      "field_dimension": 76,
+      "epsilon_real": -16.500759,
+      "epsilon_imag": 1.063618,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.248264400055632,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.7533116805301912,
+      "P_sub": 0.054135851963341614,
+      "A_moth": 0.19255246750646723,
+      "A_total": 0.24668831946980885,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -1.6093625997831706e-20,
+        2.7105054312137084e-20,
+        2.541098841762901e-20,
+        2.710505431213761e-20,
+        2.913793338554793e-19,
+        2.168404344971009e-19,
+        -1.1858461261560205e-20,
+        -2.117582368135751e-22,
+        -2.710505431213761e-20,
+        0.7533116805301912,
+        2.710505431213761e-20,
+        1.3684555315672042e-48,
+        3.5575383784680614e-20,
+        -1.0977546996415732e-18,
+        5.963111948670274e-19,
+        -1.1858461261560205e-20,
+        -2.456395547037471e-20,
+        -2.7105054312138116e-20,
+        -1.8634724839594607e-20
+      ],
+      "P_sub_orders": [
+        0.0015505298336128681,
+        0.0013423179210561974,
+        0.001550529833612859,
+        0.0003357847541101842,
+        0.0069339749369745594,
+        0.0069339749369745456,
+        0.00033578475411018103,
+        7.095324192825741e-07,
+        1.396790786281338e-06,
+        0.016165845376027693,
+        1.3967907862813718e-06,
+        7.095324192825606e-07,
+        0.0003357847541101813,
+        0.0069339749369745265,
+        0.006933974936974584,
+        0.0003357847541101842,
+        0.0015505298336128603,
+        0.0013423179210561974,
+        0.001550529833612863
+      ],
+      "harmonic_indices": [
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:45.319683+00:00"
+    },
+    {
+      "axis_value": 3,
+      "method": "slice-nvm",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "order": 3,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 37,
+      "field_dimension": 148,
+      "epsilon_real": -1.658031421383648,
+      "epsilon_imag": 5.735361006289308,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.7425415000179783,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.0008566603956174383,
+      "P_sub": 0.03538000668719987,
+      "A_moth": 0.9637633329171826,
+      "A_total": 0.9991433396043825,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        1.5881867761018131e-22,
+        -5.955700410381799e-23,
+        1.257314531080602e-22,
+        2.117582368135751e-22,
+        -1.138200522872966e-21,
+        -1.0323214044661785e-21,
+        -6.029524343895627e-37,
+        -2.9116757561866574e-22,
+        -1.164670302474663e-21,
+        -1.3234889800848443e-23,
+        5.293955920339377e-23,
+        1.641126335305207e-21,
+        -5.082197683525802e-21,
+        7.940933880509066e-22,
+        6.617444900424222e-24,
+        0.0,
+        -1.3234889800848443e-23,
+        0.0,
+        0.0008566603956174383,
+        0.0,
+        -1.3234889800848443e-23,
+        0.0,
+        6.617444900424222e-24,
+        1.5881867761018131e-22,
+        -3.546950466627383e-21,
+        4.367513634279986e-21,
+        7.940933880509066e-23,
+        0.0,
+        3.970466940254533e-22,
+        7.940933880509066e-22,
+        -1.4117376842945959e-37,
+        -1.2440796412797536e-21,
+        -9.26442286059391e-23,
+        -3.3881317890172014e-21,
+        -3.3087224502121107e-22,
+        5.823351512373315e-22,
+        -1.0587911840678754e-21
+      ],
+      "P_sub_orders": [
+        0.00014107718594662992,
+        0.0002580448222542642,
+        0.00025804482225426394,
+        0.0001410771859466293,
+        0.00010566920316268475,
+        0.000579363814253354,
+        0.0008422186876010677,
+        0.0005793638142533519,
+        0.00010566920316268433,
+        3.458985854063187e-05,
+        0.00021191160598036632,
+        0.0035042785082049885,
+        0.0035042785082049794,
+        0.00021191160598036632,
+        3.458985854063179e-05,
+        5.310303696429622e-09,
+        5.2441711648359455e-08,
+        1.387450463578665e-05,
+        0.014327964805323813,
+        1.3874504635786605e-05,
+        5.244171164836007e-08,
+        5.310303696429594e-09,
+        3.4589858540631644e-05,
+        0.00021191160598036619,
+        0.003504278508204989,
+        0.00350427850820499,
+        0.00021191160598036768,
+        3.45898585406319e-05,
+        0.00010566920316268461,
+        0.0005793638142533515,
+        0.0008422186876010651,
+        0.0005793638142533535,
+        0.0001056692031626851,
+        0.00014107718594662936,
+        0.00025804482225426486,
+        0.000258044822254265,
+        0.00014107718594662938
+      ],
+      "harmonic_indices": [
+        [
+          -3,
+          -3
+        ],
+        [
+          -3,
+          -2
+        ],
+        [
+          -3,
+          -1
+        ],
+        [
+          -3,
+          0
+        ],
+        [
+          -2,
+          -3
+        ],
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -2,
+          1
+        ],
+        [
+          -1,
+          -3
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          -1,
+          2
+        ],
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          -2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          -1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:46.071526+00:00"
+    },
+    {
+      "axis_value": 3,
+      "method": "slice-nvm",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "order": 3,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 37,
+      "field_dimension": 148,
+      "epsilon_real": -5.937013405970148,
+      "epsilon_imag": 2.0924622686567167,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.6955251999897882,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.039053636336425744,
+      "P_sub": 0.10818338743780113,
+      "A_moth": 0.8527629762257731,
+      "A_total": 0.9609463636635742,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        7.040961374051372e-21,
+        -8.139457227521792e-22,
+        -9.926167350636332e-23,
+        -3.282252670610414e-21,
+        1.7999450129153882e-21,
+        2.3822801641527197e-21,
+        -3.5749409303606655e-36,
+        -1.376428539288238e-21,
+        1.852884572118782e-22,
+        1.7205356741102976e-22,
+        -1.2705494208814505e-21,
+        -8.046812998915853e-21,
+        1.9058241313221758e-20,
+        -1.7999450129153882e-21,
+        -2.514629062161204e-22,
+        -3.308722450212111e-24,
+        0.0,
+        1.6940658945086007e-21,
+        0.039053636336425744,
+        0.0,
+        -5.345529420184391e-51,
+        -3.308722450212111e-24,
+        2.3822801641527197e-22,
+        -1.0587911840678754e-21,
+        1.2281977735187355e-20,
+        4.235164736271502e-22,
+        -5.346895479542771e-21,
+        1.5881867761018131e-22,
+        -2.6469779601696886e-21,
+        -1.6040686438628313e-20,
+        -2.834351493606788e-36,
+        -4.446922973085077e-21,
+        5.743942173568224e-21,
+        -3.282252670610414e-21,
+        -3.970466940254533e-22,
+        2.2234614865425384e-21,
+        9.952637130238029e-21
+      ],
+      "P_sub_orders": [
+        0.001077064510471773,
+        0.001266506778771478,
+        0.001266506778771476,
+        0.0010770645104717738,
+        0.00045011921045371106,
+        0.0033020828800202667,
+        0.0029643167208888515,
+        0.0033020828800202602,
+        0.0004501192104537079,
+        0.00020765074163727894,
+        0.0007427871264099414,
+        0.011982427202112764,
+        0.011982427202112712,
+        0.0007427871264099429,
+        0.00020765074163727775,
+        5.714176447044352e-07,
+        3.576936605363593e-07,
+        1.4884925582955009e-05,
+        0.02610857212273837,
+        1.488492558295505e-05,
+        3.576936605363593e-07,
+        5.714176447044457e-07,
+        0.00020765074163727861,
+        0.0007427871264099419,
+        0.011982427202112685,
+        0.011982427202112735,
+        0.000742787126409944,
+        0.00020765074163727788,
+        0.0004501192104537072,
+        0.0033020828800202477,
+        0.00296431672088886,
+        0.003302082880020268,
+        0.0004501192104537148,
+        0.0010770645104717603,
+        0.001266506778771481,
+        0.0012665067787714858,
+        0.001077064510471765
+      ],
+      "harmonic_indices": [
+        [
+          -3,
+          -3
+        ],
+        [
+          -3,
+          -2
+        ],
+        [
+          -3,
+          -1
+        ],
+        [
+          -3,
+          0
+        ],
+        [
+          -2,
+          -3
+        ],
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -2,
+          1
+        ],
+        [
+          -1,
+          -3
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          -1,
+          2
+        ],
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          -2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          -1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:46.776749+00:00"
+    },
+    {
+      "axis_value": 3,
+      "method": "slice-nvm",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "order": 3,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 37,
+      "field_dimension": 148,
+      "epsilon_real": -16.500759,
+      "epsilon_imag": 1.063618,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.8699128999141976,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.8724096417241337,
+      "P_sub": 0.055946621152346526,
+      "A_moth": 0.07164373712351976,
+      "A_total": 0.1275903582758663,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -4.446922973085077e-21,
+        6.617444900424221e-23,
+        -9.26442286059391e-23,
+        -1.6940658945086007e-21,
+        -3.1763735522036263e-22,
+        -1.376428539288238e-21,
+        1.6940658945085591e-21,
+        2.541098841762901e-21,
+        -1.2705494208814505e-21,
+        0.0,
+        2.329340604949326e-21,
+        -2.541098841762901e-21,
+        -2.541098841762901e-21,
+        -6.352747104407253e-22,
+        7.940933880509066e-23,
+        -3.2311742677852644e-27,
+        -1.3234889800848443e-23,
+        0.0,
+        0.8724096417241337,
+        -1.3684555315672042e-48,
+        0.0,
+        0.0,
+        1.0587911840678754e-22,
+        -1.4823076576950256e-21,
+        -5.929230630780102e-21,
+        -8.470329472543003e-22,
+        -6.776263578034403e-21,
+        1.0587911840678754e-22,
+        2.117582368135751e-22,
+        -9.952637130238029e-21,
+        -4.316229460955182e-35,
+        4.341043854678289e-21,
+        1.164670302474663e-21,
+        1.2176098616780567e-21,
+        -5.0954325733266505e-22,
+        -3.3087224502121107e-23,
+        -7.940933880509066e-21
+      ],
+      "P_sub_orders": [
+        0.0009246793855608135,
+        0.00026795933272429236,
+        0.0002679593327242815,
+        0.0009246793855608537,
+        5.97190386985552e-05,
+        0.0011532282537512833,
+        0.0016168728361118634,
+        0.0011532282537513275,
+        5.9719038698556257e-05,
+        0.0001352654860094777,
+        0.00040466356108314374,
+        0.006038630513563671,
+        0.00603863051356355,
+        0.00040466356108313263,
+        0.0001352654860094763,
+        5.854579533579019e-07,
+        1.2119976823832607e-06,
+        1.3516689838316693e-07,
+        0.016772427949489757,
+        1.351668983832169e-07,
+        1.211997682383314e-06,
+        5.854579533578748e-07,
+        0.00013526548600947428,
+        0.0004046635610831206,
+        0.0060386305135635325,
+        0.0060386305135636175,
+        0.0004046635610831311,
+        0.0001352654860094757,
+        5.971903869855501e-05,
+        0.001153228253751305,
+        0.0016168728361119242,
+        0.001153228253751306,
+        5.971903869855273e-05,
+        0.0009246793855608454,
+        0.00026795933272426845,
+        0.00026795933272428537,
+        0.0009246793855608544
+      ],
+      "harmonic_indices": [
+        [
+          -3,
+          -3
+        ],
+        [
+          -3,
+          -2
+        ],
+        [
+          -3,
+          -1
+        ],
+        [
+          -3,
+          0
+        ],
+        [
+          -2,
+          -3
+        ],
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -2,
+          1
+        ],
+        [
+          -1,
+          -3
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          -1,
+          2
+        ],
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          -2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          -1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:47.657187+00:00"
+    },
+    {
+      "axis_value": 3,
+      "method": "rcwa-fff",
+      "wavelength_nm": 400.0,
+      "polarization": "x",
+      "order": 3,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 37,
+      "field_dimension": 148,
+      "epsilon_real": -1.658031421383648,
+      "epsilon_imag": 5.735361006289308,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.7670233000535518,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.0007868038561499297,
+      "P_sub": 0.036965683786449335,
+      "A_moth": 0.9622475123574007,
+      "A_total": 0.9992131961438501,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -1.5087774372967225e-21,
+        1.3234889800848443e-23,
+        3.3087224502121107e-23,
+        -1.61465655570351e-21,
+        1.5881867761018131e-22,
+        9.330597309598152e-22,
+        5.557784345344136e-38,
+        -5.293955920339377e-22,
+        -6.088049308390284e-22,
+        0.0,
+        -3.441071348220595e-22,
+        -2.541098841762901e-21,
+        -3.8116482626443515e-21,
+        -5.558653716356346e-22,
+        0.0,
+        2.0679515313825692e-25,
+        1.3234889800848443e-23,
+        1.6940658945086007e-21,
+        0.0007868038561499297,
+        -1.6940658945086007e-21,
+        -1.3234889800848443e-23,
+        0.0,
+        -2.6469779601696886e-23,
+        -3.705769144237564e-22,
+        4.235164736271502e-21,
+        6.3527471044072525e-21,
+        0.0,
+        0.0,
+        2.117582368135751e-22,
+        -1.0654086289682996e-21,
+        -4.238974356812728e-37,
+        -3.3087224502121107e-23,
+        -1.3234889800848443e-23,
+        -1.2705494208814505e-21,
+        -5.624828165360588e-23,
+        -3.308722450212111e-24,
+        -1.4558378780933287e-21
+      ],
+      "P_sub_orders": [
+        0.0001298537336684355,
+        0.00030141163438676184,
+        0.000301411634386762,
+        0.0001298537336684352,
+        0.0001308051824798695,
+        0.0006053965550959922,
+        0.0009201893619176314,
+        0.000605396555095992,
+        0.00013080518247986925,
+        3.621083550228131e-05,
+        0.00023142792790858122,
+        0.003665401635054618,
+        0.00366540163505461,
+        0.00023142792790858182,
+        3.621083550228122e-05,
+        3.119963979675409e-09,
+        6.373510272185303e-08,
+        1.3592440894083508e-05,
+        0.01469595645430637,
+        1.359244089408366e-05,
+        6.373510272185312e-08,
+        3.11996397967526e-09,
+        3.6210835502281266e-05,
+        0.0002314279279085824,
+        0.0036654016350546065,
+        0.0036654016350546052,
+        0.0002314279279085825,
+        3.621083550228132e-05,
+        0.00013080518247986992,
+        0.000605396555095991,
+        0.0009201893619176368,
+        0.0006053965550959933,
+        0.00013080518247987047,
+        0.0001298537336684353,
+        0.00030141163438676037,
+        0.00030141163438676086,
+        0.0001298537336684357
+      ],
+      "harmonic_indices": [
+        [
+          -3,
+          -3
+        ],
+        [
+          -3,
+          -2
+        ],
+        [
+          -3,
+          -1
+        ],
+        [
+          -3,
+          0
+        ],
+        [
+          -2,
+          -3
+        ],
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -2,
+          1
+        ],
+        [
+          -1,
+          -3
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          -1,
+          2
+        ],
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          -2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          -1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:48.434884+00:00"
+    },
+    {
+      "axis_value": 3,
+      "method": "rcwa-fff",
+      "wavelength_nm": 550.0,
+      "polarization": "x",
+      "order": 3,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "OK",
+      "error": "",
+      "scalar_harmonics": 37,
+      "field_dimension": 148,
+      "epsilon_real": -5.937013405970148,
+      "epsilon_imag": 2.0924622686567167,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.7671773000620306,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 0.06413081314217542,
+      "P_sub": 0.12339025173220657,
+      "A_moth": 0.8124789351256181,
+      "A_total": 0.9358691868578246,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -2.276401045745932e-21,
+        1.283784310682299e-21,
+        -1.105113298370845e-21,
+        1.6940658945086007e-21,
+        -3.282252670610414e-21,
+        -9.052664623780335e-21,
+        2.720931232654484e-36,
+        3.1234339930002325e-21,
+        2.80579663777987e-21,
+        -6.617444900424221e-23,
+        -2.8587361969832636e-21,
+        -2.5278639519620526e-20,
+        2.191697751020502e-20,
+        -1.0587911840678754e-22,
+        0.0,
+        -6.617444900424222e-24,
+        0.0,
+        1.0691058840368783e-50,
+        0.06413081314217542,
+        1.6940658945086007e-21,
+        5.345529420184391e-51,
+        0.0,
+        -7.940933880509066e-23,
+        1.4823076576950256e-21,
+        -7.676236084492097e-21,
+        1.0587911840678754e-21,
+        4.129285617864714e-21,
+        -1.1911400820763599e-22,
+        9.158543742187122e-21,
+        -2.276401045745932e-21,
+        4.536736512653426e-36,
+        -5.717472393966527e-21,
+        4.0763460586613204e-21,
+        -1.0270274485458392e-20,
+        -2.392206331503356e-21,
+        -3.970466940254533e-23,
+        2.779326858178173e-21
+      ],
+      "P_sub_orders": [
+        0.0009306656341979533,
+        0.0015413345380849213,
+        0.0015413345380849081,
+        0.0009306656341979473,
+        0.0006241722650872489,
+        0.003563984822761334,
+        0.0035086580171445766,
+        0.0035639848227612867,
+        0.000624172265087243,
+        0.0002112416003690612,
+        0.0008787411280592324,
+        0.013792055241392561,
+        0.013792055241392494,
+        0.0008787411280592271,
+        0.0002112416003690641,
+        4.67320268959153e-07,
+        3.4696682213965917e-07,
+        1.3227305968041797e-05,
+        0.03017607159199026,
+        1.322730596804177e-05,
+        3.4696682213966255e-07,
+        4.6732026895915216e-07,
+        0.00021124160036906426,
+        0.0008787411280592328,
+        0.013792055241392454,
+        0.013792055241392542,
+        0.0008787411280592326,
+        0.00021124160036906594,
+        0.000624172265087244,
+        0.003563984822761295,
+        0.0035086580171445774,
+        0.0035639848227612993,
+        0.000624172265087252,
+        0.0009306656341979249,
+        0.0015413345380849237,
+        0.00154133453808493,
+        0.0009306656341979315
+      ],
+      "harmonic_indices": [
+        [
+          -3,
+          -3
+        ],
+        [
+          -3,
+          -2
+        ],
+        [
+          -3,
+          -1
+        ],
+        [
+          -3,
+          0
+        ],
+        [
+          -2,
+          -3
+        ],
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -2,
+          1
+        ],
+        [
+          -1,
+          -3
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          -1,
+          2
+        ],
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          -2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          -1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "physical": {
+        "passed": true,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:49.210279+00:00"
+    },
+    {
+      "axis_value": 3,
+      "method": "rcwa-fff",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "order": 3,
+      "slices": 24,
+      "grid": 96,
+      "dm_step_nm": 0.5,
+      "status": "UNPHYSICAL",
+      "error": "",
+      "scalar_harmonics": 37,
+      "field_dimension": 148,
+      "epsilon_real": -16.500759,
+      "epsilon_imag": 1.063618,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 0.6521486999699846,
+      "local_exponential_subsections": 48,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "R": 3.328402872353617,
+      "P_sub": 0.07026782131640937,
+      "A_moth": -2.3986706936700264,
+      "A_total": -2.328402872353617,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        3.409307612698559e-20,
+        -1.3234889800848443e-22,
+        -3.864587821847745e-21,
+        -5.69629657028517e-20,
+        -4.044582323139284e-20,
+        1.6940658945086007e-20,
+        1.7410694890783113e-34,
+        7.199780051661553e-21,
+        -1.6940658945086007e-20,
+        -1.5352472168984194e-21,
+        4.235164736271502e-21,
+        3.5575383784680614e-20,
+        -6.268043809681823e-20,
+        7.411538288475128e-21,
+        -1.1117307432712692e-21,
+        0.0,
+        0.0,
+        0.0,
+        3.328402872353617,
+        -1.6940658945086007e-21,
+        -2.6469779601696886e-23,
+        0.0,
+        1.6940658945086007e-21,
+        -1.249373597200093e-20,
+        -4.743384504624082e-20,
+        -6.352747104407253e-20,
+        -4.446922973085077e-21,
+        4.235164736271502e-22,
+        -2.1175823681357508e-20,
+        -4.658681209898652e-21,
+        1.0966238800905943e-34,
+        4.870439446712227e-21,
+        3.049318610115481e-20,
+        7.369186641112413e-20,
+        -4.129285617864714e-21,
+        -4.393983413881683e-21,
+        2.0964065444543933e-20
+      ],
+      "P_sub_orders": [
+        0.0010565435699318743,
+        0.0009541776728246807,
+        0.0009541776728246196,
+        0.0010565435699319329,
+        0.0004174705984663911,
+        0.0010297215978472764,
+        0.0023049305868817413,
+        0.0010297215978473683,
+        0.0004174705984664616,
+        0.00011106837467184138,
+        0.0005917138288754988,
+        0.0068070370117259155,
+        0.006807037011726276,
+        0.0005917138288755379,
+        0.00011106837467184113,
+        5.865948932653699e-07,
+        6.636158570663187e-06,
+        2.1809054090319593e-05,
+        0.021728965910162268,
+        2.1809054090319186e-05,
+        6.636158570663513e-06,
+        5.865948932653428e-07,
+        0.00011106837467182888,
+        0.0005917138288755574,
+        0.006807037011726275,
+        0.00680703701172605,
+        0.0005917138288754967,
+        0.00011106837467181414,
+        0.00041747059846642775,
+        0.001029721597847348,
+        0.0023049305868817066,
+        0.0010297215978472757,
+        0.00041747059846636075,
+        0.0010565435699320187,
+        0.0009541776728245743,
+        0.0009541776728245855,
+        0.0010565435699320047
+      ],
+      "harmonic_indices": [
+        [
+          -3,
+          -3
+        ],
+        [
+          -3,
+          -2
+        ],
+        [
+          -3,
+          -1
+        ],
+        [
+          -3,
+          0
+        ],
+        [
+          -2,
+          -3
+        ],
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -2,
+          1
+        ],
+        [
+          -1,
+          -3
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          -1,
+          2
+        ],
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          -2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          -1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "physical": {
+        "passed": false,
+        "checks": {
+          "R": false,
+          "P_sub": true,
+          "A_moth": false,
+          "A_total": false
+        },
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T05:00:49.872560+00:00"
+    }
+  ]
+}

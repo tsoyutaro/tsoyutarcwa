@@ -1,0 +1,160 @@
+{
+  "status": "passed",
+  "suite": "standard",
+  "device": "cpu",
+  "orders": [
+    16
+  ],
+  "lattices": [
+    "square"
+  ],
+  "torch": "2.8.0+cpu",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "cuda_version": null,
+  "gpu": null,
+  "candidate_scope": "scalar-block inverse actions and direct source-sector P/Q; scalar convolution and full normal-projector inputs retained",
+  "tolerances": {
+    "matrix_relative": 2e-09,
+    "scalar_invariance_relative": 2e-09,
+    "field_relative": 2e-07,
+    "power_absolute": 1e-08,
+    "lossless_energy_absolute": 1e-06,
+    "gradient_atol": 1e-07,
+    "gradient_rtol": 2e-05,
+    "finite_difference_atol": 1e-06,
+    "finite_difference_rtol": 0.0003
+  },
+  "source_sha256": {
+    "block_assembly.py": "ca8d8e6a09886cc37f18470332a28959c2745ee16c81ceb3690ccbdfe5c76c38",
+    "io_utils.py": "9650995d80659b2c1fa41a619a890a20e66972cdc4aafdcb10e64cdab96e53e0",
+    "rcwa_ext/__init__.py": "9f879509554ab9e1ec6fca68161d34be4a9fac8038ba2bd163d12e63e35a975e",
+    "rcwa_ext/asr.py": "6bd2a78ef99764f1f3ab8ceb7f7877a10a34b30c6bda3f5640a53b383c5195e5",
+    "rcwa_ext/asr_maps.py": "658a4a44d3739f7a1e8498ccaff27e8390a44f5226268b27c1e6a6c7cf47eee8",
+    "rcwa_ext/auto.py": "768746c7ed35b98e4b1cb2eb84f071c7d65cbcb8d6aedd7e1e80c08e2fcd05a6",
+    "rcwa_ext/config.py": "d40b5ebfe478c219350ad256f203a04532eb0bbb79d22f41f16a9f011042af0e",
+    "rcwa_ext/fields.py": "72189b63b1fe8f913a23e3eaf88843bbd9d1809a6c502de024568d74f339a1d2",
+    "rcwa_ext/nvm.py": "c97f78d1bbe2332d568067b86632fbd7ee507de1a831467920acccee5bfc744b",
+    "rcwa_ext/reduced.py": "26f62f877efffc246b08a63fa2da3e084266d379abd645ed989f3ef525aadd7a",
+    "rcwa_ext/scattering.py": "6a188d97631d03a1ec929f86caf1ec33688a4068fce712d40b6c8e7fa69c09c7",
+    "rcwa_ext/symmetry.py": "8ee121e2921df69302b9199373ce502820ca3cdd474f030e6a8f27f590995e10",
+    "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569",
+    "runtime_policy.py": "578927cdd1e903d31c16f208aa10c7e180ae0d39ef0570539acbc9b64f5cab5a",
+    "validate.py": "ecd17f32a62a37c9551440e58e712c053638f658ea8f1630e1ab63f784bc8c43"
+  },
+  "pmma_sha256": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+  "cases": [
+    {
+      "type": "matrix",
+      "lattice": "square",
+      "order": 16,
+      "grid": 128,
+      "material": "n2.5",
+      "wavelength_nm": 550.0,
+      "radius_over_period": 0.27,
+      "errors": {
+        "P": 5.029498019005649e-16,
+        "Q": 9.183501455618323e-17,
+        "PQ": 1.5372930211217777e-13
+      },
+      "vector_invariance_error": 9.697378719985902e-16,
+      "scalar_harmonics": 1089,
+      "reference_PQ_dimension": 2178,
+      "candidate_PQ_dimension": 545,
+      "scalar_inverse_block_sizes": [
+        289,
+        272,
+        272,
+        256
+      ],
+      "scalar_invariance_error": 8.793733446993176e-16,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "full_convolution_and_normal_inputs_retained": true,
+      "hex_reynolds_operations": 0,
+      "label": "matrix/square/M16/n2.5/r0.27",
+      "status": "passed",
+      "wall_seconds": 20.71874659997411
+    },
+    {
+      "type": "matrix",
+      "lattice": "square",
+      "order": 16,
+      "grid": 128,
+      "material": "n1.5",
+      "wavelength_nm": 400.0,
+      "radius_over_period": 0.005,
+      "errors": {
+        "P": 3.145615467246424e-16,
+        "Q": 9.237420335357322e-17,
+        "PQ": 1.0371737023494194e-13
+      },
+      "vector_invariance_error": 5.58394252717451e-16,
+      "scalar_harmonics": 1089,
+      "reference_PQ_dimension": 2178,
+      "candidate_PQ_dimension": 545,
+      "scalar_inverse_block_sizes": [
+        289,
+        272,
+        272,
+        256
+      ],
+      "scalar_invariance_error": 4.475955231114184e-16,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "full_convolution_and_normal_inputs_retained": true,
+      "hex_reynolds_operations": 0,
+      "label": "matrix/square/M16/n1.5/r0.005",
+      "status": "passed",
+      "wall_seconds": 19.959659899934195
+    },
+    {
+      "type": "matrix",
+      "lattice": "square",
+      "order": 16,
+      "grid": 128,
+      "material": "PMMA",
+      "wavelength_nm": 700.0,
+      "radius_over_period": 0.495,
+      "errors": {
+        "P": 3.326642747392722e-16,
+        "Q": 1.049667534907274e-16,
+        "PQ": 2.0672914942176345e-13
+      },
+      "vector_invariance_error": 7.023401024839246e-16,
+      "scalar_harmonics": 1089,
+      "reference_PQ_dimension": 2178,
+      "candidate_PQ_dimension": 545,
+      "scalar_inverse_block_sizes": [
+        289,
+        272,
+        272,
+        256
+      ],
+      "scalar_invariance_error": 6.922777862280467e-16,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "full_convolution_and_normal_inputs_retained": true,
+      "hex_reynolds_operations": 0,
+      "label": "matrix/square/M16/PMMA/r0.495",
+      "status": "passed",
+      "wall_seconds": 18.371002300060354
+    },
+    {
+      "type": "negative_controls",
+      "lattice": "square",
+      "rejected": [
+        "symmetry_broken_scalar_matrix",
+        "off_centre_geometry",
+        "oblique_incidence"
+      ],
+      "label": "negative_controls/square",
+      "status": "passed",
+      "wall_seconds": 2.0388381000375375
+    }
+  ],
+  "failures": [],
+  "production_code_modified": false,
+  "passed_count": 4,
+  "failed_count": 0
+}

@@ -25,6 +25,7 @@ import torch
 from studies.shared.gold_dispersion import DEFAULT_GOLD_CSV, load_gold_csv
 from studies.gold_motheye_fff2d.model import Geometry, harmonics
 from studies.gold_motheye_fff2d.solver import METHODS, solve
+from studies.gold_motheye_fff2d.integration import DM_INTEGRATORS
 
 HERE = Path(__file__).resolve().parent
 METRICS = ('R','P_sub','A_moth')
@@ -104,7 +105,25 @@ def make_report(rows,args,requested,physics):
     physical_passed = bool(current and all(x['status']!='FAILED' and x['physical']['passed'] for x in current))
     suite_passed = physics.get('passed') if physics is not None else None
     convergence = bool(groups and all(x['converged_at_fixed_other_parameters'] for x in groups))
-    return dict(axis=args.axis,values=requested,case_count=len(current),
+    comparisons = []
+    for value in requested:
+        for wavelength in args.wavelengths:
+            for pol in args.polarizations:
+                matched = {x['method']:x for x in current if x['axis_value']==value and x['wavelength_nm']==wavelength
+                           and x['polarization']==pol and x['status']!='FAILED'}
+                baseline = matched.get('slice-nvm')
+                if baseline is None:
+                    continue
+                for method,row in matched.items():
+                    if method == 'slice-nvm':
+                        continue
+                    comparisons.append(dict(axis_value=value,wavelength_nm=wavelength,polarization=pol,
+                        baseline='slice-nvm',method=method,
+                        differences={key:row[key]-baseline[key] for key in METRICS},
+                        max_order_power_difference=max(float(np.max(abs(np.array(row[key])-np.array(baseline[key]))))
+                                                       for key in ('R_orders','P_sub_orders')),
+                        both_physical=row['physical']['passed'] and baseline['physical']['passed']))
+    return dict(axis=args.axis,values=requested,case_count=len(current),method_comparisons=comparisons,
                 failed_cases=sum(x['status']=='FAILED' for x in current),
                 unphysical_cases=sum(x['status']=='UNPHYSICAL' for x in current),
                 all_requested_cases_complete=all(x['complete'] for x in groups),
@@ -169,6 +188,10 @@ def main(argv=None):
     parser.add_argument('--slices',type=int,default=60)
     parser.add_argument('--grid',type=int,default=128)
     parser.add_argument('--dm-step-nm',type=float,default=.5)
+    parser.add_argument('--dm-integrator',choices=DM_INTEGRATORS,default='cf4-adaptive')
+    parser.add_argument('--dm-rtol',type=float,default=1e-6)
+    parser.add_argument('--dm-atol',type=float,default=1e-9)
+    parser.add_argument('--dm-min-step-nm',type=float,default=1e-5)
     parser.add_argument('--methods',default='rcwa-fff,slice-nvm',help='Comma-separated: '+','.join(METHODS))
     parser.add_argument('--polarizations',default='x')
     parser.add_argument('--wavelengths',default='400,550,700')
@@ -178,9 +201,13 @@ def main(argv=None):
     parser.add_argument('--height-nm',type=float,default=500.)
     parser.add_argument('--tip-radius-nm',type=float,default=5.)
     parser.add_argument('--base-radius-nm',type=float,default=95.)
+    parser.add_argument('--profile',choices=('cone','cylinder'),default='cone')
+    parser.add_argument('--cylinder-radius-nm',type=float,default=60.)
     parser.add_argument('--lattice',choices=('triangular','square'),default='triangular')
+    parser.add_argument('--harmonic-shape',choices=('auto','rectangular'),default='auto')
     parser.add_argument('--gil-nm',type=float,default=0.)
     parser.add_argument('--gil-rings',type=int,default=12)
+    parser.add_argument('--gil-side',choices=('centered','dielectric','metal'),default='centered')
     parser.add_argument('--ordering',choices=('symmetric','paper-left'),default='symmetric')
     parser.add_argument('--tolerance',type=float,default=.0005)
     parser.add_argument('--physics-tolerance',type=float,default=1e-6)
@@ -209,9 +236,13 @@ def main(argv=None):
         args.wavelengths = values(args.wavelengths)
         if args.order<0 or args.slices<1 or args.grid<16 or args.threads<1 or args.dm_step_nm<=0 or args.absorption_quadrature<2:
             raise ValueError('Invalid order, slices, grid, threads or DM step')
-        if not all(math.isfinite(x) and x>0 for x in (args.tolerance,args.physics_tolerance,args.dm_step_nm)):
+        if not all(math.isfinite(x) and x>0 for x in (args.tolerance,args.physics_tolerance,args.dm_step_nm,
+                                                     args.dm_rtol,args.dm_atol,args.dm_min_step_nm)):
             raise ValueError('Tolerances and DM step must be finite and positive')
-        geometry = Geometry(args.period_nm,args.height_nm,args.tip_radius_nm,args.base_radius_nm,args.lattice,args.gil_nm,args.gil_rings)
+        tip,base = ((args.cylinder_radius_nm,)*2 if args.profile=='cylinder' else
+                    (args.tip_radius_nm,args.base_radius_nm))
+        geometry = Geometry(args.period_nm,args.height_nm,tip,base,args.lattice,args.gil_nm,args.gil_rings,
+                            args.gil_side,args.harmonic_shape)
         model = load_gold_csv(args.gold_csv)
         for wavelength in args.wavelengths:
             model(wavelength)
@@ -226,20 +257,22 @@ def main(argv=None):
         parser.error(str(error))
     torch.set_num_threads(args.threads)
     output = (args.output_dir or HERE/'results'/args.axis).resolve()
-    source_paths = [HERE/name for name in ('model.py','solver.py','run.py','validate.py')]
+    source_paths = [HERE/name for name in ('model.py','solver.py','integration.py','native_reference.py','run.py','validate.py')]
     source_paths.append(ROOT/'studies/shared/gold_dispersion.py')
     identity = dict(axis=args.axis,geometry=geometry.metadata(),ordering=args.ordering,
                     fixed_order=None if args.axis=='order' else args.order,
                     fixed_slices=None if args.axis=='slices' else args.slices,
                     fixed_grid=None if args.axis=='grid' else args.grid,
                     fixed_dm_step=None if args.axis=='dm-step' else args.dm_step_nm,
+                    dm_integrator=args.dm_integrator,dm_rtol=args.dm_rtol,dm_atol=args.dm_atol,
+                    dm_min_step_nm=args.dm_min_step_nm,
                     volume_absorption=args.volume_absorption,
                     absorption_quadrature=args.absorption_quadrature,
                     loss_diagnostics=args.loss_diagnostics,
                     material_sha256=hashlib.sha256(args.gold_csv.read_bytes()).hexdigest(),material_interpolation='shared linear epsilon',
                     sources={str(path.relative_to(ROOT)).replace('\\','/'):digest(path) for path in source_paths})
     signature = hashlib.sha256(json.dumps(identity,sort_keys=True).encode()).hexdigest()
-    count = len(harmonics(max_order,args.lattice)); dimension = 4*count
+    count = len(harmonics(max_order,args.lattice,args.harmonic_shape)); dimension = 4*count
     plan = dict(identity=identity,signature=signature,requested_values=requested,wavelengths_nm=args.wavelengths,
                 methods=args.methods,polarizations=args.polarizations,device=device,
                 max_scalar_harmonics=count,max_field_dimension=dimension,
@@ -266,12 +299,17 @@ def main(argv=None):
                 physics = json.loads((output/'physics_validation.json').read_text(encoding='utf-8'))
         elif (output/'physics_validation.json').exists():
             physics = json.loads((output/'physics_validation.json').read_text(encoding='utf-8'))
-            if physics.get('device')!=str(device) or physics.get('ordering')!=args.ordering:
+            if (physics.get('device')!=str(device) or physics.get('ordering')!=args.ordering
+                    or physics.get('sources')!=identity['sources']):
                 physics = None
         if physics is None and not args.report_only:
             from studies.gold_motheye_fff2d.validate import checks
             physics = checks(device,args.ordering)
+            physics['sources'] = identity['sources']
             write_json(output/'physics_validation.json',physics)
+    if physics is not None and not physics['passed'] and not args.report_only:
+        print('Independent validation failed; see physics_validation.json. Sweep was not started.',flush=True)
+        return 1
     keys = {(x['method'],x['wavelength_nm'],x['polarization'],x['axis_value']) for x in state['cases'] if x['status']!='FAILED'}
     stop = False
     if not args.report_only:
@@ -295,12 +333,14 @@ def main(argv=None):
                             result = solve(geometry,wavelength,model(wavelength),order=order,slices=slices,grid=grid,
                                            method=method,device=device,polarization=polarization,ordering=args.ordering,
                                            dm_step_nm=dm_step,volume_absorption=args.volume_absorption,loss_diagnostics=args.loss_diagnostics,
+                                           dm_integrator=args.dm_integrator,dm_rtol=args.dm_rtol,dm_atol=args.dm_atol,
+                                           dm_min_step_nm=args.dm_min_step_nm,
                                            quadrature=args.absorption_quadrature)
                             row.update(result.metadata)
                             row.update(R=result.R,P_sub=result.P_sub,A_moth=result.A_moth,A_total=result.A_total,T_far=result.T_far,
                                        absorption_volume=result.absorption_volume,absorption_error=result.absorption_error,
                                        R_orders=result.R_orders.tolist(),P_sub_orders=result.T_orders.tolist(),
-                                       harmonic_indices=harmonics(order,args.lattice).tolist())
+                                       harmonic_indices=harmonics(order,args.lattice,args.harmonic_shape).tolist())
                             row['physical'] = physical(row,args.physics_tolerance)
                             if not row['physical']['passed']:
                                 row['status']='UNPHYSICAL'

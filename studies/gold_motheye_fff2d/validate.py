@@ -33,7 +33,7 @@ def checks(device="cpu",ordering="symmetric"):
 
     def close(actual,expected,tolerance):
         error = abs(actual-expected)
-        if error > tolerance:
+        if not np.isfinite(error) or error > tolerance:
             raise AssertionError(f"actual={actual}, expected={expected}, error={error}, limit={tolerance}")
         return error
 
@@ -138,12 +138,93 @@ def checks(device="cpu",ordering="symmetric"):
         errors = []
         for step in (10.,5.):
             r = solve_case(g,550.,(1.8+.2j)**2,order=0,slices=4,grid=32,device=device,
-                      method="dm-fff",homogeneous=True,epsilon_out=2.25,dm_step_nm=step)
+                      method="dm-fff",homogeneous=True,epsilon_out=2.25,dm_step_nm=step,dm_integrator="rk4")
             errors.append(max(abs(r.R-reference.R),abs(r.P_sub-reference.P_sub)))
         if not errors[1] < errors[0]/8:
             raise AssertionError(f"RK4 step refinement failed: {errors}")
         return dict(step_nm=[10,5],errors=errors)
     check("DM-FFF RK4 step refinement against exact constant generator",refinement)
+    def vertical_reduction():
+        errors = []
+        for lattice in ('square','triangular'):
+            for shape in ('auto','rectangular'):
+                cylinder = Geometry(height_nm=80,tip_radius_nm=60,base_radius_nm=60,
+                                    lattice=lattice,harmonic_shape=shape)
+                b = Backend(device)
+                f = MatrixFunction(cylinder,1,48,550.,(.25+3j)**2,b,method='rcwa-fff',ordering=ordering)
+                nv = MatrixFunction(cylinder,1,48,550.,(.25+3j)**2,b,method='slice-nvm',ordering=ordering)
+                k_error = float((f(40.)[0]-nv(40.)[0]).abs().max())
+                a = solve_case(cylinder,550.,(.25+3j)**2,order=1,slices=4,grid=48,device=device)
+                v = solve_case(cylinder,550.,(.25+3j)**2,order=1,slices=4,grid=48,device=device,method='slice-nvm')
+                s_error = max(float((x-y).abs().max()) for x,y in zip(vars(a.S).values(),vars(v.S).values()))
+                power_error = max(float(abs(a.R_orders-v.R_orders).max()),float(abs(a.T_orders-v.T_orders).max()))
+                close(max(k_error,s_error,power_error),0.,1e-11)
+                errors.append(dict(lattice=lattice,shape=shape,K_error=k_error,S_error=s_error,order_power_error=power_error))
+        return errors
+    check('Vertical cylinders: 3D normal reduces to NV in K, all S blocks and every order',vertical_reduction)
+
+    for lattice in ('square','triangular'):
+        for profile in ('cylinder','cone'):
+            def native(lattice=lattice,profile=profile):
+                from studies.gold_motheye_fff2d.native_reference import compare_native
+                from studies.shared.gold_dispersion import DEFAULT_GOLD_CSV, load_gold_csv
+                cylinder = profile=='cylinder'
+                geometry = Geometry(height_nm=80,tip_radius_nm=60 if cylinder else 30,base_radius_nm=60,
+                                    lattice=lattice,harmonic_shape='rectangular')
+                details = compare_native(geometry,550.,load_gold_csv(DEFAULT_GOLD_CSV)(550.) if cylinder else 4.,
+                                         device=device,method='rcwa-fff' if cylinder else 'slice-nvm',
+                                         epsilon_out=None if cylinder else 2.25)
+                # SciPy j1 and torch.special.bessel_j1 differ in analytical
+                # disk coefficients by ~1e-8 for these arguments. Retain both
+                # independent backends and test below the sweep's 1e-6 bound.
+                close(details['max_complex_amplitude_error'],0.,1e-7)
+                close(details['max_order_power_error'],0.,1e-8)
+                close(details['projection_matrix_error'],0.,1e-12)
+                return details
+            check(f'Independent rcwa_ext NV: {lattice} {profile} complex amplitudes and order powers',native)
+
+    def continuous_integrator():
+        from scipy.integrate import solve_ivp
+        from studies.gold_motheye_fff2d.solver import propagation_s
+        geom = Geometry(height_nm=35,tip_radius_nm=30,base_radius_nm=60)
+        backend = Backend(device)
+        fun = MatrixFunction(geom,0,48,550.,(1.8+.2j)**2,backend,ordering=ordering)
+        k0 = 2*np.pi/550
+        def rhs(z,y):
+            return (1j*k0*backend.numpy(fun(z)[0])@y.reshape(4,4)).ravel()
+        independent = solve_ivp(rhs,(0,35),np.eye(4,dtype=complex).ravel(),method='DOP853',rtol=2e-12,atol=2e-14)
+        if not independent.success:
+            raise AssertionError(independent.message)
+        reference = propagation_s(backend.array(independent.y[:,-1].reshape(4,4)))
+        from studies.gold_motheye_fff2d.integration import dm_section, diagnostics
+        stats = diagnostics()
+        computed = dm_section(fun,0.,35.,k0,35.,backend,'cf4-adaptive',1e-9,1e-12,1e-5,stats)
+        error = max(float((a-b).abs().max()) for a,b in zip(vars(computed).values(),vars(reference).values()))
+        close(error,0.,1e-8)
+        if stats['rejected_steps']==0:
+            raise AssertionError('The error controller was not exercised')
+        try:
+            dm_section(fun,0.,35.,k0,35.,backend,'cf4-adaptive',1e-15,1e-17,35.,diagnostics())
+        except FloatingPointError:
+            minimum_step_guard = True
+        else:
+            raise AssertionError('A failed local error test was silently accepted')
+        return dict(max_S_error_vs_DOP853=error,minimum_step_guard=minimum_step_guard,**stats)
+    check('Adaptive CF4: varying noncommuting Maxwell operator vs independent DOP853',continuous_integrator)
+
+    def gil_limit():
+        from dataclasses import replace
+        from studies.gold_motheye_fff2d.model import Operators, harmonics
+        base = Geometry(height_nm=80,tip_radius_nm=30,base_radius_nm=60)
+        orders = harmonics(1)
+        epsilon = (.25+3j)**2
+        sharp = Operators(base,orders,48).material(40.,epsilon)
+        smooth = Operators(replace(base,gil_nm=1e-7),orders,48).material(40.,epsilon)
+        error = max(float(abs(a-b).max()) for a,b in zip(sharp,smooth))
+        close(error,0.,1e-7)
+        return dict(max_matrix_error_at_delta_1e_7_nm=error,
+                    placement=replace(base,gil_nm=2.).gil_side,total_width_nm=2.)
+    check('Centered GIL approaches the sharp analytical disk as width tends to zero',gil_limit)
     return dict(passed=all(x['passed'] for x in report),check_count=len(report),
                 passed_count=sum(x['passed'] for x in report),checks=report,device=str(device),ordering=ordering,
                 scope="Low-order implementation/physical consistency; not convergence of the Au moth-eye sweep")

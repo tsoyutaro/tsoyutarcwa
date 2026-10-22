@@ -13,6 +13,7 @@ from scipy.linalg import expm
 import torch
 
 from .model import Geometry, Operators, harmonics
+from .integration import DM_INTEGRATORS, diagnostics, dm_section
 
 METHODS = ("rcwa-fff", "dm-fff", "slice-nvm", "direct")
 
@@ -143,7 +144,7 @@ class MatrixFunction:
     def __init__(self, geometry, order, grid, wavelength_nm, epsilon, backend,
                  method="rcwa-fff", ordering="symmetric", homogeneous=False):
         self.geometry, self.backend, self.method = geometry, backend, method
-        self.orders = harmonics(order, geometry.lattice)
+        self.orders = harmonics(order, geometry.lattice, geometry.harmonic_shape)
         self.operators = Operators(geometry, self.orders, grid)
         self.eye = backend.eye(len(self.orders))
         g = self.orders @ geometry.reciprocal.T
@@ -209,7 +210,8 @@ class Result:
 def solve(geometry: Geometry, wavelength_nm: float, epsilon: complex, *, order=2,
           slices=60, grid=128, method="rcwa-fff", device="cpu", polarization="x",
           ordering="symmetric", dm_step_nm=.5, n_in=1., epsilon_out=None,
-          homogeneous=False, volume_absorption=False, quadrature=5, loss_diagnostics=False):
+          homogeneous=False, volume_absorption=False, quadrature=5, loss_diagnostics=False,
+          dm_integrator="cf4-adaptive", dm_rtol=1e-6, dm_atol=1e-9, dm_min_step_nm=1e-5):
     started = time.perf_counter()
     if method not in METHODS or ordering not in ("symmetric","paper-left"):
         raise ValueError("Unknown method or factorization ordering")
@@ -219,6 +221,10 @@ def solve(geometry: Geometry, wavelength_nm: float, epsilon: complex, *, order=2
         raise ValueError("Require a real positive input index and passive finite epsilon")
     if polarization not in ("x","y"):
         raise ValueError("Polarization must be x or y; normal incidence is used")
+    if dm_integrator not in DM_INTEGRATORS or not all(math.isfinite(v) and v>0 for v in (dm_rtol,dm_atol,dm_min_step_nm)):
+        raise ValueError("Invalid DM integrator or error tolerances")
+    if not np.isfinite(eps := complex(epsilon if epsilon_out is None else epsilon_out)) or eps.imag < 0:
+        raise ValueError("Output medium must be finite and passive")
     backend = Backend(device)
     if backend.device.type == "cuda":
         torch.cuda.reset_peak_memory_stats(backend.device)
@@ -239,19 +245,30 @@ def solve(geometry: Geometry, wavelength_nm: float, epsilon: complex, *, order=2
     max_g = np.linalg.norm(function.orders@geometry.reciprocal.T,axis=1).max()
     growth_bound = max_g+k0*max(abs(np.sqrt(complex(epsilon))),n_in,abs(np.sqrt(eps_out)))
     local_splits = 0
-    for a,b in sections:
+    integration_stats = diagnostics()
+
+    def section(a,b,frozen=None,stats=None):
         dz = b-a
         if method == "dm-fff":
-            p = rk4(function,a,dz,k0,dm_step_nm,eye4)
-            layer_s = propagation_s(p)
-        else:
-            k = function(.5*(a+b))[0]
-            splits = max(1,math.ceil(growth_bound*dz/2.))
-            local_splits += splits
-            thin = propagation_s(backend.exp(1j*k0*dz/splits*k))
-            layer_s = identity_s(eye2)
-            for _ in range(splits):
-                layer_s = star(layer_s,thin)
+            # Growth guard is independent of the user's maximum trial step.
+            return dm_section(function,a,dz,k0,min(dm_step_nm,2/growth_bound),backend,
+                              dm_integrator,dm_rtol,dm_atol,dm_min_step_nm,
+                              integration_stats if stats is None else stats)
+        if dz <= 0:
+            return identity_s(eye2)
+        k = function(.5*(a+b))[0] if frozen is None else frozen[0]
+        splits = max(1,math.ceil(growth_bound*dz/2.))
+        thin = propagation_s(backend.exp(1j*k0*dz/splits*k))
+        layer_s = identity_s(eye2)
+        for _ in range(splits):
+            layer_s = star(layer_s,thin)
+        return layer_s
+
+    for a,b in sections:
+        dz = b-a
+        layer_s = section(a,b)
+        if method != "dm-fff":
+            local_splits += max(1,math.ceil(growth_bound*dz/2.))
         total = star(total,layer_s)
         if volume_absorption:
             blocks.append(layer_s)
@@ -271,8 +288,10 @@ def solve(geometry: Geometry, wavelength_nm: float, epsilon: complex, *, order=2
                     slices=slices,grid=grid,wavelength_nm=wavelength_nm,epsilon_real=epsilon.real,
                     epsilon_imag=epsilon.imag,ordering=ordering,polarization=polarization,
                     dm_step_nm=dm_step_nm,device=str(backend.device),dtype="complex128",
+                    dm_integrator=dm_integrator,dm_rtol=dm_rtol,dm_atol=dm_atol,
+                    dm_min_step_nm=dm_min_step_nm,integration_diagnostics=integration_stats,
                     elapsed_s=time.perf_counter()-started,local_exponential_subsections=local_splits,
-                    harmonic_shape="D6-closed hexagon" if geometry.lattice=="triangular" else "square",
+                    harmonic_shape="D6-closed hexagon" if geometry.lattice=="triangular" and geometry.harmonic_shape=="auto" else "rectangular",
                     peak_cuda_bytes=torch.cuda.max_memory_allocated(backend.device) if backend.device.type=="cuda" else None)
     t_far = 0. if eps_out.imag > 1e-12 else p_sub
     result = Result(r,p_sub,1-r-p_sub,1-r-t_far,t_far,ro,to,metadata,total,vi,vo,zero)
@@ -305,13 +324,16 @@ def solve(geometry: Geometry, wavelength_nm: float, epsilon: complex, *, order=2
             frozen = function(.5*(a+b)) if method != "dm-fff" else None
             for node,weight in zip(nodes,weights):
                 offset = dz*.5*(node+1)
-                if frozen is None:
-                    p = rk4(function,a,offset,k0,dm_step_nm,eye4)
-                    _,recovery,c = function(a+offset)
-                else:
-                    k,recovery,c = frozen
-                    p = backend.exp(1j*k0*offset*k)
-                f = p@state
+                # Reconstruct using S matrices on both sides of this point.
+                # A growing full transfer matrix times a decaying state loses
+                # precision at high order, even for an otherwise stable solve.
+                point = a+offset
+                left_at = star(prefix,section(a,point,frozen,diagnostics()))
+                right_at = star(section(point,b,frozen,diagnostics()),suffixes[index+1])
+                fw = torch.linalg.solve(eye2-left_at.rr@right_at.r,left_at.t@incident)
+                bw = right_at.r@fw
+                f = torch.cat((fw+bw,j@(fw-bw)),dim=0)
+                _,recovery,c = function(point) if frozen is None else frozen
                 electric = torch.cat((f[:2*count],recovery@f),dim=0)
                 displacement = block(c)@electric
                 density = float(torch.imag((electric.conj()*displacement).sum()))

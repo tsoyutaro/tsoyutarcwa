@@ -16,6 +16,8 @@ class Geometry:
     lattice: str = "triangular"
     gil_nm: float = 0.
     gil_rings: int = 12
+    gil_side: str = "centered"
+    harmonic_shape: str = "auto"
 
     def __post_init__(self):
         lengths = (self.period_nm, self.height_nm, self.tip_radius_nm, self.base_radius_nm, self.gil_nm)
@@ -23,8 +25,14 @@ class Geometry:
             raise ValueError("Geometry lengths must be finite")
         if self.period_nm <= 0 or self.height_nm <= 0 or not 0 < self.tip_radius_nm <= self.base_radius_nm:
             raise ValueError("Require positive period/height and 0 < tip <= base")
-        if self.gil_nm < 0 or self.base_radius_nm + self.gil_nm >= self.period_nm / 2:
-            raise ValueError("Require base_radius + GIL < period/2; overlapping cones are not modeled")
+        if self.gil_side not in ("centered", "dielectric", "metal"):
+            raise ValueError("Unknown GIL placement")
+        outward = self.gil_nm * (1 if self.gil_side == "dielectric" else .5 if self.gil_side == "centered" else 0)
+        inward = self.gil_nm * (1 if self.gil_side == "metal" else .5 if self.gil_side == "centered" else 0)
+        if self.gil_nm < 0 or self.base_radius_nm + outward >= self.period_nm / 2 or self.tip_radius_nm <= inward:
+            raise ValueError("GIL must not cross the axis or overlap periodic neighboring cones")
+        if self.harmonic_shape not in ("auto", "rectangular"):
+            raise ValueError("harmonic_shape must be auto or rectangular")
         if self.lattice not in ("square", "triangular") or self.gil_rings < 1:
             raise ValueError("Invalid lattice or GIL ring count")
 
@@ -55,12 +63,12 @@ class Geometry:
         return asdict(self)
 
 
-def harmonics(order: int, lattice="triangular") -> np.ndarray:
+def harmonics(order: int, lattice="triangular", shape="auto") -> np.ndarray:
     """A D6-closed hexagonal set for triangular cells; square set otherwise."""
     if not isinstance(order, (int, np.integer)) or order < 0:
         raise ValueError("Fourier order must be a nonnegative integer")
     return np.array([(m, n) for m in range(-order, order + 1) for n in range(-order, order + 1)
-                     if lattice != "triangular" or max(abs(m), abs(n), abs(m - n)) <= order], dtype=int)
+                     if shape == "rectangular" or lattice != "triangular" or max(abs(m), abs(n), abs(m - n)) <= order], dtype=int)
 
 
 def disk_matrix(radius_nm, differences, geometry):
@@ -107,7 +115,8 @@ class Operators:
             return self.identity + (epsilon-1)*disk, self.identity + (1/epsilon-1)*disk
         # Linear complex n in radial distance, integrated with concentric rings.
         count = self.geometry.gil_rings
-        boundaries = radius + np.arange(count+1)*self.geometry.gil_nm/count
+        offset = {"centered": -.5, "dielectric": 0., "metal": -1.}[self.geometry.gil_side]
+        boundaries = radius + (offset + np.arange(count+1)/count)*self.geometry.gil_nm
         index = np.sqrt(complex(epsilon))
         fractions = (np.arange(count)+.5)/count
         levels = [epsilon, *(((1-fractions)*index+fractions)**2), 1.]
@@ -124,14 +133,16 @@ class Operators:
         slope = self.geometry.slope if tilted else 0.
         normal = np.stack((self.dx/safe, self.dy/safe, np.full_like(safe, -slope)))
         normal /= math.sqrt(1+slope*slope)
-        # Smooth dyad continuation away from every physical interface. The
+        # Match the existing rcwa_ext NV continuation at zero slope. The
         # mixed dyad at a circle center/Voronoi seam need not have rank one.
         def smooth(value):
             t = np.clip(value, 0, 1)
             return t*t*(3-2*t)
-        gap = self.geometry.period_nm-2*(self.geometry.base_radius_nm+self.geometry.gil_nm)
-        weight = smooth(self.radius/(radius/2))*smooth(self.separation/gap)
-        baseline = (1/3, 1/3, 1/3) if tilted else (.5, .5, 0.)
+        resolution = self.geometry.period_nm/self.grid
+        taper_radius = max(radius/2, resolution)
+        weight = smooth(self.radius/taper_radius)*smooth(self.separation/(3*resolution))
+        scale = 1/(1+slope*slope)
+        baseline = (.5*scale, .5*scale, slope*slope*scale)
         result = [[None]*3 for _ in range(3)]
         for a in range(3):
             for b in range(a, 3):

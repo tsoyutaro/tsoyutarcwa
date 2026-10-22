@@ -1,0 +1,768 @@
+{
+  "status": "passed",
+  "suite": "standard",
+  "device": "cpu",
+  "orders": [
+    4,
+    8
+  ],
+  "lattices": [
+    "hexagonal"
+  ],
+  "layers": 3,
+  "torch": "2.8.0+cpu",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "cuda_version": null,
+  "gpu": null,
+  "candidate_scope": "D6-native inputs, shared scalar multiplicity inverses, batched two-row E1 Reynolds contraction; cached geometry plan",
+  "tolerances": {
+    "matrix_relative": 2e-09,
+    "scalar_invariance_relative": 2e-09,
+    "field_relative": 2e-07,
+    "power_absolute": 1e-08,
+    "lossless_energy_absolute": 1e-06,
+    "gradient_atol": 1e-07,
+    "gradient_rtol": 2e-05,
+    "finite_difference_atol": 1e-06,
+    "finite_difference_rtol": 0.0003
+  },
+  "source_sha256": {
+    "block_assembly.py": "fc4248f150b970037115e70d07fc46a8ae409244fabd06f4f5e2c4b1d6548eb5",
+    "d6_nvm.py": "a7635b6bf36abdb93248edf3b254b9cf8d35871c8aad13c47b8c0f29a8875240",
+    "io_utils.py": "9650995d80659b2c1fa41a619a890a20e66972cdc4aafdcb10e64cdab96e53e0",
+    "legacy_block_assembly.py": "ca8d8e6a09886cc37f18470332a28959c2745ee16c81ceb3690ccbdfe5c76c38",
+    "rcwa_ext/__init__.py": "9f879509554ab9e1ec6fca68161d34be4a9fac8038ba2bd163d12e63e35a975e",
+    "rcwa_ext/asr.py": "6bd2a78ef99764f1f3ab8ceb7f7877a10a34b30c6bda3f5640a53b383c5195e5",
+    "rcwa_ext/asr_maps.py": "658a4a44d3739f7a1e8498ccaff27e8390a44f5226268b27c1e6a6c7cf47eee8",
+    "rcwa_ext/auto.py": "768746c7ed35b98e4b1cb2eb84f071c7d65cbcb8d6aedd7e1e80c08e2fcd05a6",
+    "rcwa_ext/config.py": "d40b5ebfe478c219350ad256f203a04532eb0bbb79d22f41f16a9f011042af0e",
+    "rcwa_ext/fields.py": "72189b63b1fe8f913a23e3eaf88843bbd9d1809a6c502de024568d74f339a1d2",
+    "rcwa_ext/nvm.py": "c97f78d1bbe2332d568067b86632fbd7ee507de1a831467920acccee5bfc744b",
+    "rcwa_ext/reduced.py": "26f62f877efffc246b08a63fa2da3e084266d379abd645ed989f3ef525aadd7a",
+    "rcwa_ext/scattering.py": "6a188d97631d03a1ec929f86caf1ec33688a4068fce712d40b6c8e7fa69c09c7",
+    "rcwa_ext/symmetry.py": "8ee121e2921df69302b9199373ce502820ca3cdd474f030e6a8f27f590995e10",
+    "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569",
+    "runtime_policy.py": "578927cdd1e903d31c16f208aa10c7e180ae0d39ef0570539acbc9b64f5cab5a",
+    "validate.py": "af53e5d71f22165d3e9eebb9b528d610ca96afe19d43907076bc11a4336ecb34"
+  },
+  "pmma_sha256": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+  "cases": [
+    {
+      "type": "matrix",
+      "lattice": "hexagonal",
+      "order": 4,
+      "grid": 128,
+      "material": "n2.5",
+      "wavelength_nm": 550.0,
+      "radius_over_period": 0.27,
+      "errors": {
+        "P": 3.4702035342621337e-16,
+        "Q": 1.9216836570221082e-16,
+        "PQ": 4.740963331133581e-15
+      },
+      "input_errors": {
+        "eps": 1.5453081778444744e-17,
+        "inverse_rule": 1.036637115538801e-17,
+        "normal_projection": 0.0
+      },
+      "vector_invariance_error": 3.2583661815890194e-16,
+      "scalar_harmonics": 61,
+      "reference_PQ_dimension": 122,
+      "candidate_PQ_dimension": 21,
+      "implementation": "d6-native-e1-pair-v1",
+      "scalar_inverse_block_sizes": [
+        9,
+        2,
+        4,
+        6,
+        10,
+        10
+      ],
+      "scalar_irrep_row_counts": [
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "scalar_invariance_error": 9.509175235805096e-16,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "rectangular_material_matrices_assembled": false,
+      "hex_reynolds_operations": 0,
+      "hex_partner_rows": 2,
+      "full_convolution_and_normal_inputs_retained": false,
+      "native_star_normal_projection_retained": true,
+      "legacy12_relative_errors": {
+        "P": 2.599110542366252e-16,
+        "Q": 2.0995551303123188e-16
+      },
+      "reference_timing": {
+        "median_seconds": 0.05325749993789941,
+        "samples_seconds": [
+          0.05325749993789941,
+          0.05643579992465675,
+          0.051713300053961575,
+          0.05394230003003031,
+          0.053082400001585484
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "candidate_timing": {
+        "median_seconds": 0.00668360001873225,
+        "samples_seconds": [
+          0.006094299955293536,
+          0.00668360001873225,
+          0.006136899930424988,
+          0.006795200053602457,
+          0.007955899927765131
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "reference_input_timing": {
+        "median_seconds": 0.051240599947050214,
+        "samples_seconds": [
+          0.0492645000340417,
+          0.051240599947050214,
+          0.05038070003502071,
+          0.05459109996445477,
+          0.05403580004349351
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "candidate_input_timing": {
+        "median_seconds": 0.039961200091056526,
+        "samples_seconds": [
+          0.03932730003725737,
+          0.040531600010581315,
+          0.039961200091056526,
+          0.03974300005938858,
+          0.04097269999329001
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "legacy12_timing": {
+        "median_seconds": 0.06538260006345809,
+        "samples_seconds": [
+          0.06538260006345809,
+          0.06527340004686266,
+          0.06687989993952215,
+          0.062402699957601726,
+          0.06670790002681315
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "label": "matrix/hexagonal/M4/n2.5/r0.27",
+      "status": "passed",
+      "wall_seconds": 1.6479025000007823
+    },
+    {
+      "type": "matrix",
+      "lattice": "hexagonal",
+      "order": 8,
+      "grid": 128,
+      "material": "n2.5",
+      "wavelength_nm": 550.0,
+      "radius_over_period": 0.27,
+      "errors": {
+        "P": 4.488508786044862e-16,
+        "Q": 1.9954850375711304e-16,
+        "PQ": 3.742630749404889e-14
+      },
+      "input_errors": {
+        "eps": 2.404608652186121e-17,
+        "inverse_rule": 1.9867686699182873e-17,
+        "normal_projection": 0.0
+      },
+      "vector_invariance_error": 3.487145774707317e-16,
+      "scalar_harmonics": 217,
+      "reference_PQ_dimension": 434,
+      "candidate_PQ_dimension": 73,
+      "implementation": "d6-native-e1-pair-v1",
+      "scalar_inverse_block_sizes": [
+        25,
+        12,
+        16,
+        20,
+        36,
+        36
+      ],
+      "scalar_irrep_row_counts": [
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "scalar_invariance_error": 1.1776968766737818e-15,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "rectangular_material_matrices_assembled": false,
+      "hex_reynolds_operations": 0,
+      "hex_partner_rows": 2,
+      "full_convolution_and_normal_inputs_retained": false,
+      "native_star_normal_projection_retained": true,
+      "legacy12_relative_errors": {
+        "P": 4.134794347183407e-16,
+        "Q": 2.0362768574420136e-16
+      },
+      "reference_timing": {
+        "median_seconds": 0.47532970004249364,
+        "samples_seconds": [
+          0.4947894000215456,
+          0.47532970004249364,
+          0.48053210007492453,
+          0.46713260002434254,
+          0.4701209000777453
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "candidate_timing": {
+        "median_seconds": 0.06858439999632537,
+        "samples_seconds": [
+          0.07021719997283071,
+          0.06859499996062368,
+          0.06632590002845973,
+          0.06800930004101247,
+          0.06858439999632537
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "reference_input_timing": {
+        "median_seconds": 0.11662370001431555,
+        "samples_seconds": [
+          0.11523739993572235,
+          0.11662370001431555,
+          0.11635139991994947,
+          0.11768629995640367,
+          0.12089779996313155
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "candidate_input_timing": {
+        "median_seconds": 0.05245199997443706,
+        "samples_seconds": [
+          0.05472210003063083,
+          0.051977300085127354,
+          0.05243880010675639,
+          0.05245570000261068,
+          0.05245199997443706
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "legacy12_timing": {
+        "median_seconds": 0.8269086999353021,
+        "samples_seconds": [
+          0.8357142000459135,
+          0.8195401000557467,
+          0.8269086999353021,
+          0.8165749999461696,
+          0.8288862999761477
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "label": "matrix/hexagonal/M8/n2.5/r0.27",
+      "status": "passed",
+      "wall_seconds": 11.299712800071575
+    },
+    {
+      "type": "matrix",
+      "lattice": "hexagonal",
+      "order": 4,
+      "grid": 128,
+      "material": "n1.5",
+      "wavelength_nm": 400.0,
+      "radius_over_period": 0.005,
+      "errors": {
+        "P": 2.7808258403515646e-16,
+        "Q": 1.9290742471281921e-16,
+        "PQ": 1.0209663647689206e-14
+      },
+      "input_errors": {
+        "eps": 3.227334805597077e-20,
+        "inverse_rule": 3.487931121815051e-20,
+        "normal_projection": 0.0
+      },
+      "vector_invariance_error": 3.91291459717194e-16,
+      "scalar_harmonics": 61,
+      "reference_PQ_dimension": 122,
+      "candidate_PQ_dimension": 21,
+      "implementation": "d6-native-e1-pair-v1",
+      "scalar_inverse_block_sizes": [
+        9,
+        2,
+        4,
+        6,
+        10,
+        10
+      ],
+      "scalar_irrep_row_counts": [
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "scalar_invariance_error": 6.106233968531529e-16,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "rectangular_material_matrices_assembled": false,
+      "hex_reynolds_operations": 0,
+      "hex_partner_rows": 2,
+      "full_convolution_and_normal_inputs_retained": false,
+      "native_star_normal_projection_retained": true,
+      "legacy12_relative_errors": {
+        "P": 2.9275629642443245e-16,
+        "Q": 1.663546465579022e-16
+      },
+      "reference_timing": {
+        "median_seconds": 0.0519077000208199,
+        "samples_seconds": [
+          0.0519077000208199,
+          0.050934100057929754,
+          0.05213490000460297,
+          0.05434380006045103,
+          0.04999799991492182
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "candidate_timing": {
+        "median_seconds": 0.006683200015686452,
+        "samples_seconds": [
+          0.006882200017571449,
+          0.006621500011533499,
+          0.006003699963912368,
+          0.0067137000150978565,
+          0.006683200015686452
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "reference_input_timing": {
+        "median_seconds": 0.049221100052818656,
+        "samples_seconds": [
+          0.048843099968507886,
+          0.04922950000036508,
+          0.048472999944351614,
+          0.052613799925893545,
+          0.049221100052818656
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "candidate_input_timing": {
+        "median_seconds": 0.03816899994853884,
+        "samples_seconds": [
+          0.03816899994853884,
+          0.04416809999383986,
+          0.036919199978001416,
+          0.0379020000109449,
+          0.041025200043804944
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "legacy12_timing": {
+        "median_seconds": 0.06382280006073415,
+        "samples_seconds": [
+          0.06180049991235137,
+          0.06231770000886172,
+          0.06385369994677603,
+          0.06421310000587255,
+          0.06382280006073415
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "label": "matrix/hexagonal/M4/n1.5/r0.005",
+      "status": "passed",
+      "wall_seconds": 1.5480766999535263
+    },
+    {
+      "type": "matrix",
+      "lattice": "hexagonal",
+      "order": 4,
+      "grid": 128,
+      "material": "PMMA",
+      "wavelength_nm": 700.0,
+      "radius_over_period": 0.495,
+      "errors": {
+        "P": 2.8491535381002147e-16,
+        "Q": 2.01057577359313e-16,
+        "PQ": 1.0694778634980635e-14
+      },
+      "input_errors": {
+        "eps": 1.1876058115702753e-17,
+        "inverse_rule": 2.24042700192632e-17,
+        "normal_projection": 0.0
+      },
+      "vector_invariance_error": 3.962859058572306e-16,
+      "scalar_harmonics": 61,
+      "reference_PQ_dimension": 122,
+      "candidate_PQ_dimension": 21,
+      "implementation": "d6-native-e1-pair-v1",
+      "scalar_inverse_block_sizes": [
+        9,
+        2,
+        4,
+        6,
+        10,
+        10
+      ],
+      "scalar_irrep_row_counts": [
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "scalar_invariance_error": 6.837621827167689e-16,
+      "full_scalar_inverse_assembled": false,
+      "full_PQ_assembled": false,
+      "rectangular_material_matrices_assembled": false,
+      "hex_reynolds_operations": 0,
+      "hex_partner_rows": 2,
+      "full_convolution_and_normal_inputs_retained": false,
+      "native_star_normal_projection_retained": true,
+      "legacy12_relative_errors": {
+        "P": 2.8090347278558427e-16,
+        "Q": 2.1952334020604426e-16
+      },
+      "reference_timing": {
+        "median_seconds": 0.05227699992246926,
+        "samples_seconds": [
+          0.0522233999799937,
+          0.05559150001499802,
+          0.05547870008740574,
+          0.052230400033295155,
+          0.05227699992246926
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "candidate_timing": {
+        "median_seconds": 0.006249999976716936,
+        "samples_seconds": [
+          0.006042700028046966,
+          0.006249999976716936,
+          0.0063853999599814415,
+          0.005980700021609664,
+          0.008081600069999695
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "reference_input_timing": {
+        "median_seconds": 0.05326059996150434,
+        "samples_seconds": [
+          0.05386899993754923,
+          0.05344309995416552,
+          0.04336260003037751,
+          0.05326059996150434,
+          0.050643199938349426
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "candidate_input_timing": {
+        "median_seconds": 0.04228469997178763,
+        "samples_seconds": [
+          0.041332999942824244,
+          0.04228469997178763,
+          0.04720440006349236,
+          0.0416321000084281,
+          0.04716580000240356
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "legacy12_timing": {
+        "median_seconds": 0.06324350007344037,
+        "samples_seconds": [
+          0.0626236000098288,
+          0.06511399999726564,
+          0.06324350007344037,
+          0.062238299986347556,
+          0.06465830001980066
+        ],
+        "peak_cuda_extra_bytes": null,
+        "scope": "assembly only; shared input matrices and reusable geometry bases excluded; no backward"
+      },
+      "label": "matrix/hexagonal/M4/PMMA/r0.495",
+      "status": "passed",
+      "wall_seconds": 1.561094700009562
+    },
+    {
+      "type": "negative_controls",
+      "lattice": "hexagonal",
+      "rejected": [
+        "symmetry_broken_scalar_matrix",
+        "off_centre_geometry",
+        "oblique_incidence"
+      ],
+      "label": "negative_controls/hexagonal",
+      "status": "passed",
+      "wall_seconds": 0.05443590006325394
+    },
+    {
+      "type": "optics_and_gradient",
+      "lattice": "hexagonal",
+      "order": 8,
+      "material": "n1.5",
+      "wavelength_nm": 400.0,
+      "radii_over_period": [
+        0.1,
+        0.23,
+        0.39
+      ],
+      "height_nm": 500.0,
+      "period_nm": 200.0,
+      "reference_R": 0.033989468690423075,
+      "candidate_R": 0.0339894686904152,
+      "reference_T": 0.9660105313095775,
+      "candidate_T": 0.9660105313095863,
+      "power_max_abs_error": 8.770761894538737e-15,
+      "field_max_relative_error": 2.589878636426321e-13,
+      "energy_max_abs_error": 1.5543122344752192e-15,
+      "reference_gradient": [
+        -0.03318599992708818,
+        0.017857255953985976,
+        -0.01012682628194896
+      ],
+      "candidate_gradient": [
+        -0.03318599992707746,
+        0.017857255954007736,
+        -0.010126826281931362
+      ],
+      "gradient_max_abs_error": 2.1760371282653068e-14,
+      "directional_autodiff": -0.02725986442082948,
+      "directional_finite_difference": -0.027259859820306927,
+      "finite_difference_abs_error": 4.600522553188657e-09,
+      "reference_forward_backward_seconds": 5.924617400043644,
+      "candidate_forward_backward_seconds": 0.9791393999475986,
+      "label": "optics/hexagonal/M8/n1.5/400nm",
+      "status": "passed",
+      "wall_seconds": 8.188857299974188
+    },
+    {
+      "type": "optics_and_gradient",
+      "lattice": "hexagonal",
+      "order": 8,
+      "material": "n2.5",
+      "wavelength_nm": 550.0,
+      "radii_over_period": [
+        0.1,
+        0.23,
+        0.39
+      ],
+      "height_nm": 500.0,
+      "period_nm": 200.0,
+      "reference_R": 0.0797178138047377,
+      "candidate_R": 0.0797178138047416,
+      "reference_T": 0.9202821861952624,
+      "candidate_T": 0.9202821861952937,
+      "power_max_abs_error": 3.1308289294429414e-14,
+      "field_max_relative_error": 1.2491976779945378e-12,
+      "energy_max_abs_error": 3.530509218307998e-14,
+      "reference_gradient": [
+        -0.1608205971664576,
+        -0.22406993917776546,
+        0.05310126426890674
+      ],
+      "candidate_gradient": [
+        -0.16082059716630798,
+        -0.22406993917914703,
+        0.05310126426799655
+      ],
+      "gradient_max_abs_error": 1.3815615318435448e-12,
+      "directional_autodiff": 0.1073487107519565,
+      "directional_finite_difference": 0.10734879444806998,
+      "finite_difference_abs_error": 8.3696113484244e-08,
+      "reference_forward_backward_seconds": 5.720519699971192,
+      "candidate_forward_backward_seconds": 0.8790422000456601,
+      "label": "optics/hexagonal/M8/n2.5/550nm",
+      "status": "passed",
+      "wall_seconds": 7.783582999953069
+    },
+    {
+      "type": "optics_and_gradient",
+      "lattice": "hexagonal",
+      "order": 8,
+      "material": "PMMA",
+      "wavelength_nm": 700.0,
+      "radii_over_period": [
+        0.1,
+        0.23,
+        0.39
+      ],
+      "height_nm": 500.0,
+      "period_nm": 200.0,
+      "reference_R": 0.002811483349032092,
+      "candidate_R": 0.0028114833490364907,
+      "reference_T": 0.9971885166509681,
+      "candidate_T": 0.9971885166509632,
+      "power_max_abs_error": 4.884981308350689e-15,
+      "field_max_relative_error": 1.4048142292341063e-12,
+      "energy_max_abs_error": 3.3306690738754696e-16,
+      "reference_gradient": [
+        -0.013993217667890221,
+        0.03041547741772262,
+        -0.07111392133768911
+      ],
+      "candidate_gradient": [
+        -0.013993217667889175,
+        0.030415477417730236,
+        -0.07111392133773843
+      ],
+      "gradient_max_abs_error": 4.932165786897258e-14,
+      "directional_autodiff": -0.0770714481576744,
+      "directional_finite_difference": -0.07707144880166918,
+      "finite_difference_abs_error": 6.439947741743168e-10,
+      "reference_forward_backward_seconds": 6.001920799957588,
+      "candidate_forward_backward_seconds": 0.9525554999709129,
+      "label": "optics/hexagonal/M8/PMMA/700nm",
+      "status": "passed",
+      "wall_seconds": 8.239489499945194
+    },
+    {
+      "type": "optics_and_gradient",
+      "lattice": "hexagonal",
+      "order": 8,
+      "material": "n2.0",
+      "wavelength_nm": 550.0,
+      "radii_over_period": [
+        0.1,
+        0.23,
+        0.39
+      ],
+      "height_nm": 500.0,
+      "period_nm": 200.0,
+      "reference_R": 0.04349318561845461,
+      "candidate_R": 0.04349318561844606,
+      "reference_T": 0.956506814381545,
+      "candidate_T": 0.9565068143815525,
+      "power_max_abs_error": 8.548717289613705e-15,
+      "field_max_relative_error": 5.681911056609215e-13,
+      "energy_max_abs_error": 1.4432899320127035e-15,
+      "reference_gradient": [
+        0.023013408748572307,
+        -0.29369067380686315,
+        0.24642456467626667
+      ],
+      "candidate_gradient": [
+        0.023013408748629123,
+        -0.29369067380694314,
+        0.24642456467613344
+      ],
+      "gradient_max_abs_error": 1.3322676295501878e-13,
+      "directional_autodiff": 0.3544514275887564,
+      "directional_finite_difference": 0.3544514447974961,
+      "finite_difference_abs_error": 1.72087396554943e-08,
+      "reference_forward_backward_seconds": 6.169711200054735,
+      "candidate_forward_backward_seconds": 1.0864630999276415,
+      "label": "optics/hexagonal/M8/n2.0/550nm",
+      "status": "passed",
+      "wall_seconds": 8.672577799996361
+    },
+    {
+      "type": "optics_and_gradient",
+      "lattice": "hexagonal",
+      "order": 8,
+      "material": "PMMA",
+      "wavelength_nm": 400.0,
+      "radii_over_period": [
+        0.1,
+        0.23,
+        0.39
+      ],
+      "height_nm": 500.0,
+      "period_nm": 200.0,
+      "reference_R": 0.034575575011489015,
+      "candidate_R": 0.034575575011483006,
+      "reference_T": 0.9654244249885137,
+      "candidate_T": 0.9654244249885175,
+      "power_max_abs_error": 6.00908212078366e-15,
+      "field_max_relative_error": 4.565133047765291e-13,
+      "energy_max_abs_error": 2.6645352591003757e-15,
+      "reference_gradient": [
+        -0.03333343907599988,
+        0.01827436307658067,
+        -0.012476122365503153
+      ],
+      "candidate_gradient": [
+        -0.033333439075998485,
+        0.018274363076595447,
+        -0.012476122365422303
+      ],
+      "gradient_max_abs_error": 8.085025704485105e-14,
+      "directional_autodiff": -0.029413734074196583,
+      "directional_finite_difference": -0.029413728894027432,
+      "finite_difference_abs_error": 5.180169151269842e-09,
+      "reference_forward_backward_seconds": 7.292306900024414,
+      "candidate_forward_backward_seconds": 1.0031157999765128,
+      "label": "optics/hexagonal/M8/PMMA/400nm",
+      "status": "passed",
+      "wall_seconds": 9.568458400084637
+    },
+    {
+      "type": "optics_and_gradient",
+      "lattice": "hexagonal",
+      "order": 8,
+      "material": "PMMA",
+      "wavelength_nm": 550.0,
+      "radii_over_period": [
+        0.1,
+        0.23,
+        0.39
+      ],
+      "height_nm": 500.0,
+      "period_nm": 200.0,
+      "reference_R": 0.0077000487166758785,
+      "candidate_R": 0.007700048716643459,
+      "reference_T": 0.9922999512833226,
+      "candidate_T": 0.992299951283356,
+      "power_max_abs_error": 3.341771304121721e-14,
+      "field_max_relative_error": 2.1081089578800987e-12,
+      "energy_max_abs_error": 1.5543122344752192e-15,
+      "reference_gradient": [
+        0.041012295978439355,
+        -0.09718209432264863,
+        0.027501780996591087
+      ],
+      "candidate_gradient": [
+        0.041012295978389755,
+        -0.09718209432239656,
+        0.027501780996399754
+      ],
+      "gradient_max_abs_error": 2.52062259953334e-13,
+      "directional_autodiff": 0.08373776771707524,
+      "directional_finite_difference": 0.08373776702130883,
+      "finite_difference_abs_error": 6.957664028250932e-10,
+      "reference_forward_backward_seconds": 7.036843499983661,
+      "candidate_forward_backward_seconds": 1.0945557000814006,
+      "label": "optics/hexagonal/M8/PMMA/550nm",
+      "status": "passed",
+      "wall_seconds": 9.621784799965099
+    }
+  ],
+  "failures": [],
+  "production_code_modified": false,
+  "passed_count": 11,
+  "failed_count": 0
+}

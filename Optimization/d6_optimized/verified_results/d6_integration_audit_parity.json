@@ -1,0 +1,187 @@
+{
+  "same_order_reference_agreement": true,
+  "coarse_fast": {
+    "status": "completed",
+    "wavelengths_nm": [
+      550.0
+    ],
+    "variable_space": "all layers+1 softmax logits",
+    "direction_count": 1,
+    "records": [
+      {
+        "order": 1,
+        "objective": 0.0008020300792252684,
+        "gradient_logits": [
+          0.00011414658880452486,
+          -0.000583229825734285,
+          -0.0005572586421541132,
+          0.0015498361849228242,
+          -0.002954605353496389,
+          0.0024311110476574424
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.002673085362099463,
+            "fd_h": -0.0026730851319560294,
+            "fd_half_h": -0.002673085322390774,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      },
+      {
+        "order": 2,
+        "objective": 0.0007820776350995095,
+        "gradient_logits": [
+          3.091291097576737e-05,
+          -0.000678900667638797,
+          -0.00048106444160999967,
+          0.0014558020585311428,
+          -0.002857642561984346,
+          0.002530892701726234
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.0026070030104653067,
+            "fd_h": -0.002607002751099218,
+            "fd_half_h": -0.002607002910114272,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      }
+    ],
+    "order_gradient_norm_difference": 0.00022380100461109371,
+    "order_gradient_relative_difference": 0.05318698391440058,
+    "order_gradient_cosine": 0.9986145344583163,
+    "order_gradient_passed": false,
+    "passed": false,
+    "full_objective_wavelength_coverage": true,
+    "limits": "Directional FD checks, not exhaustive componentwise FD proof. Recheck at intermediate geometries; sampled wavelengths do not establish whole-band gradient convergence."
+  },
+  "coarse_reference": {
+    "status": "completed",
+    "wavelengths_nm": [
+      550.0
+    ],
+    "variable_space": "all layers+1 softmax logits",
+    "direction_count": 1,
+    "records": [
+      {
+        "order": 1,
+        "objective": 0.00080203007922523,
+        "gradient_logits": [
+          0.00011414658880451304,
+          -0.0005832298257342989,
+          -0.0005572586421540712,
+          0.0015498361849227494,
+          -0.0029546053534962972,
+          0.0024311110476574046
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.002673085362099371,
+            "fd_h": -0.0026730851319465426,
+            "fd_half_h": -0.0026730853223823174,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      },
+      {
+        "order": 2,
+        "objective": 0.0007820776350994917,
+        "gradient_logits": [
+          3.091291097578555e-05,
+          -0.0006789006676387357,
+          -0.0004810644416100636,
+          0.001455802058531199,
+          -0.0028576425619843623,
+          0.0025308927017261788
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.0026070030104653457,
+            "fd_h": -0.0026070027511441583,
+            "fd_half_h": -0.0026070029101002857,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      }
+    ],
+    "order_gradient_norm_difference": 0.0002238010046109046,
+    "order_gradient_relative_difference": 0.05318698391435713,
+    "order_gradient_cosine": 0.9986145344583184,
+    "order_gradient_passed": false,
+    "passed": false,
+    "full_objective_wavelength_coverage": true,
+    "limits": "Directional FD checks, not exhaustive componentwise FD proof. Recheck at intermediate geometries; sampled wavelengths do not establish whole-band gradient convergence."
+  },
+  "refined_M2_M4": {
+    "status": "completed",
+    "wavelengths_nm": [
+      550.0
+    ],
+    "variable_space": "all layers+1 softmax logits",
+    "direction_count": 1,
+    "records": [
+      {
+        "order": 2,
+        "objective": 0.0007820776350995095,
+        "gradient_logits": [
+          3.091291097576737e-05,
+          -0.000678900667638797,
+          -0.00048106444160999967,
+          0.0014558020585311428,
+          -0.002857642561984346,
+          0.002530892701726234
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.0026070030104653067,
+            "fd_h": -0.002607002751099218,
+            "fd_half_h": -0.002607002910114272,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      },
+      {
+        "order": 4,
+        "objective": 0.0007913357627199908,
+        "gradient_logits": [
+          -1.6190145656426095e-05,
+          -0.0006920098912309051,
+          -0.0005732225631792194,
+          0.0014928818968906715,
+          -0.002832163811653857,
+          0.0026207045148297363
+        ],
+        "directional_checks": [
+          {
+            "direction": 0,
+            "autograd": -0.0027052638811382148,
+            "fd_h": -0.0027052636119036092,
+            "fd_half_h": -0.0027052637752786194,
+            "passed": true
+          }
+        ],
+        "directions_passed": true
+      }
+    ],
+    "order_gradient_norm_difference": 0.0001448237272084972,
+    "order_gradient_relative_difference": 0.03420598422101835,
+    "order_gradient_cosine": 0.9995235378633335,
+    "order_gradient_passed": true,
+    "passed": true,
+    "full_objective_wavelength_coverage": true,
+    "limits": "Directional FD checks, not exhaustive componentwise FD proof. Recheck at intermediate geometries; sampled wavelengths do not establish whole-band gradient convergence."
+  },
+  "thresholds_unchanged": true
+}
