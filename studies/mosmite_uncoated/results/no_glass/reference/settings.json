@@ -1,0 +1,91 @@
+{
+  "arguments": {
+    "solver_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa",
+    "device": "cuda",
+    "threads": 2,
+    "wavelengths": "400:800:5",
+    "pet_nk_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_uncoated/data/PET_Zhang_400_800nm.csv",
+    "resin_nk_csv": null,
+    "adhesive_nk_csv": null,
+    "adhesive_n": 1.5,
+    "adhesive_k": 0.0,
+    "period_nm": 100.0,
+    "height_nm": 200.0,
+    "base_diameter_nm": 98.0,
+    "tip_diameter_nm": 50.0,
+    "profile_power": 1.0,
+    "film_total_um": 55.0,
+    "residual_um": 0.0,
+    "adhesive_um": 20.0,
+    "glass_um": 0.0,
+    "order": 3,
+    "slices": 50,
+    "grid": 128,
+    "method": "nvm",
+    "polarization": "x",
+    "coherence": "phase-average",
+    "phase_points": 16,
+    "check_convergence": false,
+    "check_wavelengths": "400,600,800",
+    "convergence_tol": 0.005,
+    "output_dir": "studies/mosmite_uncoated/results/no_glass/reference"
+  },
+  "stack_description": "air / MOSMITE/PET / adhesive / air",
+  "stack_nm": {
+    "pattern": 200.0,
+    "explicit_residual": 0.0,
+    "PET_or_optically_merged_resin_and_PET": 54800.0,
+    "adhesive": 20000.0,
+    "silica": 0.0
+  },
+  "material_provenance": {
+    "PET": {
+      "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_uncoated/data/PET_Zhang_400_800nm.csv",
+      "sha256": "ada4e4239001834a5885661d8465a597c4e2b384cb82de7bf4d6ae97d8b50e59",
+      "range_nm": [
+        400.0,
+        800.0
+      ],
+      "interpolation": "linear n and k separately; no extrapolation"
+    },
+    "PET_source": "https://raw.githubusercontent.com/polyanskiy/refractiveindex.info-database/main/database/data/organic/%28C10H8O4%29n%20-%20polyethylene%20terephthalate/nk/Zhang.yml",
+    "PET_paper": "https://doi.org/10.1364/AO.383831",
+    "resin": {
+      "assumption": "PET n,k optical proxy for uncharacterized surface resin"
+    },
+    "adhesive": {
+      "assumption": "constant n,k; adhesive dispersion is unknown",
+      "n": 1.5,
+      "k": 0.0
+    },
+    "silica": "omitted: --glass-um 0"
+  },
+  "interpretation": [
+    "Reference model, not a calibrated MOSMITE material measurement.",
+    "55 um includes the 0.2 um relief: default uniform optical thickness is 54.8 um.",
+    "No independently known residual thickness; default resin and PET are optically merged.",
+    "Only the front surface is patterned; the last existing uniform layer borders air.",
+    "Only positive-thickness layers are included in the interfaces and phase average.",
+    "Existing PET/adhesive/glass layers are phase averaged unless coherent; residual stays coherent.",
+    "D6 triangular lattice, normal incidence, scalar isotropic n,k; x=y=unpolarized.",
+    "Pattern is coherent; absorbing internal ports are connected as amplitudes.",
+    "No diffuse scattering, anisotropy, instrument convolution or parameter fitting."
+  ],
+  "torch": "2.6.0+cu124",
+  "solver_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa",
+  "harmonics": 37,
+  "D6_source_dimension": 13,
+  "solver_sha256": {
+    "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+    "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+    "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+    "rcwa_ext/auto.py": "a1ee2421cd89eabe21eb365c7131f509009f746cf0e671302094b00262430727",
+    "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+    "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+    "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+    "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+    "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+    "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956"
+  },
+  "study_sha256": "7bbac15b38931fb4e576723f55c46d6ce5106e022396f2432a819a14df12da0a"
+}
