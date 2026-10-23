@@ -26,6 +26,22 @@ python -m studies.gold_motheye_fff2d.validate --device cuda:0 --json studies/gol
 CUDAがない環境では実GPUテストのみSKIPし、初期化順序の回帰テストはCPUで実行します。
 修正版のGPU実機再検証は実行先で行ってください。
 
+## 流束・損失演算子・収束の表示を分離
+
+`--loss-diagnostics`では、R/P_sub/Aが0〜1にあっても、損失行列に負固有値があれば
+総合判定をUNPHYSICALにします。この場合は計算した入射場で負の吸収を観測したとは限りません。
+従来のpassive_flux_bounds表示はこの演算子検査も含めていたため、実際の流束検査だけの値へ修正しました。
+
+- `passive_flux_bounds_passed`：R/P_sub/A_moth/A_totalの有限性と範囲。
+- `physical_checks_passed`：演算子の受動性などを含む従来と同じ総合判定。
+- `constitutive_loss_flagged_cases`：損失演算子が受動性検査に不合格だった点数。
+- `axis_numerically_converged`：固定した他条件の下で最後の2回の数値差が許容値以下か。
+- `axis_converged` / `passed`：従来どおり物理検査合格も要求する厳しい判定。
+
+各UNPHYSICAL点にfailed_checksと最小損失固有値を出力します。判定閾値と終了条件は維持しています。
+数値差が小さいことだけでは物理精度を保証できません。今回変更したのは表示・集計です。
+数式・Au材料・伝搬処理は変更していません。新しいコードでの計算には新しいoutput-dirを指定してください。
+
 ## 1Dの状況と今回の修正
 
 1Dの全条件が解決したという意味ではありません。保存済み

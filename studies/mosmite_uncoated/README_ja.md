@@ -40,10 +40,67 @@ CPUでは`--device cpu`を使う。PowerShellでは行末の`\`をバックク�
 
 `--check-convergence`は400,600,800 nmのうち指定範囲に入る波長について、
 `(M,Nz,grid)=(7,100,256),(9,100,256),(9,200,256),(9,200,512)`を比較する。
-隣接する計算のR/Tの最大差が1e-4（0.01パーセントポイント）を超えると、
+隣接する計算のR/T/Aの最大差、または各比較値と開始条件の差が
+1e-4（0.01パーセントポイント）を超えると、
 CSVを保存したうえでエラー終了する。これは3波長での確認であり、全波長での収束保証ではない。
+`--check-wavelengths 400,450,600,800`や`--check-wavelengths 400:800:5`で検査波長を変更できる。
 さらに厳密な定量比較が必要なら全スペクトルを高精度設定でも計算して比較する。
 位相平均は各波長で16点/層と32点/層を比較し、同じ許容差を超えると停止する。
+
+## ガラスを外した構成（2026-10-23追加）
+
+更新版は`--glass-um 0`に対応する。厚さ0のガラスは、界面の接続にも位相平均にも入れない。
+最後に残る層と空気の界面を接続する。従来版は0を拒否するため、更新したrun_spectrum.pyを使用する。
+金なし、空気→樹脂モスアイ200 nm→PET相当54.8 um→粘着20 um→空気が対象。
+周期100 nm、底面直径98 nm、先端直径50 nm、フィルム全厚55 um、残膜はPET相当層へ統合。
+PETと表面樹脂は同梱PET分散、粘着層はn=1.50,k=0の仮定を維持する。
+
+形状を変えず、必要な回折次数・高さ分割・面内グリッドを調べる収束検査を行う。
+以下はM3、Nz50、grid128を開始候補とし、
+(3,50,128)→(5,50,128)→(5,100,128)→(5,100,256)を比較する。
+開始条件と各比較条件のR/T/A、および隣接段階のR/T/Aを検査する。
+全ての組合せを探索して世界最小の計算量を保証する最適化ではなく、軽い候補の十分性を確認する。
+
+許容差0.005は**絶対差0.5パーセントポイント**であり、計算値に対する相対0.5%ではない。
+0.01パーセントポイントで評価したい場合は、両コマンドで`--convergence-tol 0.0001`を使う。
+これらは測定精度や識別したい差に応じて選ぶ基準であり、RCWAの普遍的な必須値ではない。
+
+```bash
+python studies/mosmite_uncoated/run_spectrum.py \
+  --device cuda --wavelengths "400,600,800" \
+  --glass-um 0 --adhesive-um 20 \
+  --method nvm --order 3 --slices 50 --grid 128 \
+  --coherence phase-average --phase-points 16 \
+  --check-convergence --convergence-tol 0.005 \
+  --output-dir studies/mosmite_uncoated/results/no_glass/convergence &&
+python studies/mosmite_uncoated/run_spectrum.py \
+  --device cuda --wavelengths "400:800:5" \
+  --glass-um 0 --adhesive-um 20 \
+  --method nvm --order 3 --slices 50 --grid 128 \
+  --coherence phase-average --phase-points 16 \
+  --convergence-tol 0.005 \
+  --output-dir studies/mosmite_uncoated/results/no_glass/reference
+```
+
+`&&`により、収束確認が成功した場合だけ400～800 nm・5 nm刻み81点を計算する。
+結果は`results/no_glass/reference/spectra.csv`と`spectra.png`。
+検査結果は`results/no_glass/convergence/convergence.csv`と`settings.json`のconvergence_passedへ保存する。
+3波長だけの検査は、全81波長の収束を認定するものではない。
+全域を確認したい場合は、最初のコマンドの両方の波長指定を
+`--wavelengths "400:800:5" --check-wavelengths "400:800:5"`へ置き換える。
+不合格の場合は基準を確認し、例えば開始条件をM5、Nz100、grid256へ上げて同じ検査を再実行する。
+本計算も、合格した開始条件のM/Nz/gridに合わせる。
+
+粘着層も除き、PET相当層の裏面を空気に接する構成を扱う場合は、
+両コマンドの`--adhesive-um 20`を`--adhesive-um 0`へ変更し、保存先も別名へ変更する。
+その場合も収束検査を行う。厚さ0の粘着層も位相平均から除外する。
+
+```text
+python studies/mosmite_uncoated/validate_no_glass.py
+```
+
+この補助検証は層の除外、無吸収膜の解析式、均一層RCWAとの一致、位相平均、
+および粘着層の有無を確認する。`--legacy-script PATH`で旧版との光学結果の一致も確認できる。
 
 ## 材料分散と未確定値
 

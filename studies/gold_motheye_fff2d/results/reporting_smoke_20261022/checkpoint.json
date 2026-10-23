@@ -1,0 +1,426 @@
+{
+  "signature": "80ea9b9dae1bbeb5d335e54bd043ad93c74fb9d120ca508afb83a91e5308614b",
+  "identity": {
+    "axis": "order",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 500.0,
+      "tip_radius_nm": 5.0,
+      "base_radius_nm": 95.0,
+      "lattice": "triangular",
+      "gil_nm": 0.0,
+      "gil_rings": 12,
+      "gil_side": "centered",
+      "harmonic_shape": "auto"
+    },
+    "ordering": "symmetric",
+    "fixed_order": null,
+    "fixed_slices": 100,
+    "fixed_grid": 256,
+    "fixed_dm_step": 0.5,
+    "dm_integrator": "cf4-adaptive",
+    "dm_rtol": 1e-06,
+    "dm_atol": 1e-09,
+    "dm_min_step_nm": 1e-05,
+    "volume_absorption": false,
+    "absorption_quadrature": 7,
+    "loss_diagnostics": true,
+    "material_sha256": "6e72f596e70f5b3eb66501b8bbf10dea1ff105047804abbe433e603a17e61b22",
+    "material_interpolation": "shared linear epsilon",
+    "sources": {
+      "studies/gold_motheye_fff2d/model.py": "32046f07b6dee20fc8797b673ce8946bad355721059326ab1010a0cb7da60141",
+      "studies/gold_motheye_fff2d/solver.py": "4bdfe8ca1b9acfe2c851e43c8f0d6ea7c4d4143aae9d897feadd0e98793a81cf",
+      "studies/gold_motheye_fff2d/integration.py": "02ec22554430eb37b69e39351ead8af4789ff537c9d7e8ed35e42cf60f6d4176",
+      "studies/gold_motheye_fff2d/native_reference.py": "733a20a8ac93e06bd6abea4a10a5433a70a8f3d437b6f9a2f3301700df1adb29",
+      "studies/gold_motheye_fff2d/run.py": "11e2ecf401c81580abff8c12b177b66ae835cdd124cf25685c0059f9310a1a18",
+      "studies/gold_motheye_fff2d/validate.py": "604405cc1e8b27ee7daf0230dada357500c6bae04d35c246ce4425dcd50859d1",
+      "studies/shared/gold_dispersion.py": "ae27eb171da5364d87945f68b75b684227c4e509f8076da00a82259cf05ed60c"
+    }
+  },
+  "cases": [
+    {
+      "axis_value": 2,
+      "method": "slice-nvm",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "order": 2,
+      "slices": 100,
+      "grid": 256,
+      "dm_step_nm": 0.5,
+      "status": "UNPHYSICAL",
+      "error": "",
+      "scalar_harmonics": 19,
+      "field_dimension": 76,
+      "epsilon_real": -16.500759,
+      "epsilon_imag": 1.063618,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 2.3898648000322282,
+      "local_exponential_subsections": 100,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "constitutive_loss_samples": [
+        {
+          "z_nm": 50.0,
+          "loss_min_eigenvalue": -0.001424741315925379
+        },
+        {
+          "z_nm": 250.0,
+          "loss_min_eigenvalue": -0.007121205809603786
+        },
+        {
+          "z_nm": 450.0,
+          "loss_min_eigenvalue": -14.183076517966573
+        }
+      ],
+      "constitutive_loss_min_eigenvalue": -14.183076517966573,
+      "R": 0.6727760014865599,
+      "P_sub": 0.04540372327673904,
+      "A_moth": 0.28182027523670106,
+      "A_total": 0.3272239985134401,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -3.4728350837426314e-20,
+        -2.1175823681334749e-22,
+        -3.8116482626443515e-21,
+        -8.470329472543003e-22,
+        -1.1519648082658485e-19,
+        1.5585406229479126e-19,
+        -4.235164736271502e-22,
+        -1.3684555315672042e-48,
+        -1.0947644252537633e-47,
+        0.6727760014865599,
+        -5.473822126268817e-48,
+        2.1382117680737565e-50,
+        1.2705494208814505e-21,
+        -5.421010862427522e-20,
+        7.284483346386983e-20,
+        8.470329472543003e-22,
+        3.8116482626443515e-21,
+        2.2101790948068908e-34,
+        -4.955142741437657e-20
+      ],
+      "P_sub_orders": [
+        0.00161839427696822,
+        0.001179313535076736,
+        0.00161839427696822,
+        0.0002948601837277085,
+        0.005463192290447328,
+        0.005463192290447323,
+        0.00029486018372771173,
+        4.846425458747911e-07,
+        4.181638728336904e-07,
+        0.013537503589175118,
+        4.18163872833709e-07,
+        4.846425458747945e-07,
+        0.0002948601837277114,
+        0.005463192290447337,
+        0.005463192290447325,
+        0.0002948601837277076,
+        0.0016183942769682179,
+        0.0011793135350767368,
+        0.0016183942769682188
+      ],
+      "harmonic_indices": [
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "physical": {
+        "passed": false,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true,
+          "constitutive_passivity_at_sampled_depths": false
+        },
+        "flux_bounds_passed": true,
+        "failed_checks": [
+          "constitutive_passivity_at_sampled_depths"
+        ],
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T09:38:38.798965+00:00"
+    },
+    {
+      "axis_value": 2,
+      "method": "rcwa-fff",
+      "wavelength_nm": 700.0,
+      "polarization": "x",
+      "order": 2,
+      "slices": 100,
+      "grid": 256,
+      "dm_step_nm": 0.5,
+      "status": "UNPHYSICAL",
+      "error": "",
+      "scalar_harmonics": 19,
+      "field_dimension": 76,
+      "epsilon_real": -16.500759,
+      "epsilon_imag": 1.063618,
+      "ordering": "symmetric",
+      "device": "cpu",
+      "dtype": "complex128",
+      "dm_integrator": "cf4-adaptive",
+      "dm_rtol": 1e-06,
+      "dm_atol": 1e-09,
+      "dm_min_step_nm": 1e-05,
+      "integration_diagnostics": {
+        "accepted_steps": 0,
+        "rejected_steps": 0,
+        "min_accepted_step_nm": null,
+        "max_accepted_step_nm": 0.0,
+        "max_accepted_error_ratio": 0.0
+      },
+      "elapsed_s": 2.2768714000703767,
+      "local_exponential_subsections": 100,
+      "harmonic_shape": "D6-closed hexagon",
+      "peak_cuda_bytes": null,
+      "constitutive_loss_samples": [
+        {
+          "z_nm": 50.0,
+          "loss_min_eigenvalue": -0.001991293372444764
+        },
+        {
+          "z_nm": 250.0,
+          "loss_min_eigenvalue": -0.006949480431823475
+        },
+        {
+          "z_nm": 450.0,
+          "loss_min_eigenvalue": -14.901447945937134
+        }
+      ],
+      "constitutive_loss_min_eigenvalue": -14.901447945937134,
+      "R": 0.8335133537341826,
+      "P_sub": 0.034648547207117075,
+      "A_moth": 0.13183809905870036,
+      "A_total": 0.16648664626581744,
+      "T_far": 0.0,
+      "absorption_volume": null,
+      "absorption_error": null,
+      "R_orders": [
+        -8.470329472543003e-22,
+        -3.3881317890170407e-21,
+        -1.6940658945086007e-21,
+        4.235164736271502e-21,
+        2.253107639696439e-19,
+        2.0498197323554068e-19,
+        -3.3881317890172014e-21,
+        2.6469779601696886e-23,
+        -6.842277657836021e-49,
+        0.8335133537341826,
+        6.776263578034403e-21,
+        0.0,
+        5.082197683525802e-21,
+        1.2536087619363645e-19,
+        2.388632911257127e-19,
+        5.082197683525802e-21,
+        8.470329472543003e-22,
+        3.388131789017341e-21,
+        -4.235164736271502e-22
+      ],
+      "P_sub_orders": [
+        0.0011314459974750874,
+        0.0012086306089645407,
+        0.001131445997475092,
+        0.00030216165167746764,
+        0.004047097806455112,
+        0.004047097806455119,
+        0.0003021616516774687,
+        2.1012177314526446e-07,
+        2.2351217416609905e-08,
+        0.010307999220776187,
+        2.2351217416610474e-08,
+        2.1012177314526615e-07,
+        0.00030216165167746883,
+        0.004047097806455112,
+        0.004047097806455102,
+        0.0003021616516774687,
+        0.0011314459974750956,
+        0.0012086306089645407,
+        0.0011314459974750871
+      ],
+      "harmonic_indices": [
+        [
+          -2,
+          -2
+        ],
+        [
+          -2,
+          -1
+        ],
+        [
+          -2,
+          0
+        ],
+        [
+          -1,
+          -2
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "physical": {
+        "passed": false,
+        "checks": {
+          "R": true,
+          "P_sub": true,
+          "A_moth": true,
+          "A_total": true,
+          "constitutive_passivity_at_sampled_depths": false
+        },
+        "flux_bounds_passed": true,
+        "failed_checks": [
+          "constitutive_passivity_at_sampled_depths"
+        ],
+        "scope": "Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test."
+      },
+      "created_utc": "2026-10-22T09:38:41.083689+00:00"
+    }
+  ]
+}

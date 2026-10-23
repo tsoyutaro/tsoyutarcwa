@@ -29,6 +29,7 @@ from studies.gold_motheye_fff2d.integration import DM_INTEGRATORS
 
 HERE = Path(__file__).resolve().parent
 METRICS = ('R','P_sub','A_moth')
+FLUX_CHECKS = ('R','P_sub','A_moth','A_total')
 
 
 def values(text, integer=False):
@@ -67,7 +68,7 @@ def write_json(path,data):
 
 def physical(row,tolerance):
     bounds = {key:bool(math.isfinite(row[key]) and -tolerance <= row[key] <= 1+tolerance)
-              for key in ('R','P_sub','A_moth','A_total')}
+              for key in FLUX_CHECKS}
     if row.get('absorption_error') is not None:
         bounds['independent_volume_absorption'] = bool(
             row['absorption_error'] <= tolerance and row['absorption_volume'] >= -tolerance)
@@ -76,7 +77,15 @@ def physical(row,tolerance):
         bounds['constitutive_passivity_at_sampled_depths'] = bool(
             row['constitutive_loss_min_eigenvalue'] >= -tolerance*material_scale)
     return dict(passed=all(bounds.values()),checks=bounds,
+                flux_bounds_passed=all(bounds[key] for key in FLUX_CHECKS),
+                failed_checks=[key for key,value in bounds.items() if not value],
                 scope='Passive flux bounds, optional volume loss, optional constitutive passivity at sampled depths. A_total=1-R-T_far is a definition, not an energy test.')
+
+
+def flux_bounds_passed(row):
+    """Read actual flux checks, including from checkpoints made before this fix."""
+    checks = row.get('physical',{}).get('checks',{})
+    return row.get('status')!='FAILED' and all(checks.get(key,False) for key in FLUX_CHECKS)
 
 
 def make_report(rows,args,requested,physics):
@@ -97,14 +106,20 @@ def make_report(rows,args,requested,physics):
                     differences.append(dict(from_value=a['axis_value'],to_value=b['axis_value'],
                                             errors=errors,max_change=max(errors.values())))
                 enough = len(differences)>=2
-                passive = complete and all(x['physical']['passed'] for x in curve)
-                converged = bool(complete and enough and passive and all(x['max_change']<=args.tolerance for x in differences[-2:]))
+                passive = complete and all(flux_bounds_passed(x) for x in curve)
+                all_checks = complete and all(x['physical']['passed'] for x in curve)
+                numerical = bool(complete and enough and all(x['max_change']<=args.tolerance for x in differences[-2:]))
+                converged = bool(numerical and all_checks)
                 groups.append(dict(method=method,wavelength_nm=wavelength,polarization=pol,
                                    complete=complete,passive_flux_bounds=passive,
+                                   physical_checks_passed=all_checks,
+                                   numerically_converged_at_fixed_other_parameters=numerical,
                                    converged_at_fixed_other_parameters=converged,differences=differences))
     physical_passed = bool(current and all(x['status']!='FAILED' and x['physical']['passed'] for x in current))
     suite_passed = physics.get('passed') if physics is not None else None
     convergence = bool(groups and all(x['converged_at_fixed_other_parameters'] for x in groups))
+    flux_passed = bool(current and all(flux_bounds_passed(x) for x in current))
+    loss_flagged = sum(x.get('physical',{}).get('checks',{}).get('constitutive_passivity_at_sampled_depths') is False for x in current)
     comparisons = []
     for value in requested:
         for wavelength in args.wavelengths:
@@ -127,7 +142,9 @@ def make_report(rows,args,requested,physics):
                 failed_cases=sum(x['status']=='FAILED' for x in current),
                 unphysical_cases=sum(x['status']=='UNPHYSICAL' for x in current),
                 all_requested_cases_complete=all(x['complete'] for x in groups),
-                passive_flux_bounds_passed=physical_passed,independent_physics_suite_passed=suite_passed,
+                passive_flux_bounds_passed=flux_passed,physical_checks_passed=physical_passed,
+                constitutive_loss_flagged_cases=loss_flagged,independent_physics_suite_passed=suite_passed,
+                axis_numerically_converged=bool(groups and all(x['numerically_converged_at_fixed_other_parameters'] for x in groups)),
                 axis_converged=convergence,
                 passed=bool(convergence and physical_passed and suite_passed is True),
                 tolerance_absolute=args.tolerance,physical_tolerance=args.physics_tolerance,curves=groups,
@@ -135,6 +152,7 @@ def make_report(rows,args,requested,physics):
                     'Order convergence at fixed slices/grid does not establish slice/grid/DM-step convergence.',
                     'No monotonic convergence is assumed; only the final two complete refinement differences are tested.',
                     'Passive R/A bounds alone do not validate a solution. The independent suite is low-order.',
+                    'An indefinite loss operator flags potential gain directions; it does not by itself show gain for the chosen incident wave.',
                     'GIL changes the modeled structure; compare separate runs rather than treating it as a neutral numerical filter.',
                     'GPU path is implemented but must be validated on the requested GPU before trusting high-order results.',
                 ])
@@ -145,9 +163,14 @@ def tables_and_plots(output,rows,report,args):
                'slices','grid','dm_step_nm','R','P_sub','A_moth','A_total','T_far',
                'absorption_volume','absorption_error','elapsed_s','peak_cuda_bytes','status','error']
     columns.insert(-4,'constitutive_loss_min_eigenvalue')
+    columns.extend(['flux_bounds_passed','physical_failed_checks'])
     with (output/'cases.csv').open('w',encoding='utf-8-sig',newline='') as handle:
         writer = csv.DictWriter(handle,fieldnames=columns,extrasaction='ignore')
-        writer.writeheader(); writer.writerows(rows)
+        writer.writeheader()
+        for row in rows:
+            checks = row.get('physical',{}).get('checks',{})
+            writer.writerow(dict(row,flux_bounds_passed=flux_bounds_passed(row),
+                                 physical_failed_checks=';'.join(key for key,value in checks.items() if not value)))
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -358,6 +381,10 @@ def main(argv=None):
                         write_json(output/'report.json',report)
                         print(f"{method} {args.axis}={value:g}, {wavelength:g}nm {polarization}: {row['status']} "
                               f"R={row.get('R')} P_sub={row.get('P_sub')} A_moth={row.get('A_moth')} {row['elapsed_s']:.2f}s",flush=True)
+                        if row['status']=='UNPHYSICAL':
+                            failed = [key for key,value in row['physical']['checks'].items() if not value]
+                            print(f"  failed_checks={','.join(failed)}; flux_bounds={flux_bounds_passed(row)}; "
+                                  f"loss_min_eigenvalue={row.get('constitutive_loss_min_eigenvalue')}",flush=True)
                         if device.startswith('cuda'):
                             torch.cuda.empty_cache()
                         if args.stop_on_failure and row['status']!='OK':
@@ -366,8 +393,11 @@ def main(argv=None):
     write_json(output/'report.json',report)
     tables_and_plots(output,state['cases'],report,args)
     print(f"Saved {output}; axis_converged={report['axis_converged']}; "
-          f"passive_flux_bounds={report['passive_flux_bounds_passed']}; independent_physics={report['independent_physics_suite_passed']}")
-    if not report['passive_flux_bounds_passed'] or report['independent_physics_suite_passed'] is False:
+          f"passive_flux_bounds={report['passive_flux_bounds_passed']}; physical_checks={report['physical_checks_passed']}; "
+          f"constitutive_loss_flagged_cases={report['constitutive_loss_flagged_cases']}; "
+          f"axis_numerically_converged={report['axis_numerically_converged']}; "
+          f"independent_physics={report['independent_physics_suite_passed']}")
+    if not report['physical_checks_passed'] or report['independent_physics_suite_passed'] is False:
         return 1
     return 2 if args.require_convergence and not report['passed'] else 0
 

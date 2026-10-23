@@ -91,6 +91,26 @@ def prepend(left, right_r, right_t):
     return rf + tb*right_r*tf/denominator, right_t*tf/denominator
 
 
+def bulk_layers(args, wl, pet, adhesive):
+    """Only existing layers enter both the amplitude stack and phase average."""
+    pet_nm = args.film_total_um*1000-args.height_nm-args.residual_um*1000
+    layers = [(pet(wl), pet_nm, True)]
+    if args.adhesive_um > 0:
+        layers.append((adhesive(wl), args.adhesive_um*1000, True))
+    if args.glass_um > 0:
+        layers.append((silica_n(wl), args.glass_um*1000, True))
+    return layers
+
+
+def stack_description(args):
+    parts = ['air', 'MOSMITE/PET']
+    if args.adhesive_um > 0:
+        parts.append('adhesive')
+    if args.glass_um > 0:
+        parts.append('silica')
+    return ' / '.join(parts+['air'])
+
+
 def finite_sample(surface, port_index, layers, wl, phase_points):
     """layers: (complex n, thickness_nm, phase_average_bool), from top down.
 
@@ -177,7 +197,7 @@ def save_csv(path, rows):
         writer.writerows(rows)
 
 
-def plot_spectrum(output, rows):
+def plot_spectrum(output, rows, description='air / film / adhesive / silica / air'):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -189,7 +209,7 @@ def plot_spectrum(output, rows):
         ax.set_ylabel(label)
         ax.grid(alpha=.25)
     axes[-1].set_xlabel('Wavelength (nm)')
-    fig.suptitle('MOSMITE reference model: air / film / adhesive / silica / air')
+    fig.suptitle('Uncoated MOSMITE: '+description)
     fig.tight_layout()
     fig.savefig(output/'spectra.png', dpi=180)
     plt.close(fig)
@@ -215,8 +235,8 @@ def parser():
                    help='Total including relief and any specified residual layer.')
     p.add_argument('--residual-um', type=float, default=0.,
                    help='Explicit uniform surface-resin layer; default is optically merged into PET.')
-    p.add_argument('--adhesive-um', type=float, default=20.)
-    p.add_argument('--glass-um', type=float, default=1000.)
+    p.add_argument('--adhesive-um', type=float, default=20., help='Set 0 to omit the adhesive layer.')
+    p.add_argument('--glass-um', type=float, default=1000., help='Set 0 to omit glass; the last remaining layer borders air.')
     p.add_argument('--order', type=int, default=7)
     p.add_argument('--slices', type=int, default=100)
     p.add_argument('--grid', type=int, default=256)
@@ -227,7 +247,10 @@ def parser():
     p.add_argument('--phase-points', type=int, default=16)
     p.add_argument('--check-convergence', action='store_true',
                    help='Compare M+2, then Nz*2, then grid*2 at 400,600,800 nm in range.')
-    p.add_argument('--convergence-tol', type=float, default=1e-4, help='Absolute R/T fraction tolerance.')
+    p.add_argument('--check-wavelengths', default='400,600,800',
+                   help='Convergence probes in nm, comma list or start:stop:step.')
+    p.add_argument('--convergence-tol', type=float, default=1e-4,
+                   help='Absolute R/T/A fraction tolerance; 0.005 means 0.5 percentage point, not 0.5 percent relative.')
     p.add_argument('--output-dir', type=Path, default=HERE/'results/reference')
     return p
 
@@ -243,8 +266,8 @@ def main():
             or args.period_nm <= 0 or args.height_nm < 0 or args.profile_power <= 0):
         raise ValueError('Require 0 <= tip <= base < period and nonnegative height.')
     pet_nm = args.film_total_um*1000 - args.height_nm - args.residual_um*1000
-    if min(pet_nm, args.adhesive_um, args.glass_um, args.adhesive_n) <= 0 or min(
-            args.residual_um, args.adhesive_k) < 0:
+    if min(pet_nm, args.adhesive_n, args.convergence_tol) <= 0 or min(
+            args.residual_um, args.adhesive_k, args.adhesive_um, args.glass_um) < 0:
         raise ValueError('Invalid layer thicknesses or adhesive index.')
     if not (args.solver_root/'rcwa_ext').is_dir():
         raise FileNotFoundError('Set --solver-root to the 20260806 directory containing rcwa_ext/.')
@@ -266,7 +289,12 @@ def main():
                               'n': args.adhesive_n, 'k': args.adhesive_k}
     wls = wavelengths(args.wavelengths)
     # Every nonzero diffraction order must be evanescent in the thick layers.
-    max_n = max(abs(f(w).real) for w in wls for f in (pet, resin, adhesive, silica_n))
+    active_materials = [pet, resin]
+    if args.adhesive_um > 0:
+        active_materials.append(adhesive)
+    if args.glass_um > 0:
+        active_materials.append(silica_n)
+    max_n = max(abs(f(w).real) for w in wls for f in active_materials)
     if min(wls) <= math.sqrt(3)/2*args.period_nm*max_n:
         raise ValueError('A higher order may propagate: the scalar thick-layer tail is ineligible.')
     output = args.output_dir.resolve()
@@ -274,18 +302,21 @@ def main():
     phase_points = args.phase_points if args.coherence == 'phase-average' else 1
     metadata = {'arguments': {key: str(value) if isinstance(value, Path) else value
                              for key, value in vars(args).items()},
+        'stack_description': stack_description(args),
         'stack_nm': {'pattern': args.height_nm, 'explicit_residual': args.residual_um*1000,
                      'PET_or_optically_merged_resin_and_PET': pet_nm,
                      'adhesive': args.adhesive_um*1000, 'silica': args.glass_um*1000},
         'material_provenance': {'PET': pet_provenance, 'PET_source': PET_SOURCE,
              'PET_paper': 'https://doi.org/10.1364/AO.383831', 'resin': resin_provenance,
              'adhesive': adhesive_provenance,
-             'silica': 'Malitson 1965 https://doi.org/10.1364/JOSA.55.001205; k=0'},
+             'silica': ('Malitson 1965 https://doi.org/10.1364/JOSA.55.001205; k=0'
+                        if args.glass_um > 0 else 'omitted: --glass-um 0')},
         'interpretation': ['Reference model, not a calibrated MOSMITE material measurement.',
              '55 um includes the 0.2 um relief: default uniform optical thickness is 54.8 um.',
              'No independently known residual thickness; default resin and PET are optically merged.',
-             'Only the front surface is patterned; the glass rear surface is bare and included.',
-             'PET, adhesive and glass are phase averaged unless --coherence coherent; explicit residual stays coherent.',
+             'Only the front surface is patterned; the last existing uniform layer borders air.',
+             'Only positive-thickness layers are included in the interfaces and phase average.',
+             'Existing PET/adhesive/glass layers are phase averaged unless coherent; residual stays coherent.',
              'D6 triangular lattice, normal incidence, scalar isotropic n,k; x=y=unpolarized.',
              'Pattern is coherent; absorbing internal ports are connected as amplitudes.',
              'No diffuse scattering, anisotropy, instrument convolution or parameter fitting.'],
@@ -295,13 +326,13 @@ def main():
     hashes = {str(path.relative_to(args.solver_root)): hashlib.sha256(path.read_bytes()).hexdigest()
               for path in sorted((args.solver_root/'rcwa_ext').glob('*.py'))}
     metadata['solver_sha256'] = hashes
+    metadata['study_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     (output/'settings.json').write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding='utf-8')
     rows, material_rows, convergence = [], [], []
     for wl in wls:
         started = time.perf_counter()
-        npet, nresin, nadh, nglass = pet(wl), resin(wl), adhesive(wl), silica_n(wl)
-        layers = [(npet, pet_nm, True), (nadh, args.adhesive_um*1000, True),
-                  (nglass, args.glass_um*1000, True)]
+        npet, nresin = pet(wl), resin(wl)
+        layers = bulk_layers(args, wl, pet, adhesive)
         surface = surface_rcwa(args, wl, nresin, n_substrate=npet)
         result = finite_sample(surface, npet, layers, wl, phase_points)
         phase_error = 0.
@@ -316,24 +347,28 @@ def main():
                'phase_average_error': phase_error, 'seconds': time.perf_counter()-started}
         rows.append(row)
         matrow = {'wavelength_nm': float(wl)}
-        for name, index in [('PET', npet), ('resin', nresin), ('adhesive', nadh), ('silica', nglass)]:
+        material_indices = [('PET', npet), ('resin', nresin)]
+        if args.adhesive_um > 0:
+            material_indices.append(('adhesive', adhesive(wl)))
+        if args.glass_um > 0:
+            material_indices.append(('silica', silica_n(wl)))
+        for name, index in material_indices:
             matrow.update({name+'_n': index.real, name+'_k': index.imag})
         material_rows.append(matrow)
         save_csv(output/'spectra.csv', rows)
         save_csv(output/'materials.csv', material_rows)
         print(f'{wl:g} nm  R={result[0]:.8f}  T={result[1]:.8f}  A={result[2]:.8f}', flush=True)
     if args.check_convergence:
-        for wl in (400., 600., 800.):
+        for wl in wavelengths(args.check_wavelengths):
             if not wls[0] <= wl <= wls[-1]:
                 continue
             nresin = resin(wl)
-            layers = [(pet(wl), pet_nm, True), (adhesive(wl), args.adhesive_um*1000, True),
-                      (silica_n(wl), args.glass_um*1000, True)]
+            layers = bulk_layers(args, wl, pet, adhesive)
             configs = [(args.order, args.slices, args.grid),
                        (args.order+2, args.slices, args.grid),
                        (args.order+2, 2*args.slices, args.grid),
                        (args.order+2, 2*args.slices, 2*args.grid)]
-            previous = None
+            previous, baseline = None, None
             for m, nz, grid in configs:
                 cached = next((row for row in rows if row['wavelength_nm'] == wl), None)
                 if previous is None and cached is not None:
@@ -341,18 +376,33 @@ def main():
                 else:
                     s = surface_rcwa(args, wl, nresin, n_substrate=pet(wl), order=m, slices=nz, grid=grid)
                     value = finite_sample(s, pet(wl), layers, wl, phase_points)
-                delta = 0. if previous is None else max(abs(a-b) for a, b in zip(value[:2], previous[:2]))
+                    if phase_points > 1:
+                        doubled = finite_sample(s, pet(wl), layers, wl, 2*phase_points)
+                        if max(abs(a-b) for a,b in zip(value, doubled)) > args.convergence_tol:
+                            raise RuntimeError(f'Phase average not converged at refined case {wl}: increase --phase-points.')
+                if not all(math.isfinite(v) and -2e-6 <= v <= 1+2e-6 for v in value):
+                    raise RuntimeError(f'Unphysical refined R,T,A at {wl}: {value}')
+                if baseline is None:
+                    baseline = value
+                delta_rt = 0. if previous is None else max(abs(a-b) for a, b in zip(value[:2], previous[:2]))
+                delta = 0. if previous is None else max(abs(a-b) for a, b in zip(value, previous))
+                baseline_delta = max(abs(a-b) for a,b in zip(value, baseline))
                 convergence.append({'wavelength_nm': wl, 'order': m, 'slices': nz, 'grid': grid,
-                    'R': value[0], 'T': value[1], 'max_delta_RT': delta,
-                    'passed': delta <= args.convergence_tol})
+                    'R': value[0], 'T': value[1], 'A': value[2], 'max_delta_RT': delta_rt,
+                    'max_delta_RTA': delta, 'baseline_delta_RTA': baseline_delta,
+                    'passed': delta <= args.convergence_tol,
+                    'baseline_passed': baseline_delta <= args.convergence_tol})
+                save_csv(output/'convergence.csv', convergence)
                 print(f'check {wl:g} M={m} Nz={nz} grid={grid} delta={delta:.3g}', flush=True)
                 previous = value
         if convergence:
             save_csv(output/'convergence.csv', convergence)
-            metadata['convergence_passed'] = all(row['passed'] for row in convergence)
+            metadata['convergence_passed'] = all(row['passed'] and row['baseline_passed'] for row in convergence)
             (output/'settings.json').write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding='utf-8')
-    plot_spectrum(output, rows)
-    if convergence and not all(row['passed'] for row in convergence):
+        else:
+            raise ValueError('No convergence probes inside the requested wavelength range.')
+    plot_spectrum(output, rows, stack_description(args))
+    if convergence and not metadata['convergence_passed']:
         raise RuntimeError('Convergence tolerance not met; inspect convergence.csv and increase numerical settings.')
     print(f'Saved: {output}', flush=True)
 
