@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/run.py", line 67, in worker
+    radii = torch.tensor(radii_values(request["logits"], c), dtype=torch.float64, device=device)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+

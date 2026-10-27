@@ -1,0 +1,253 @@
+{
+  "passed": true,
+  "check_count": 19,
+  "passed_count": 19,
+  "checks": [
+    {
+      "name": "rcwa-fff: absorbing planar film vs Fresnel/Fabry-Perot",
+      "passed": true,
+      "details": {
+        "R": 0.12718721047840356,
+        "T": 0.6157480035848667,
+        "independent_volume_A": 0.25706478593680265,
+        "max_error": 7.177591854201637e-14
+      }
+    },
+    {
+      "name": "dm-fff: absorbing planar film vs Fresnel/Fabry-Perot",
+      "passed": true,
+      "details": {
+        "R": 0.1271872104795736,
+        "T": 0.6157480035939202,
+        "independent_volume_A": 0.2570647859383551,
+        "max_error": 9.054756944237852e-12
+      }
+    },
+    {
+      "name": "direct: lossless tapered 2D array conserves power",
+      "passed": true,
+      "details": {
+        "R": 0.017735928420498228,
+        "T": 0.9822640715795041,
+        "energy_error": 2.4424906541753444e-15
+      }
+    },
+    {
+      "name": "slice-nvm: lossless tapered 2D array conserves power",
+      "passed": true,
+      "details": {
+        "R": 0.02015293869258307,
+        "T": 0.9798470613074166,
+        "energy_error": 3.3306690738754696e-16
+      }
+    },
+    {
+      "name": "rcwa-fff: lossless tapered 2D array conserves power",
+      "passed": true,
+      "details": {
+        "R": 0.019594723837799005,
+        "T": 0.9804052761622059,
+        "energy_error": 4.884981308350689e-15
+      }
+    },
+    {
+      "name": "dm-fff: lossless tapered 2D array conserves power",
+      "passed": true,
+      "details": {
+        "R": 0.01982073350118291,
+        "T": 0.9801792664988078,
+        "energy_error": 9.2148511043888e-15
+      }
+    },
+    {
+      "name": "Full three-component normal: nonzero mixed blocks and lossless Hermiticity",
+      "passed": true,
+      "details": {
+        "hermitian_error": 5.55433726782307e-17,
+        "mixed_xz_yz_max": 0.05003545387275795
+      }
+    },
+    {
+      "name": "Vector Maxwell operator reduces to original 1D TM equations",
+      "passed": true,
+      "details": {
+        "max_matrix_error": 2.131702220863673e-13,
+        "note": "paper-left reduces to the 1D paper; default uses symmetric ordering"
+      }
+    },
+    {
+      "name": "D6 normal-incidence x/y equality and port-normalized reciprocity",
+      "passed": true,
+      "details": {
+        "xy_power_error": 1.887379141862766e-15,
+        "zero_order_reciprocity_error": 3.950662763298604e-15
+      }
+    },
+    {
+      "name": "Lossless patterned array: arbitrary open-channel superpositions",
+      "passed": true,
+      "details": {
+        "open_incident_channels": 14,
+        "power_gram_error": 2.0502424807252916e-15
+      }
+    },
+    {
+      "name": "Patterned lossy 3D-normal medium: independent volume loss vs boundary flux",
+      "passed": true,
+      "details": {
+        "A_flux": 0.027864008724085787,
+        "A_volume": 0.02786400872408719,
+        "error": 1.4016565685892601e-15
+      }
+    },
+    {
+      "name": "DM-FFF RK4 step refinement against exact constant generator",
+      "passed": true,
+      "details": {
+        "step_nm": [
+          10,
+          5
+        ],
+        "errors": [
+          1.0496387570335663e-05,
+          8.016634841512271e-07
+        ]
+      }
+    },
+    {
+      "name": "Vertical cylinders: 3D normal reduces to NV in K, all S blocks and every order",
+      "passed": true,
+      "details": [
+        {
+          "lattice": "square",
+          "shape": "auto",
+          "K_error": 0.0,
+          "S_error": 0.0,
+          "order_power_error": 0.0
+        },
+        {
+          "lattice": "square",
+          "shape": "rectangular",
+          "K_error": 0.0,
+          "S_error": 0.0,
+          "order_power_error": 0.0
+        },
+        {
+          "lattice": "triangular",
+          "shape": "auto",
+          "K_error": 0.0,
+          "S_error": 0.0,
+          "order_power_error": 0.0
+        },
+        {
+          "lattice": "triangular",
+          "shape": "rectangular",
+          "K_error": 0.0,
+          "S_error": 0.0,
+          "order_power_error": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Independent rcwa_ext NV: square cylinder complex amplitudes and order powers",
+      "passed": true,
+      "details": {
+        "R": 0.1342356380777121,
+        "P_sub": 0.17567587973530194,
+        "native_R": 0.13423563912441105,
+        "native_P_sub": 0.17567588078783572,
+        "epsilon_matrix_error": 6.537664809448348e-08,
+        "inverse_epsilon_matrix_error": 1.0385553497870896e-08,
+        "projection_matrix_error": 7.729557962232497e-17,
+        "max_complex_amplitude_error": 3.4682011173613523e-09,
+        "max_order_power_error": 1.0466976729794908e-09,
+        "lattice": "square",
+        "method": "rcwa-fff",
+        "polarization": "x",
+        "reference": "rcwa_ext.AutoRCWA.add_layer_circle_nvm, no Lanczos, no symmetry reduction"
+      }
+    },
+    {
+      "name": "Independent rcwa_ext NV: square cone complex amplitudes and order powers",
+      "passed": true,
+      "details": {
+        "R": 0.021255502564367392,
+        "P_sub": 0.9787444974356345,
+        "native_R": 0.021255502564086835,
+        "native_P_sub": 0.9787444974359155,
+        "epsilon_matrix_error": 1.8221514019867158e-09,
+        "inverse_epsilon_matrix_error": 4.5553785049667894e-10,
+        "projection_matrix_error": 8.376961782731592e-17,
+        "max_complex_amplitude_error": 4.328166558817564e-12,
+        "max_order_power_error": 2.809974475326271e-13,
+        "lattice": "square",
+        "method": "slice-nvm",
+        "polarization": "x",
+        "reference": "rcwa_ext.AutoRCWA.add_layer_circle_nvm, no Lanczos, no symmetry reduction"
+      }
+    },
+    {
+      "name": "Independent rcwa_ext NV: triangular cylinder complex amplitudes and order powers",
+      "passed": true,
+      "details": {
+        "R": 0.13145860468262485,
+        "P_sub": 0.1520047302322833,
+        "native_R": 0.13145860234672613,
+        "native_P_sub": 0.1520047295232672,
+        "epsilon_matrix_error": 4.849984566780494e-08,
+        "inverse_epsilon_matrix_error": 7.704551343744859e-09,
+        "projection_matrix_error": 6.756463858022288e-17,
+        "max_complex_amplitude_error": 7.989366832216771e-09,
+        "max_order_power_error": 2.335899224048532e-09,
+        "lattice": "triangular",
+        "method": "rcwa-fff",
+        "polarization": "x",
+        "reference": "rcwa_ext.AutoRCWA.add_layer_circle_nvm, no Lanczos, no symmetry reduction"
+      }
+    },
+    {
+      "name": "Independent rcwa_ext NV: triangular cone complex amplitudes and order powers",
+      "passed": true,
+      "details": {
+        "R": 0.02004023498479968,
+        "P_sub": 0.9799597650152007,
+        "native_R": 0.02004023497957935,
+        "native_P_sub": 0.9799597650204231,
+        "epsilon_matrix_error": 1.4234973241822324e-08,
+        "inverse_epsilon_matrix_error": 3.558743310455581e-09,
+        "projection_matrix_error": 8.507819223822541e-17,
+        "max_complex_amplitude_error": 9.804589035389226e-11,
+        "max_order_power_error": 5.222489107836736e-12,
+        "lattice": "triangular",
+        "method": "slice-nvm",
+        "polarization": "x",
+        "reference": "rcwa_ext.AutoRCWA.add_layer_circle_nvm, no Lanczos, no symmetry reduction"
+      }
+    },
+    {
+      "name": "Adaptive CF4: varying noncommuting Maxwell operator vs independent DOP853",
+      "passed": true,
+      "details": {
+        "max_S_error_vs_DOP853": 4.4676500354200894e-11,
+        "minimum_step_guard": true,
+        "accepted_steps": 18,
+        "rejected_steps": 2,
+        "min_accepted_step_nm": 1.4094205693941717,
+        "max_accepted_step_nm": 2.1256580260406825,
+        "max_accepted_error_ratio": 0.5691682257780415
+      }
+    },
+    {
+      "name": "Centered GIL approaches the sharp analytical disk as width tends to zero",
+      "passed": true,
+      "details": {
+        "max_matrix_error_at_delta_1e_7_nm": 1.305350755591712e-09,
+        "placement": "centered",
+        "total_width_nm": 2.0
+      }
+    }
+  ],
+  "device": "cuda:0",
+  "ordering": "symmetric",
+  "scope": "Low-order implementation/physical consistency; not convergence of the Au moth-eye sweep"
+}

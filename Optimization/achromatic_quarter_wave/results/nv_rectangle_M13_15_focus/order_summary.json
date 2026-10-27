@@ -1,0 +1,38 @@
+{
+  "order_within_tolerances": false,
+  "fixed_grid": 1024,
+  "fixed_layers": 30,
+  "reused_results": 2,
+  "new_calculations": 2,
+  "comparisons": [
+    {
+      "wavelength_nm": 550.0,
+      "order_from": 13,
+      "order_to": 15,
+      "status": "within_tolerance",
+      "passed": true,
+      "retardance_change_deg": 0.045420688143423156,
+      "transmission_phase_change_deg": 0.09914876835594809,
+      "power_change": 0.00019283460852299872,
+      "complex_t_change": 0.001324943938509244,
+      "energy_error": 5.284661597215745e-14,
+      "retardance_from_deg": 119.51220593943088,
+      "retardance_to_deg": 119.46678525128746
+    },
+    {
+      "wavelength_nm": 700.0,
+      "order_from": 13,
+      "order_to": 15,
+      "status": "needs_refinement",
+      "passed": false,
+      "retardance_change_deg": 0.06765168019488499,
+      "transmission_phase_change_deg": 0.10858808294712766,
+      "power_change": 0.0001722250995753738,
+      "complex_t_change": 0.0014537013181685932,
+      "energy_error": 5.88418203051333e-14,
+      "retardance_from_deg": 94.66383739345068,
+      "retardance_to_deg": 94.59618571325579
+    }
+  ],
+  "note": "Only order convergence is assessed. Q/z convergence and continuous-band accuracy are not certified here."
+}

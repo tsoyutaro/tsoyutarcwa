@@ -110,5 +110,256 @@
     "process_wall_seconds": 311.5282285781577,
     "peak_cuda_allocated_bytes": 12539392512,
     "peak_cuda_reserved_bytes": 13639876608
-  }
+  },
+  "best": {
+    "trial_number": 12,
+    "objective": 0.0002790122594028907,
+    "params": {
+      "lr": 0.6650794843817153,
+      "init_top": 91.65851665391475,
+      "delta_ratio": 0.1384325902696871
+    },
+    "logits": [
+      5.387509292086976,
+      6.5304023550456405,
+      8.003388731362541,
+      8.565381277766624,
+      9.132415362314259,
+      9.442776935967899,
+      8.127522213182287,
+      8.213874582696537,
+      11.031801405851203,
+      7.733549748979215,
+      10.093415330719495,
+      10.843611848766512,
+      7.762859820613232,
+      10.907138061020389,
+      9.009304973414169,
+      0.33683091504709284
+    ],
+    "radii_nm": [
+      0.09120351440313518,
+      0.3738525880472061,
+      1.6065003155254725,
+      3.7686915066952436,
+      7.580623769283864,
+      12.779751099183313,
+      14.175300943470466,
+      15.696706982222393,
+      41.16667294279486,
+      42.10782611721111,
+      52.07323501128287,
+      73.17404036980437,
+      74.14318407870383,
+      96.62793019623744,
+      99.99832289015094
+    ],
+    "trial_folder": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/results/NV_Optuna_Adam_M8_verifyM16/square/trials/trial_0012"
+  },
+  "verification": {
+    "baseline": {
+      "shape_id": "f2768ad45181f661",
+      "logits": [
+        0.2516160760050363,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        -0.03594515371500595,
+        0.25161607600503544
+      ],
+      "radii_nm": [
+        8.000000000000002,
+        14.0,
+        20.0,
+        25.999999999999996,
+        31.999999999999993,
+        37.999999999999986,
+        43.99999999999998,
+        49.99999999999998,
+        55.99999999999998,
+        61.99999999999997,
+        67.99999999999997,
+        73.99999999999997,
+        79.99999999999997,
+        85.99999999999997,
+        91.99999999999996
+      ],
+      "conditions": [
+        {
+          "order": 8,
+          "grid": 512,
+          "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/results/NV_Optuna_Adam_M8_verifyM16/square/verification/baseline_f2768ad45181f661/M8_Q512.json",
+          "signature": "47de34efe2b19c94ced1bde56620529257d304b254c433d1f54ff5ca9710c1b3",
+          "cases": {},
+          "status": "error",
+          "failed_wavelength_nm": 400.0,
+          "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+          "requested_wavelength_count": 121,
+          "complete": false
+        },
+        {
+          "order": 8,
+          "grid": 1024,
+          "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/results/NV_Optuna_Adam_M8_verifyM16/square/verification/baseline_f2768ad45181f661/M8_Q1024.json",
+          "signature": "95db1599fa93680b6ebb4bddac977f6aaad72dab370fcc8ac702004579e55f9f",
+          "cases": {},
+          "status": "error",
+          "failed_wavelength_nm": 400.0,
+          "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+          "requested_wavelength_count": 121,
+          "complete": false
+        },
+        {
+          "order": 16,
+          "grid": 512,
+          "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/results/NV_Optuna_Adam_M8_verifyM16/square/verification/baseline_f2768ad45181f661/M16_Q512.json",
+          "signature": "f1088e67ac1b62ff2018d4cc6485534f3a0cc5569612e0fb1c058ea7bf32c63f",
+          "cases": {},
+          "status": "error",
+          "failed_wavelength_nm": 400.0,
+          "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+          "requested_wavelength_count": 121,
+          "complete": false
+        },
+        {
+          "order": 16,
+          "grid": 1024,
+          "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/results/NV_Optuna_Adam_M8_verifyM16/square/verification/baseline_f2768ad45181f661/M16_Q1024.json",
+          "signature": "d4b7d17cde3d177a806d0e3af3549bb7032e74b618f7111c3428e170071a7f3c",
+          "cases": {},
+          "status": "error",
+          "failed_wavelength_nm": 400.0,
+          "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+          "requested_wavelength_count": 121,
+          "complete": false
+        }
+      ],
+      "comparisons": [],
+      "complete": false,
+      "limits": "Finite NV order/grid comparison for this stepped profile, not an exact-reference error bound."
+    },
+    "best": {
+      "shape_id": "ec72514014bb44a8",
+      "logits": [
+        5.387509292086976,
+        6.5304023550456405,
+        8.003388731362541,
+        8.565381277766624,
+        9.132415362314259,
+        9.442776935967899,
+        8.127522213182287,
+        8.213874582696537,
+        11.031801405851203,
+        7.733549748979215,
+        10.093415330719495,
+        10.843611848766512,
+        7.762859820613232,
+        10.907138061020389,
+        9.009304973414169,
+        0.33683091504709284
+      ],
+      "radii_nm": [
+        0.09120351440313518,
+        0.3738525880472061,
+        1.6065003155254725,
+        3.7686915066952436,
+        7.580623769283864,
+        12.779751099183313,
+        14.175300943470466,
+        15.696706982222393,
+        41.16667294279486,
+        42.10782611721111,
+        52.07323501128287,
+        73.17404036980437,
+        74.14318407870383,
+        96.62793019623744,
+        99.99832289015094
+      ],
+      "conditions": [
+        {
+          "order": 8,
+          "grid": 512,
+          "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/results/NV_Optuna_Adam_M8_verifyM16/square/verification/best_ec72514014bb44a8/M8_Q512.json",
+          "signature": "712b655dce92cbf768221045231d4763bd58bf8d3a17fc2ff554eb0d0c99fffe",
+          "cases": {},
+          "status": "error",
+          "failed_wavelength_nm": 400.0,
+          "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+          "requested_wavelength_count": 121,
+          "complete": false
+        },
+        {
+          "order": 8,
+          "grid": 1024,
+          "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/results/NV_Optuna_Adam_M8_verifyM16/square/verification/best_ec72514014bb44a8/M8_Q1024.json",
+          "signature": "90e3e64bdee2078e4907900777239da67de16678d7d8675a815e1d999015bc65",
+          "cases": {},
+          "status": "error",
+          "failed_wavelength_nm": 400.0,
+          "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+          "requested_wavelength_count": 121,
+          "complete": false
+        },
+        {
+          "order": 16,
+          "grid": 512,
+          "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/results/NV_Optuna_Adam_M8_verifyM16/square/verification/best_ec72514014bb44a8/M16_Q512.json",
+          "signature": "7023815cf6a9582376395ff600c90beb56c47dc2a0fbb0cc1c6bfe6cb303676f",
+          "cases": {},
+          "status": "error",
+          "failed_wavelength_nm": 400.0,
+          "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+          "requested_wavelength_count": 121,
+          "complete": false
+        },
+        {
+          "order": 16,
+          "grid": 1024,
+          "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/results/NV_Optuna_Adam_M8_verifyM16/square/verification/best_ec72514014bb44a8/M16_Q1024.json",
+          "signature": "822a5cbbc941455a6dd279d5d11bc51edf0d02abb50208726f5bb5c0f6730bce",
+          "cases": {},
+          "status": "error",
+          "failed_wavelength_nm": 400.0,
+          "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+          "requested_wavelength_count": 121,
+          "complete": false
+        }
+      ],
+      "comparisons": [],
+      "complete": false,
+      "limits": "Finite NV order/grid comparison for this stepped profile, not an exact-reference error bound."
+    }
+  },
+  "final_gradient_audit": {
+    "status": "error",
+    "error_type": "RuntimeError",
+    "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/run.py\", line 64, in worker\n    outcome = check(request, device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/audit.py\", line 10, in check\n    logits = torch.tensor(request[\"logits\"], dtype=torch.float64, device=device, requires_grad=True)\nRuntimeError: CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n\n",
+    "request_signature": "5ae5323dc81c325f425bd6e8166eadb3bffc09949dcee453bba1cacd8d67588c",
+    "runtime_environment": {
+      "python": "3.9.25",
+      "torch": "2.6.0+cu124",
+      "torcwa": "0.1.4.2",
+      "cuda": "12.4",
+      "device": "cuda:0",
+      "gpu": "NVIDIA H100 MIG 4g.47gb",
+      "gpu_total_bytes": 49794777088,
+      "optuna": "4.6.0"
+    },
+    "process_wall_seconds": 4.0094454530626535,
+    "peak_cuda_allocated_bytes": 0,
+    "peak_cuda_reserved_bytes": 0
+  },
+  "status": "verification_partial",
+  "scientific_scope": "NV-only; optimized finite 15-layer profile at M8. Finite verification and sampled gradient checks are recorded separately; no global-optimum or publication-ready claim."
 }

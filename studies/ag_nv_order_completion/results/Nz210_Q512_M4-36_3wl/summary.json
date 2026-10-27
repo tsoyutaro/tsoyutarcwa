@@ -1,0 +1,23 @@
+{
+  "requested_cases": 204,
+  "counts": {
+    "nonphysical": 1,
+    "ok": 114,
+    "pending": 89
+  },
+  "counts_by_factorization": {
+    "symmetric-nv": {
+      "nonphysical": 1,
+      "ok": 101,
+      "pending": 0
+    },
+    "galerkin": {
+      "nonphysical": 0,
+      "ok": 13,
+      "pending": 89
+    }
+  },
+  "reused_ok": 61,
+  "reused_nonphysical": 1,
+  "interpretation": "Nonphysical raw powers are retained and higher orders continue. OOM skips higher M only for the same factorization/structure/wavelength. Galerkin uses ordinary transverse convolution without the NV correction. Completion does not establish convergence or internal-field accuracy."
+}

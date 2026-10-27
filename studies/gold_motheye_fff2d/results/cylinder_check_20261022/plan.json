@@ -1,0 +1,67 @@
+{
+  "identity": {
+    "axis": "order",
+    "geometry": {
+      "period_nm": 200.0,
+      "height_nm": 80.0,
+      "tip_radius_nm": 60.0,
+      "base_radius_nm": 60.0,
+      "lattice": "triangular",
+      "gil_nm": 0.0,
+      "gil_rings": 12,
+      "gil_side": "centered",
+      "harmonic_shape": "auto"
+    },
+    "ordering": "symmetric",
+    "fixed_order": null,
+    "fixed_slices": 8,
+    "fixed_grid": 96,
+    "fixed_dm_step": 0.5,
+    "dm_integrator": "cf4-adaptive",
+    "dm_rtol": 1e-06,
+    "dm_atol": 1e-09,
+    "dm_min_step_nm": 1e-05,
+    "volume_absorption": false,
+    "absorption_quadrature": 7,
+    "loss_diagnostics": false,
+    "material_sha256": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99",
+    "material_interpolation": "shared linear epsilon",
+    "sources": {
+      "studies/gold_motheye_fff2d/model.py": "32046f07b6dee20fc8797b673ce8946bad355721059326ab1010a0cb7da60141",
+      "studies/gold_motheye_fff2d/solver.py": "095e92bcf05e52bb39e39bd7b851c0ef8e70bd052453a550e3c9e16608d6c59f",
+      "studies/gold_motheye_fff2d/integration.py": "02ec22554430eb37b69e39351ead8af4789ff537c9d7e8ed35e42cf60f6d4176",
+      "studies/gold_motheye_fff2d/native_reference.py": "733a20a8ac93e06bd6abea4a10a5433a70a8f3d437b6f9a2f3301700df1adb29",
+      "studies/gold_motheye_fff2d/run.py": "9bdf10b3a90d25e721e8de53b1f59ee49ef760dee055972508de2abc99f642e0",
+      "studies/gold_motheye_fff2d/validate.py": "927899e3a48c997ac646257aa1a8d3ca4d0336a17f58fdc76dc3e89e575c37f9",
+      "studies/shared/gold_dispersion.py": "ae27eb171da5364d87945f68b75b684227c4e509f8076da00a82259cf05ed60c"
+    }
+  },
+  "signature": "86e709966774767c004115a660dbf1ce6ebe193e5247b950389d4fc4ed7d974e",
+  "requested_values": [
+    1,
+    2,
+    3
+  ],
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "methods": [
+    "rcwa-fff",
+    "slice-nvm"
+  ],
+  "polarizations": [
+    "x"
+  ],
+  "device": "cuda",
+  "max_scalar_harmonics": 37,
+  "max_field_dimension": 148,
+  "one_dense_complex_matrix_gib": 0.00032639503479003906,
+  "indicative_twenty_matrix_gib": 0.006527900695800781,
+  "memory_note": "Indicative dense-matrix footprint, not a guaranteed peak or allocation promise; volume fields store layer S matrices.",
+  "gold_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/gold_motheye2/data/au_measured_nk.csv",
+  "python": "3.9.25 (main, Mar 26 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-11)]",
+  "torch": "2.6.0+cu124",
+  "platform": "Linux-5.14.0-687.41.1.el9_8.x86_64-x86_64-with-glibc2.34"
+}

@@ -1,0 +1,20 @@
+{
+  "status": "error",
+  "error_type": "RuntimeError",
+  "error": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/run.py\", line 61, in worker\n    outcome = train(request, device, trial)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/engine.py\", line 36, in train\n    logits = torch.nn.Parameter(torch.tensor(initial_logits(top, bottom, c), dtype=torch.float64, device=device))\nRuntimeError: CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n\n",
+  "request_signature": "6135e1b777c931ff713356eb320c29f27f8918aa06980070ff558523e6a7a9b3",
+  "runtime_environment": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "torcwa": "0.1.4.2",
+    "cuda": "12.4",
+    "device": "cuda:0",
+    "gpu": "NVIDIA H100 MIG 4g.47gb",
+    "gpu_total_bytes": 49794777088,
+    "optuna": "4.6.0"
+  },
+  "process_wall_seconds": 4.095072996336967,
+  "peak_cuda_allocated_bytes": 0,
+  "peak_cuda_reserved_bytes": 0
+}

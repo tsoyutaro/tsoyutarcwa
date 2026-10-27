@@ -1,16 +1,11 @@
-trial 13 step 0: mean R=0.0677646864; best=0.0677646864
-trial 13 step 10: mean R=0.0012934313; best=0.00107217839
-trial 13 step 20: mean R=0.000406563797; best=0.000406563797
-trial 13 step 30: mean R=0.000443621848; best=0.000406563797
-trial 13 step 40: mean R=0.000481155532; best=0.000301645079
-trial 13 step 50: mean R=0.000306103319; best=0.00029475791
-trial 13 step 60: mean R=0.000307174481; best=0.00029475791
-trial 13 step 70: mean R=0.000290554768; best=0.000289381557
-trial 13 step 80: mean R=0.000285348995; best=0.000285348995
-trial 13 step 90: mean R=0.000283131437; best=0.000283131437
-trial 13 step 100: mean R=0.000282329887; best=0.000282329887
-trial 13 step 110: mean R=0.000281819409; best=0.000281720465
-trial 13 step 120: mean R=0.000281264984; best=0.000281264984
-trial 13 step 130: mean R=0.000280949086; best=0.000280949086
-trial 13 step 140: mean R=0.000280588596; best=0.000280588596
-trial 13 step 150: mean R=0.000281248673; best=0.000280477069
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/run.py", line 61, in worker
+    outcome = train(request, device, trial)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/dielectric_motheye_n25/engine.py", line 36, in train
+    logits = torch.nn.Parameter(torch.tensor(initial_logits(top, bottom, c), dtype=torch.float64, device=device))
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
