@@ -1,0 +1,142 @@
+{
+  "status": "passed",
+  "scope": "PMMA dispersive geometry-only sharing; hexagonal; CPU first derivative",
+  "order": 2,
+  "grid": 48,
+  "layers": 15,
+  "period_nm": 200.0,
+  "height_nm": 500.0,
+  "wavelengths": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "indices": [
+    1.5058386407194826,
+    1.492401592592772,
+    1.4868514449253294
+  ],
+  "structured_layers_and_substrate_use_same_n_lambda": true,
+  "material_csv": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\outputs\\spectral_reuse_validation\\data\\Szczurowski.csv",
+  "csv_sha256": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+  "interpolation": "linear n versus wavelength",
+  "shortwave_policy": "first segment linear extrapolation to 400 nm only",
+  "extrapolated_wavelengths": [
+    400.0
+  ],
+  "extinction_k_assumed": 0.0,
+  "reference": {
+    "seconds": 1.1105847000144422,
+    "spectrum": [
+      [
+        400.0,
+        0.006188894441192082,
+        0.9938111055588121
+      ],
+      [
+        550.0,
+        0.007892817180238487,
+        0.9921071828197624
+      ],
+      [
+        700.0,
+        0.006640535242480158,
+        0.9933594647575171
+      ]
+    ],
+    "gradient": [
+      0.010310890817768129,
+      0.005542533648821721,
+      -0.006820437414338909,
+      -0.015483462569903364,
+      -0.010545900007110445,
+      0.002787773095003746,
+      0.009004039109118383,
+      0.003278165006227376,
+      0.00020020744543309751,
+      0.013466377253425223,
+      0.02912008533536708,
+      0.013848454278549232,
+      -0.03700006059238603,
+      -0.07143608360633613,
+      -0.033450659784318035
+    ]
+  },
+  "candidate": {
+    "seconds": 0.8200593000510707,
+    "spectrum": [
+      [
+        400.0,
+        0.006188894441192033,
+        0.9938111055588119
+      ],
+      [
+        550.0,
+        0.007892817180238619,
+        0.9921071828197603
+      ],
+      [
+        700.0,
+        0.0066405352424802324,
+        0.9933594647575181
+      ]
+    ],
+    "gradient": [
+      0.010310890817768169,
+      0.005542533648821897,
+      -0.006820437414338669,
+      -0.015483462569903335,
+      -0.01054590000711067,
+      0.002787773095003348,
+      0.009004039109118296,
+      0.0032781650062275593,
+      0.00020020744543349477,
+      0.013466377253425407,
+      0.02912008533536743,
+      0.013848454278549364,
+      -0.03700006059238591,
+      -0.07143608360633633,
+      -0.033450659784318604
+    ],
+    "stages_seconds": {
+      "geometry_preparation": 0.10459620004985482,
+      "all_dispersive_wavelengths_and_adjoint": 0.6941898999502882,
+      "geometry_vjp": 0.0212732000509277
+    },
+    "geometry_builds": 15,
+    "material_matrix_sets": 45,
+    "material_inverse_or_PQ_shared_across_wavelengths": false,
+    "spectral_graphs_retained_at_once": 1
+  },
+  "errors": {
+    "power_max_abs": 2.1094237467877974e-15,
+    "gradient_max_abs": 5.689893001203927e-16,
+    "energy_max_abs": 3.9968028886505635e-15
+  },
+  "finite_difference": {
+    "autodiff": 0.0013252606895340878,
+    "central_difference": 0.0013252590014972698,
+    "abs_error": 1.688036817965033e-09,
+    "step": 1e-05,
+    "passed": true
+  },
+  "negative_control": {
+    "constant_index_used": 1.492401592592772,
+    "wavelength_nm": 400.0,
+    "power_error_if_dispersion_ignored": 0.00027039744880858266,
+    "passed": true
+  },
+  "port_preparation_seconds": 0.01375509996432811,
+  "warm_speedup": 1.3542736481926105,
+  "cold_speedup_excluding_common_basis": 1.3319327418594977,
+  "timing_repetitions": 1,
+  "python": "3.13.5",
+  "torch": "2.8.0+cpu",
+  "production_code_modified": false,
+  "source_sha256": {
+    "benchmark.py": "8a8ebf1fe0ca921978ea788906bbcc3c2a9f6d6f322a4567a935f1671caba937",
+    "benchmark_pmma.py": "8c97573c0dbeba4bc6b26ad5b049190434842e64f44cd19e8ac4f7d337777468",
+    "d6_nvm.py": "a7635b6bf36abdb93248edf3b254b9cf8d35871c8aad13c47b8c0f29a8875240",
+    "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569"
+  }
+}

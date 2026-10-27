@@ -1,0 +1,152 @@
+{
+  "status": "passed",
+  "scope": "PMMA dispersive geometry-only sharing; hexagonal; CPU first derivative",
+  "order": 2,
+  "grid": 48,
+  "layers": 20,
+  "period_nm": 200.0,
+  "height_nm": 500.0,
+  "wavelengths": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "indices": [
+    1.5058386407194826,
+    1.492401592592772,
+    1.4868514449253294
+  ],
+  "structured_layers_and_substrate_use_same_n_lambda": true,
+  "material_csv": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\outputs\\spectral_reuse_validation\\data\\Szczurowski.csv",
+  "csv_sha256": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+  "interpolation": "linear n versus wavelength",
+  "shortwave_policy": "first segment linear extrapolation to 400 nm only",
+  "extrapolated_wavelengths": [
+    400.0
+  ],
+  "extinction_k_assumed": 0.0,
+  "reference": {
+    "seconds": 1.472656900063157,
+    "spectrum": [
+      [
+        400.0,
+        0.006414062784287151,
+        0.9935859372157126
+      ],
+      [
+        550.0,
+        0.00822846455926072,
+        0.9917715354407414
+      ],
+      [
+        700.0,
+        0.00682293087374825,
+        0.9931770691262538
+      ]
+    ],
+    "gradient": [
+      0.008175436402875389,
+      0.006743684369862219,
+      0.0009875799291223673,
+      -0.006682530065009277,
+      -0.011797090786877693,
+      -0.010851260931936283,
+      -0.004245986548170225,
+      0.003492377174307679,
+      0.007015008923682933,
+      0.004644763145521924,
+      0.0002721304093240423,
+      0.0005095729513905009,
+      0.008588885203061496,
+      0.01965182075385746,
+      0.022257598566810227,
+      0.006982801426249069,
+      -0.023248552144751165,
+      -0.05033414359490466,
+      -0.051576660633163775,
+      -0.01842775008505801
+    ]
+  },
+  "candidate": {
+    "seconds": 1.1347210999811068,
+    "spectrum": [
+      [
+        400.0,
+        0.006414062784287124,
+        0.9935859372157108
+      ],
+      [
+        550.0,
+        0.008228464559260658,
+        0.9917715354407377
+      ],
+      [
+        700.0,
+        0.00682293087374807,
+        0.9931770691262563
+      ]
+    ],
+    "gradient": [
+      0.008175436402875375,
+      0.006743684369862326,
+      0.0009875799291223417,
+      -0.006682530065009246,
+      -0.011797090786877348,
+      -0.01085126093193614,
+      -0.004245986548170168,
+      0.00349237717430763,
+      0.007015008923682701,
+      0.004644763145521651,
+      0.00027213040932376367,
+      0.0005095729513904315,
+      0.008588885203061466,
+      0.019651820753857616,
+      0.022257598566823546,
+      0.006982801426249386,
+      -0.023248552144750766,
+      -0.050334143594904394,
+      -0.05157666063316368,
+      -0.01842775008505814
+    ],
+    "stages_seconds": {
+      "geometry_preparation": 0.10697299998719245,
+      "all_dispersive_wavelengths_and_adjoint": 0.9921090999851003,
+      "geometry_vjp": 0.03563900000881404
+    },
+    "geometry_builds": 20,
+    "material_matrix_sets": 60,
+    "material_inverse_or_PQ_shared_across_wavelengths": false,
+    "spectral_graphs_retained_at_once": 1
+  },
+  "errors": {
+    "power_max_abs": 3.6637359812630166e-15,
+    "gradient_max_abs": 1.3319206848549925e-14,
+    "energy_max_abs": 4.218847493575595e-15
+  },
+  "finite_difference": {
+    "autodiff": -0.001036635935436174,
+    "central_difference": -0.001036635399308955,
+    "abs_error": 5.361272190085309e-10,
+    "step": 1e-05,
+    "passed": true
+  },
+  "negative_control": {
+    "constant_index_used": 1.492401592592772,
+    "wavelength_nm": 400.0,
+    "power_error_if_dispersion_ignored": 0.00028207335737093393,
+    "passed": true
+  },
+  "port_preparation_seconds": 0.012908400036394596,
+  "warm_speedup": 1.2978139739251142,
+  "cold_speedup_excluding_common_basis": 1.2832163167997155,
+  "timing_repetitions": 1,
+  "python": "3.13.5",
+  "torch": "2.8.0+cpu",
+  "production_code_modified": false,
+  "source_sha256": {
+    "benchmark.py": "8a8ebf1fe0ca921978ea788906bbcc3c2a9f6d6f322a4567a935f1671caba937",
+    "benchmark_pmma.py": "8c97573c0dbeba4bc6b26ad5b049190434842e64f44cd19e8ac4f7d337777468",
+    "d6_nvm.py": "a7635b6bf36abdb93248edf3b254b9cf8d35871c8aad13c47b8c0f29a8875240",
+    "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569"
+  }
+}

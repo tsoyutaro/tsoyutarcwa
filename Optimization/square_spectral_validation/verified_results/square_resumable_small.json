@@ -1,0 +1,259 @@
+{
+  "order": 2,
+  "grid": 48,
+  "layers": 5,
+  "material": "PMMA",
+  "period_nm": 200.0,
+  "height_nm": 500.0,
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "indices": [
+    1.5058386407194826,
+    1.492401592592772,
+    1.4868514449253294
+  ],
+  "source_sha256": {
+    "benchmark_resumable.py": "33bc4261c060fb2956a7aa06ca9ec2b265a6796dd1792db02f66748676e23b76",
+    "benchmark_square.py": "b9bdf8b852c0342c34144df29d0952c6f7bd579e0bcace105e266b9089f5461f",
+    "block_assembly.py": "ca8d8e6a09886cc37f18470332a28959c2745ee16c81ceb3690ccbdfe5c76c38",
+    "rcwa_ext/__init__.py": "9f879509554ab9e1ec6fca68161d34be4a9fac8038ba2bd163d12e63e35a975e",
+    "rcwa_ext/asr.py": "6bd2a78ef99764f1f3ab8ceb7f7877a10a34b30c6bda3f5640a53b383c5195e5",
+    "rcwa_ext/asr_maps.py": "658a4a44d3739f7a1e8498ccaff27e8390a44f5226268b27c1e6a6c7cf47eee8",
+    "rcwa_ext/auto.py": "768746c7ed35b98e4b1cb2eb84f071c7d65cbcb8d6aedd7e1e80c08e2fcd05a6",
+    "rcwa_ext/config.py": "d40b5ebfe478c219350ad256f203a04532eb0bbb79d22f41f16a9f011042af0e",
+    "rcwa_ext/fields.py": "72189b63b1fe8f913a23e3eaf88843bbd9d1809a6c502de024568d74f339a1d2",
+    "rcwa_ext/nvm.py": "c97f78d1bbe2332d568067b86632fbd7ee507de1a831467920acccee5bfc744b",
+    "rcwa_ext/reduced.py": "26f62f877efffc246b08a63fa2da3e084266d379abd645ed989f3ef525aadd7a",
+    "rcwa_ext/scattering.py": "6a188d97631d03a1ec929f86caf1ec33688a4068fce712d40b6c8e7fa69c09c7",
+    "rcwa_ext/symmetry.py": "8ee121e2921df69302b9199373ce502820ca3cdd474f030e6a8f27f590995e10",
+    "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569"
+  },
+  "pmma_csv_sha256": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+  "status": "passed",
+  "lattice": "square",
+  "symmetry": "c2v",
+  "device": "cpu",
+  "cpu_threads": 1,
+  "python": "3.13.5",
+  "torch": "2.8.0+cpu",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "radii_over_period": [
+    0.1,
+    0.17250000000000001,
+    0.245,
+    0.3175,
+    0.39
+  ],
+  "scalar_dimension": 25,
+  "reduced_eigen_dimension": 13,
+  "production_code_modified": false,
+  "timing_repetitions": 1,
+  "matrix": {
+    "passed": true,
+    "errors": {
+      "P": 2.276905708855978e-16,
+      "Q": 9.400550779222321e-17,
+      "PQ": 1.6562257407918579e-15
+    },
+    "scalar_inverse_block_sizes": [
+      9,
+      6,
+      6,
+      4
+    ],
+    "scalar_invariance_error": 5.013025775149978e-16,
+    "full_scalar_inverse_assembled": false,
+    "full_PQ_assembled": false,
+    "full_convolution_and_normal_inputs_retained": true,
+    "hex_reynolds_operations": 0,
+    "timing": {
+      "reference": {
+        "samples_seconds": [
+          0.0011467000003904104,
+          0.0011033000191673636,
+          0.001272000023163855,
+          0.003924899967387319,
+          0.0015771000180393457
+        ],
+        "median_seconds": 0.001272000023163855
+      },
+      "block": {
+        "samples_seconds": [
+          0.0032740000169724226,
+          0.0026272000977769494,
+          0.0025963999796658754,
+          0.003601199947297573,
+          0.0031446999637410045
+        ],
+        "median_seconds": 0.0031446999637410045
+      }
+    },
+    "timing_scope": "one-layer assembly only, input Fourier/normal and backward excluded"
+  },
+  "runs": {
+    "reference": [
+      {
+        "seconds": 0.5023370000999421,
+        "process_cpu_seconds": 0.484375,
+        "spectrum": [
+          [
+            400.0,
+            0.0063919934783160616,
+            0.9936080065216867
+          ],
+          [
+            550.0,
+            0.007310406434184355,
+            0.9926895935658173
+          ],
+          [
+            700.0,
+            0.007233216584616516,
+            0.9927667834153843
+          ]
+        ],
+        "gradient": [
+          0.009053809537370202,
+          -0.02439173824710981,
+          0.014136213592509607,
+          0.049397773785576804,
+          -0.13316572305299645
+        ],
+        "stages_seconds": {
+          "initialization": 0.016444299835711718,
+          "layers_and_eig": 0.2628707999829203,
+          "cascade_and_flux": 0.02801979996729642,
+          "backward": 0.19311180000659078
+        }
+      }
+    ],
+    "block": [
+      {
+        "seconds": 0.5030323001556098,
+        "process_cpu_seconds": 0.5,
+        "spectrum": [
+          [
+            400.0,
+            0.006391993478316612,
+            0.9936080065216832
+          ],
+          [
+            550.0,
+            0.00731040643418565,
+            0.992689593565815
+          ],
+          [
+            700.0,
+            0.007233216584617204,
+            0.9927667834153826
+          ]
+        ],
+        "gradient": [
+          0.009053809537370798,
+          -0.0243917382471098,
+          0.014136213592506079,
+          0.049397773785585124,
+          -0.13316572305300786
+        ],
+        "stages_seconds": {
+          "initialization": 0.01505770010408014,
+          "layers_and_eig": 0.23803910007700324,
+          "cascade_and_flux": 0.029076699865981936,
+          "backward": 0.2192854001186788
+        }
+      }
+    ],
+    "shared": [
+      {
+        "seconds": 0.29594460001681,
+        "spectrum": [
+          [
+            400.0,
+            0.006391993478316327,
+            0.9936080065216856
+          ],
+          [
+            550.0,
+            0.007310406434184973,
+            0.9926895935658163
+          ],
+          [
+            700.0,
+            0.007233216584615839,
+            0.9927667834153849
+          ]
+        ],
+        "gradient": [
+          0.009053809537370458,
+          -0.024391738247106633,
+          0.014136213592502491,
+          0.04939777378558471,
+          -0.13316572305299845
+        ],
+        "stages_seconds": {
+          "geometry_preparation": 0.0530247000278905,
+          "all_wavelengths_and_adjoint": 0.20833269995637238,
+          "geometry_vjp": 0.034587200032547116
+        },
+        "geometry_builds": 5,
+        "spectral_graphs_retained_at_once": 1,
+        "material_inverse_or_PQ_shared_across_wavelengths": false
+      }
+    ]
+  },
+  "comparisons": [
+    {
+      "repeat": 1,
+      "variant": "block",
+      "passed": true,
+      "power_max_abs": 3.4416913763379853e-15,
+      "gradient_max_abs": 1.1407541578023483e-14,
+      "energy_max_abs": 2.6645352591003757e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "variant": "shared",
+      "passed": true,
+      "power_max_abs": 1.1102230246251565e-15,
+      "gradient_max_abs": 7.903400156550333e-15,
+      "energy_max_abs": 2.6645352591003757e-15,
+      "finite": true,
+      "lossless_bounds": true
+    }
+  ],
+  "finite_difference": null,
+  "dispersion_negative_control": {
+    "wavelength_nm": 400.0,
+    "actual_index": 1.5058386407194826,
+    "wrong_fixed_index": 1.492401592592772,
+    "power_difference": 0.0002425267409255352,
+    "passed": true
+  },
+  "port_preparation_seconds": 0.014438800048083067,
+  "timing_scope": "forward plus mean-R radius gradient; sequential sum of per-wave wall times; checkpoint I/O excluded",
+  "common_basis_python_and_VJP_startup_excluded": true,
+  "timing_guard": "exclude and retry if wall-CPU > max(10 seconds, 10% CPU); all attempts retained",
+  "excluded_timing_attempts": [],
+  "timing": {
+    "seconds": {
+      "reference": 0.5023370000999421,
+      "block": 0.5030323001556098,
+      "shared": 0.29594460001681
+    },
+    "mean_seconds_per_wavelength": {
+      "reference": 0.1674456666999807,
+      "block": 0.16767743338520327,
+      "shared": 0.09864820000560333
+    },
+    "shared_with_port_preparation_seconds": 0.31038340006489307,
+    "shared_with_port_preparation_seconds_per_wavelength": 0.10346113335496436,
+    "block_speedup": 0.9986177824854335,
+    "shared_speedup_warm": 1.6974021491570002,
+    "shared_speedup_with_port_preparation": 1.6184402902826522
+  }
+}

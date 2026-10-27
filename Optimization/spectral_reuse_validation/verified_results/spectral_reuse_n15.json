@@ -1,0 +1,96 @@
+{
+  "status": "passed",
+  "scope": "constant index; hexagonal; arithmetic objective; CPU first-derivative proof only",
+  "timing_repetitions": 1,
+  "autograd_vjp_initialization_excluded": true,
+  "order": 2,
+  "grid": 48,
+  "layers": 3,
+  "index": 1.5,
+  "wavelengths": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "python": "3.13.5",
+  "torch": "2.8.0+cpu",
+  "device": "cpu",
+  "reference": {
+    "seconds": 0.24475439998786896,
+    "gradient": [
+      -0.003640011358646518,
+      -0.009608057792731784,
+      -0.0285957218989956
+    ],
+    "spectrum": [
+      [
+        400.0,
+        0.03413218329454459,
+        0.9658678167054553
+      ],
+      [
+        550.0,
+        0.006590706337467288,
+        0.9934092936625326
+      ],
+      [
+        700.0,
+        0.003477169081310792,
+        0.9965228309186899
+      ]
+    ],
+    "stages_seconds": {
+      "initialization": 0.012397699989378452,
+      "layers": 0.12057789973914623,
+      "cascade_and_flux": 0.018040800117887557,
+      "backward": 0.09269740001764148
+    }
+  },
+  "candidate": {
+    "seconds": 0.10067109996452928,
+    "gradient": [
+      -0.0036400113586462324,
+      -0.0096080577927323,
+      -0.02859572189899434
+    ],
+    "spectrum": [
+      [
+        400.0,
+        0.034132183294544594,
+        0.9658678167054549
+      ],
+      [
+        550.0,
+        0.00659070633746745,
+        0.9934092936625328
+      ],
+      [
+        700.0,
+        0.0034771690813106913,
+        0.9965228309186892
+      ]
+    ],
+    "stages_seconds": {
+      "geometry_coefficient_preparation": 0.030292199924588203,
+      "all_wavelengths_and_adjoint": 0.04888100002426654,
+      "one_geometry_vjp": 0.02149790001567453
+    },
+    "geometry_builds": 3,
+    "geometry_builds_current": 9,
+    "spectral_graphs_retained_at_once": 1
+  },
+  "errors": {
+    "power_max_abs": 6.661338147750939e-16,
+    "gradient_max_abs": 1.2628786905111156e-15,
+    "energy_max_abs": 5.551115123125783e-16
+  },
+  "warm_speedup": 2.431228029435522,
+  "port_preparation_seconds": 0.02161529997829348,
+  "cold_speedup_excluding_common_basis": 2.001485039238283,
+  "production_code_modified": false,
+  "source_sha256": {
+    "benchmark.py": "8a8ebf1fe0ca921978ea788906bbcc3c2a9f6d6f322a4567a935f1671caba937",
+    "d6_nvm.py": "a7635b6bf36abdb93248edf3b254b9cf8d35871c8aad13c47b8c0f29a8875240",
+    "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569"
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "status": "passed",
+  "scope": "PMMA dispersive geometry-only sharing; hexagonal; CPU first derivative",
+  "order": 2,
+  "grid": 48,
+  "layers": 10,
+  "period_nm": 200.0,
+  "height_nm": 500.0,
+  "wavelengths": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "indices": [
+    1.5058386407194826,
+    1.492401592592772,
+    1.4868514449253294
+  ],
+  "structured_layers_and_substrate_use_same_n_lambda": true,
+  "material_csv": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\outputs\\spectral_reuse_validation\\data\\Szczurowski.csv",
+  "csv_sha256": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+  "interpolation": "linear n versus wavelength",
+  "shortwave_policy": "first segment linear extrapolation to 400 nm only",
+  "extrapolated_wavelengths": [
+    400.0
+  ],
+  "extinction_k_assumed": 0.0,
+  "reference": {
+    "seconds": 0.7907261999789625,
+    "spectrum": [
+      [
+        400.0,
+        0.005732203572288431,
+        0.994267796427712
+      ],
+      [
+        550.0,
+        0.007199556336552721,
+        0.9928004436634466
+      ],
+      [
+        700.0,
+        0.006240245151068933,
+        0.9937597548489304
+      ]
+    ],
+    "gradient": [
+      0.013180733309653348,
+      -0.004189594065371332,
+      -0.021416143765099576,
+      -0.0017880815778660744,
+      0.011814400223236113,
+      0.000861047827531311,
+      0.024950646173879622,
+      0.029309666132773075,
+      -0.06882276446041394,
+      -0.06946485294488558
+    ]
+  },
+  "candidate": {
+    "seconds": 0.5888514000689611,
+    "spectrum": [
+      [
+        400.0,
+        0.005732203572288234,
+        0.994267796427714
+      ],
+      [
+        550.0,
+        0.007199556336552737,
+        0.9928004436634456
+      ],
+      [
+        700.0,
+        0.006240245151068716,
+        0.9937597548489306
+      ]
+    ],
+    "gradient": [
+      0.013180733309653308,
+      -0.004189594065370863,
+      -0.02141614376509921,
+      -0.0017880815778665194,
+      0.01181440022323567,
+      0.0008610478275316181,
+      0.02495064617387957,
+      0.029309666132772985,
+      -0.06882276446041279,
+      -0.06946485294488526
+    ],
+    "stages_seconds": {
+      "geometry_preparation": 0.07048210001084954,
+      "all_dispersive_wavelengths_and_adjoint": 0.4991328000323847,
+      "geometry_vjp": 0.019236500025726855
+    },
+    "geometry_builds": 10,
+    "material_matrix_sets": 30,
+    "material_inverse_or_PQ_shared_across_wavelengths": false,
+    "spectral_graphs_retained_at_once": 1
+  },
+  "errors": {
+    "power_max_abs": 1.9984014443252818e-15,
+    "gradient_max_abs": 1.1518563880486e-15,
+    "energy_max_abs": 2.220446049250313e-15
+  },
+  "finite_difference": {
+    "autodiff": 0.0017221169241211226,
+    "central_difference": 0.0017221153244748042,
+    "abs_error": 1.5996463184012738e-09,
+    "step": 1e-05,
+    "passed": true
+  },
+  "negative_control": {
+    "constant_index_used": 1.492401592592772,
+    "wavelength_nm": 400.0,
+    "power_error_if_dispersion_ignored": 0.0002470635891220459,
+    "passed": true
+  },
+  "port_preparation_seconds": 0.015286199981346726,
+  "warm_speedup": 1.3428280885234538,
+  "cold_speedup_excluding_common_basis": 1.3088511622403856,
+  "timing_repetitions": 1,
+  "python": "3.13.5",
+  "torch": "2.8.0+cpu",
+  "production_code_modified": false,
+  "source_sha256": {
+    "benchmark.py": "8a8ebf1fe0ca921978ea788906bbcc3c2a9f6d6f322a4567a935f1671caba937",
+    "benchmark_pmma.py": "8c97573c0dbeba4bc6b26ad5b049190434842e64f44cd19e8ac4f7d337777468",
+    "d6_nvm.py": "a7635b6bf36abdb93248edf3b254b9cf8d35871c8aad13c47b8c0f29a8875240",
+    "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569"
+  }
+}

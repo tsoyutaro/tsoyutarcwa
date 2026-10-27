@@ -1,0 +1,477 @@
+{
+  "settings": {
+    "order": 2,
+    "grid": 48,
+    "layers": 5,
+    "material": "n2.5",
+    "period_nm": 200.0,
+    "height_nm": 500.0,
+    "wavelengths_nm": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "indices": [
+      2.5,
+      2.5,
+      2.5
+    ],
+    "runtime": {
+      "python": "3.13.5",
+      "torch": "2.8.0+cpu",
+      "cuda_runtime": null,
+      "platform": "Windows-11-10.0.26300-SP0",
+      "device": "cpu",
+      "cpu_threads": 1,
+      "gpu": null,
+      "dtype": "complex128"
+    },
+    "repeats": 2,
+    "check_fd": true,
+    "compare_cpu": false,
+    "assembly_repeats": 2,
+    "source_sha256": {
+      "benchmark_device.py": "592ede2983a1ae0b447361a6af99db3dd2f56e9e0d4ccf5bf14f529dd1b80720",
+      "benchmark_square.py": "b9bdf8b852c0342c34144df29d0952c6f7bd579e0bcace105e266b9089f5461f",
+      "block_assembly.py": "ca8d8e6a09886cc37f18470332a28959c2745ee16c81ceb3690ccbdfe5c76c38",
+      "rcwa_ext/__init__.py": "9f879509554ab9e1ec6fca68161d34be4a9fac8038ba2bd163d12e63e35a975e",
+      "rcwa_ext/asr.py": "6bd2a78ef99764f1f3ab8ceb7f7877a10a34b30c6bda3f5640a53b383c5195e5",
+      "rcwa_ext/asr_maps.py": "658a4a44d3739f7a1e8498ccaff27e8390a44f5226268b27c1e6a6c7cf47eee8",
+      "rcwa_ext/auto.py": "768746c7ed35b98e4b1cb2eb84f071c7d65cbcb8d6aedd7e1e80c08e2fcd05a6",
+      "rcwa_ext/config.py": "d40b5ebfe478c219350ad256f203a04532eb0bbb79d22f41f16a9f011042af0e",
+      "rcwa_ext/fields.py": "72189b63b1fe8f913a23e3eaf88843bbd9d1809a6c502de024568d74f339a1d2",
+      "rcwa_ext/nvm.py": "c97f78d1bbe2332d568067b86632fbd7ee507de1a831467920acccee5bfc744b",
+      "rcwa_ext/reduced.py": "26f62f877efffc246b08a63fa2da3e084266d379abd645ed989f3ef525aadd7a",
+      "rcwa_ext/scattering.py": "6a188d97631d03a1ec929f86caf1ec33688a4068fce712d40b6c8e7fa69c09c7",
+      "rcwa_ext/symmetry.py": "8ee121e2921df69302b9199373ce502820ca3cdd474f030e6a8f27f590995e10",
+      "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569"
+    },
+    "pmma_csv_sha256": null
+  },
+  "samples": {
+    "reference": [
+      [
+        {
+          "seconds": 0.11072060000151396,
+          "spectrum": [
+            [
+              400.0,
+              0.005107380996151643,
+              0.9948926190038475
+            ]
+          ],
+          "gradient": [
+            -0.0652399974076971,
+            0.1552799633493094,
+            -0.18984544585988508,
+            0.16990224926976655,
+            -0.10966924245269571
+          ],
+          "timing": {
+            "wall_seconds": 0.11072060000151396,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": 0.001345600001513958,
+            "cuda_synchronized": false
+          }
+        },
+        {
+          "seconds": 0.11267940001562238,
+          "spectrum": [
+            [
+              550.0,
+              0.020192222615628027,
+              0.9798077773843714
+            ]
+          ],
+          "gradient": [
+            -0.08798522845975273,
+            0.22555755892521082,
+            -0.27408576018358893,
+            0.1883179122558291,
+            -0.47103449425444555
+          ],
+          "timing": {
+            "wall_seconds": 0.11267940001562238,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": 0.0033044000156223774,
+            "cuda_synchronized": false
+          }
+        },
+        {
+          "seconds": 0.1440932999830693,
+          "spectrum": [
+            [
+              700.0,
+              0.03342682267312068,
+              0.9665731773268813
+            ]
+          ],
+          "gradient": [
+            0.0803159321153845,
+            -0.21107164836309517,
+            -0.014065202975414517,
+            0.41860933915391296,
+            -0.7687846829355183
+          ],
+          "timing": {
+            "wall_seconds": 0.1440932999830693,
+            "process_cpu_seconds": 0.15625,
+            "wall_minus_cpu_seconds": -0.0121567000169307,
+            "cuda_synchronized": false
+          }
+        }
+      ],
+      [
+        {
+          "seconds": 0.11927339993417263,
+          "spectrum": [
+            [
+              400.0,
+              0.005107380996151643,
+              0.9948926190038475
+            ]
+          ],
+          "gradient": [
+            -0.0652399974076971,
+            0.1552799633493094,
+            -0.18984544585988508,
+            0.16990224926976655,
+            -0.10966924245269571
+          ],
+          "timing": {
+            "wall_seconds": 0.11927339993417263,
+            "process_cpu_seconds": 0.125,
+            "wall_minus_cpu_seconds": -0.00572660006582737,
+            "cuda_synchronized": false
+          }
+        },
+        {
+          "seconds": 0.10656540002673864,
+          "spectrum": [
+            [
+              550.0,
+              0.020192222615628027,
+              0.9798077773843714
+            ]
+          ],
+          "gradient": [
+            -0.08798522845975273,
+            0.22555755892521082,
+            -0.27408576018358893,
+            0.1883179122558291,
+            -0.47103449425444555
+          ],
+          "timing": {
+            "wall_seconds": 0.10656540002673864,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": -0.0028095999732613564,
+            "cuda_synchronized": false
+          }
+        },
+        {
+          "seconds": 0.10952770011499524,
+          "spectrum": [
+            [
+              700.0,
+              0.03342682267312068,
+              0.9665731773268813
+            ]
+          ],
+          "gradient": [
+            0.0803159321153845,
+            -0.21107164836309517,
+            -0.014065202975414517,
+            0.41860933915391296,
+            -0.7687846829355183
+          ],
+          "timing": {
+            "wall_seconds": 0.10952770011499524,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": 0.00015270011499524117,
+            "cuda_synchronized": false
+          }
+        }
+      ]
+    ],
+    "block": [
+      [
+        {
+          "seconds": 0.10778199997730553,
+          "spectrum": [
+            [
+              400.0,
+              0.005107380996151472,
+              0.9948926190038498
+            ]
+          ],
+          "gradient": [
+            -0.06523999740766356,
+            0.1552799633493076,
+            -0.18984544585988444,
+            0.16990224926976694,
+            -0.1096692424526941
+          ],
+          "timing": {
+            "wall_seconds": 0.10778199997730553,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": -0.0015930000226944685,
+            "cuda_synchronized": false
+          }
+        },
+        {
+          "seconds": 0.1128622000105679,
+          "spectrum": [
+            [
+              550.0,
+              0.020192222615630896,
+              0.9798077773843712
+            ]
+          ],
+          "gradient": [
+            -0.08798522845975656,
+            0.22555755892522342,
+            -0.2740857601836247,
+            0.18831791225584632,
+            -0.47103449425450106
+          ],
+          "timing": {
+            "wall_seconds": 0.1128622000105679,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": 0.0034872000105679035,
+            "cuda_synchronized": false
+          }
+        },
+        {
+          "seconds": 0.1035470999777317,
+          "spectrum": [
+            [
+              700.0,
+              0.033426822673123135,
+              0.9665731773268766
+            ]
+          ],
+          "gradient": [
+            0.08031593211539068,
+            -0.2110716483630983,
+            -0.014065202975416982,
+            0.4186093391539433,
+            -0.768784682935533
+          ],
+          "timing": {
+            "wall_seconds": 0.1035470999777317,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": -0.005827900022268295,
+            "cuda_synchronized": false
+          }
+        }
+      ],
+      [
+        {
+          "seconds": 0.1167707999702543,
+          "spectrum": [
+            [
+              400.0,
+              0.005107380996151472,
+              0.9948926190038498
+            ]
+          ],
+          "gradient": [
+            -0.06523999740766356,
+            0.1552799633493076,
+            -0.18984544585988444,
+            0.16990224926976694,
+            -0.1096692424526941
+          ],
+          "timing": {
+            "wall_seconds": 0.1167707999702543,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": 0.007395799970254302,
+            "cuda_synchronized": false
+          }
+        },
+        {
+          "seconds": 0.10951999993994832,
+          "spectrum": [
+            [
+              550.0,
+              0.020192222615630896,
+              0.9798077773843712
+            ]
+          ],
+          "gradient": [
+            -0.08798522845975656,
+            0.22555755892522342,
+            -0.2740857601836247,
+            0.18831791225584632,
+            -0.47103449425450106
+          ],
+          "timing": {
+            "wall_seconds": 0.10951999993994832,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": 0.0001449999399483204,
+            "cuda_synchronized": false
+          }
+        },
+        {
+          "seconds": 0.10466909990645945,
+          "spectrum": [
+            [
+              700.0,
+              0.033426822673123135,
+              0.9665731773268766
+            ]
+          ],
+          "gradient": [
+            0.08031593211539068,
+            -0.2110716483630983,
+            -0.014065202975416982,
+            0.4186093391539433,
+            -0.768784682935533
+          ],
+          "timing": {
+            "wall_seconds": 0.10466909990645945,
+            "process_cpu_seconds": 0.109375,
+            "wall_minus_cpu_seconds": -0.004705900093540549,
+            "cuda_synchronized": false
+          }
+        }
+      ]
+    ],
+    "shared": [
+      {
+        "seconds": 0.13594530010595918,
+        "spectrum": [
+          [
+            400.0,
+            0.005107380996151336,
+            0.9948926190038474
+          ],
+          [
+            550.0,
+            0.020192222615630716,
+            0.9798077773843682
+          ],
+          [
+            700.0,
+            0.03342682267312218,
+            0.9665731773268778
+          ]
+        ],
+        "gradient": [
+          -0.02430309791735561,
+          0.056588624637141455,
+          -0.15933213633963242,
+          0.2589431668931692,
+          -0.4498294732142336
+        ],
+        "geometry_builds": 5,
+        "spectral_graphs_retained_at_once": 1,
+        "material_inverse_or_PQ_shared_across_wavelengths": true,
+        "timing": {
+          "wall_seconds": 0.13594530010595918,
+          "process_cpu_seconds": 0.140625,
+          "wall_minus_cpu_seconds": -0.004679699894040823,
+          "cuda_synchronized": false
+        }
+      },
+      {
+        "seconds": 0.13921330007724464,
+        "spectrum": [
+          [
+            400.0,
+            0.005107380996151336,
+            0.9948926190038474
+          ],
+          [
+            550.0,
+            0.020192222615630716,
+            0.9798077773843682
+          ],
+          [
+            700.0,
+            0.03342682267312218,
+            0.9665731773268778
+          ]
+        ],
+        "gradient": [
+          -0.02430309791735561,
+          0.056588624637141455,
+          -0.15933213633963242,
+          0.2589431668931692,
+          -0.4498294732142336
+        ],
+        "geometry_builds": 5,
+        "spectral_graphs_retained_at_once": 1,
+        "material_inverse_or_PQ_shared_across_wavelengths": true,
+        "timing": {
+          "wall_seconds": 0.13921330007724464,
+          "process_cpu_seconds": 0.125,
+          "wall_minus_cpu_seconds": 0.01421330007724464,
+          "cuda_synchronized": false
+        }
+      }
+    ]
+  },
+  "matrix": {
+    "passed": true,
+    "errors": {
+      "P": 3.41692404928836e-16,
+      "Q": 1.0221328618045852e-16,
+      "PQ": 1.1234122591518604e-15
+    },
+    "scalar_inverse_block_sizes": [
+      9,
+      6,
+      6,
+      4
+    ],
+    "scalar_invariance_error": 5.422363525021678e-16,
+    "full_scalar_inverse_assembled": false,
+    "full_PQ_assembled": false,
+    "full_convolution_and_normal_inputs_retained": true,
+    "hex_reynolds_operations": 0,
+    "timing": {
+      "reference": {
+        "median_seconds": 0.0007770999800413847,
+        "samples": [
+          {
+            "wall_seconds": 0.0007748999632894993,
+            "process_cpu_seconds": 0.0,
+            "wall_minus_cpu_seconds": 0.0007748999632894993,
+            "cuda_synchronized": false
+          },
+          {
+            "wall_seconds": 0.0007792999967932701,
+            "process_cpu_seconds": 0.0,
+            "wall_minus_cpu_seconds": 0.0007792999967932701,
+            "cuda_synchronized": false
+          }
+        ]
+      },
+      "block": {
+        "median_seconds": 0.0016877499874681234,
+        "samples": [
+          {
+            "wall_seconds": 0.0016787999775260687,
+            "process_cpu_seconds": 0.0,
+            "wall_minus_cpu_seconds": 0.0016787999775260687,
+            "cuda_synchronized": false
+          },
+          {
+            "wall_seconds": 0.0016966999974101782,
+            "process_cpu_seconds": 0.015625,
+            "wall_minus_cpu_seconds": -0.013928300002589822,
+            "cuda_synchronized": false
+          }
+        ]
+      }
+    },
+    "timing_scope": "one-layer assembly; no backward, geometry-input preparation or eig"
+  },
+  "port_preparation": {
+    "wall_seconds": 0.008481499971821904,
+    "process_cpu_seconds": 0.0,
+    "wall_minus_cpu_seconds": 0.008481499971821904,
+    "cuda_synchronized": false
+  }
+}

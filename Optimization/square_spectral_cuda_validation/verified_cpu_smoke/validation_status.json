@@ -1,0 +1,43 @@
+{
+  "cuda_hardware_validation": "not_performed",
+  "local_torch": "2.8.0+cpu",
+  "cuda_available": false,
+  "cpu_smoke": [
+    {
+      "material": "n1.5",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 5.10702591327572e-15,
+      "gradient_max_abs": 4.989064716909297e-15,
+      "finite_difference_abs_error": 2.1019718465797865e-09
+    },
+    {
+      "material": "n2.0",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 3.4416913763379853e-15,
+      "gradient_max_abs": 8.257283745649602e-15,
+      "finite_difference_abs_error": 2.1783626014126867e-09
+    },
+    {
+      "material": "n2.5",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 4.6629367034256575e-15,
+      "gradient_max_abs": 2.2870594307278225e-14,
+      "finite_difference_abs_error": 2.601469525909117e-08
+    },
+    {
+      "material": "PMMA",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 3.4416913763379853e-15,
+      "gradient_max_abs": 1.1407541578023483e-14,
+      "finite_difference_abs_error": 1.959538323270671e-09
+    }
+  ],
+  "cpu_checkpoint_resume": "passed",
+  "production_code_modified": false,
+  "frozen_original_cpu_sources_unchanged": true,
+  "notes": "These are CPU functionality checks of the new device driver, not CUDA pass results."
+}
