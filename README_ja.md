@@ -74,3 +74,7 @@ python paper_reproductions/peng2025/validation/validate.py --device cpu
 
 移動後の各実行ファイルは、自身から `outputs/` を解決して `sys.path` に追加するため、
 絶対パスで直接実行しても同じsolverを読み込みます。
+
+## RCWAとOptimizationのv3更新
+
+[共通RCWA高速化・金属最適化の実行方法](Optimization/README_RCWA高速化と金属最適化_v3.md)を追加しました。Al/Cu/Au/Agの独立条件、最適化後の停止、収束確認・時間測定・スペクトル取得を含みます。

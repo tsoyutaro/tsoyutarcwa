@@ -79,3 +79,7 @@ quick合格後にproductionを実行します。productionはM8/grid512/15層/31
 [修正版フルZIP](本番最適化_波長共有_接続検証_v2.zip) または [差分パッチ](本番最適化_接続検証_改行対応パッチ.zip) を使用してください。[詳しい手順](optimization_integration_validation/README_改行対応.md)のとおり、先に `python source_integrity.py` を実行します。パッチZIP内のファイルは検証フォルダ直下へ展開します。既存本番RCWAは対象外です。
 
 LF+BOMへ変換したコピーで、CPU小規模の4ケースが再び合格しました。実際の内容変更やファイル欠落が拒否されることも確認しています。
+
+## v3統合の完了
+
+本番サイズのCUDA接続ログ（n2.5/PMMAの両格子、M8/15層/31波長/Adam 3更新）の合格後、共通RCWAと最適化へ高速経路を反映しました。新規金属16条件、最適化後の停止、独立したconvergence/timing/spectrumの実行方法は[こちら](README_RCWA高速化と金属最適化_v3.md)です。旧検証パッケージは比較基準として凍結しています。この文書内の未切替という説明は旧版の記録です。

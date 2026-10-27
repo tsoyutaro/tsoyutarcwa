@@ -36,7 +36,7 @@ def load_config(path, smoke=False):
                  optimization_wavelengths_nm="550", verification_wavelengths_nm="550,600",
                  audit_wavelengths_nm="550", audit_directions=1, trials=2, adam_steps=2,
                  patience=2, pruner_startup_trials=10, gradient_audit=True)
-    if c["layers"] < 2 or c["index"] <= 0 or c["height_nm"] <= 0:
+    if c["layers"] < 2 or c.get("index",1.) <= 0 or c["height_nm"] <= 0:
         raise ValueError("Invalid layer/material/height settings.")
     if not 0 < c["radius_min_nm"] < c["baseline_tip_nm"] < c["baseline_base_nm"] < c["radius_max_nm"] < c["period_nm"]/2:
         raise ValueError("Require 0 < radius_min < baseline_tip < baseline_base < radius_max < period/2.")
@@ -74,7 +74,7 @@ def load_config(path, smoke=False):
 
 
 def sources():
-    files = list(HERE.glob("*.py")) + list((ROOT/"rcwa_ext").glob("*.py"))
+    files = list(HERE.glob("*.py")) + list((ROOT/"rcwa_ext").rglob("*.py"))
     files += [ROOT/"run.py", ROOT/"rcwa_solver_auto.py", ROOT/"io_utils.py", ROOT/"runtime_policy.py"]
     files += [ROOT/"d6_nvm.py"]
     files += list((ROOT/"data").glob("*.csv"))

@@ -8,4 +8,4 @@ if os.environ.get("MOTHEYE_DEPENDENCY_PATH"):
     sys.path.append(os.environ["MOTHEYE_DEPENDENCY_PATH"])
 from optimizer.driver import main
 if __name__ == "__main__":
-    raise SystemExit(main(["--config",str(HERE/"config.json"),"--output-root",str(HERE/"results/NV_Optuna_Adam_M8_verifyM16"),*sys.argv[1:]]))
+    raise SystemExit(main(["--config",str(HERE/"config.json"),"--output-root",str(HERE/"results/NV_shared_v3"),*sys.argv[1:]]))

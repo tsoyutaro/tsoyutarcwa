@@ -67,6 +67,9 @@ def worker(request_path, result_path):
             study = optuna.load_study(study_name=request["study_name"], storage=storage, pruner=pruner)
             trial = optuna.trial.Trial(study, request["trial_id"])
             outcome = train(request, device, trial)
+        elif request["mode"] in ("analyze_spectrum", "analyze_timing"):
+            from Optimization.dielectric_motheye_n25.postprocess import spectrum_worker, timing_worker
+            outcome = (timing_worker if request["mode"] == "analyze_timing" else spectrum_worker)(request, device)
         elif request["mode"] == "audit":
             from Optimization.dielectric_motheye_n25.audit import check
             outcome = check(request, device)
@@ -287,8 +290,8 @@ def parser():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--config", type=Path, default=HERE/"config.json")
     p.add_argument("--device", default="cuda")
-    p.add_argument("--output-root", type=Path, default=HERE/"results/NV_Optuna_Adam_M8_verifyM16")
-    p.add_argument("--mode", choices=("all", "optimize", "verify", "audit", "plot"), default="all")
+    p.add_argument("--output-root", type=Path, default=HERE/"results/NV_shared_v3")
+    p.add_argument("--mode", choices=("all", "optimize", "verify", "audit", "plot", "convergence", "timing", "spectrum"), default="optimize")
     p.add_argument("--lattices", help="Optional square,hexagonal subset")
     p.add_argument("--verification-orders", help="For example 8,16,20,24,28; optimization stays M8")
     p.add_argument("--timeout-hours", type=float, default=24.)
@@ -298,6 +301,15 @@ def parser():
     p.add_argument("--recover-lock", action="store_true", help="Use only after confirming the previous controller/job has stopped")
     p.add_argument("--prepare-only", "--dry-run", dest="prepare_only", action="store_true")
     p.add_argument("--smoke", action="store_true", help="Small real Optuna/Adam test; uses M1/M2 and smaller grids")
+    p.add_argument("--wavelengths", help="Postprocessing wavelengths; e.g. 400:700:3")
+    p.add_argument("--orders", help="Convergence orders, comma separated")
+    p.add_argument("--grids", help="Convergence grids, comma separated")
+    p.add_argument("--order", type=int, help="Spectrum/timing Fourier order")
+    p.add_argument("--grid", type=int, help="Spectrum/timing NVM grid")
+    p.add_argument("--repeats", type=int, default=3, help="Warm timing repetitions")
+    p.add_argument("--forward-only", action="store_true", help="Timing without gradient")
+    p.add_argument("--analysis-backend", choices=("auto","matrix","reference"), default="auto")
+    p.add_argument("--profile-json", type=Path, help="Optional saved logits for postprocessing")
     p.add_argument("--worker-request", type=Path, help=argparse.SUPPRESS)
     p.add_argument("--worker-result", type=Path, help=argparse.SUPPRESS)
     return p
@@ -306,6 +318,8 @@ def parser():
 def main(argv=None):
     p, args = parser(), None
     args = p.parse_args(argv)
+    if args.mode == "all":
+        args.mode = "optimize"  # Legacy alias: always stop before verification.
     def interrupted(signum, frame):
         raise KeyboardInterrupt()
     signal.signal(signal.SIGTERM, interrupted)
@@ -368,6 +382,10 @@ def main(argv=None):
         write_csv(output/"baseline_profile.csv", profile_rows(baseline_logits(c), c))
         if migration:
             print(f"Controller source upgrade recorded ({migration['kind']}); existing checkpoint signature preserved.", flush=True)
+        if args.mode in ("convergence", "timing", "spectrum"):
+            from Optimization.dielectric_motheye_n25.postprocess import run as postprocess
+            status = postprocess(args,c,output,signature,lattices,launch,previous['runtime_environment'])
+            return 0 if status == 'completed' else 1
         for lattice in lattices:
             folder = output/lattice
             folder.mkdir(exist_ok=True)
@@ -375,7 +393,7 @@ def main(argv=None):
                     "runtime_environment": previous["runtime_environment"]}
             group_path = folder/"report.json"
             group = json.loads(group_path.read_text(encoding="utf-8")) if group_path.exists() else {"lattice": lattice}
-            if args.mode in ("all", "optimize", "audit"):
+            if args.mode == "audit":
                 group["initial_gradient_audit"] = audit_profile(folder, base, baseline_logits(c), "initial", args.skip_audit, args.retry_oom)
                 write_json(group_path, group)
             if args.mode in ("all", "optimize"):
@@ -425,11 +443,14 @@ def main(argv=None):
         print(traceback.format_exc(), file=sys.stderr, flush=True)
         write_json(output/"controller_error.json", {"error": str(error), "traceback": traceback.format_exc()})
     finally:
-        if status != "prepared":
+        if status != "prepared" and args.mode not in ("convergence", "timing", "spectrum"):
             write_json(output/"workflow.json", {"status": status, "requested_lattices": lattices, "signature": signature,
                                               "reports": {l: str(output/l/"report.json") for l in lattices}})
         (lock/"owner.json").unlink(missing_ok=True)
         lock.rmdir()
+    if args.mode == "optimize":
+        print(f"Optimization stopped before verification; output: {output}",flush=True)
+        return {"completed":0,"paused":2,"interrupted":130,"cuda_oom":3,"cpu_oom":3}.get(status,1)
     try:
         from Optimization.dielectric_motheye_n25.plots import make_plots
         make_plots(output)

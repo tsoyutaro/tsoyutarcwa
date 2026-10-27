@@ -48,7 +48,8 @@ def make_sim(config, lattice, wavelength, order, grid, device, release=True):
                  outputs=OutputSpec(smatrix_size="half", fields="none"), cascade="redheffer",
                  group_theory=GroupTheoryOptions(enabled=True, symmetry="c2v" if lattice == "square" else "d6",
                                                  polarization="x", strict=True),
-                 dtype=torch.complex128, device=device, verify_cascade=False)
+                 dtype=torch.complex128, device=device, verify_cascade=False,
+                 acceleration="reference" if config.get("rcwa_acceleration","reference")=="reference" else "auto")
     sim.add_input_layer(eps=1.)
     sim.add_output_layer(eps=config["index"]**2)
     sim.set_incident_angle(0., 0.)
@@ -180,3 +181,22 @@ def objective(logits, config, lattice, wavelengths, order, grid, device, *, grad
         torch.cuda.synchronize(device)
     return {"objective": total, "gradient": derivative if gradient else None,
             "rows": rows, "seconds": time.perf_counter()-started}
+
+
+objective_reference = objective
+_spectral_evaluator = None
+
+
+def objective(logits,config,lattice,wavelengths,order,grid,device,*,gradient):
+    global _spectral_evaluator
+    if config.get('rcwa_acceleration','reference')!='auto':
+        return objective_reference(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+    if _spectral_evaluator is None:
+        import sys
+        from types import SimpleNamespace
+        from rcwa_ext.acceleration.spectral import SharedEvaluator
+        def epsilon_at(c,w): return c["index"]**2
+        model=SimpleNamespace(material='PMMA' if config.get('material_model')=='pmma_csv' else config.get('material','constant'),
+            physics=sys.modules[__name__],geometry=SimpleNamespace(radii_tensor=radii_tensor),epsilon_at=epsilon_at)
+        _spectral_evaluator=SharedEvaluator(model)
+    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)

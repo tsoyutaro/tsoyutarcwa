@@ -1,0 +1,212 @@
+sh-5.1$ python source_integrity.py
+{
+  "status": "passed",
+  "policy": "utf8-bom-and-universal-newlines-v1",
+  "checked_files": 48,
+  "byte_identical_files": 24,
+  "newline_or_bom_only_files": [
+    "rcwa_ext/asr.py",
+    "rcwa_ext/asr_maps.py",
+    "rcwa_ext/auto.py",
+    "rcwa_ext/config.py",
+    "rcwa_ext/fields.py",
+    "rcwa_ext/nvm.py",
+    "rcwa_ext/reduced.py",
+    "rcwa_ext/scattering.py",
+    "rcwa_ext/symmetry.py",
+    "rcwa_ext/__init__.py",
+    "rcwa_solver_auto.py",
+    "hex_core.py",
+    "benchmark_device.py",
+    "pmma_case/optimizer/audit.py",
+    "pmma_case/optimizer/common.py",
+    "pmma_case/optimizer/driver.py",
+    "pmma_case/optimizer/engine.py",
+    "pmma_case/optimizer/geometry.py",
+    "pmma_case/optimizer/helpers.py",
+    "pmma_case/optimizer/materials.py",
+    "pmma_case/optimizer/physics.py",
+    "pmma_case/optimizer/plots.py",
+    "pmma_case/optimizer/__init__.py",
+    "pmma_case/config.json"
+  ],
+  "mismatches": []
+}
+sh-5.1$ python validate_connection.py --device cuda:0 --suite quick --output results/cuda/quick_v2
+SOURCE INTEGRITY PASSED: 48 files; 24 newline/BOM-only differences
+CASE n2.5/square: loss, all logits gradients, layer checkpoint OFF/ON
+  reference checkpoint=False
+  shared checkpoint=False
+  reference checkpoint=True
+  shared checkpoint=True
+CASE n2.5/square: independent production-forward finite differences in logits
+  reference trapezoidal weighting
+  shared trapezoidal weighting
+CASE n2.5/square: original Adam engine, 2 steps, reference/shared
+trial 0 step 0: mean R=0.0144552357; best=0.0144552357
+trial 0 step 0: mean R=0.0144552357; best=0.0144552357
+CASE n2.5/square: interrupt after step 1, recreate evaluator and resume
+trial 0 step 0: mean R=0.0144552357; best=0.0144552357
+CASE n2.5/square: original streaming verification of the best shape
+PASSED n2.5/square
+CASE n2.5/hexagonal: loss, all logits gradients, layer checkpoint OFF/ON
+  reference checkpoint=False
+  shared checkpoint=False
+  reference checkpoint=True
+  shared checkpoint=True
+CASE n2.5/hexagonal: independent production-forward finite differences in logits
+  reference trapezoidal weighting
+  shared trapezoidal weighting
+CASE n2.5/hexagonal: original Adam engine, 2 steps, reference/shared
+trial 0 step 0: mean R=0.0125315337; best=0.0125315337
+trial 0 step 0: mean R=0.0125315337; best=0.0125315337
+CASE n2.5/hexagonal: interrupt after step 1, recreate evaluator and resume
+trial 0 step 0: mean R=0.0125315337; best=0.0125315337
+CASE n2.5/hexagonal: original streaming verification of the best shape
+PASSED n2.5/hexagonal
+CASE PMMA/square: loss, all logits gradients, layer checkpoint OFF/ON
+  reference checkpoint=False
+  shared checkpoint=False
+  reference checkpoint=True
+  shared checkpoint=True
+CASE PMMA/square: independent production-forward finite differences in logits
+  reference trapezoidal weighting
+  shared trapezoidal weighting
+CASE PMMA/square: original Adam engine, 2 steps, reference/shared
+trial 0 step 0: mean R=0.00488599702; best=0.00488599702
+trial 0 step 0: mean R=0.00488599702; best=0.00488599702
+CASE PMMA/square: interrupt after step 1, recreate evaluator and resume
+trial 0 step 0: mean R=0.00488599702; best=0.00488599702
+CASE PMMA/square: original streaming verification of the best shape
+PASSED PMMA/square
+CASE PMMA/hexagonal: loss, all logits gradients, layer checkpoint OFF/ON
+  reference checkpoint=False
+  shared checkpoint=False
+  reference checkpoint=True
+  shared checkpoint=True
+CASE PMMA/hexagonal: independent production-forward finite differences in logits
+  reference trapezoidal weighting
+  shared trapezoidal weighting
+CASE PMMA/hexagonal: original Adam engine, 2 steps, reference/shared
+trial 0 step 0: mean R=0.00286771696; best=0.00286771696
+trial 0 step 0: mean R=0.00286771696; best=0.00286771696
+CASE PMMA/hexagonal: interrupt after step 1, recreate evaluator and resume
+trial 0 step 0: mean R=0.00286771696; best=0.00286771696
+CASE PMMA/hexagonal: original streaming verification of the best shape
+PASSED PMMA/hexagonal
+{
+  "status": "passed",
+  "cuda_execution_performed": true,
+  "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/optimization_integration_validation/results/cuda/quick_v2",
+  "cases": [
+    {
+      "material": "n2.5",
+      "lattice": "square",
+      "status": "passed"
+    },
+    {
+      "material": "n2.5",
+      "lattice": "hexagonal",
+      "status": "passed"
+    },
+    {
+      "material": "PMMA",
+      "lattice": "square",
+      "status": "passed"
+    },
+    {
+      "material": "PMMA",
+      "lattice": "hexagonal",
+      "status": "passed"
+    }
+  ]
+}
+sh-5.1$ python validate_connection.py --device cuda:0 --suite production --output results/cuda/production_M8_L15_v2
+SOURCE INTEGRITY PASSED: 48 files; 24 newline/BOM-only differences
+CASE n2.5/square: loss, all logits gradients, layer checkpoint OFF/ON
+  reference checkpoint=False
+  shared checkpoint=False
+  reference checkpoint=True
+  shared checkpoint=True
+CASE n2.5/square: independent production-forward finite differences in logits
+  reference trapezoidal weighting
+  shared trapezoidal weighting
+CASE n2.5/square: original Adam engine, 3 steps, reference/shared
+trial 0 step 0: mean R=0.018930268; best=0.018930268
+trial 0 step 0: mean R=0.018930268; best=0.018930268
+CASE n2.5/square: interrupt after step 1, recreate evaluator and resume
+trial 0 step 0: mean R=0.018930268; best=0.018930268
+CASE n2.5/square: original streaming verification of the best shape
+PASSED n2.5/square
+CASE n2.5/hexagonal: loss, all logits gradients, layer checkpoint OFF/ON
+  reference checkpoint=False
+  shared checkpoint=False
+  reference checkpoint=True
+  shared checkpoint=True
+CASE n2.5/hexagonal: independent production-forward finite differences in logits
+  reference trapezoidal weighting
+  shared trapezoidal weighting
+CASE n2.5/hexagonal: original Adam engine, 3 steps, reference/shared
+trial 0 step 0: mean R=0.0169629676; best=0.0169629676
+trial 0 step 0: mean R=0.0169629676; best=0.0169629676
+CASE n2.5/hexagonal: interrupt after step 1, recreate evaluator and resume
+trial 0 step 0: mean R=0.0169629676; best=0.0169629676
+CASE n2.5/hexagonal: original streaming verification of the best shape
+PASSED n2.5/hexagonal
+CASE PMMA/square: loss, all logits gradients, layer checkpoint OFF/ON
+  reference checkpoint=False
+  shared checkpoint=False
+  reference checkpoint=True
+  shared checkpoint=True
+CASE PMMA/square: independent production-forward finite differences in logits
+  reference trapezoidal weighting
+  shared trapezoidal weighting
+CASE PMMA/square: original Adam engine, 3 steps, reference/shared
+trial 0 step 0: mean R=0.00760056072; best=0.00760056072
+trial 0 step 0: mean R=0.00760056072; best=0.00760056072
+CASE PMMA/square: interrupt after step 1, recreate evaluator and resume
+trial 0 step 0: mean R=0.00760056072; best=0.00760056072
+CASE PMMA/square: original streaming verification of the best shape
+PASSED PMMA/square
+CASE PMMA/hexagonal: loss, all logits gradients, layer checkpoint OFF/ON
+  reference checkpoint=False
+  shared checkpoint=False
+  reference checkpoint=True
+  shared checkpoint=True
+CASE PMMA/hexagonal: independent production-forward finite differences in logits
+  reference trapezoidal weighting
+  shared trapezoidal weighting
+CASE PMMA/hexagonal: original Adam engine, 3 steps, reference/shared
+trial 0 step 0: mean R=0.00534142717; best=0.00534142717
+trial 0 step 0: mean R=0.00534142717; best=0.00534142717
+CASE PMMA/hexagonal: interrupt after step 1, recreate evaluator and resume
+trial 0 step 0: mean R=0.00534142717; best=0.00534142717
+CASE PMMA/hexagonal: original streaming verification of the best shape
+PASSED PMMA/hexagonal
+{
+  "status": "passed",
+  "cuda_execution_performed": true,
+  "output": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/optimization_integration_validation/results/cuda/production_M8_L15_v2",
+  "cases": [
+    {
+      "material": "n2.5",
+      "lattice": "square",
+      "status": "passed"
+    },
+    {
+      "material": "n2.5",
+      "lattice": "hexagonal",
+      "status": "passed"
+    },
+    {
+      "material": "PMMA",
+      "lattice": "square",
+      "status": "passed"
+    },
+    {
+      "material": "PMMA",
+      "lattice": "hexagonal",
+      "status": "passed"
+    }
+  ]
+}

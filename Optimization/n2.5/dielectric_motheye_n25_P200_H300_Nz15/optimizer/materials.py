@@ -8,6 +8,9 @@ import bisect
 import csv
 import hashlib
 import math
+from functools import lru_cache
+from io_utils import content_hash
+from .tabulated_nk import load_tabulated_nk
 from pathlib import Path
 
 def prepare_material(config, root):
@@ -17,6 +20,20 @@ def prepare_material(config, root):
         if not math.isfinite(c["index"]) or c["index"] <= 0:
             raise ValueError("Constant index must be finite and positive.")
         c["material_provenance"] = {"model": "constant", "n": c["index"], "k": 0.0}
+        return c
+    if model == "metal_csv":
+        path=(root/c['material_csv']).resolve()
+        checksum=content_hash(path)
+        data=_metal_model(str(path),checksum)
+        waves=sorted(set(c['optimization_wavelengths_nm']+c['verification_wavelengths_nm']+c['audit_wavelengths_nm']))
+        for wave in waves:
+            if data(wave).imag<=0: raise ValueError('Metal must have passive absorption.')
+        c['_metal_csv_path']=str(path)
+        c['material_provenance']=dict(model=model,material=c['material'],csv=c['material_csv'],
+            csv_sha256_lf=checksum,interpolation='linear complex epsilon=(n+ik)^2 in wavelength_nm',
+            extrapolation='forbidden',time_convention='exp(-i omega t)',
+            tabulated_range_nm=[data.wavelength_nm[0],data.wavelength_nm[-1]],
+            substrate='semi-infinite same metal',oxide_or_coating='none')
         return c
     if model != "pmma_csv":
         raise ValueError("Unknown material model.")
@@ -65,5 +82,21 @@ def material_index(config, wavelength):
     return a[1]+(w-a[0])*(b[1]-a[1])/(b[0]-a[0])
 
 def wavelength_config(config, wavelength):
+    if config.get("material_model")=="metal_csv":
+        import cmath
+        return {**config,"index":cmath.sqrt(epsilon_at(config,wavelength))}
     return {**config, "index": material_index(config,wavelength),
             "_pmma_extrapolated": config.get("material_model") == "pmma_csv" and wavelength < config["pmma_samples_nm"][0][0]}
+
+
+@lru_cache(maxsize=16)
+def _metal_model(path,checksum):
+    p=Path(path)
+    if content_hash(p)!=checksum: raise ValueError('Material CSV changed.')
+    return load_tabulated_nk(p)
+
+
+def epsilon_at(config,wavelength):
+    if config.get('material_model')=='metal_csv':
+        return _metal_model(config['_metal_csv_path'],config['material_provenance']['csv_sha256_lf'])(wavelength)
+    return material_index(config,wavelength)**2

@@ -1,46 +1,37 @@
 # dielectric_motheye_n15_P350_H500_Nz15
 
-このフォルダだけを別のWindows/Linux計算機へコピーして単独実行できる。
-親プロジェクトや他条件のフォルダを参照しない。全条件を一括で走らせる機能はない。
+周期350 nm、高さ500 nm、15層の独立した最適化パッケージです。このフォルダ全体を別PCへコピーできます。最適化は既定でM8/grid512、400–700 nmを10 nm刻み、Optuna 30試行・Adam最大500更新です。
 
-## 条件
-
-材料 dielectric_n15、周期 350 nm、高さ 500 nm、層数 15。
-正方格子と六方対称格子は独立study。既定はM8/Q512で最適化しM8/M16とQ512/Q1024で検証。
-データ・checkpoint・journal・manifestはこのフォルダのresultsへ保存する。
-本番計算は未実行。
-
-## 実行
-
-フォルダ内で次を実行する。既存のCUDA版PyTorchを使用し、他ジョブの環境を変更しない。
+最適化後は検証を自動実行せず、best形状を保存してプロセスを終了します。従来のmode allもoptimizeのaliasです。以下の各コマンドを、このフォルダ内で別々に実行してください。
 
 ```bash
-python -m pip install -r requirements.txt
-python run.py --prepare-only
-python run.py --device cuda
+python run.py --device cuda:0 --mode optimize --output-root results/NV_shared_v3
 ```
 
-CPU動作確認は本番と別保存先で実施する。
+終了後、同じbest形状を固定して次数・gridの収束を確認します。
 
 ```bash
-python run.py --device cpu --smoke --timeout-hours 0 --output-root results/cpu_smoke
+python run.py --device cuda:0 --mode convergence --orders 8,12,16 --grids 512,1024 --wavelengths 400,550,700 --output-root results/NV_shared_v3
 ```
 
-格子を分けて異なる計算機で実行する場合:
+従来版と共有版の損失＋勾配の時間を比較します。初回時間と、初回を除いた繰り返しの中央値を記録し、数値一致も検査します。単一波長ならwavelengthsを550に変更できます。順計算だけならforward-onlyを追加します。
 
 ```bash
-python run.py --device cuda --lattices square --output-root results/square_run
-python run.py --device cuda --lattices hexagonal --output-root results/hexagonal_run
+python run.py --device cuda:0 --mode timing --order 8 --grid 512 --wavelengths 400:700:10 --repeats 3 --output-root results/NV_shared_v3
 ```
 
-同じコマンドで中断したcheckpointから再開できる。同じ保存先への二重起動は排他ロックで拒否する。
-異なる条件または格子を別フォルダへコピーして実行する限り、共通ファイルの書き込みは発生しない。
-既存runの途中結果を別機へ移して再開する場合、ソフトウェアの版とGPUモデルなどの整合確認を行う。
-異なる機種へ新規条件を配布する場合は空のresultsから開始すればよい。
+スペクトルCSV・PNG・JSONを取得します。
 
-同梱のrcwa_extは共有ソルバーの固定コピー。optimizer以下がこの条件専用の最適化コード。
-io_utilsとruntime_policyも同梱している。OS依存の絶対パスは設定に含めていない。
+```bash
+python run.py --device cuda:0 --mode spectrum --order 16 --grid 1024 --wavelengths 400:700:3 --output-root results/NV_shared_v3
+```
 
-## 六方格子のD6専用実装
+正方格子と六方格子を分ける場合は、lattices square または lattices hexagonal を各コマンドへ追加します（引数には先頭に -- を付けます）。出力先は results/NV_shared_v3/<格子>/postprocess/<モード>/<識別子>/ で、latest_convergence.json等に保存先を記録します。convergenceのnumerical_convergence_passedで最高2次数・最高2grid間の許容差を確認します。有限の比較であり、無限次数への収束の証明ではありません。
 
-六方格子ではD6 native-star上のE1対成分を使用し、矩形基底の重複計算と12操作の反復を省く。正方格子の実装は従来どおり。`config.json` の `hexagonal_backend` を `reference` にすると元の六方格子実装を選択できる。実装変更時は空の出力先を指定する。ソースのSHA256は実行manifestに含まれる。
+最適化時にcheckpoint-layers等を指定した場合は、後処理も同じ設定で実行します。source/config/runtimeが異なる古い出力先の流用は拒否します。旧版の最適化結果はそのまま保持し、新方式には新しい出力先を使ってください。
+
+configのrcwa_accelerationはauto（行列＋波長共有）、matrix（行列のみ）、reference（従来）の3種類です。後処理のみ従来経路で計算する場合は --analysis-backend reference を指定します。fields・偏光・形状が高速経路の対象外なら従来RCWAを使います。
+
+共通化実装のCPU照合は合格済みです。金属のCUDA試験は手元のPCでは未実施です。研究ルートのvalidate_rcwa_acceleration.pyで追加確認できます。
+
+初期・最終の勾配監査も自動実行しません。必要な場合は、同じ設定で `python run.py --device cuda:0 --mode audit --output-root results/NV_shared_v3` を別途実行してください。最適化コマンドは勾配の次数収束確認を自動で開始しません。

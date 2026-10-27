@@ -76,7 +76,7 @@ def load_config(path, smoke=False, material_csv=None):
 
 
 def sources():
-    files = list(HERE.glob("*.py")) + list((ROOT/"rcwa_ext").glob("*.py"))
+    files = list(HERE.glob("*.py")) + list((ROOT/"rcwa_ext").rglob("*.py"))
     files += [ROOT/"rcwa_solver_auto.py", ROOT/"run_cr_nv_optuna_adam.py",
               ROOT/"studies/shared/tabulated_nk.py", ROOT/"studies/shared/convergence_io.py"]
     result = {p.relative_to(ROOT).as_posix(): content_hash(p) for p in files}

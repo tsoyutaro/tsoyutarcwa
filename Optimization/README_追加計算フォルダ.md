@@ -70,3 +70,7 @@ CPU検証ではM8/Q512・15層の順計算＋逆伝播が約52秒から約17秒�
 ## 本番Adamへの接続検証
 
 [optimization_integration_validation/README_ja.md](optimization_integration_validation/README_ja.md)へ、softmaxと全logits勾配、実際のAdam更新、中断再開、best形状のストリーミング検証を行うコードとCUDAコマンドを追加しました。M2のCPU試験6ケースは合格です。本番共通RCWAへの波長共有の自動切替は行っていません。
+
+## v3：共通RCWAの高速化と金属最適化
+
+ユーザー提供CUDAログで本番サイズの接続確認が合格したため、共通RCWA・既存43条件・元のn2.5/Crへ高速経路を反映しました。Al/Cu/Au/AgはP200/H500・5/10/15/20層の16条件を新設しました。最適化後の自動検証を停止し、convergence/timing/spectrumを別コマンドへ分離しています。[更新後の手順](README_RCWA高速化と金属最適化_v3.md)を参照してください。以前の未反映という記載は過去の配置時点の記録です。

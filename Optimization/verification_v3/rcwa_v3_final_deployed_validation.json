@@ -1,0 +1,632 @@
+{
+  "status": "passed",
+  "expected_case_count": 17,
+  "completed_case_count": 17,
+  "cuda_execution_performed": false,
+  "device": "cpu",
+  "torch": "2.8.0+cpu",
+  "gpu": null,
+  "order": 2,
+  "grid": 48,
+  "layers": 5,
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "cases": [
+    {
+      "status": "passed",
+      "material": "n1.5",
+      "lattice": "square",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 1.6653345369377348e-16,
+          "power_max_abs_error": 1.7763568394002505e-15,
+          "logits_gradient_max_abs_error": 2.3765711620882257e-16
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 6.852157730108388e-17,
+          "power_max_abs_error": 2.6645352591003757e-15,
+          "logits_gradient_max_abs_error": 9.551821139597294e-17
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 6.852157730108388e-17,
+          "power_max_abs_error": 2.6645352591003757e-15,
+          "logits_gradient_max_abs_error": 9.551821139597294e-17
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.0017927234608264286,
+        "autodiff": 0.00179272334291298,
+        "abs_error": 1.179134485364275e-10
+      }
+    },
+    {
+      "status": "passed",
+      "material": "n1.5",
+      "lattice": "hexagonal",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 4.2934406030425976e-17,
+          "power_max_abs_error": 1.2212453270876722e-15,
+          "logits_gradient_max_abs_error": 6.342582709040201e-17
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 2.0816681711721685e-17,
+          "power_max_abs_error": 1.7763568394002505e-15,
+          "logits_gradient_max_abs_error": 2.688821387764051e-17
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 2.0816681711721685e-17,
+          "power_max_abs_error": 1.7763568394002505e-15,
+          "logits_gradient_max_abs_error": 2.688821387764051e-17
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.0012707974587000334,
+        "autodiff": 0.001270797569850726,
+        "abs_error": 1.1115069259957921e-10
+      }
+    },
+    {
+      "status": "passed",
+      "material": "n2.0",
+      "lattice": "square",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 1.2611439670351388e-15,
+          "power_max_abs_error": 3.774758283725532e-15,
+          "logits_gradient_max_abs_error": 9.124645483638005e-16
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 2.2724877535296173e-15,
+          "power_max_abs_error": 5.773159728050814e-15,
+          "logits_gradient_max_abs_error": 1.9446250165700008e-15
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 2.2724877535296173e-15,
+          "power_max_abs_error": 5.773159728050814e-15,
+          "logits_gradient_max_abs_error": 1.9446250165700008e-15
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.005131861063045751,
+        "autodiff": 0.0051318597572913025,
+        "abs_error": 1.305754448142904e-09
+      }
+    },
+    {
+      "status": "passed",
+      "material": "n2.0",
+      "lattice": "hexagonal",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 1.734723475976807e-17,
+          "power_max_abs_error": 1.5543122344752192e-15,
+          "logits_gradient_max_abs_error": 1.7520707107365752e-16
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 5.898059818321144e-17,
+          "power_max_abs_error": 8.881784197001252e-16,
+          "logits_gradient_max_abs_error": 1.3357370765021415e-16
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 5.898059818321144e-17,
+          "power_max_abs_error": 8.881784197001252e-16,
+          "logits_gradient_max_abs_error": 1.3357370765021415e-16
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.0038456881669163973,
+        "autodiff": 0.0038456876188315775,
+        "abs_error": 5.480848197167432e-10
+      }
+    },
+    {
+      "status": "passed",
+      "material": "n2.5",
+      "lattice": "square",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 3.5561831257524545e-16,
+          "power_max_abs_error": 9.2148511043888e-15,
+          "logits_gradient_max_abs_error": 9.124645483638005e-16
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 3.365363543395006e-16,
+          "power_max_abs_error": 9.547918011776346e-15,
+          "logits_gradient_max_abs_error": 1.5942108744226857e-15
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 3.365363543395006e-16,
+          "power_max_abs_error": 9.547918011776346e-15,
+          "logits_gradient_max_abs_error": 1.5942108744226857e-15
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.00789072889282455,
+        "autodiff": 0.007890723998917635,
+        "abs_error": 4.89390691513214e-09
+      }
+    },
+    {
+      "status": "passed",
+      "material": "n2.5",
+      "lattice": "hexagonal",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 3.469446951953614e-18,
+          "power_max_abs_error": 2.220446049250313e-15,
+          "logits_gradient_max_abs_error": 6.982261990806649e-17
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 2.185751579730777e-16,
+          "power_max_abs_error": 8.881784197001252e-16,
+          "logits_gradient_max_abs_error": 3.452099717193846e-16
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 2.185751579730777e-16,
+          "power_max_abs_error": 8.881784197001252e-16,
+          "logits_gradient_max_abs_error": 3.452099717193846e-16
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.005780912875810035,
+        "autodiff": 0.005780908321787485,
+        "abs_error": 4.554022549688175e-09
+      }
+    },
+    {
+      "status": "passed",
+      "material": "PMMA",
+      "lattice": "square",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 9.449906135383657e-16,
+          "power_max_abs_error": 3.1086244689504383e-15,
+          "logits_gradient_max_abs_error": 5.144539308443719e-16
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 2.3678975447083417e-16,
+          "power_max_abs_error": 2.3314683517128287e-15,
+          "logits_gradient_max_abs_error": 1.222980050563649e-16
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 2.3678975447083417e-16,
+          "power_max_abs_error": 2.3314683517128287e-15,
+          "logits_gradient_max_abs_error": 1.222980050563649e-16
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.0017514151185501342,
+        "autodiff": 0.001751415007216001,
+        "abs_error": 1.1133413310195073e-10
+      }
+    },
+    {
+      "status": "passed",
+      "material": "PMMA",
+      "lattice": "hexagonal",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 1.2555061157382141e-16,
+          "power_max_abs_error": 1.1102230246251565e-15,
+          "logits_gradient_max_abs_error": 8.847089727481716e-17
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 9.952975943416931e-17,
+          "power_max_abs_error": 1.4432899320127035e-15,
+          "logits_gradient_max_abs_error": 5.616167253474913e-17
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 9.952975943416931e-17,
+          "power_max_abs_error": 1.4432899320127035e-15,
+          "logits_gradient_max_abs_error": 5.616167253474913e-17
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.0012424024294749834,
+        "autodiff": 0.001242402540346759,
+        "abs_error": 1.1087177551917515e-10
+      }
+    },
+    {
+      "status": "passed",
+      "material": "Cr",
+      "lattice": "hexagonal",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 2.8622937353617317e-16,
+          "power_max_abs_error": 1.1796119636642288e-15,
+          "logits_gradient_max_abs_error": 1.0130785099704553e-15
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 4.614364446098307e-16,
+          "power_max_abs_error": 9.71445146547012e-16,
+          "logits_gradient_max_abs_error": 5.074066167232161e-16
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 4.614364446098307e-16,
+          "power_max_abs_error": 9.71445146547012e-16,
+          "logits_gradient_max_abs_error": 5.074066167232161e-16
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": -0.002806811796474823,
+        "autodiff": -0.0028068173685380582,
+        "abs_error": 5.5720632352943e-09
+      }
+    },
+    {
+      "status": "passed",
+      "material": "Al",
+      "lattice": "square",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 3.747002708109903e-15,
+          "power_max_abs_error": 1.532107773982716e-14,
+          "logits_gradient_max_abs_error": 1.3600232051658168e-14
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 8.465450562766819e-15,
+          "power_max_abs_error": 1.426636586643326e-14,
+          "logits_gradient_max_abs_error": 4.3270942384765476e-14
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 8.465450562766819e-15,
+          "power_max_abs_error": 1.426636586643326e-14,
+          "logits_gradient_max_abs_error": 4.3270942384765476e-14
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": -0.019018024998151972,
+        "autodiff": -0.019018588609126974,
+        "abs_error": 5.636109750017937e-07
+      }
+    },
+    {
+      "status": "passed",
+      "material": "Al",
+      "lattice": "hexagonal",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 2.5424107263916085e-14,
+          "power_max_abs_error": 4.4797499043625066e-14,
+          "logits_gradient_max_abs_error": 1.9914625504213745e-14
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 2.0317081350640365e-14,
+          "power_max_abs_error": 3.8746783559417963e-14,
+          "logits_gradient_max_abs_error": 1.8072349172726376e-14
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 2.0317081350640365e-14,
+          "power_max_abs_error": 3.8746783559417963e-14,
+          "logits_gradient_max_abs_error": 1.8072349172726376e-14
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.3068929891275607,
+        "autodiff": 0.30689346353278485,
+        "abs_error": 4.7440522416009046e-07
+      }
+    },
+    {
+      "status": "passed",
+      "material": "Cu",
+      "lattice": "square",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 9.18709552877317e-15,
+          "power_max_abs_error": 2.8310687127941492e-14,
+          "logits_gradient_max_abs_error": 3.3861802251067274e-13
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 2.1371793224034263e-14,
+          "power_max_abs_error": 6.272760089132134e-14,
+          "logits_gradient_max_abs_error": 2.660927034270344e-13
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 2.1371793224034263e-14,
+          "power_max_abs_error": 6.272760089132134e-14,
+          "logits_gradient_max_abs_error": 2.660927034270344e-13
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": -0.0055342184442780384,
+        "autodiff": -0.005534231109859639,
+        "abs_error": 1.266558160087361e-08
+      }
+    },
+    {
+      "status": "passed",
+      "material": "Cu",
+      "lattice": "hexagonal",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 3.6637359812630166e-15,
+          "power_max_abs_error": 1.1379786002407855e-14,
+          "logits_gradient_max_abs_error": 5.35682609381638e-15
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 3.469446951953614e-16,
+          "power_max_abs_error": 1.3877787807814457e-15,
+          "logits_gradient_max_abs_error": 4.6074255521944e-15
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 3.469446951953614e-16,
+          "power_max_abs_error": 1.3877787807814457e-15,
+          "logits_gradient_max_abs_error": 4.6074255521944e-15
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": -0.011132782145872877,
+        "autodiff": -0.011132780451357835,
+        "abs_error": 1.6945150421721067e-09
+      }
+    },
+    {
+      "status": "passed",
+      "material": "Au",
+      "lattice": "square",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 4.7684078907650473e-14,
+          "power_max_abs_error": 1.4288570326925765e-13,
+          "logits_gradient_max_abs_error": 3.595124198341182e-12
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 5.440092820663267e-15,
+          "power_max_abs_error": 2.4424906541753444e-14,
+          "logits_gradient_max_abs_error": 4.986011603591578e-13
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 5.440092820663267e-15,
+          "power_max_abs_error": 2.4424906541753444e-14,
+          "logits_gradient_max_abs_error": 4.986011603591578e-13
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": -0.03947362836986823,
+        "autodiff": -0.03947374354263022,
+        "abs_error": 1.1517276198719228e-07
+      }
+    },
+    {
+      "status": "passed",
+      "material": "Au",
+      "lattice": "hexagonal",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 3.372302437298913e-15,
+          "power_max_abs_error": 1.0963452368173421e-14,
+          "logits_gradient_max_abs_error": 5.0182080713057076e-14
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 2.0539125955565396e-15,
+          "power_max_abs_error": 7.549516567451064e-15,
+          "logits_gradient_max_abs_error": 5.773159728050814e-14
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 2.0539125955565396e-15,
+          "power_max_abs_error": 7.549516567451064e-15,
+          "logits_gradient_max_abs_error": 5.773159728050814e-14
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.04136402628758529,
+        "autodiff": 0.04136402082513926,
+        "abs_error": 5.462446030224388e-09
+      }
+    },
+    {
+      "status": "passed",
+      "material": "Ag",
+      "lattice": "square",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 1.0202949596305189e-13,
+          "power_max_abs_error": 3.269606807521086e-13,
+          "logits_gradient_max_abs_error": 3.827382855092765e-12
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 6.905587213168474e-14,
+          "power_max_abs_error": 2.142730437526552e-13,
+          "logits_gradient_max_abs_error": 1.837419105754634e-12
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 6.905587213168474e-14,
+          "power_max_abs_error": 2.142730437526552e-13,
+          "logits_gradient_max_abs_error": 1.837419105754634e-12
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": -8.138244898103775,
+        "autodiff": -8.138258311818676,
+        "abs_error": 1.3413714901489016e-05
+      }
+    },
+    {
+      "status": "passed",
+      "material": "Ag",
+      "lattice": "hexagonal",
+      "comparisons": [
+        {
+          "backend": "matrix",
+          "checkpoint": false,
+          "loss_abs_error": 1.1102230246251565e-15,
+          "power_max_abs_error": 5.717648576819556e-15,
+          "logits_gradient_max_abs_error": 1.1179945857975326e-13
+        },
+        {
+          "backend": "auto",
+          "checkpoint": false,
+          "loss_abs_error": 1.9595436384634013e-14,
+          "power_max_abs_error": 6.339373470609644e-14,
+          "logits_gradient_max_abs_error": 8.033296250431476e-13
+        },
+        {
+          "backend": "auto",
+          "checkpoint": true,
+          "loss_abs_error": 1.9595436384634013e-14,
+          "power_max_abs_error": 6.339373470609644e-14,
+          "logits_gradient_max_abs_error": 8.033296250431476e-13
+        }
+      ],
+      "finite_difference": {
+        "wavelength_nm": 550.0,
+        "passed": true,
+        "finite_difference": 0.42135203555448975,
+        "autodiff": 0.42135608092113236,
+        "abs_error": 4.045366642613235e-06
+      }
+    }
+  ],
+  "source_sha256": {
+    "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+    "rcwa_ext/acceleration/__init__.py": "d8078df7b8cddd41677879866b9948c82b793445dd8e04447aa22529d92e024d",
+    "rcwa_ext/acceleration/d6.py": "1aa090993a9d9b19af542df3d9f209bba5162d5f6f7905446c5acac7179d10de",
+    "rcwa_ext/acceleration/legacy.py": "e0f273a205b248c249568814ebff891b92aff68d7fb20cd27c01ffa063bb8d1b",
+    "rcwa_ext/acceleration/matrix.py": "10e84b6f569acea46bc5ace7ede60923f1bda226e7015f750554127606501bb5",
+    "rcwa_ext/acceleration/ports.py": "777c690f1bf43008485d78874309c604891e9b093876f467d53b6ab7dfeb567b",
+    "rcwa_ext/acceleration/spectral.py": "fe51c0eb3f472a2c485894b76208851aa779e22438168cb141a7127dcaf323a5",
+    "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+    "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+    "rcwa_ext/auto.py": "edeb7a65fde39c2eca28c29e4831ea9bd6dc859453c1c95ac46e8ec4a27a6d21",
+    "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+    "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+    "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+    "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+    "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+    "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956"
+  }
+}

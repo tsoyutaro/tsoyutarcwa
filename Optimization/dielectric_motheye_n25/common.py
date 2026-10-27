@@ -70,7 +70,7 @@ def load_config(path, smoke=False):
 
 
 def sources():
-    files = list(HERE.glob("*.py")) + list((ROOT/"rcwa_ext").glob("*.py"))
+    files = list(HERE.glob("*.py")) + list((ROOT/"rcwa_ext").rglob("*.py"))
     files += [ROOT/"rcwa_solver_auto.py", ROOT/"studies/pmma_gold_motheye/common.py"]
     result = {p.relative_to(ROOT).as_posix(): content_hash(p) for p in files}
     spec = importlib.util.find_spec("torcwa")

@@ -414,3 +414,7 @@ primitive対standard-raster supercellで同値性を判定し、matched-ASR結�
 `paper_reproductions/peng2025/README_ja.md` を参照してください。通常結果は
 `paper_reproductions/peng2025/results/`、検証結果は
 `paper_reproductions/peng2025/validation/results/` に分離して保存します。
+
+## v3：NVMの対称性ブロックと波長共有
+
+AutoRCWAにacceleration="auto"（既定）/"reference"を追加しました。法線x偏光・中心円・空気背景・fieldsなし・half S・complex128のC2v/D6では、スカラー逆行列とP/Qを対称性ブロック内で直接構築します。対象外は従来経路です。rcwa_ext.acceleration.spectral.SharedEvaluatorは一定材料のP/Q係数と、分散材料の形状部分を波長間共有します。最適化との接続・適用条件・コマンドは[更新手順](Optimization/README_RCWA高速化と金属最適化_v3.md)を参照してください。

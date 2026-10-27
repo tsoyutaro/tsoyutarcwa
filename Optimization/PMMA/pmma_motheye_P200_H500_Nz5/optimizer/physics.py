@@ -35,14 +35,7 @@ def release_unused(sim):
 def make_sim(config, lattice, wavelength, order, grid, device, release=True):
     import torch
     from rcwa_solver_auto import AutoRCWA, GroupTheoryOptions, Lattice, NVMOptions, OutputSpec
-    backend = config.get("hexagonal_backend", "reference")
-    if backend not in ("reference", "d6-native-e1-pair-v1"):
-        raise ValueError("Unknown hexagonal backend.")
-    if lattice == "hexagonal" and backend == "d6-native-e1-pair-v1":
-        from d6_nvm import D6FastRCWA
-        Solver = D6FastRCWA
-    else:
-        Solver = AutoRCWA
+    Solver = AutoRCWA
     class FastNV(Solver):
         def add_structured_layer(self, spec):
             selected = super().add_structured_layer(spec)
@@ -57,7 +50,8 @@ def make_sim(config, lattice, wavelength, order, grid, device, release=True):
                  outputs=OutputSpec(smatrix_size="half", fields="none"), cascade="redheffer",
                  group_theory=GroupTheoryOptions(enabled=True, symmetry="c2v" if lattice == "square" else "d6",
                                                  polarization="x", strict=True),
-                 dtype=torch.complex128, device=device, verify_cascade=False)
+                 dtype=torch.complex128, device=device, verify_cascade=False,
+                 acceleration="reference" if config.get("rcwa_acceleration","reference")=="reference" else "auto")
     sim.add_input_layer(eps=1.)
     sim.add_output_layer(eps=config["index"]**2)
     sim.set_incident_angle(0., 0.)
@@ -73,6 +67,8 @@ def layer_spec(radius, config, depth=1.):
 def powers(sim, transmitted, reflected, config):
     import torch
     from .helpers import zero_order_x_source as _zero_order_x_source
+    if config.get("material_model")=="metal_csv":
+        return metal_powers(sim,transmitted,reflected,config)
     incident = _zero_order_x_source(sim)
     def flux(electric, medium, direction):
         magnetic = direction*(medium @ electric)
@@ -191,3 +187,54 @@ def objective(logits, config, lattice, wavelengths, order, grid, device, *, grad
         torch.cuda.synchronize(device)
     return {"objective": total, "gradient": derivative if gradient else None,
             "rows": rows, "seconds": time.perf_counter()-started}
+
+
+def metal_powers(sim, transmitted, reflected, config):
+    import torch
+    from .helpers import zero_order_x_source
+    incident = zero_order_x_source(sim)
+    def flux(electric, medium, direction):
+        magnetic = direction*(medium @ electric)
+        n = electric.numel()//2
+        return .5*torch.real((electric[:n]*magnetic[n:].conj()-electric[n:]*magnetic[:n].conj()).sum())
+    incoming = flux(incident, sim.Vi, 1)
+    if not bool(torch.isfinite(incoming)) or float(incoming.detach().cpu()) <= 0:
+        raise NonphysicalResult("Incident power must be finite and positive.")
+    r = -flux(reflected, sim.Vi, -1)/incoming
+    p_sub = flux(transmitted, sim.Vo, 1)/incoming
+    rv, pv = float(r.detach().cpu()), float(p_sub.detach().cpu())
+    a_total = 1.-rv
+    a_moth = 1.-rv-pv
+    values = (rv, pv, a_total, a_moth)
+    tolerance = config["passivity_tolerance"]
+    if not all(math.isfinite(v) and -tolerance <= v <= 1.+tolerance for v in values):
+        raise NonphysicalResult(f"Nonpassive powers: R={rv}, P_sub={pv}, A_total={a_total}, A_moth={a_moth}.")
+    epsilon = complex(sim.eps_out.detach().cpu().item())
+    # The output is the top of absorbing bulk Cr, not a far-field transmission port.
+    # Absorption below is inferred from flux balances, not a separate volume integral.
+    return r, {"reflectance": rv, "power_into_substrate": pv,
+        "transmittance_far": 0., "absorptance_total": a_total,
+        "motheye_absorptance": a_moth, "substrate_absorptance": pv,
+        "passivity_warning": False, "epsilon_material_real": epsilon.real,
+        "epsilon_material_imag": epsilon.imag,
+        "absorption_evaluation": "inferred from surface power flux; no independent volume-loss audit"}
+
+
+
+objective_reference = objective
+_spectral_evaluator = None
+
+
+def objective(logits,config,lattice,wavelengths,order,grid,device,*,gradient):
+    global _spectral_evaluator
+    if config.get('rcwa_acceleration','reference')!='auto':
+        return objective_reference(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+    if _spectral_evaluator is None:
+        import sys
+        from types import SimpleNamespace
+        from rcwa_ext.acceleration.spectral import SharedEvaluator
+        from .materials import epsilon_at
+        model=SimpleNamespace(material='PMMA' if config.get('material_model')=='pmma_csv' else config.get('material','constant'),
+            physics=sys.modules[__name__],geometry=SimpleNamespace(radii_tensor=radii_tensor),epsilon_at=epsilon_at)
+        _spectral_evaluator=SharedEvaluator(model)
+    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)

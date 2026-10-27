@@ -99,6 +99,7 @@ class AutoRCWA(CustomRCWA_NVM):
         *,
         lattice: Lattice | None = None,
         method: str = "auto",
+        acceleration: str = "auto",
         outputs: OutputSpec | None = None,
         asr: ASROptions | None = None,
         nvm: NVMOptions | None = None,
@@ -107,6 +108,9 @@ class AutoRCWA(CustomRCWA_NVM):
         group_theory: GroupTheoryOptions | bool | None = None,
         **kwargs,
     ):
+        if acceleration not in ("auto", "reference"):
+            raise ValueError("acceleration must be auto or reference")
+        self.acceleration = acceleration
         if lattice is None:
             if L is None or len(L) != 2:
                 raise ValueError("Pass L=[Lx,Ly] or a Lattice object.")
@@ -487,6 +491,19 @@ class AutoRCWA(CustomRCWA_NVM):
             torch.as_tensor(background.mu, dtype=self._dtype, device=self._device),
         )
         return eps_grid, mu_grid
+
+    def add_layer_circle_nvm(self, thickness, radius, eps_bg, eps_cyl,
+                             centers=((0., 0.),), *, core_radius=None, eps_core=None,
+                             use_lanczos=False, lanczos_power=2, nx=256, ny=256):
+        if self.acceleration == "auto":
+            from .acceleration.matrix import try_add_circle_layer
+            if try_add_circle_layer(self, thickness, radius, eps_bg, eps_cyl, centers,
+                    core_radius=core_radius, eps_core=eps_core,
+                    use_lanczos=use_lanczos, nx=nx, ny=ny):
+                return
+        return super().add_layer_circle_nvm(thickness, radius, eps_bg, eps_cyl, centers,
+            core_radius=core_radius, eps_core=eps_core, use_lanczos=use_lanczos,
+            lanczos_power=lanczos_power, nx=nx, ny=ny)
 
     def add_structured_layer(self, spec: LayerSpec) -> str:
         if not hasattr(self, "Kx_norm"):
