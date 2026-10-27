@@ -1,0 +1,1640 @@
+{
+  "status": "diagnostic_complete",
+  "material": "Cu",
+  "lattice": "hexagonal",
+  "device": "cuda:0",
+  "cuda_execution_performed": true,
+  "torch": "2.6.0+cu124",
+  "gpu": "NVIDIA H100 MIG 3g.47gb",
+  "checkpoint": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/trials/trial_0000/adam_checkpoint.pt",
+  "checkpoint_sha256": "72d95866f3d3a91ebc97962dbd445d12b0064e4fa9098dde5496639ac29f0d66",
+  "state": "current",
+  "next_step": 6,
+  "successful_gradient_evaluations": 6,
+  "last_history": {
+    "step": 5,
+    "objective": 0.10310587662723562,
+    "best_objective": 0.0957247108117455,
+    "gradient_norm": 1.7429909379742121,
+    "learning_rate": 0.03,
+    "evaluation_seconds": 10.942965686321259
+  },
+  "original_order": 8,
+  "evaluation_order": 8,
+  "grid": 512,
+  "wavelengths_nm": [
+    400.0,
+    410.0,
+    420.0,
+    430.0,
+    440.0,
+    450.0,
+    460.0,
+    470.0,
+    480.0,
+    490.0,
+    500.0,
+    510.0,
+    520.0,
+    530.0,
+    540.0,
+    550.0,
+    560.0,
+    570.0,
+    580.0,
+    590.0,
+    600.0,
+    610.0,
+    620.0,
+    630.0,
+    640.0,
+    650.0,
+    660.0,
+    670.0,
+    680.0,
+    690.0,
+    700.0
+  ],
+  "logits": [
+    0.32850787796491154,
+    0.043228614016875624,
+    0.03103553285905492,
+    0.011172051138936698,
+    -0.06884945032551633,
+    0.045150643407177976,
+    0.10428488121943988,
+    0.11548340310196518,
+    -0.09583753869504637,
+    -0.16251853646050363,
+    -0.16859802494575576,
+    -0.055649902882682914,
+    0.11302495640371779,
+    0.14119335437733768,
+    -0.10296038795131571,
+    0.10542027304626936
+  ],
+  "radii_nm": [
+    8.40723587983868,
+    14.727104754662662,
+    20.970384055008083,
+    27.090875610679902,
+    32.74068762346548,
+    39.07271496052854,
+    45.79046840855237,
+    52.58387244251613,
+    58.083248646438676,
+    63.22788622029286,
+    68.34134251634113,
+    74.06622251270032,
+    80.84294608320317,
+    87.81327019090453,
+    93.2736150516018
+  ],
+  "passivity_tolerance": 1e-06,
+  "rows": [
+    {
+      "wavelength_nm": 400.0,
+      "epsilon_real": -2.8163907044025165,
+      "epsilon_imag": 5.596653081761007,
+      "methods": {
+        "shared": {
+          "reflectance": 0.0013922333751385668,
+          "power_into_substrate": 0.031004661965695814,
+          "absorptance_total": 0.9986077666248614,
+          "motheye_absorptance": 0.9676031046591655,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 1.093198231421411
+        },
+        "reference": {
+          "reflectance": 0.001392233375138508,
+          "power_into_substrate": 0.031004661965692064,
+          "absorptance_total": 0.9986077666248615,
+          "motheye_absorptance": 0.9676031046591694,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.859596686437726
+        },
+        "matrix": {
+          "reflectance": 0.0013922333751469908,
+          "power_into_substrate": 0.03100466196569921,
+          "absorptance_total": 0.998607766624853,
+          "motheye_absorptance": 0.9676031046591538,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2537541938945651
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 3.750472155061857e-15
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 8.482797797526587e-15
+        }
+      }
+    },
+    {
+      "wavelength_nm": 410.0,
+      "epsilon_real": -3.1292164905660376,
+      "epsilon_imag": 5.636703396226415,
+      "methods": {
+        "shared": {
+          "reflectance": 0.0016706563057167848,
+          "power_into_substrate": 0.034917346190250116,
+          "absorptance_total": 0.9983293436942832,
+          "motheye_absorptance": 0.9634119975040331,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18347286712378263
+        },
+        "reference": {
+          "reflectance": 0.0016706563057231553,
+          "power_into_substrate": 0.034917346190252,
+          "absorptance_total": 0.9983293436942768,
+          "motheye_absorptance": 0.9634119975040248,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.609705688431859
+        },
+        "matrix": {
+          "reflectance": 0.0016706563057269927,
+          "power_into_substrate": 0.034917346190246716,
+          "absorptance_total": 0.998329343694273,
+          "motheye_absorptance": 0.9634119975040263,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2531057158485055
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 6.370555125090327e-15
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 5.280498260873401e-15
+        }
+      }
+    },
+    {
+      "wavelength_nm": 420.0,
+      "epsilon_real": -3.4342576744186046,
+      "epsilon_imag": 5.693773837209302,
+      "methods": {
+        "shared": {
+          "reflectance": 0.00195468137391748,
+          "power_into_substrate": 0.03930468156784444,
+          "absorptance_total": 0.9980453186260825,
+          "motheye_absorptance": 0.9587406370582381,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18349475972354412
+        },
+        "reference": {
+          "reflectance": 0.0019546813739220264,
+          "power_into_substrate": 0.039304681567843225,
+          "absorptance_total": 0.9980453186260779,
+          "motheye_absorptance": 0.9587406370582348,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6139288069680333
+        },
+        "matrix": {
+          "reflectance": 0.001954681373909389,
+          "power_into_substrate": 0.03930468156784076,
+          "absorptance_total": 0.9980453186260906,
+          "motheye_absorptance": 0.9587406370582499,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25264055375009775
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 4.546276549666217e-15
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.263746052249104e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 430.0,
+      "epsilon_real": -3.735464651162791,
+      "epsilon_imag": 5.759227325581396,
+      "methods": {
+        "shared": {
+          "reflectance": 0.0022332684274603094,
+          "power_into_substrate": 0.044097187653990066,
+          "absorptance_total": 0.9977667315725397,
+          "motheye_absorptance": 0.9536695439185496,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18298820592463017
+        },
+        "reference": {
+          "reflectance": 0.002233268427473108,
+          "power_into_substrate": 0.04409718765398897,
+          "absorptance_total": 0.9977667315725269,
+          "motheye_absorptance": 0.953669543918538,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6142638623714447
+        },
+        "matrix": {
+          "reflectance": 0.0022332684274638903,
+          "power_into_substrate": 0.044097187654003014,
+          "absorptance_total": 0.9977667315725361,
+          "motheye_absorptance": 0.9536695439185331,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25317796412855387
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.2798789805756883e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.404432126150823e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 440.0,
+      "epsilon_real": -3.9635690196078426,
+      "epsilon_imag": 5.847282843137254,
+      "methods": {
+        "shared": {
+          "reflectance": 0.00239431512131025,
+          "power_into_substrate": 0.048642266810623,
+          "absorptance_total": 0.9976056848786897,
+          "motheye_absorptance": 0.9489634180680667,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18392422702163458
+        },
+        "reference": {
+          "reflectance": 0.002394315121294438,
+          "power_into_substrate": 0.04864226681060943,
+          "absorptance_total": 0.9976056848787056,
+          "motheye_absorptance": 0.9489634180680961,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.630003715865314
+        },
+        "matrix": {
+          "reflectance": 0.0023943151213146456,
+          "power_into_substrate": 0.04864226681061529,
+          "absorptance_total": 0.9976056848786854,
+          "motheye_absorptance": 0.9489634180680702,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25432755798101425
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.5812004483528597e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.0207360090784832e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 450.0,
+      "epsilon_real": -4.187825882352939,
+      "epsilon_imag": 5.936527941176469,
+      "methods": {
+        "shared": {
+          "reflectance": 0.002517038750187971,
+          "power_into_substrate": 0.05334884429193752,
+          "absorptance_total": 0.9974829612498121,
+          "motheye_absorptance": 0.9441341169578745,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.1863761842250824
+        },
+        "reference": {
+          "reflectance": 0.0025170387501854147,
+          "power_into_substrate": 0.053348844291936086,
+          "absorptance_total": 0.9974829612498146,
+          "motheye_absorptance": 0.9441341169578785,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6553917480632663
+        },
+        "matrix": {
+          "reflectance": 0.0025170387502088296,
+          "power_into_substrate": 0.053348844291932145,
+          "absorptance_total": 0.9974829612497912,
+          "motheye_absorptance": 0.9441341169578591,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25990117341279984
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.5561150418518253e-15
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.3414863797865948e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 460.0,
+      "epsilon_real": -4.383252804878048,
+      "epsilon_imag": 6.061279707317073,
+      "methods": {
+        "shared": {
+          "reflectance": 0.0025606003008986668,
+          "power_into_substrate": 0.05811306531651087,
+          "absorptance_total": 0.9974393996991013,
+          "motheye_absorptance": 0.9393263343825905,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.19116476643830538
+        },
+        "reference": {
+          "reflectance": 0.002560600300899415,
+          "power_into_substrate": 0.05811306531648447,
+          "absorptance_total": 0.9974393996991006,
+          "motheye_absorptance": 0.9393263343826161,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6997420443221927
+        },
+        "matrix": {
+          "reflectance": 0.0025606003008780552,
+          "power_into_substrate": 0.05811306531647639,
+          "absorptance_total": 0.997439399699122,
+          "motheye_absorptance": 0.9393263343826456,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2525828471407294
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.6402491304367004e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.1359650159702426e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 470.0,
+      "epsilon_real": -4.575828414634147,
+      "epsilon_imag": 6.18954312195122,
+      "methods": {
+        "shared": {
+          "reflectance": 0.0025860189217900204,
+          "power_into_substrate": 0.06296443108584278,
+          "absorptance_total": 0.99741398107821,
+          "motheye_absorptance": 0.9344495499923672,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18256489746272564
+        },
+        "reference": {
+          "reflectance": 0.0025860189218114057,
+          "power_into_substrate": 0.06296443108581606,
+          "absorptance_total": 0.9974139810781886,
+          "motheye_absorptance": 0.9344495499923725,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6157086407765746
+        },
+        "matrix": {
+          "reflectance": 0.0025860189218138807,
+          "power_into_substrate": 0.06296443108583585,
+          "absorptance_total": 0.9974139810781861,
+          "motheye_absorptance": 0.9344495499923503,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2522384971380234
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.671474153004283e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.9789725413943415e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 480.0,
+      "epsilon_real": -4.772299212244898,
+      "epsilon_imag": 6.224580653061225,
+      "methods": {
+        "shared": {
+          "reflectance": 0.0026685744898964905,
+          "power_into_substrate": 0.06744394486041029,
+          "absorptance_total": 0.9973314255101036,
+          "motheye_absorptance": 0.9298874806496933,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18290006276220083
+        },
+        "reference": {
+          "reflectance": 0.0026685744899031714,
+          "power_into_substrate": 0.06744394486041615,
+          "absorptance_total": 0.9973314255100968,
+          "motheye_absorptance": 0.9298874806496806,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6165794543921947
+        },
+        "matrix": {
+          "reflectance": 0.002668574489905991,
+          "power_into_substrate": 0.06744394486041827,
+          "absorptance_total": 0.997331425510094,
+          "motheye_absorptance": 0.9298874806496757,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2527165887877345
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 6.680853786855678e-15
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.8197930102003e-15
+        }
+      }
+    },
+    {
+      "wavelength_nm": 490.0,
+      "epsilon_real": -4.969404110204081,
+      "epsilon_imag": 6.24444187755102,
+      "methods": {
+        "shared": {
+          "reflectance": 0.002794710186633045,
+          "power_into_substrate": 0.07197080859081598,
+          "absorptance_total": 0.997205289813367,
+          "motheye_absorptance": 0.925234481222551,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18332047667354345
+        },
+        "reference": {
+          "reflectance": 0.0027947101866467854,
+          "power_into_substrate": 0.0719708085907913,
+          "absorptance_total": 0.9972052898133532,
+          "motheye_absorptance": 0.9252344812225619,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.615793948993087
+        },
+        "matrix": {
+          "reflectance": 0.0027947101866398097,
+          "power_into_substrate": 0.0719708085907927,
+          "absorptance_total": 0.9972052898133602,
+          "motheye_absorptance": 0.9252344812225675,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2526757474988699
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.4674706722294104e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 6.9757567777717355e-15
+        }
+      }
+    },
+    {
+      "wavelength_nm": 500.0,
+      "epsilon_real": -5.138761152,
+      "epsilon_imag": 6.239550080000001,
+      "methods": {
+        "shared": {
+          "reflectance": 0.0029291266798043003,
+          "power_into_substrate": 0.0761469332009852,
+          "absorptance_total": 0.9970708733201957,
+          "motheye_absorptance": 0.9209239401192105,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.1829754365608096
+        },
+        "reference": {
+          "reflectance": 0.002929126679809632,
+          "power_into_substrate": 0.07614693320098082,
+          "absorptance_total": 0.9970708733201904,
+          "motheye_absorptance": 0.9209239401192095,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.616991015151143
+        },
+        "matrix": {
+          "reflectance": 0.0029291266798015993,
+          "power_into_substrate": 0.07614693320098573,
+          "absorptance_total": 0.9970708733201984,
+          "motheye_absorptance": 0.9209239401192126,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2524556452408433
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 5.3316726034147166e-15
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 8.032637055510605e-15
+        }
+      }
+    },
+    {
+      "wavelength_nm": 510.0,
+      "epsilon_real": -5.268188352,
+      "epsilon_imag": 6.19903808,
+      "methods": {
+        "shared": {
+          "reflectance": 0.003054960875222619,
+          "power_into_substrate": 0.07974357405701127,
+          "absorptance_total": 0.9969450391247774,
+          "motheye_absorptance": 0.9172014650677661,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18301081005483866
+        },
+        "reference": {
+          "reflectance": 0.003054960875227398,
+          "power_into_substrate": 0.07974357405699493,
+          "absorptance_total": 0.9969450391247726,
+          "motheye_absorptance": 0.9172014650677777,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6146410312503576
+        },
+        "matrix": {
+          "reflectance": 0.0030549608752438234,
+          "power_into_substrate": 0.07974357405701682,
+          "absorptance_total": 0.9969450391247562,
+          "motheye_absorptance": 0.9172014650677394,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25251563638448715
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.6334156249797616e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.1885271372923398e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 520.0,
+      "epsilon_real": -5.397615552,
+      "epsilon_imag": 6.15852608,
+      "methods": {
+        "shared": {
+          "reflectance": 0.003227662412115289,
+          "power_into_substrate": 0.08341170023648384,
+          "absorptance_total": 0.9967723375878847,
+          "motheye_absorptance": 0.9133606373514009,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18349467031657696
+        },
+        "reference": {
+          "reflectance": 0.0032276624120998448,
+          "power_into_substrate": 0.08341170023647226,
+          "absorptance_total": 0.9967723375879002,
+          "motheye_absorptance": 0.9133606373514279,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.614627679809928
+        },
+        "matrix": {
+          "reflectance": 0.0032276624121128014,
+          "power_into_substrate": 0.08341170023648592,
+          "absorptance_total": 0.9967723375878872,
+          "motheye_absorptance": 0.9133606373514013,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25294125732034445
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.5444243106621514e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.3655743202889425e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 530.0,
+      "epsilon_real": -5.472098350180506,
+      "epsilon_imag": 5.859934873646209,
+      "methods": {
+        "shared": {
+          "reflectance": 0.0035287623080312064,
+          "power_into_substrate": 0.08529884898662622,
+          "absorptance_total": 0.9964712376919688,
+          "motheye_absorptance": 0.9111723887053426,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18322074692696333
+        },
+        "reference": {
+          "reflectance": 0.003528762308044295,
+          "power_into_substrate": 0.08529884898661699,
+          "absorptance_total": 0.9964712376919557,
+          "motheye_absorptance": 0.9111723887053387,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.613679090514779
+        },
+        "matrix": {
+          "reflectance": 0.0035287623080289573,
+          "power_into_substrate": 0.08529884898663462,
+          "absorptance_total": 0.996471237691971,
+          "motheye_absorptance": 0.9111723887053363,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2528351675719023
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.308848862624501e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.762479051592436e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 540.0,
+      "epsilon_real": -5.541147086642599,
+      "epsilon_imag": 5.535819350180506,
+      "methods": {
+        "shared": {
+          "reflectance": 0.003940908252648253,
+          "power_into_substrate": 0.08708442851210063,
+          "absorptance_total": 0.9960590917473517,
+          "motheye_absorptance": 0.9089746632352511,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.183125963434577
+        },
+        "reference": {
+          "reflectance": 0.003940908252649017,
+          "power_into_substrate": 0.0870844285121026,
+          "absorptance_total": 0.996059091747351,
+          "motheye_absorptance": 0.9089746632352483,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6165251219645143
+        },
+        "matrix": {
+          "reflectance": 0.0039409082526535,
+          "power_into_substrate": 0.08708442851211959,
+          "absorptance_total": 0.9960590917473465,
+          "motheye_absorptance": 0.9089746632352269,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25328702945262194
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.970645868709653e-15
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.6986412276764895e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 550.0,
+      "epsilon_real": -5.651559501492536,
+      "epsilon_imag": 5.1955853134328365,
+      "methods": {
+        "shared": {
+          "reflectance": 0.004650394223289482,
+          "power_into_substrate": 0.08960618145390535,
+          "absorptance_total": 0.9953496057767105,
+          "motheye_absorptance": 0.9057434243228052,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18329614028334618
+        },
+        "reference": {
+          "reflectance": 0.004650394223283083,
+          "power_into_substrate": 0.08960618145389532,
+          "absorptance_total": 0.9953496057767169,
+          "motheye_absorptance": 0.9057434243228216,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6152293076738715
+        },
+        "matrix": {
+          "reflectance": 0.004650394223269929,
+          "power_into_substrate": 0.08960618145389891,
+          "absorptance_total": 0.99534960577673,
+          "motheye_absorptance": 0.9057434243228312,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25314049888402224
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.0033640585049852e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.3154408118332128e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 560.0,
+      "epsilon_real": -6.0160630835820905,
+      "epsilon_imag": 4.756337552238805,
+      "methods": {
+        "shared": {
+          "reflectance": 0.007013534762049641,
+          "power_into_substrate": 0.09667072786347382,
+          "absorptance_total": 0.9929864652379503,
+          "motheye_absorptance": 0.8963157373744765,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.1834174245595932
+        },
+        "reference": {
+          "reflectance": 0.007013534762028062,
+          "power_into_substrate": 0.09667072786351873,
+          "absorptance_total": 0.992986465237972,
+          "motheye_absorptance": 0.8963157373744532,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.618355651386082
+        },
+        "matrix": {
+          "reflectance": 0.007013534762045071,
+          "power_into_substrate": 0.096670727863503,
+          "absorptance_total": 0.992986465237955,
+          "motheye_absorptance": 0.8963157373744519,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2531381044536829
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 4.490852134608758e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.7008963681952594e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 570.0,
+      "epsilon_real": -6.380566665671644,
+      "epsilon_imag": 4.317089791044774,
+      "methods": {
+        "shared": {
+          "reflectance": 0.010863773418557524,
+          "power_into_substrate": 0.10476042323410338,
+          "absorptance_total": 0.9891362265814425,
+          "motheye_absorptance": 0.8843758033473391,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.1833808897063136
+        },
+        "reference": {
+          "reflectance": 0.010863773418547178,
+          "power_into_substrate": 0.10476042323408631,
+          "absorptance_total": 0.9891362265814528,
+          "motheye_absorptance": 0.8843758033473665,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6217003166675568
+        },
+        "matrix": {
+          "reflectance": 0.010863773418523683,
+          "power_into_substrate": 0.10476042323413776,
+          "absorptance_total": 0.9891362265814763,
+          "motheye_absorptance": 0.8843758033473386,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25372439809143543
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.7069679003611782e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 5.144495940356819e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 580.0,
+      "epsilon_real": -6.7450702477611975,
+      "epsilon_imag": 3.8778420298507426,
+      "methods": {
+        "shared": {
+          "reflectance": 0.017148634379199917,
+          "power_into_substrate": 0.11344265788377449,
+          "absorptance_total": 0.9828513656208001,
+          "motheye_absorptance": 0.8694087077370256,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18462150916457176
+        },
+        "reference": {
+          "reflectance": 0.017148634379185547,
+          "power_into_substrate": 0.11344265788377741,
+          "absorptance_total": 0.9828513656208144,
+          "motheye_absorptance": 0.869408707737037,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6371478466317058
+        },
+        "matrix": {
+          "reflectance": 0.01714863437921345,
+          "power_into_substrate": 0.11344265788378026,
+          "absorptance_total": 0.9828513656207866,
+          "motheye_absorptance": 0.8694087077370063,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25454178266227245
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.437044927499187e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.790476183456292e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 590.0,
+      "epsilon_real": -7.586665887608075,
+      "epsilon_imag": 3.361549855907778,
+      "methods": {
+        "shared": {
+          "reflectance": 0.03654191873020117,
+          "power_into_substrate": 0.12846126553345152,
+          "absorptance_total": 0.9634580812697988,
+          "motheye_absorptance": 0.8349968157363473,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18633477669209242
+        },
+        "reference": {
+          "reflectance": 0.03654191873014951,
+          "power_into_substrate": 0.1284612655334477,
+          "absorptance_total": 0.9634580812698504,
+          "motheye_absorptance": 0.8349968157364027,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6894149631261826
+        },
+        "matrix": {
+          "reflectance": 0.03654191873015227,
+          "power_into_substrate": 0.128461265533435,
+          "absorptance_total": 0.9634580812698478,
+          "motheye_absorptance": 0.8349968157364127,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2532337810844183
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 5.1660065114589315e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.2684298056342413e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 600.0,
+      "epsilon_real": -8.555083466858791,
+      "epsilon_imag": 2.824777521613832,
+      "methods": {
+        "shared": {
+          "reflectance": 0.07442998605718344,
+          "power_into_substrate": 0.13613401266210703,
+          "absorptance_total": 0.9255700139428166,
+          "motheye_absorptance": 0.7894360012807096,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.1840328462421894
+        },
+        "reference": {
+          "reflectance": 0.07442998605729313,
+          "power_into_substrate": 0.13613401266210817,
+          "absorptance_total": 0.9255700139427069,
+          "motheye_absorptance": 0.7894360012805988,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6152776340022683
+        },
+        "matrix": {
+          "reflectance": 0.07442998605724703,
+          "power_into_substrate": 0.13613401266212538,
+          "absorptance_total": 0.925570013942753,
+          "motheye_absorptance": 0.7894360012806276,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25302964355796576
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.0969003483296547e-13
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 4.6102011097559625e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 610.0,
+      "epsilon_real": -9.523501046109507,
+      "epsilon_imag": 2.288005187319887,
+      "methods": {
+        "shared": {
+          "reflectance": 0.13213380351684176,
+          "power_into_substrate": 0.13027775955826265,
+          "absorptance_total": 0.8678661964831582,
+          "motheye_absorptance": 0.7375884369248955,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.1837689382955432
+        },
+        "reference": {
+          "reflectance": 0.1321338035168947,
+          "power_into_substrate": 0.13027775955827686,
+          "absorptance_total": 0.8678661964831054,
+          "motheye_absorptance": 0.7375884369248285,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.614696809090674
+        },
+        "matrix": {
+          "reflectance": 0.1321338035168677,
+          "power_into_substrate": 0.1302777595582289,
+          "absorptance_total": 0.8678661964831322,
+          "motheye_absorptance": 0.7375884369249033,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.252945676445961
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 5.292988269900434e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 4.796163466380676e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 620.0,
+      "epsilon_real": -10.467520756440276,
+      "epsilon_imag": 1.9024420608899302,
+      "methods": {
+        "shared": {
+          "reflectance": 0.18930884215893642,
+          "power_into_substrate": 0.11593219153090531,
+          "absorptance_total": 0.8106911578410636,
+          "motheye_absorptance": 0.6947589663101583,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18403216544538736
+        },
+        "reference": {
+          "reflectance": 0.1893088421592453,
+          "power_into_substrate": 0.11593219153092879,
+          "absorptance_total": 0.8106911578407547,
+          "motheye_absorptance": 0.6947589663098259,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.614624979905784
+        },
+        "matrix": {
+          "reflectance": 0.18930884215894775,
+          "power_into_substrate": 0.11593219153093975,
+          "absorptance_total": 0.8106911578410523,
+          "motheye_absorptance": 0.6947589663101126,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25311465095728636
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 3.0886404545071855e-13
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.9753977059954195e-13
+        }
+      }
+    },
+    {
+      "wavelength_nm": 630.0,
+      "epsilon_real": -11.359694995316156,
+      "epsilon_imag": 1.8381985011709605,
+      "methods": {
+        "shared": {
+          "reflectance": 0.20821630737417282,
+          "power_into_substrate": 0.1077746903597134,
+          "absorptance_total": 0.7917836926258272,
+          "motheye_absorptance": 0.6840090022661137,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18355886079370975
+        },
+        "reference": {
+          "reflectance": 0.20821630737426525,
+          "power_into_substrate": 0.10777469035976728,
+          "absorptance_total": 0.7917836926257348,
+          "motheye_absorptance": 0.6840090022659675,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.614350166171789
+        },
+        "matrix": {
+          "reflectance": 0.2082163073741219,
+          "power_into_substrate": 0.10777469035977603,
+          "absorptance_total": 0.7917836926258781,
+          "motheye_absorptance": 0.6840090022661021,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2528769727796316
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 9.242606680004428e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.4335754805472334e-13
+        }
+      }
+    },
+    {
+      "wavelength_nm": 640.0,
+      "epsilon_real": -12.251869234192036,
+      "epsilon_imag": 1.7739549414519908,
+      "methods": {
+        "shared": {
+          "reflectance": 0.2187184388090922,
+          "power_into_substrate": 0.09909960577107707,
+          "absorptance_total": 0.7812815611909079,
+          "motheye_absorptance": 0.6821819554198307,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18359346222132444
+        },
+        "reference": {
+          "reflectance": 0.21871843880906033,
+          "power_into_substrate": 0.09909960577111798,
+          "absorptance_total": 0.7812815611909396,
+          "motheye_absorptance": 0.6821819554198216,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6144664706662297
+        },
+        "matrix": {
+          "reflectance": 0.21871843880884995,
+          "power_into_substrate": 0.09909960577110372,
+          "absorptance_total": 0.7812815611911501,
+          "motheye_absorptance": 0.6821819554200463,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25304700899869204
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 4.091171845743702e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.1038726316646716e-13
+        }
+      }
+    },
+    {
+      "wavelength_nm": 650.0,
+      "epsilon_real": -13.144043473067915,
+      "epsilon_imag": 1.7097113817330212,
+      "methods": {
+        "shared": {
+          "reflectance": 0.2335249746593024,
+          "power_into_substrate": 0.0927422765307998,
+          "absorptance_total": 0.7664750253406976,
+          "motheye_absorptance": 0.6737327488098978,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18368201702833176
+        },
+        "reference": {
+          "reflectance": 0.23352497465928546,
+          "power_into_substrate": 0.09274227653081972,
+          "absorptance_total": 0.7664750253407145,
+          "motheye_absorptance": 0.6737327488098949,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6134480852633715
+        },
+        "matrix": {
+          "reflectance": 0.23352497465937772,
+          "power_into_substrate": 0.09274227653076333,
+          "absorptance_total": 0.7664750253406223,
+          "motheye_absorptance": 0.673732748809859,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25298161152750254
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.9914625504213745e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 9.225953334635051e-14
+        }
+      }
+    },
+    {
+      "wavelength_nm": 660.0,
+      "epsilon_real": -14.032123622222223,
+      "epsilon_imag": 1.6499846666666667,
+      "methods": {
+        "shared": {
+          "reflectance": 0.27072566023417843,
+          "power_into_substrate": 0.08817993841224332,
+          "absorptance_total": 0.7292743397658216,
+          "motheye_absorptance": 0.6410944013535782,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18474339693784714
+        },
+        "reference": {
+          "reflectance": 0.2707256602341418,
+          "power_into_substrate": 0.08817993841221577,
+          "absorptance_total": 0.7292743397658582,
+          "motheye_absorptance": 0.6410944013536424,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6149039501324296
+        },
+        "matrix": {
+          "reflectance": 0.27072566023427463,
+          "power_into_substrate": 0.08817993841220287,
+          "absorptance_total": 0.7292743397657253,
+          "motheye_absorptance": 0.6410944013535225,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25402747839689255
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 3.6637359812630166e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.3283818489639998e-13
+        }
+      }
+    },
+    {
+      "wavelength_nm": 670.0,
+      "epsilon_real": -14.842416066666667,
+      "epsilon_imag": 1.676078,
+      "methods": {
+        "shared": {
+          "reflectance": 0.28887709210029333,
+          "power_into_substrate": 0.08207436102417297,
+          "absorptance_total": 0.7111229078997067,
+          "motheye_absorptance": 0.6290485468755337,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18355035781860352
+        },
+        "reference": {
+          "reflectance": 0.28887709210032886,
+          "power_into_substrate": 0.08207436102413448,
+          "absorptance_total": 0.7111229078996711,
+          "motheye_absorptance": 0.6290485468755367,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.615407549776137
+        },
+        "matrix": {
+          "reflectance": 0.28887709210008583,
+          "power_into_substrate": 0.08207436102411655,
+          "absorptance_total": 0.7111229078999142,
+          "motheye_absorptance": 0.6290485468757976,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2527498807758093
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 3.848310559106949e-14
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.4302782009044677e-13
+        }
+      }
+    },
+    {
+      "wavelength_nm": 680.0,
+      "epsilon_real": -15.652708511111111,
+      "epsilon_imag": 1.7021713333333333,
+      "methods": {
+        "shared": {
+          "reflectance": 1.1930947419344684,
+          "power_into_substrate": 0.17545201363571533,
+          "absorptance_total": -0.1930947419344684,
+          "motheye_absorptance": -0.36854675557018374,
+          "finite": true,
+          "passive": false,
+          "violations": {
+            "reflectance": "1.1930947419344684",
+            "absorptance_total": "-0.1930947419344684",
+            "motheye_absorptance": "-0.36854675557018374"
+          },
+          "seconds": 0.18396726716309786
+        },
+        "reference": {
+          "reflectance": 1.1930947419333677,
+          "power_into_substrate": 0.1754520136355603,
+          "absorptance_total": -0.19309474193336773,
+          "motheye_absorptance": -0.368546755568928,
+          "finite": true,
+          "passive": false,
+          "violations": {
+            "reflectance": "1.1930947419333677",
+            "absorptance_total": "-0.19309474193336773",
+            "motheye_absorptance": "-0.368546755568928"
+          },
+          "seconds": 2.6143208416178823
+        },
+        "matrix": {
+          "reflectance": 1.19309474193613,
+          "power_into_substrate": 0.17545201363589102,
+          "absorptance_total": -0.19309474193612997,
+          "motheye_absorptance": -0.368546755572021,
+          "finite": true,
+          "passive": false,
+          "violations": {
+            "reflectance": "1.19309474193613",
+            "absorptance_total": "-0.19309474193612997",
+            "motheye_absorptance": "-0.368546755572021"
+          },
+          "seconds": 0.25296493619680405
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.1006751066133802e-12
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.7622348852673895e-12
+        }
+      }
+    },
+    {
+      "wavelength_nm": 690.0,
+      "epsilon_real": -16.463000955555554,
+      "epsilon_imag": 1.7282646666666666,
+      "methods": {
+        "shared": {
+          "reflectance": 0.43084097231948576,
+          "power_into_substrate": 0.08994379670081638,
+          "absorptance_total": 0.5691590276805143,
+          "motheye_absorptance": 0.4792152309796979,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.1846595611423254
+        },
+        "reference": {
+          "reflectance": 0.4308409723192805,
+          "power_into_substrate": 0.08994379670077751,
+          "absorptance_total": 0.5691590276807195,
+          "motheye_absorptance": 0.47921523097994195,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.615587040781975
+        },
+        "matrix": {
+          "reflectance": 0.43084097231915963,
+          "power_into_substrate": 0.08994379670077597,
+          "absorptance_total": 0.5691590276808404,
+          "motheye_absorptance": 0.4792152309800644,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.25392293091863394
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.0528023725319144e-13
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 1.208477762304483e-13
+        }
+      }
+    },
+    {
+      "wavelength_nm": 700.0,
+      "epsilon_real": -17.2732934,
+      "epsilon_imag": 1.754358,
+      "methods": {
+        "shared": {
+          "reflectance": 0.46649565066400644,
+          "power_into_substrate": 0.08825283175783932,
+          "absorptance_total": 0.5335043493359936,
+          "motheye_absorptance": 0.44525151757815423,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.18372509256005287
+        },
+        "reference": {
+          "reflectance": 0.46649565066446563,
+          "power_into_substrate": 0.08825283175788916,
+          "absorptance_total": 0.5335043493355344,
+          "motheye_absorptance": 0.4452515175776452,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 2.6183264208957553
+        },
+        "matrix": {
+          "reflectance": 0.46649565066491133,
+          "power_into_substrate": 0.08825283175789585,
+          "absorptance_total": 0.5335043493350886,
+          "motheye_absorptance": 0.4452515175771928,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 0.2539852634072304
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 4.591882429849647e-13
+        },
+        "matrix": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 4.456990332357691e-13
+        }
+      }
+    }
+  ],
+  "checkpoint_unchanged": true,
+  "nonpassive_wavelengths_by_method": {
+    "shared": [
+      680.0
+    ],
+    "reference": [
+      680.0
+    ],
+    "matrix": [
+      680.0
+    ]
+  },
+  "reference_comparisons_passed": true
+}
