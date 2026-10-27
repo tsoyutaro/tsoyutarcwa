@@ -1,0 +1,399 @@
+{
+  "order": 2,
+  "grid": 48,
+  "layers": 5,
+  "material": "n2.5",
+  "period_nm": 200.0,
+  "height_nm": 500.0,
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "indices": [
+    2.5,
+    2.5,
+    2.5
+  ],
+  "runtime": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "cuda_runtime": "12.4",
+    "platform": "Linux-5.14.0-687.41.1.el9_8.x86_64-x86_64-with-glibc2.34",
+    "device": "cuda:0",
+    "cpu_threads": 1,
+    "gpu": {
+      "name": "NVIDIA H100 MIG 3g.47gb",
+      "index": 0,
+      "total_memory": 49794777088,
+      "capability": [
+        9,
+        0
+      ],
+      "uuid": "380ab2ca-0d92-2db2-32e4-a008dd2eeff7"
+    },
+    "dtype": "complex128"
+  },
+  "repeats": 1,
+  "check_fd": true,
+  "compare_cpu": true,
+  "assembly_repeats": 5,
+  "source_sha256": {
+    "benchmark_device.py": "be2bf7c9c38c5dbbf19c53a888b622cbeeb9acb0c1c701811c6108383feddc3b",
+    "benchmark_square.py": "b9bdf8b852c0342c34144df29d0952c6f7bd579e0bcace105e266b9089f5461f",
+    "block_assembly.py": "ca8d8e6a09886cc37f18470332a28959c2745ee16c81ceb3690ccbdfe5c76c38",
+    "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+    "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+    "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+    "rcwa_ext/auto.py": "a1ee2421cd89eabe21eb365c7131f509009f746cf0e671302094b00262430727",
+    "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+    "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+    "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+    "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+    "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+    "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956",
+    "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a"
+  },
+  "pmma_csv_sha256": null,
+  "status": "passed",
+  "lattice": "square",
+  "symmetry": "c2v",
+  "cuda_execution_performed": true,
+  "production_code_modified": false,
+  "scope": "normal x incidence, centred lossless circular layers/substrate; mean R and radius gradient",
+  "timing_scope": "synchronized end-to-end wall time; per-wave times summed; checkpoint I/O excluded",
+  "cuda_cpu_gap_rejection_enabled": false,
+  "common_basis_python_and_VJP_startup_excluded": true,
+  "one_wavelength_warmup_excluded": true,
+  "scalar_dimension": 25,
+  "reduced_eigen_dimension": 13,
+  "matrix": {
+    "passed": true,
+    "errors": {
+      "P": 2.5868201454605416e-16,
+      "Q": 1.0741198539170696e-16,
+      "PQ": 1.3298738800049406e-15
+    },
+    "scalar_inverse_block_sizes": [
+      9,
+      6,
+      6,
+      4
+    ],
+    "scalar_invariance_error": 4.858221504512337e-16,
+    "full_scalar_inverse_assembled": false,
+    "full_PQ_assembled": false,
+    "full_convolution_and_normal_inputs_retained": true,
+    "hex_reynolds_operations": 0,
+    "timing": {
+      "reference": {
+        "median_seconds": 0.0011735623702406883,
+        "samples": [
+          {
+            "wall_seconds": 0.0011735623702406883,
+            "process_cpu_seconds": 0.001152738000000042,
+            "wall_minus_cpu_seconds": 2.0824370240646317e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67931136,
+            "peak_cuda_reserved_bytes": 75497472
+          },
+          {
+            "wall_seconds": 0.0011840863153338432,
+            "process_cpu_seconds": 0.0011633629999998618,
+            "wall_minus_cpu_seconds": 2.0723315333981418e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67931136,
+            "peak_cuda_reserved_bytes": 75497472
+          },
+          {
+            "wall_seconds": 0.001182636246085167,
+            "process_cpu_seconds": 0.0011487859999999017,
+            "wall_minus_cpu_seconds": 3.385024608526521e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67931136,
+            "peak_cuda_reserved_bytes": 75497472
+          },
+          {
+            "wall_seconds": 0.0011350736021995544,
+            "process_cpu_seconds": 0.0011202189999988121,
+            "wall_minus_cpu_seconds": 1.4854602200742306e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67931136,
+            "peak_cuda_reserved_bytes": 75497472
+          },
+          {
+            "wall_seconds": 0.0011555347591638565,
+            "process_cpu_seconds": 0.0011332470000002814,
+            "wall_minus_cpu_seconds": 2.228775916357506e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67931136,
+            "peak_cuda_reserved_bytes": 75497472
+          }
+        ]
+      },
+      "block": {
+        "median_seconds": 0.0034701693803071976,
+        "samples": [
+          {
+            "wall_seconds": 0.0034217648208141327,
+            "process_cpu_seconds": 0.0033755009999989483,
+            "wall_minus_cpu_seconds": 4.626382081518443e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67816448,
+            "peak_cuda_reserved_bytes": 75497472
+          },
+          {
+            "wall_seconds": 0.00358551274985075,
+            "process_cpu_seconds": 0.0035129020000006506,
+            "wall_minus_cpu_seconds": 7.261074985009941e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67816448,
+            "peak_cuda_reserved_bytes": 75497472
+          },
+          {
+            "wall_seconds": 0.003454245626926422,
+            "process_cpu_seconds": 0.0033975690000005443,
+            "wall_minus_cpu_seconds": 5.6676626925877827e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67816448,
+            "peak_cuda_reserved_bytes": 75497472
+          },
+          {
+            "wall_seconds": 0.003503769636154175,
+            "process_cpu_seconds": 0.0034718539999989417,
+            "wall_minus_cpu_seconds": 3.1915636155233074e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67816448,
+            "peak_cuda_reserved_bytes": 75497472
+          },
+          {
+            "wall_seconds": 0.0034701693803071976,
+            "process_cpu_seconds": 0.003414626999999726,
+            "wall_minus_cpu_seconds": 5.554238030747172e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 67816448,
+            "peak_cuda_reserved_bytes": 75497472
+          }
+        ]
+      }
+    },
+    "timing_scope": "one-layer assembly; no backward, geometry-input preparation or eig"
+  },
+  "runs": {
+    "reference": [
+      {
+        "seconds": 0.39246625173836946,
+        "spectrum": [
+          [
+            400.0,
+            0.005107380996151927,
+            0.9948926190038467
+          ],
+          [
+            550.0,
+            0.02019222261563046,
+            0.9798077773843706
+          ],
+          [
+            700.0,
+            0.03342682267312447,
+            0.9665731773268775
+          ]
+        ],
+        "gradient": [
+          -0.024303097917355843,
+          0.056588624637140456,
+          -0.15933213633963947,
+          0.2589431668931873,
+          -0.4498294732142541
+        ],
+        "peak_cuda_allocated_bytes": 74093568
+      }
+    ],
+    "block": [
+      {
+        "seconds": 0.38355847354978323,
+        "spectrum": [
+          [
+            400.0,
+            0.00510738099615204,
+            0.9948926190038433
+          ],
+          [
+            550.0,
+            0.020192222615630816,
+            0.979807777384367
+          ],
+          [
+            700.0,
+            0.033426822673122726,
+            0.9665731773268778
+          ]
+        ],
+        "gradient": [
+          -0.024303097917348786,
+          0.05658862463714185,
+          -0.15933213633963852,
+          0.2589431668931869,
+          -0.44982947321424166
+        ],
+        "peak_cuda_allocated_bytes": 73163776
+      }
+    ],
+    "shared": [
+      {
+        "seconds": 0.16816517431288958,
+        "spectrum": [
+          [
+            400.0,
+            0.005107380996151786,
+            0.9948926190038523
+          ],
+          [
+            550.0,
+            0.02019222261563131,
+            0.9798077773843672
+          ],
+          [
+            700.0,
+            0.0334268226731233,
+            0.9665731773268785
+          ]
+        ],
+        "gradient": [
+          -0.024303097917341553,
+          0.056588624637144466,
+          -0.15933213633963664,
+          0.258943166893183,
+          -0.44982947321423966
+        ],
+        "geometry_builds": 5,
+        "spectral_graphs_retained_at_once": 1,
+        "material_inverse_or_PQ_shared_across_wavelengths": true,
+        "timing": {
+          "wall_seconds": 0.16816517431288958,
+          "process_cpu_seconds": 0.1666362690000014,
+          "wall_minus_cpu_seconds": 0.0015289053128881847,
+          "cuda_synchronized": true,
+          "peak_cuda_allocated_bytes": 72828416,
+          "peak_cuda_reserved_bytes": 75497472
+        }
+      }
+    ]
+  },
+  "comparisons": [
+    {
+      "repeat": 1,
+      "variant": "block",
+      "passed": true,
+      "power_max_abs": 3.6637359812630166e-15,
+      "gradient_max_abs": 1.2434497875801753e-14,
+      "energy_max_abs": 4.6629367034256575e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "variant": "shared",
+      "passed": true,
+      "power_max_abs": 5.551115123125783e-15,
+      "gradient_max_abs": 1.4432899320127035e-14,
+      "energy_max_abs": 3.9968028886505635e-15,
+      "finite": true,
+      "lossless_bounds": true
+    }
+  ],
+  "per_wavelength_block_comparisons": [
+    {
+      "repeat": 1,
+      "wavelength_nm": 400.0,
+      "passed": true,
+      "power_max_abs": 3.4416913763379853e-15,
+      "gradient_max_abs": 2.2273849431542203e-14,
+      "energy_max_abs": 4.6629367034256575e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 550.0,
+      "passed": true,
+      "power_max_abs": 3.6637359812630166e-15,
+      "gradient_max_abs": 7.438494264988549e-15,
+      "energy_max_abs": 2.220446049250313e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 700.0,
+      "passed": true,
+      "power_max_abs": 1.7416623698807143e-15,
+      "gradient_max_abs": 3.186340080674199e-14,
+      "energy_max_abs": 1.9984014443252818e-15,
+      "finite": true,
+      "lossless_bounds": true
+    }
+  ],
+  "finite_difference": {
+    "step": 1e-05,
+    "finite_difference": -0.2267553660376467,
+    "autodiff": -0.22675539204558415,
+    "abs_error": 2.600793744256258e-08,
+    "passed": true
+  },
+  "cpu_reference_comparisons": [
+    {
+      "variant": "reference",
+      "passed": true,
+      "power_max_abs": 3.4416913763379853e-15,
+      "gradient_max_abs": 1.7819079545233762e-14,
+      "energy_max_abs": 1.9984014443252818e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "variant": "block",
+      "passed": true,
+      "power_max_abs": 6.8833827526759706e-15,
+      "gradient_max_abs": 1.3655743202889425e-14,
+      "energy_max_abs": 4.6629367034256575e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "variant": "shared",
+      "passed": true,
+      "power_max_abs": 2.886579864025407e-15,
+      "gradient_max_abs": 1.1674688993323912e-14,
+      "energy_max_abs": 3.9968028886505635e-15,
+      "finite": true,
+      "lossless_bounds": true
+    }
+  ],
+  "dispersion_negative_control": null,
+  "port_preparation_timing": {
+    "wall_seconds": 0.08824785985052586,
+    "process_cpu_seconds": 0.012785253000000552,
+    "wall_minus_cpu_seconds": 0.0754626068505253,
+    "cuda_synchronized": true,
+    "peak_cuda_allocated_bytes": 68328448,
+    "peak_cuda_reserved_bytes": 75497472
+  },
+  "timing": {
+    "seconds": {
+      "reference": 0.39246625173836946,
+      "block": 0.38355847354978323,
+      "shared": 0.16816517431288958
+    },
+    "mean_seconds_per_wavelength": {
+      "reference": 0.13082208391278982,
+      "block": 0.1278528245165944,
+      "shared": 0.05605505810429653
+    },
+    "shared_with_port_preparation_seconds": 0.25641303416341543,
+    "shared_with_port_preparation_seconds_per_wavelength": 0.08547101138780515,
+    "block_speedup": 1.0232240422331071,
+    "shared_speedup_with_port_preparation": 1.5306018004070945
+  }
+}

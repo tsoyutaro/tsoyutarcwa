@@ -1,0 +1,1157 @@
+{
+  "order": 8,
+  "grid": 512,
+  "layers": 15,
+  "material": "PMMA",
+  "period_nm": 200.0,
+  "height_nm": 500.0,
+  "wavelengths_nm": [
+    400.0,
+    410.0,
+    420.0,
+    430.0,
+    440.0,
+    450.0,
+    460.0,
+    470.0,
+    480.0,
+    490.0,
+    500.0,
+    510.0,
+    520.0,
+    530.0,
+    540.0,
+    550.0,
+    560.0,
+    570.0,
+    580.0,
+    590.0,
+    600.0,
+    610.0,
+    620.0,
+    630.0,
+    640.0,
+    650.0,
+    660.0,
+    670.0,
+    680.0,
+    690.0,
+    700.0
+  ],
+  "indices": [
+    1.5058386407194826,
+    1.5044517379965412,
+    1.5031390046504434,
+    1.5019252865847617,
+    1.5007995119774913,
+    1.4997556950509559,
+    1.4987818752372448,
+    1.4978771153833015,
+    1.4970287447042352,
+    1.4962387171574927,
+    1.49549447785477,
+    1.494800277192312,
+    1.4941435714605,
+    1.4935298307015588,
+    1.4929479041011589,
+    1.492401592592772,
+    1.491883141360656,
+    1.4913945594397897,
+    1.490930515980278,
+    1.4904915446822353,
+    1.4900742700941088,
+    1.4896782408147413,
+    1.489301518976947,
+    1.4889428165419045,
+    1.4886013231442559,
+    1.4882752260294543,
+    1.4879645764553837,
+    1.4876670990142764,
+    1.4873834831367472,
+    1.4871111967106883,
+    1.4868514449253294
+  ],
+  "runtime": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "cuda_runtime": "12.4",
+    "platform": "Linux-5.14.0-687.41.1.el9_8.x86_64-x86_64-with-glibc2.34",
+    "device": "cuda:0",
+    "cpu_threads": 1,
+    "gpu": {
+      "name": "NVIDIA H100 MIG 3g.47gb",
+      "index": 0,
+      "total_memory": 49794777088,
+      "capability": [
+        9,
+        0
+      ],
+      "uuid": "380ab2ca-0d92-2db2-32e4-a008dd2eeff7"
+    },
+    "dtype": "complex128"
+  },
+  "repeats": 1,
+  "check_fd": false,
+  "compare_cpu": false,
+  "assembly_repeats": 5,
+  "source_sha256": {
+    "benchmark_device.py": "be2bf7c9c38c5dbbf19c53a888b622cbeeb9acb0c1c701811c6108383feddc3b",
+    "benchmark_square.py": "b9bdf8b852c0342c34144df29d0952c6f7bd579e0bcace105e266b9089f5461f",
+    "block_assembly.py": "ca8d8e6a09886cc37f18470332a28959c2745ee16c81ceb3690ccbdfe5c76c38",
+    "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+    "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+    "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+    "rcwa_ext/auto.py": "a1ee2421cd89eabe21eb365c7131f509009f746cf0e671302094b00262430727",
+    "rcwa_ext/config.py": "167189e5d860e671c96a9d0f8dedcd4e0c698d2250db47d7a7359d4a1aab22d4",
+    "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+    "rcwa_ext/nvm.py": "35623b8fdbdb76de90c78c5298463dd8dcba0c59decf26c6a5071b52d58b3e81",
+    "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+    "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+    "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956",
+    "rcwa_solver_auto.py": "97855194fa1818b4d776094d70c4e59d79c2062eeb6fb79dea43cb79937f738a"
+  },
+  "pmma_csv_sha256": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+  "status": "passed",
+  "lattice": "square",
+  "symmetry": "c2v",
+  "cuda_execution_performed": true,
+  "production_code_modified": false,
+  "scope": "normal x incidence, centred lossless circular layers/substrate; mean R and radius gradient",
+  "timing_scope": "synchronized end-to-end wall time; per-wave times summed; checkpoint I/O excluded",
+  "cuda_cpu_gap_rejection_enabled": false,
+  "common_basis_python_and_VJP_startup_excluded": true,
+  "one_wavelength_warmup_excluded": true,
+  "scalar_dimension": 289,
+  "reduced_eigen_dimension": 145,
+  "matrix": {
+    "passed": true,
+    "errors": {
+      "P": 6.611351844822429e-16,
+      "Q": 9.962048581936736e-17,
+      "PQ": 2.0395450525206954e-14
+    },
+    "scalar_inverse_block_sizes": [
+      81,
+      72,
+      72,
+      64
+    ],
+    "scalar_invariance_error": 5.146461496133362e-16,
+    "full_scalar_inverse_assembled": false,
+    "full_PQ_assembled": false,
+    "full_convolution_and_normal_inputs_retained": true,
+    "hex_reynolds_operations": 0,
+    "timing": {
+      "reference": {
+        "median_seconds": 0.002728639170527458,
+        "samples": [
+          {
+            "wall_seconds": 0.0026672063395380974,
+            "process_cpu_seconds": 0.002654993000000161,
+            "wall_minus_cpu_seconds": 1.2213339537936463e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 177747456,
+            "peak_cuda_reserved_bytes": 1828716544
+          },
+          {
+            "wall_seconds": 0.0027160895988345146,
+            "process_cpu_seconds": 0.0027060099999989262,
+            "wall_minus_cpu_seconds": 1.00795988355884e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 177747456,
+            "peak_cuda_reserved_bytes": 1828716544
+          },
+          {
+            "wall_seconds": 0.0027412977069616318,
+            "process_cpu_seconds": 0.002732077999999305,
+            "wall_minus_cpu_seconds": 9.219706962326768e-06,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 177747456,
+            "peak_cuda_reserved_bytes": 1828716544
+          },
+          {
+            "wall_seconds": 0.002728639170527458,
+            "process_cpu_seconds": 0.0027135000000004794,
+            "wall_minus_cpu_seconds": 1.5139170526978774e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 177747456,
+            "peak_cuda_reserved_bytes": 1828716544
+          },
+          {
+            "wall_seconds": 0.002729400061070919,
+            "process_cpu_seconds": 0.002718348000000148,
+            "wall_minus_cpu_seconds": 1.1052061070770947e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 177747456,
+            "peak_cuda_reserved_bytes": 1828716544
+          }
+        ]
+      },
+      "block": {
+        "median_seconds": 0.004689057357609272,
+        "samples": [
+          {
+            "wall_seconds": 0.00468012411147356,
+            "process_cpu_seconds": 0.00464890699999998,
+            "wall_minus_cpu_seconds": 3.121711147358042e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 159560192,
+            "peak_cuda_reserved_bytes": 1828716544
+          },
+          {
+            "wall_seconds": 0.004702499136328697,
+            "process_cpu_seconds": 0.004675509000000133,
+            "wall_minus_cpu_seconds": 2.6990136328564063e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 159560192,
+            "peak_cuda_reserved_bytes": 1828716544
+          },
+          {
+            "wall_seconds": 0.004689057357609272,
+            "process_cpu_seconds": 0.004663580000000778,
+            "wall_minus_cpu_seconds": 2.5477357608494344e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 159560192,
+            "peak_cuda_reserved_bytes": 1828716544
+          },
+          {
+            "wall_seconds": 0.004671260714530945,
+            "process_cpu_seconds": 0.004643692000000144,
+            "wall_minus_cpu_seconds": 2.756871453080123e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 159560192,
+            "peak_cuda_reserved_bytes": 1828716544
+          },
+          {
+            "wall_seconds": 0.004700264893472195,
+            "process_cpu_seconds": 0.00466898600000043,
+            "wall_minus_cpu_seconds": 3.127889347176449e-05,
+            "cuda_synchronized": true,
+            "peak_cuda_allocated_bytes": 159560192,
+            "peak_cuda_reserved_bytes": 1828716544
+          }
+        ]
+      }
+    },
+    "timing_scope": "one-layer assembly; no backward, geometry-input preparation or eig"
+  },
+  "runs": {
+    "reference": [
+      {
+        "seconds": 66.79494496434927,
+        "spectrum": [
+          [
+            400.0,
+            0.008038708333720076,
+            0.9919612916662842
+          ],
+          [
+            410.0,
+            0.007838853519590495,
+            0.9921611464804114
+          ],
+          [
+            420.0,
+            0.007774855986320223,
+            0.9922251440136856
+          ],
+          [
+            430.0,
+            0.00786030142463587,
+            0.9921396985753556
+          ],
+          [
+            440.0,
+            0.008078358276770795,
+            0.9919216417232156
+          ],
+          [
+            450.0,
+            0.008393984878995966,
+            0.9916060151210198
+          ],
+          [
+            460.0,
+            0.008764255321298965,
+            0.9912357446787009
+          ],
+          [
+            470.0,
+            0.009147010030118056,
+            0.9908529899698908
+          ],
+          [
+            480.0,
+            0.009505807518665355,
+            0.9904941924813428
+          ],
+          [
+            490.0,
+            0.009813474878211647,
+            0.9901865251217918
+          ],
+          [
+            500.0,
+            0.010052218968702327,
+            0.9899477810312933
+          ],
+          [
+            510.0,
+            0.010213944936381895,
+            0.9897860550636234
+          ],
+          [
+            520.0,
+            0.010297900447617605,
+            0.9897020995523987
+          ],
+          [
+            530.0,
+            0.010309961596017114,
+            0.9896900384039697
+          ],
+          [
+            540.0,
+            0.010259713434202686,
+            0.9897402865658078
+          ],
+          [
+            550.0,
+            0.010159773957365207,
+            0.9898402260426405
+          ],
+          [
+            560.0,
+            0.010023485368736698,
+            0.9899765146312702
+          ],
+          [
+            570.0,
+            0.009864482288548733,
+            0.9901355177114596
+          ],
+          [
+            580.0,
+            0.009695279054303582,
+            0.9903047209456912
+          ],
+          [
+            590.0,
+            0.009527144287925733,
+            0.9904728557120612
+          ],
+          [
+            600.0,
+            0.009369442732345756,
+            0.9906305572676569
+          ],
+          [
+            610.0,
+            0.009229716504955217,
+            0.9907702834950438
+          ],
+          [
+            620.0,
+            0.009113541171332947,
+            0.9908864588286664
+          ],
+          [
+            630.0,
+            0.009024699309840607,
+            0.9909753006901681
+          ],
+          [
+            640.0,
+            0.008965347229311575,
+            0.9910346527706891
+          ],
+          [
+            650.0,
+            0.008936183326899988,
+            0.9910638166731149
+          ],
+          [
+            660.0,
+            0.008936767348389068,
+            0.99106323265162
+          ],
+          [
+            670.0,
+            0.008965626331213289,
+            0.9910343736687723
+          ],
+          [
+            680.0,
+            0.009020636926042526,
+            0.9909793630739527
+          ],
+          [
+            690.0,
+            0.009099043198447676,
+            0.9909009568015333
+          ],
+          [
+            700.0,
+            0.009197847299657964,
+            0.9908021527003461
+          ]
+        ],
+        "gradient": [
+          0.0024573118218366792,
+          0.0011676386340846786,
+          0.00019304108183897152,
+          -0.0004964766143805611,
+          -0.00309016644409059,
+          -0.009020480707816768,
+          -0.014188844084768858,
+          -0.00914432970411281,
+          0.01108028738703698,
+          0.0353516161215173,
+          0.038530802910810104,
+          0.004580228908698606,
+          -0.048194442586604234,
+          -0.07173276364229113,
+          -0.03372132730392418
+        ],
+        "peak_cuda_allocated_bytes": 1740192768
+      }
+    ],
+    "block": [
+      {
+        "seconds": 66.46767714247108,
+        "spectrum": [
+          [
+            400.0,
+            0.008038708333760955,
+            0.9919612916662334
+          ],
+          [
+            410.0,
+            0.00783885351957704,
+            0.9921611464804367
+          ],
+          [
+            420.0,
+            0.007774855986305997,
+            0.9922251440136978
+          ],
+          [
+            430.0,
+            0.007860301424628572,
+            0.9921396985753708
+          ],
+          [
+            440.0,
+            0.00807835827681001,
+            0.9919216417231792
+          ],
+          [
+            450.0,
+            0.00839398487898301,
+            0.9916060151210144
+          ],
+          [
+            460.0,
+            0.008764255321402818,
+            0.9912357446785932
+          ],
+          [
+            470.0,
+            0.00914701003007481,
+            0.9908529899699307
+          ],
+          [
+            480.0,
+            0.009505807518676267,
+            0.9904941924813104
+          ],
+          [
+            490.0,
+            0.009813474878230841,
+            0.9901865251217613
+          ],
+          [
+            500.0,
+            0.010052218968687781,
+            0.989947781031307
+          ],
+          [
+            510.0,
+            0.01021394493645952,
+            0.9897860550635452
+          ],
+          [
+            520.0,
+            0.010297900447652728,
+            0.9897020995523598
+          ],
+          [
+            530.0,
+            0.010309961596075314,
+            0.9896900384038971
+          ],
+          [
+            540.0,
+            0.010259713434191128,
+            0.9897402865658215
+          ],
+          [
+            550.0,
+            0.01015977395734713,
+            0.9898402260426566
+          ],
+          [
+            560.0,
+            0.010023485368649018,
+            0.9899765146313491
+          ],
+          [
+            570.0,
+            0.009864482288489181,
+            0.9901355177115063
+          ],
+          [
+            580.0,
+            0.009695279054369704,
+            0.990304720945635
+          ],
+          [
+            590.0,
+            0.009527144288043602,
+            0.990472855711981
+          ],
+          [
+            600.0,
+            0.009369442732275362,
+            0.9906305572677342
+          ],
+          [
+            610.0,
+            0.00922971650492737,
+            0.9907702834950604
+          ],
+          [
+            620.0,
+            0.009113541171462267,
+            0.9908864588285328
+          ],
+          [
+            630.0,
+            0.009024699309823558,
+            0.9909753006901881
+          ],
+          [
+            640.0,
+            0.008965347229328,
+            0.9910346527706672
+          ],
+          [
+            650.0,
+            0.008936183326889596,
+            0.9910638166731243
+          ],
+          [
+            660.0,
+            0.008936767348379528,
+            0.9910632326516244
+          ],
+          [
+            670.0,
+            0.008965626331298372,
+            0.991034373668689
+          ],
+          [
+            680.0,
+            0.009020636926174377,
+            0.9909793630738546
+          ],
+          [
+            690.0,
+            0.00909904319850026,
+            0.9909009568014888
+          ],
+          [
+            700.0,
+            0.009197847299625687,
+            0.990802152700388
+          ]
+        ],
+        "gradient": [
+          0.002457311821826061,
+          0.001167638634075132,
+          0.00019304108182723157,
+          -0.0004964766143777242,
+          -0.0030901664440934717,
+          -0.009020480707816867,
+          -0.014188844084774523,
+          -0.009144329704116464,
+          0.011080287387055687,
+          0.03535161612154272,
+          0.03853080291081771,
+          0.004580228908655303,
+          -0.048194442586681666,
+          -0.0717327636423412,
+          -0.03372132730391506
+        ],
+        "peak_cuda_allocated_bytes": 1288398336
+      }
+    ],
+    "shared": [
+      {
+        "seconds": 17.93456769362092,
+        "spectrum": [
+          [
+            400.0,
+            0.008038708333755149,
+            0.9919612916662307
+          ],
+          [
+            410.0,
+            0.00783885351961498,
+            0.9921611464803951
+          ],
+          [
+            420.0,
+            0.007774855986355802,
+            0.9922251440136473
+          ],
+          [
+            430.0,
+            0.007860301424632296,
+            0.9921396985753671
+          ],
+          [
+            440.0,
+            0.00807835827679196,
+            0.991921641723194
+          ],
+          [
+            450.0,
+            0.008393984879003008,
+            0.9916060151209894
+          ],
+          [
+            460.0,
+            0.008764255321391995,
+            0.9912357446786066
+          ],
+          [
+            470.0,
+            0.009147010030080867,
+            0.9908529899699275
+          ],
+          [
+            480.0,
+            0.009505807518646847,
+            0.9904941924813534
+          ],
+          [
+            490.0,
+            0.009813474878229561,
+            0.99018652512176
+          ],
+          [
+            500.0,
+            0.010052218968673261,
+            0.989947781031324
+          ],
+          [
+            510.0,
+            0.010213944936430906,
+            0.9897860550635704
+          ],
+          [
+            520.0,
+            0.0102979004475407,
+            0.9897020995524654
+          ],
+          [
+            530.0,
+            0.01030996159609146,
+            0.9896900384038866
+          ],
+          [
+            540.0,
+            0.01025971343421443,
+            0.9897402865657875
+          ],
+          [
+            550.0,
+            0.010159773957333355,
+            0.9898402260426659
+          ],
+          [
+            560.0,
+            0.010023485368602281,
+            0.9899765146313936
+          ],
+          [
+            570.0,
+            0.009864482288482723,
+            0.9901355177115241
+          ],
+          [
+            580.0,
+            0.00969527905430419,
+            0.9903047209456952
+          ],
+          [
+            590.0,
+            0.009527144287972146,
+            0.9904728557120417
+          ],
+          [
+            600.0,
+            0.009369442732231512,
+            0.9906305572677757
+          ],
+          [
+            610.0,
+            0.009229716504980156,
+            0.9907702834950186
+          ],
+          [
+            620.0,
+            0.009113541171373576,
+            0.9908864588286201
+          ],
+          [
+            630.0,
+            0.009024699309818897,
+            0.9909753006901793
+          ],
+          [
+            640.0,
+            0.008965347229359433,
+            0.9910346527706324
+          ],
+          [
+            650.0,
+            0.00893618332687751,
+            0.9910638166731301
+          ],
+          [
+            660.0,
+            0.008936767348454017,
+            0.9910632326515542
+          ],
+          [
+            670.0,
+            0.008965626331210194,
+            0.9910343736687848
+          ],
+          [
+            680.0,
+            0.009020636926145255,
+            0.9909793630738404
+          ],
+          [
+            690.0,
+            0.009099043198458234,
+            0.9909009568015407
+          ],
+          [
+            700.0,
+            0.009197847299627854,
+            0.9908021527003841
+          ]
+        ],
+        "gradient": [
+          0.0024573118218248167,
+          0.0011676386340695119,
+          0.0001930410818232961,
+          -0.0004964766143871655,
+          -0.003090166444086024,
+          -0.00902048070779428,
+          -0.014188844084746435,
+          -0.00914432970410974,
+          0.011080287387038281,
+          0.035351616121505586,
+          0.03853080291078227,
+          0.004580228908650544,
+          -0.04819444258664732,
+          -0.07173276364229647,
+          -0.03372132730387623
+        ],
+        "geometry_builds": 15,
+        "spectral_graphs_retained_at_once": 1,
+        "material_inverse_or_PQ_shared_across_wavelengths": false,
+        "timing": {
+          "wall_seconds": 17.93456769362092,
+          "process_cpu_seconds": 17.838625570000005,
+          "wall_minus_cpu_seconds": 0.09594212362091525,
+          "cuda_synchronized": true,
+          "peak_cuda_allocated_bytes": 1392342016,
+          "peak_cuda_reserved_bytes": 2057306112
+        }
+      }
+    ]
+  },
+  "comparisons": [
+    {
+      "repeat": 1,
+      "variant": "block",
+      "passed": true,
+      "power_max_abs": 1.3367085216486885e-13,
+      "gradient_max_abs": 7.743111707370076e-14,
+      "energy_max_abs": 2.886579864025407e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "variant": "shared",
+      "passed": true,
+      "power_max_abs": 1.3441678325953887e-13,
+      "gradient_max_abs": 4.806224862541342e-14,
+      "energy_max_abs": 2.19824158875781e-14,
+      "finite": true,
+      "lossless_bounds": true
+    }
+  ],
+  "per_wavelength_block_comparisons": [
+    {
+      "repeat": 1,
+      "wavelength_nm": 400.0,
+      "passed": true,
+      "power_max_abs": 5.084821452783217e-14,
+      "gradient_max_abs": 3.6945446701963647e-13,
+      "energy_max_abs": 5.662137425588298e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 410.0,
+      "passed": true,
+      "power_max_abs": 2.531308496145357e-14,
+      "gradient_max_abs": 1.714982322820191e-13,
+      "energy_max_abs": 1.3766765505351941e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 420.0,
+      "passed": true,
+      "power_max_abs": 1.4226467226485795e-14,
+      "gradient_max_abs": 3.964467643058356e-13,
+      "energy_max_abs": 5.773159728050814e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 430.0,
+      "passed": true,
+      "power_max_abs": 1.5210055437364645e-14,
+      "gradient_max_abs": 4.822323096398407e-13,
+      "energy_max_abs": 8.548717289613705e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 440.0,
+      "passed": true,
+      "power_max_abs": 3.92151588979317e-14,
+      "gradient_max_abs": 5.655059753806313e-13,
+      "energy_max_abs": 1.354472090042691e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 450.0,
+      "passed": true,
+      "power_max_abs": 1.2956649642070772e-14,
+      "gradient_max_abs": 2.026434575697067e-13,
+      "energy_max_abs": 1.5765166949677223e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 460.0,
+      "passed": true,
+      "power_max_abs": 1.0769163338864018e-13,
+      "gradient_max_abs": 5.156708393627696e-13,
+      "energy_max_abs": 3.9968028886505635e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 470.0,
+      "passed": true,
+      "power_max_abs": 4.32466562561018e-14,
+      "gradient_max_abs": 2.9685975899695904e-13,
+      "energy_max_abs": 8.881784197001252e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 480.0,
+      "passed": true,
+      "power_max_abs": 3.241851231905457e-14,
+      "gradient_max_abs": 5.032432803808717e-13,
+      "energy_max_abs": 1.3322676295501878e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 490.0,
+      "passed": true,
+      "power_max_abs": 3.0531133177191805e-14,
+      "gradient_max_abs": 1.2146533778789603e-13,
+      "energy_max_abs": 7.882583474838611e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 500.0,
+      "passed": true,
+      "power_max_abs": 1.4545656346065527e-14,
+      "gradient_max_abs": 1.6340401254311132e-13,
+      "energy_max_abs": 5.218048215738236e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 510.0,
+      "passed": true,
+      "power_max_abs": 7.815970093361102e-14,
+      "gradient_max_abs": 4.749117765712185e-13,
+      "energy_max_abs": 5.329070518200751e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 520.0,
+      "passed": true,
+      "power_max_abs": 3.8968828164342995e-14,
+      "gradient_max_abs": 1.5366180550202557e-13,
+      "energy_max_abs": 1.6431300764452317e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 530.0,
+      "passed": true,
+      "power_max_abs": 7.260858581048524e-14,
+      "gradient_max_abs": 5.099393129981422e-13,
+      "energy_max_abs": 2.7533531010703882e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 540.0,
+      "passed": true,
+      "power_max_abs": 1.3655743202889425e-14,
+      "gradient_max_abs": 2.423894418512873e-13,
+      "energy_max_abs": 1.2656542480726785e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 550.0,
+      "passed": true,
+      "power_max_abs": 1.807581861967833e-14,
+      "gradient_max_abs": 3.1283439380636047e-13,
+      "energy_max_abs": 5.773159728050814e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 560.0,
+      "passed": true,
+      "power_max_abs": 8.767986336977174e-14,
+      "gradient_max_abs": 4.90885110338013e-13,
+      "energy_max_abs": 6.8833827526759706e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 570.0,
+      "passed": true,
+      "power_max_abs": 5.955132220680781e-14,
+      "gradient_max_abs": 2.5750235277399725e-13,
+      "energy_max_abs": 8.215650382226158e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 580.0,
+      "passed": true,
+      "power_max_abs": 6.612245473380796e-14,
+      "gradient_max_abs": 3.4101887980142465e-13,
+      "energy_max_abs": 5.218048215738236e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 590.0,
+      "passed": true,
+      "power_max_abs": 1.178692560221961e-13,
+      "gradient_max_abs": 5.084960230661295e-13,
+      "energy_max_abs": 2.4646951146678475e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 600.0,
+      "passed": true,
+      "power_max_abs": 7.72715225139109e-14,
+      "gradient_max_abs": 3.311656504578764e-13,
+      "energy_max_abs": 9.547918011776346e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 610.0,
+      "passed": true,
+      "power_max_abs": 2.7847515959855684e-14,
+      "gradient_max_abs": 3.23040205696401e-13,
+      "energy_max_abs": 1.2323475573339238e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 620.0,
+      "passed": true,
+      "power_max_abs": 1.3367085216486885e-13,
+      "gradient_max_abs": 5.319633622491438e-13,
+      "energy_max_abs": 4.9960036108132044e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 630.0,
+      "passed": true,
+      "power_max_abs": 1.9984014443252818e-14,
+      "gradient_max_abs": 2.0493676200494804e-13,
+      "energy_max_abs": 1.176836406102666e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 640.0,
+      "passed": true,
+      "power_max_abs": 2.19824158875781e-14,
+      "gradient_max_abs": 8.225364833691629e-14,
+      "energy_max_abs": 4.884981308350689e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 650.0,
+      "passed": true,
+      "power_max_abs": 1.0392728344577051e-14,
+      "gradient_max_abs": 3.2798763704988687e-13,
+      "energy_max_abs": 1.4876988529977098e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 660.0,
+      "passed": true,
+      "power_max_abs": 9.539244394396462e-15,
+      "gradient_max_abs": 1.0162010122272136e-13,
+      "energy_max_abs": 9.103828801926284e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 670.0,
+      "passed": true,
+      "power_max_abs": 8.508298232623446e-14,
+      "gradient_max_abs": 2.717756575343344e-13,
+      "energy_max_abs": 1.432187701766452e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 680.0,
+      "passed": true,
+      "power_max_abs": 1.3185112723856918e-13,
+      "gradient_max_abs": 4.634626016297716e-13,
+      "energy_max_abs": 2.886579864025407e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 690.0,
+      "passed": true,
+      "power_max_abs": 5.2584672727284953e-14,
+      "gradient_max_abs": 4.1879694157032077e-13,
+      "energy_max_abs": 1.8984813721090177e-14,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 700.0,
+      "passed": true,
+      "power_max_abs": 4.18554080283684e-14,
+      "gradient_max_abs": 3.862951625244193e-13,
+      "energy_max_abs": 1.354472090042691e-14,
+      "finite": true,
+      "lossless_bounds": true
+    }
+  ],
+  "finite_difference": null,
+  "cpu_reference_comparisons": null,
+  "dispersion_negative_control": {
+    "wavelength_nm": 400.0,
+    "actual_index": 1.5058386407194826,
+    "wrong_fixed_index": 1.492401592592772,
+    "power_difference": 0.0003118957405317119,
+    "passed": true
+  },
+  "port_preparation_timing": {
+    "wall_seconds": 0.13045526016503572,
+    "process_cpu_seconds": 0.12970763099997384,
+    "wall_minus_cpu_seconds": 0.0007476291650618805,
+    "cuda_synchronized": true,
+    "peak_cuda_allocated_bytes": 406428672,
+    "peak_cuda_reserved_bytes": 2006974464
+  },
+  "timing": {
+    "seconds": {
+      "reference": 66.79494496434927,
+      "block": 66.46767714247108,
+      "shared": 17.93456769362092
+    },
+    "mean_seconds_per_wavelength": {
+      "reference": 2.1546756440112667,
+      "block": 2.1441186174990667,
+      "shared": 0.5785344417297071
+    },
+    "shared_with_port_preparation_seconds": 18.065022953785956,
+    "shared_with_port_preparation_seconds_per_wavelength": 0.5827426759285792,
+    "block_speedup": 1.0049237138402882,
+    "shared_speedup_with_port_preparation": 3.6974735728387658
+  }
+}
