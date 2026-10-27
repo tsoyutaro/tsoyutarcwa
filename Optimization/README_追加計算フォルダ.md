@@ -60,9 +60,13 @@ Word原稿は今回変更していない。9本の数式は編集可能なWord�
 
 未実行の追加43条件にD6専用版を同梱した。六方格子は `hexagonal_backend: d6-native-e1-pair-v1` でnative starとE1の対の2行による処理を使う。正方格子は既存のC2v実装を維持する。`reference` で元の六方格子実装を選べるが、構成変更時は空の別出力先を使用する。
 
-CPU検証ではM8/Q512・15層の順計算＋逆伝播が約52秒から約17秒へ短縮し、R/Tと全半径の勾配も一致した。GPU速度は未測定。進行中の既存計算は変更していない。検証コードはOptimization内のd6_optimizedに配置した。
+CPU検証ではM8/Q512・15層の順計算＋逆伝播が約52秒から約17秒へ短縮し、R/Tと全半径の勾配も一致した。その後、ユーザー提供CUDAログでn2.5/PMMAのM8・15層の波長共有の一致と速度改善を確認した。進行中の既存計算は変更していない。検証コードはOptimization内のd6_optimizedに配置した。
 
 
 ## 波長共有・CUDA検証コード
 
 検証コード一式をOptimization直下へ追加しました。[検証コードの場所とCUDA実行方法](検証コードの場所とCUDA実行方法.md)を参照してください。今回の反映は検証用ファイルの配置で、本番の最適化経路は未切替です。
+
+## 本番Adamへの接続検証
+
+[optimization_integration_validation/README_ja.md](optimization_integration_validation/README_ja.md)へ、softmaxと全logits勾配、実際のAdam更新、中断再開、best形状のストリーミング検証を行うコードとCUDAコマンドを追加しました。M2のCPU試験6ケースは合格です。本番共通RCWAへの波長共有の自動切替は行っていません。

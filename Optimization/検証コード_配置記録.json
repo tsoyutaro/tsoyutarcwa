@@ -42,14 +42,29 @@
       "archive_sha256": "e9d9c10fdb2350625719663c7d97c1ad4042bc5d7e2ba6b2be09c5dd3a095736",
       "archive_bytes": 174499,
       "cuda_hardware_validation": "not_performed"
+    },
+    {
+      "folder": "optimization_integration_validation",
+      "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\Optimization\\optimization_integration_validation",
+      "files": 139,
+      "archive": "本番最適化_波長共有_接続検証.zip",
+      "archive_sha256": "9d196d279b8bb08eca9a479522b3a5c86a66e670f25a8e8b7f5fd6e54dd13a8b",
+      "archive_bytes": 309119,
+      "local_cpu_integration": "passed: 6 cases, M2/grid48, 5 and 15 layers",
+      "local_cuda_integration": "not_performed",
+      "frozen_production_sources_verified": 48,
+      "production_fast_path_enabled": false
     }
   ],
   "protected_source_files": 40,
   "protected_sources_unchanged": true,
   "production_fast_path_enabled": false,
-  "cuda_hardware_validation": "not_performed",
+  "cuda_hardware_validation": "not_performed_locally",
   "cr_specific_validation": "not_performed",
   "backup": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-10-22\\202\\work\\20260806_validation_deploy_20261027_backup",
   "user_reported_square_cuda_validation": "passed: n2.5 and PMMA, M8 L15, supplied console logs",
-  "hex_cuda_hardware_validation": "not_performed"
+  "hex_cuda_hardware_validation": "user_reported_passed",
+  "user_reported_hex_cuda_validation": "passed: n2.5 and PMMA, small FD/CPU checks and M8 L15 31 wavelengths, supplied console logs",
+  "production_integration_local_cpu": "passed: six cases",
+  "production_integration_local_cuda": "not_performed"
 }

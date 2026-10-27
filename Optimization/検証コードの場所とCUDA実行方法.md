@@ -4,6 +4,7 @@
 
 | フォルダ | 内容 |
 |---|---|
+| [optimization_integration_validation](optimization_integration_validation/README_ja.md) | 本番softmax・全logits勾配・Adam更新・checkpoint再開・best形状のストリーミング再評価を従来版と比較。 |
 | [square_spectral_cuda_validation](square_spectral_cuda_validation/README_CUDA_ja.md) | 正方格子のCUDA対応ドライバー。一定屈折率1.5/2.0/2.5とPMMA分散の波長共有を検証。 |
 | [hex_spectral_cuda_validation](hex_spectral_cuda_validation/README_CUDA_ja.md) | 六方格子のCUDA対応ドライバー。従来版・D6専用版・波長共有版を比較。 |
 | [square_spectral_validation](square_spectral_validation/README_ja.md) | 正方格子のCPU検証コードと、次数8・15層の実測結果。 |
@@ -45,9 +46,9 @@ python benchmark_device.py --device cuda:0 --order 8 --grid 512 --layers 15 --ma
 反映したのは、検証コード・既存の検証結果・データCSV・実行手順・配布用ZIPの配置です。
 検証済みコードとCSVのSHA256、ZIPのCRCを確認しています。実行場所に関係するMarkdown内のパスだけを20260806側へ変更しました。
 
-正方格子のCUDAはユーザー提供ログで次数8・15層のn2.5/PMMAの合格を確認しました。六方格子CUDAとCr専用の複素誘電率・吸収・勾配の検証は未完了です。
+正方格子・六方格子のCUDAは、ユーザー提供ログで小規模のCPU照合・有限差分と、次数8・15層・31波長のn2.5/PMMAの合格を確認しました。Cr専用の複素誘電率・吸収・勾配の検証は未実施です。
 このため本番RCWAの計算経路や、進行中のdielectric_motheye_n25・cr_motheyeの最適化コードと設定は切り替えていません。
-正方格子の合格を六方格子・Crの合格とみなすことはできません。
+今回、本番Adamとの接続検証用パッケージを追加しました。CPUの接続試験は合格し、CUDAの接続試験は下記の手順で実行できます。Crは対象外です。
 共通RCWAへの組込みは適用条件を判定する高速経路として行い、対象外は従来経路を維持する方針です。
 
 CUDA対応版に付属するverified_cpu_smokeはCPU上での動作確認結果です。CUDA実機の合格結果ではありません。
@@ -56,3 +57,17 @@ CUDA対応版に付属するverified_cpu_smokeはCPU上での動作確認結果�
 ## 六方格子のCUDA検証
 
 [hex_spectral_cuda_validation/README_CUDA_ja.md](hex_spectral_cuda_validation/README_CUDA_ja.md)に、小規模CPU照合・有限差分、次数8・15層・31波長、550 nm単独測定のコマンドを追加しました。
+
+## 本番最適化への接続確認（2026-10-27）
+
+[接続検証の手順とCPU結果](optimization_integration_validation/README_ja.md)を追加しました。既存のbenchmarkのフォルダから、次を実行します。
+
+```bash
+cd ../optimization_integration_validation
+python validate_connection.py --device cuda:0 --suite quick --output results/cuda/quick
+python validate_connection.py --device cuda:0 --suite production --output results/cuda/production_M8_L15
+```
+
+quick合格後にproductionを実行します。productionはM8/grid512/15層/31波長・Adam 3更新で、既定でn2.5/PMMAと正方格子/六方格子の4ケースを実行します。材料・格子ごとに別PCへ分けるコマンドも手順に記載しました。配布用は[本番最適化_波長共有_接続検証.zip](本番最適化_波長共有_接続検証.zip)です。
+
+ローカルCPUではM2/grid48の5層4ケースと、保存済み形状を含むn2.5の15層2ケースが合格しました。CUDAの接続確認はこのPCでは未実行です。既存の本番ソース・設定40ファイルはSHA256が一致し、今回の配置による変更はありません。
