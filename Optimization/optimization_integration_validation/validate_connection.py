@@ -18,6 +18,7 @@ import traceback
 import torch
 from benchmark_device import configure_device
 from fast_objective import FastEvaluator, load_model, sync
+from source_integrity import POLICY as SOURCE_HASH_POLICY, require_frozen_sources, text_sha256
 
 ROOT = Path(__file__).resolve().parent
 TOL = dict(loss_atol=1e-8, gradient_atol=1e-7, gradient_rtol=2e-5,
@@ -283,16 +284,15 @@ def main():
         if values is None:
             parser.error('Profile JSON must contain best_logits or logits.')
         profile=dict(path=str(args.profile_json.resolve()),sha256=hashlib.sha256(raw).hexdigest(),logits=values)
-    frozen=json.loads((ROOT/'frozen_production_sources.json').read_text())
-    for relative,item in frozen.items():
-        if hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()!=item['sha256']:
-            raise RuntimeError('Frozen production source changed: '+relative)
-    source_hashes={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()
+    integrity=require_frozen_sources(ROOT)
+    print(f'SOURCE INTEGRITY PASSED: {integrity["checked_files"]} files; '
+          f'{len(integrity["newline_or_bom_only_files"])} newline/BOM-only differences',flush=True)
+    source_hashes={p.relative_to(ROOT).as_posix():text_sha256(p)
                    for p in sorted(ROOT.rglob('*.py')) if '__pycache__' not in p.parts and 'results' not in p.parts}
     spec=importlib.util.find_spec('torcwa')
     if not spec or not spec.origin:
         raise RuntimeError('torcwa is required.')
-    source_hashes.update({'installed_torcwa/'+p.name:hashlib.sha256(p.read_bytes()).hexdigest()
+    source_hashes.update({'installed_torcwa/'+p.name:text_sha256(p)
         for p in sorted(Path(spec.origin).parent.glob('*.py'))})
     runtime=dict(device=args.device,torch=str(torch.__version__),python=platform.python_version(),
                  torcwa=importlib.metadata.version('torcwa'),
@@ -302,7 +302,7 @@ def main():
         runtime['gpu_uuid']=str(getattr(torch.cuda.get_device_properties(args.device),'uuid','unavailable'))
     config=dict(suite=args.suite,order=args.order,grid=args.grid,layers=args.layers,steps=args.steps,
                 waves=args.waves,fd_waves=args.fd_waves,materials=args.materials,lattices=args.lattices,
-                runtime=runtime,sources=source_hashes,profile=profile,tolerances=TOL)
+                runtime=runtime,sources=source_hashes,source_hash_policy=SOURCE_HASH_POLICY,profile=profile,tolerances=TOL)
     out=args.output.resolve()
     if any(out.is_relative_to(ROOT/p) for p in ('Optimization','pmma_case','studies','rcwa_ext')):
         parser.error('Output must not be inside the frozen source directories.')
@@ -316,7 +316,7 @@ def main():
     else:
         write_json(identity,config)
     summary=dict(status='running',configuration=config,cuda_execution_performed=args.device.startswith('cuda'),
-                 production_fast_path_enabled=False,cases=[])
+                 production_fast_path_enabled=False,source_integrity=integrity,cases=[])
     for material in args.materials:
         for lattice in args.lattices:
             folder=out/(material.replace('.','')+'_'+lattice)

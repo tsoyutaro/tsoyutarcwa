@@ -1,5 +1,7 @@
 # 本番最適化と波長共有版の接続検証
 
+**改行照合の修正版v2:** `Frozen production source changed` で停止する場合は、[改行対応の説明](README_改行対応.md)を参照し、`python source_integrity.py` を先に実行してください。
+
 本番の geometry.py、physics.py、engine.py を変更せずコピーし、従来の評価関数と FastEvaluator を、同じ Adam エンジンの evaluator 引数に渡して比較します。対象は n=2.5 と、CSV の分散を使う PMMA、それぞれの正方格子・六方格子です。
 
 配置先は `20260806側のoutputs/Optimization/optimization_integration_validation` です。このフォルダ全体、または同階層の `本番最適化_波長共有_接続検証.zip` を別PCへコピーできます。既存の CUDA 検証が動いた PyTorch 環境を使ってください。追加の Optuna インストールは不要です。
@@ -15,13 +17,13 @@ cd ../optimization_integration_validation
 まず小規模の接続検証を実行します。1コマンドで n2.5・PMMA × 正方格子・六方格子の4ケースを順に実行します。M=2、NVM grid=48、5層、400/550/700 nm、Adam 2更新です。
 
 ```bash
-python validate_connection.py --device cuda:0 --suite quick --output results/cuda/quick
+python validate_connection.py --device cuda:0 --suite quick --output results/cuda/quick_v2
 ```
 
 合格したら、本番と同じ M=8、grid=512、15層、周期200 nm、高さ500 nm、400–700 nmを10 nm刻みの31波長にした検証を実行します。Adamは接続確認のため3更新に限定します。
 
 ```bash
-python validate_connection.py --device cuda:0 --suite production --output results/cuda/production_M8_L15
+python validate_connection.py --device cuda:0 --suite production --output results/cuda/production_M8_L15_v2
 ```
 
 別のPCへ分ける場合は、次の4コマンドを各PCで実行できます。全ケースを上の1コマンドで実行済みなら、重ねて実行する必要はありません。
@@ -88,11 +90,12 @@ python validate_connection.py --device cuda:0 --suite production --materials n2.
 ## 同梱ソース
 
 - `validate_connection.py`: 検証コマンドの入口。
+- `source_integrity.py`: CUDA不要のソース照合。改行/BOMの違いと実際の内容差を区別し、差がある全ファイルを表示します。
 - `fast_objective.py`: 本番 evaluator インターフェースに接続する共有版。
 - `Optimization/dielectric_motheye_n25/`: 本番n2.5の geometry / physics / engine / common と設定の凍結コピー。
 - `pmma_case/optimizer/` と `pmma_case/data/`: 本番PMMAのコードとCSVの凍結コピー。
 - `rcwa_ext/`、`d6_nvm.py`、`legacy_block_assembly.py`、`benchmark_square.py`、`hex_core.py` など: 既存の検証済み演算を再利用するためのモジュール。ここでは validate_connection.py から使用します。
-- `frozen_production_sources.json`: 48ファイルについてコピー元とSHA256を記録。起動時に凍結コピーの一致を確認します。別PCでは元のWindowsパスにアクセスする必要はありません。
+- `frozen_production_sources.json`: 48ファイルについてコピー元とSHA256を記録。起動時に改行・UTF-8 BOMのみ正規化して凍結コピーの内容一致を確認します。別PCでは元のWindowsパスにアクセスする必要はありません。
 - `verified_cpu_smoke/`: 下記のCPU小規模試験結果。CUDA実機の結果とは区別しています。
 
 ## ローカルCPUで実施した結果（2026-10-27）
@@ -113,3 +116,9 @@ Python 3.13.5、PyTorch 2.8.0+cpu、torcwa 0.1.4.2 を使用しました。下�
 一次勾配の有限差分照合、層checkpoint OFF/ON、arithmetic/trapezoidal、誤ったcheckpoint署名の拒否も全ケースで合格しました。元コードの48ファイルのコピーはすべてSHA256が一致しています。
 
 詳細は [CPU小規模4ケースのreport.json](verified_cpu_smoke/report.json) と [保存済み15層形状のreport.json](verified_cpu_saved_profile/report.json) を参照してください。
+
+## v2の配布互換性確認
+
+ソースの照合は `utf8-bom-and-universal-newlines-v1` を使います。48ファイルの生バイトSHA256も保持し、配布元の検証済み内容から計算した正規化後のSHA256と照合します。転送先で期待値を再生成する処理はありません。Pythonソースとtorcwaの実行識別用ハッシュにも同じ正規化を適用します。旧版のCPU結果は旧版コードの記録として保持し、修正版の再確認は `verified_portable_integrity/` に別保存します。
+
+LF+BOMへ変換したコピーで、M2/grid48/5層/3波長/Adam 2更新の4ケースを再実行し、すべて合格しました。`verified_portable_integrity/report.json` に記録しています。実際の内容変更・ファイル欠落・旧manifestの拒否も確認しました。CUDAの接続検証は未実行です。

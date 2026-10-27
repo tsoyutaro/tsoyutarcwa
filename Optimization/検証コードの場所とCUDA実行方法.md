@@ -64,10 +64,18 @@ CUDA対応版に付属するverified_cpu_smokeはCPU上での動作確認結果�
 
 ```bash
 cd ../optimization_integration_validation
-python validate_connection.py --device cuda:0 --suite quick --output results/cuda/quick
-python validate_connection.py --device cuda:0 --suite production --output results/cuda/production_M8_L15
+python validate_connection.py --device cuda:0 --suite quick --output results/cuda/quick_v2
+python validate_connection.py --device cuda:0 --suite production --output results/cuda/production_M8_L15_v2
 ```
 
 quick合格後にproductionを実行します。productionはM8/grid512/15層/31波長・Adam 3更新で、既定でn2.5/PMMAと正方格子/六方格子の4ケースを実行します。材料・格子ごとに別PCへ分けるコマンドも手順に記載しました。配布用は[本番最適化_波長共有_接続検証.zip](本番最適化_波長共有_接続検証.zip)です。
 
 ローカルCPUではM2/grid48の5層4ケースと、保存済み形状を含むn2.5の15層2ケースが合格しました。CUDAの接続確認はこのPCでは未実行です。既存の本番ソース・設定40ファイルはSHA256が一致し、今回の配置による変更はありません。
+
+## ソース整合性チェックの改行対応（v2）
+
+`Frozen production source changed: rcwa_ext/asr.py` で停止する場合に備え、改行・UTF-8 BOMの差だけを許容する照合へ修正しました。配布元asr.pyのCRLF/LF混在を確認済みですが、転送先の実際の相違原因はログだけでは断定できません。内容差は引き続き拒否します。
+
+[修正版フルZIP](本番最適化_波長共有_接続検証_v2.zip) または [差分パッチ](本番最適化_接続検証_改行対応パッチ.zip) を使用してください。[詳しい手順](optimization_integration_validation/README_改行対応.md)のとおり、先に `python source_integrity.py` を実行します。パッチZIP内のファイルは検証フォルダ直下へ展開します。既存本番RCWAは対象外です。
+
+LF+BOMへ変換したコピーで、CPU小規模の4ケースが再び合格しました。実際の内容変更やファイル欠落が拒否されることも確認しています。

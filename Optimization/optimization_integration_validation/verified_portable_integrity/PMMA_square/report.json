@@ -1,0 +1,708 @@
+{
+  "status": "passed",
+  "material": "PMMA",
+  "lattice": "square",
+  "order": 2,
+  "grid": 48,
+  "layers": 5,
+  "objective_wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "fd_wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "steps": 2,
+  "model_config": {
+    "lattices": [
+      "square",
+      "hexagonal"
+    ],
+    "index": 1.5,
+    "period_nm": 200.0,
+    "height_nm": 500.0,
+    "layers": 5,
+    "radius_min_nm": 0.001,
+    "radius_max_nm": 99.999,
+    "softmax_gap_floor": 1e-06,
+    "baseline_tip_nm": 5.0,
+    "baseline_base_nm": 95.0,
+    "optimization_order": 2,
+    "optimization_grid": 48,
+    "verification_orders": [
+      8,
+      16
+    ],
+    "verification_grid": 1024,
+    "optimization_wavelengths_nm": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "verification_wavelengths_nm": [
+      400.0,
+      403.0,
+      406.0,
+      409.0,
+      412.0,
+      415.0,
+      418.0,
+      421.0,
+      424.0,
+      427.0,
+      430.0,
+      433.0,
+      436.0,
+      439.0,
+      442.0,
+      445.0,
+      448.0,
+      451.0,
+      454.0,
+      457.0,
+      460.0,
+      463.0,
+      466.0,
+      469.0,
+      472.0,
+      475.0,
+      478.0,
+      481.0,
+      484.0,
+      487.0,
+      490.0,
+      493.0,
+      496.0,
+      499.0,
+      502.0,
+      505.0,
+      508.0,
+      511.0,
+      514.0,
+      517.0,
+      520.0,
+      523.0,
+      526.0,
+      529.0,
+      532.0,
+      535.0,
+      538.0,
+      541.0,
+      544.0,
+      547.0,
+      550.0,
+      553.0,
+      556.0,
+      559.0,
+      562.0,
+      565.0,
+      568.0,
+      571.0,
+      574.0,
+      577.0,
+      580.0,
+      583.0,
+      586.0,
+      589.0,
+      592.0,
+      595.0,
+      598.0,
+      601.0,
+      604.0,
+      607.0,
+      610.0,
+      613.0,
+      616.0,
+      619.0,
+      622.0,
+      625.0,
+      628.0,
+      631.0,
+      634.0,
+      637.0,
+      640.0,
+      643.0,
+      646.0,
+      649.0,
+      652.0,
+      655.0,
+      658.0,
+      661.0,
+      664.0,
+      667.0,
+      670.0,
+      673.0,
+      676.0,
+      679.0,
+      682.0,
+      685.0,
+      688.0,
+      691.0,
+      694.0,
+      697.0,
+      700.0
+    ],
+    "objective_weighting": "arithmetic",
+    "trials": 30,
+    "adam_steps": 2,
+    "patience": 7,
+    "min_improvement": 1e-08,
+    "learning_rate_min": 0.01,
+    "learning_rate_max": 1.0,
+    "scheduler_patience": 40,
+    "scheduler_factor": 0.5,
+    "logit_limit": 20.0,
+    "seed": 42,
+    "cpu_threads": 1,
+    "checkpoint_layers": false,
+    "gradient_audit": true,
+    "audit_wavelengths_nm": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "audit_directions": 2,
+    "audit_fd_step": 0.001,
+    "gradient_atol": 1e-07,
+    "gradient_rtol": 0.05,
+    "gradient_cosine_min": 0.99,
+    "energy_tolerance": 1e-06,
+    "verification_tolerance": 0.00025,
+    "pruner_startup_trials": 10,
+    "pruner_warmup_steps": 50,
+    "pruner_interval_steps": 10,
+    "material_model": "pmma_csv",
+    "init_top_min_nm": 1.0,
+    "init_top_max_nm": 99.0,
+    "case_id": "pmma_motheye_P200_H500_Nz15",
+    "pmma_csv": "data/Szczurowski.csv",
+    "pmma_shortwave_policy": "linear-to-400",
+    "hexagonal_backend": "d6-native-e1-pair-v1",
+    "pmma_samples_nm": [
+      [
+        404.7,
+        1.5051867964397
+      ],
+      [
+        411.5,
+        1.5042437025881
+      ],
+      [
+        418.3,
+        1.5033507068647
+      ],
+      [
+        425.0,
+        1.5025163510791
+      ],
+      [
+        431.8,
+        1.5017125033668
+      ],
+      [
+        438.59999999999997,
+        1.5009489704492
+      ],
+      [
+        445.40000000000003,
+        1.5002230293009
+      ],
+      [
+        452.2,
+        1.4995321873662
+      ],
+      [
+        459.0,
+        1.4988741590812
+      ],
+      [
+        465.7,
+        1.4982558573267
+      ],
+      [
+        472.5,
+        1.497656916579
+      ],
+      [
+        479.3,
+        1.497085004795
+      ],
+      [
+        486.09999999999997,
+        1.496538478199
+      ],
+      [
+        492.9,
+        1.4960158179215
+      ],
+      [
+        499.7,
+        1.4955156185918
+      ],
+      [
+        506.4,
+        1.4950434754648
+      ],
+      [
+        513.2,
+        1.4945841009501
+      ],
+      [
+        520.0,
+        1.4941435714605
+      ],
+      [
+        526.8000000000001,
+        1.4937208426449
+      ],
+      [
+        533.5999999999999,
+        1.4933149422653
+      ],
+      [
+        540.4,
+        1.4929249642159
+      ],
+      [
+        547.1,
+        1.4925554709922
+      ],
+      [
+        553.9,
+        1.4921946526763
+      ],
+      [
+        560.6999999999999,
+        1.4918473941605
+      ],
+      [
+        567.5,
+        1.4915130040449
+      ],
+      [
+        574.3000000000001,
+        1.491190834719
+      ],
+      [
+        581.0999999999999,
+        1.4908802790307
+      ],
+      [
+        587.8,
+        1.4905850944309
+      ],
+      [
+        594.6,
+        1.4902959406623
+      ],
+      [
+        601.4000000000001,
+        1.4900167999468
+      ],
+      [
+        608.1999999999999,
+        1.4897471987123
+      ],
+      [
+        615.0,
+        1.4894866910993
+      ],
+      [
+        621.8000000000001,
+        1.4892348570129
+      ],
+      [
+        628.5,
+        1.488994823899
+      ],
+      [
+        635.3,
+        1.4887590572135
+      ],
+      [
+        642.1,
+        1.4885308462197
+      ],
+      [
+        648.9,
+        1.488309857092
+      ],
+      [
+        655.6999999999999,
+        1.4880957741599
+      ],
+      [
+        662.5,
+        1.4878882987202
+      ],
+      [
+        669.2,
+        1.4876900615199
+      ],
+      [
+        676.0,
+        1.4874948802221
+      ],
+      [
+        682.8,
+        1.487305505177
+      ],
+      [
+        689.6,
+        1.4871216951764
+      ],
+      [
+        696.4,
+        1.4869432212593
+      ],
+      [
+        703.2,
+        1.4867698659618
+      ],
+      [
+        709.9,
+        1.4866038650953
+      ],
+      [
+        716.7,
+        1.4864400692282
+      ],
+      [
+        723.5,
+        1.4862808045231
+      ],
+      [
+        730.3,
+        1.4861258928749
+      ],
+      [
+        737.1,
+        1.4859751646501
+      ],
+      [
+        743.8000000000001,
+        1.4858305872566
+      ],
+      [
+        750.6,
+        1.485687692658
+      ],
+      [
+        757.4,
+        1.4855485207977
+      ],
+      [
+        764.2,
+        1.4854129312597
+      ],
+      [
+        771.0,
+        1.485280789964
+      ],
+      [
+        777.8000000000001,
+        1.4851519688178
+      ],
+      [
+        784.5,
+        1.4850281701926
+      ],
+      [
+        791.3,
+        1.484905582922
+      ],
+      [
+        798.1,
+        1.4847859658906
+      ],
+      [
+        804.9,
+        1.4846692118161
+      ],
+      [
+        811.6999999999999,
+        1.4845552179645
+      ],
+      [
+        818.5,
+        1.4844438859117
+      ],
+      [
+        825.2,
+        1.484336702637
+      ],
+      [
+        832.0,
+        1.4842303792563
+      ],
+      [
+        838.8,
+        1.4841264473418
+      ],
+      [
+        845.6,
+        1.484024823551
+      ],
+      [
+        852.4000000000001,
+        1.4839254278585
+      ],
+      [
+        859.1999999999999,
+        1.4838281833912
+      ],
+      [
+        865.9,
+        1.4837344010809
+      ],
+      [
+        872.7,
+        1.4836412112723
+      ],
+      [
+        879.5,
+        1.4835499604411
+      ],
+      [
+        886.3,
+        1.4834605828017
+      ],
+      [
+        893.1,
+        1.4833730150208
+      ],
+      [
+        899.9,
+        1.4832871960991
+      ],
+      [
+        906.5999999999999,
+        1.4832042924779
+      ],
+      [
+        913.4,
+        1.483121773438
+      ],
+      [
+        920.2,
+        1.4830408339616
+      ],
+      [
+        927.0,
+        1.4829614212947
+      ],
+      [
+        933.8,
+        1.4828834845139
+      ],
+      [
+        940.6,
+        1.4828069744406
+      ],
+      [
+        947.3000000000001,
+        1.4827329386548
+      ],
+      [
+        954.0999999999999,
+        1.4826591217525
+      ],
+      [
+        960.9,
+        1.4825865943343
+      ],
+      [
+        967.7,
+        1.4825153134007
+      ],
+      [
+        974.5,
+        1.4824452373273
+      ],
+      [
+        981.3,
+        1.4823763258001
+      ],
+      [
+        988.0,
+        1.4823095286381
+      ],
+      [
+        994.8000000000001,
+        1.482242814478
+      ],
+      [
+        1002.0,
+        1.4821733211839
+      ],
+      [
+        1008.0,
+        1.4821162799799
+      ],
+      [
+        1014.9999999999999,
+        1.4820506976303
+      ],
+      [
+        1022.0,
+        1.4819861203197
+      ],
+      [
+        1029.0,
+        1.4819225123455
+      ],
+      [
+        1036.0,
+        1.4818598390073
+      ],
+      [
+        1042.0,
+        1.4818068372909
+      ],
+      [
+        1049.0,
+        1.4817458108574
+      ],
+      [
+        1056.0,
+        1.4816856250036
+      ],
+      [
+        1063.0,
+        1.4816262484469
+      ],
+      [
+        1069.0,
+        1.481575975247
+      ],
+      [
+        1076.0,
+        1.4815180213019
+      ],
+      [
+        1083.0,
+        1.4814607914262
+      ]
+    ],
+    "material_provenance": {
+      "model": "pmma_csv",
+      "csv": "data/Szczurowski.csv",
+      "sha256": "cf82a56fac4e5d5080729221ac09329964c924585b1c8cdebed2a366ba80340b",
+      "k": 0.0,
+      "interpolation": "linear n in wavelength_nm",
+      "tabulated_range_nm": [
+        404.7,
+        1083.0
+      ],
+      "shortwave_policy": "linear-to-400",
+      "extrapolated_wavelengths_nm": [
+        400.0,
+        403.0
+      ],
+      "n_400nm": 1.5058386407194826
+    }
+  },
+  "parity": [
+    {
+      "label": "reference/shared checkpoint=False",
+      "passed": true,
+      "loss_abs_error": 2.3678975447083417e-16,
+      "logits_gradient_max_abs_error": 1.222980050563649e-16,
+      "power_max_abs_error": 2.3314683517128287e-15,
+      "metadata_passed": true
+    },
+    {
+      "label": "reference/shared checkpoint=True",
+      "passed": true,
+      "loss_abs_error": 2.3678975447083417e-16,
+      "logits_gradient_max_abs_error": 1.222980050563649e-16,
+      "power_max_abs_error": 2.3314683517128287e-15,
+      "metadata_passed": true
+    },
+    {
+      "label": "reference checkpoint OFF/ON",
+      "passed": true,
+      "loss_abs_error": 0.0,
+      "logits_gradient_max_abs_error": 0.0,
+      "power_max_abs_error": 0.0,
+      "metadata_passed": true
+    },
+    {
+      "label": "shared checkpoint OFF/ON",
+      "passed": true,
+      "loss_abs_error": 0.0,
+      "logits_gradient_max_abs_error": 0.0,
+      "power_max_abs_error": 0.0,
+      "metadata_passed": true
+    },
+    {
+      "label": "near_bounds",
+      "passed": true,
+      "loss_abs_error": 1.1210650463500116e-16,
+      "logits_gradient_max_abs_error": 2.638948087829718e-16,
+      "power_max_abs_error": 1.1102230246251565e-15,
+      "metadata_passed": true
+    },
+    {
+      "label": "trapezoidal weights",
+      "passed": true,
+      "loss_abs_error": 2.259477327459791e-16,
+      "logits_gradient_max_abs_error": 1.4137996329210978e-16,
+      "power_max_abs_error": 2.3314683517128287e-15,
+      "metadata_passed": true
+    }
+  ],
+  "softmax_gauge_gradient_sum": -2.6020852139652106e-18,
+  "finite_difference": {
+    "passed": true,
+    "wavelengths_nm": [
+      400.0,
+      550.0,
+      700.0
+    ],
+    "autodiff": 0.0017797673236332047,
+    "fd_h": 0.0017797674250964908,
+    "fd_half_h": 0.0017797674261047988,
+    "abs_error": 1.024715941440324e-10,
+    "full_objective_coverage": true
+  },
+  "adam_trajectory": {
+    "passed": true,
+    "final_logits_max_abs_error": 3.608224830031759e-16,
+    "best_logits_max_abs_error": 3.608224830031759e-16,
+    "radii_nm_max_abs_error": 7.105427357601002e-15,
+    "history_loss_max_abs_error": 2.905661822261152e-16,
+    "optimizer_state_max_abs_error": 4.412702842016003e-17,
+    "scheduler_state_max_abs_error": 2.905661822261152e-16,
+    "completed_steps": 2
+  },
+  "checkpoint_resume": {
+    "passed": true,
+    "final_logits_max_abs_error": 0.0,
+    "best_logits_max_abs_error": 0.0,
+    "radii_nm_max_abs_error": 0.0,
+    "history_loss_max_abs_error": 0.0,
+    "optimizer_state_max_abs_error": 0.0,
+    "scheduler_state_max_abs_error": 0.0,
+    "completed_steps": 2
+  },
+  "wrong_backend_checkpoint_rejected": true,
+  "best_loss_shape_abs_error": 1.4311468676808659e-16,
+  "reference_train_wall_seconds": 2.3522640999872237,
+  "shared_train_wall_seconds": 1.28966260002926,
+  "frozen_production_copy_verified": true,
+  "optuna_controller_tested": false,
+  "same_order_streaming_verification": {
+    "label": "original same-order streaming verification/shared best shape",
+    "passed": true,
+    "loss_abs_error": 1.4311468676808659e-16,
+    "logits_gradient_max_abs_error": null,
+    "power_max_abs_error": 1.3322676295501878e-15,
+    "metadata_passed": true
+  },
+  "order_convergence_tested": false,
+  "checkpoint_layers_enabled_in_training": true
+}
