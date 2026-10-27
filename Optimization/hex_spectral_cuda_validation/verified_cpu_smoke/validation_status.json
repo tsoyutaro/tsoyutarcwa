@@ -1,0 +1,55 @@
+{
+  "cuda_hardware_validation": "not_performed",
+  "cpu_smoke": [
+    {
+      "case": "n15_M2",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 1.887379141862766e-15,
+      "gradient_max_abs": 2.1094237467877974e-15,
+      "finite_difference_abs_error": 1.1531233468087265e-09
+    },
+    {
+      "case": "n20_M2",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 3.552713678800501e-15,
+      "gradient_max_abs": 5.4262150328554526e-15,
+      "finite_difference_abs_error": 4.227626360098213e-09
+    },
+    {
+      "case": "n25_M2",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 1.3322676295501878e-15,
+      "gradient_max_abs": 3.3861802251067274e-15,
+      "finite_difference_abs_error": 8.479730140287245e-09
+    },
+    {
+      "case": "PMMA_M2",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 1.7763568394002505e-15,
+      "gradient_max_abs": 8.083811398051921e-16,
+      "finite_difference_abs_error": 1.101257862679006e-09
+    },
+    {
+      "case": "n25_M4",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 1.0769163338864018e-14,
+      "gradient_max_abs": 5.784261958297066e-14,
+      "finite_difference_abs_error": 2.388422515320343e-08
+    },
+    {
+      "case": "PMMA_M4",
+      "status": "passed",
+      "cuda_execution_performed": false,
+      "power_max_abs": 3.6637359812630166e-15,
+      "gradient_max_abs": 1.1074474670635936e-14,
+      "finite_difference_abs_error": 4.74929651161915e-10
+    }
+  ],
+  "cpu_checkpoint_resume": "passed",
+  "production_code_modified": false
+}

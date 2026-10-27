@@ -1,0 +1,321 @@
+{
+  "order": 2,
+  "grid": 48,
+  "layers": 5,
+  "material": "n2.0",
+  "period_nm": 200.0,
+  "height_nm": 500.0,
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "indices": [
+    2.0,
+    2.0,
+    2.0
+  ],
+  "runtime": {
+    "python": "3.13.5",
+    "torch": "2.8.0+cpu",
+    "cuda_runtime": null,
+    "platform": "Windows-11-10.0.26300-SP0",
+    "device": "cpu",
+    "cpu_threads": 1,
+    "gpu": null,
+    "dtype": "complex128"
+  },
+  "repeats": 1,
+  "check_fd": true,
+  "compare_cpu": false,
+  "assembly_repeats": 2,
+  "source_sha256": {
+    "benchmark_device.py": "56a338a84515b81bcfa0930c45ca3259a6984cb499cfd8a1a193c11a30a775db",
+    "benchmark_square.py": "b9bdf8b852c0342c34144df29d0952c6f7bd579e0bcace105e266b9089f5461f",
+    "block_assembly.py": "fc4248f150b970037115e70d07fc46a8ae409244fabd06f4f5e2c4b1d6548eb5",
+    "d6_nvm.py": "a7635b6bf36abdb93248edf3b254b9cf8d35871c8aad13c47b8c0f29a8875240",
+    "hex_core.py": "dd80ce3731c19c8bd1f47155372f2bf0e41746fc253b8d961bbca7e24fef655e",
+    "hex_spectral_cpu.py": "8a8ebf1fe0ca921978ea788906bbcc3c2a9f6d6f322a4567a935f1671caba937",
+    "legacy_block_assembly.py": "ca8d8e6a09886cc37f18470332a28959c2745ee16c81ceb3690ccbdfe5c76c38",
+    "rcwa_ext/__init__.py": "9f879509554ab9e1ec6fca68161d34be4a9fac8038ba2bd163d12e63e35a975e",
+    "rcwa_ext/asr.py": "6bd2a78ef99764f1f3ab8ceb7f7877a10a34b30c6bda3f5640a53b383c5195e5",
+    "rcwa_ext/asr_maps.py": "658a4a44d3739f7a1e8498ccaff27e8390a44f5226268b27c1e6a6c7cf47eee8",
+    "rcwa_ext/auto.py": "768746c7ed35b98e4b1cb2eb84f071c7d65cbcb8d6aedd7e1e80c08e2fcd05a6",
+    "rcwa_ext/config.py": "d40b5ebfe478c219350ad256f203a04532eb0bbb79d22f41f16a9f011042af0e",
+    "rcwa_ext/fields.py": "72189b63b1fe8f913a23e3eaf88843bbd9d1809a6c502de024568d74f339a1d2",
+    "rcwa_ext/nvm.py": "c97f78d1bbe2332d568067b86632fbd7ee507de1a831467920acccee5bfc744b",
+    "rcwa_ext/reduced.py": "26f62f877efffc246b08a63fa2da3e084266d379abd645ed989f3ef525aadd7a",
+    "rcwa_ext/scattering.py": "6a188d97631d03a1ec929f86caf1ec33688a4068fce712d40b6c8e7fa69c09c7",
+    "rcwa_ext/symmetry.py": "8ee121e2921df69302b9199373ce502820ca3cdd474f030e6a8f27f590995e10",
+    "rcwa_solver_auto.py": "8ce708643653383290968ab3aee3b950684a94134f664219f24fbc483370d569"
+  },
+  "pmma_csv_sha256": null,
+  "status": "passed",
+  "lattice": "hexagonal",
+  "symmetry": "d6",
+  "cuda_execution_performed": false,
+  "production_code_modified": false,
+  "scope": "normal x incidence, centred lossless circular layers/substrate; mean R and radius gradient",
+  "timing_scope": "synchronized end-to-end wall time; per-wave times summed; checkpoint I/O excluded",
+  "cuda_cpu_gap_rejection_enabled": false,
+  "common_basis_python_and_VJP_startup_excluded": true,
+  "one_wavelength_warmup_excluded": true,
+  "scalar_dimension": 19,
+  "reduced_eigen_dimension": 7,
+  "matrix": {
+    "passed": true,
+    "errors": {
+      "P": 3.7010264801315343e-16,
+      "Q": 1.6254551678139442e-16,
+      "PQ": 5.843103951499635e-16
+    },
+    "native_input_errors": {
+      "eps": 1.4535075433594032e-17,
+      "inverse_rule": 8.915904052032176e-18,
+      "normal_projection": 0.0
+    },
+    "implementation": "d6-native-e1-pair-v1",
+    "scalar_inverse_block_sizes": [
+      4,
+      1,
+      2,
+      3,
+      3
+    ],
+    "scalar_irrep_row_counts": [
+      1,
+      1,
+      1,
+      2,
+      2
+    ],
+    "scalar_invariance_error": 4.474386538751289e-16,
+    "full_scalar_inverse_assembled": false,
+    "full_PQ_assembled": false,
+    "rectangular_material_matrices_assembled": false,
+    "hex_reynolds_operations": 0,
+    "hex_partner_rows": 2,
+    "full_convolution_and_normal_inputs_retained": false,
+    "native_star_normal_projection_retained": true,
+    "timing": {
+      "reference": {
+        "median_seconds": 0.018499350058846176,
+        "samples": [
+          {
+            "wall_seconds": 0.01857060007750988,
+            "process_cpu_seconds": 0.015625,
+            "wall_minus_cpu_seconds": 0.00294560007750988,
+            "cuda_synchronized": false
+          },
+          {
+            "wall_seconds": 0.01842810004018247,
+            "process_cpu_seconds": 0.015625,
+            "wall_minus_cpu_seconds": 0.0028031000401824713,
+            "cuda_synchronized": false
+          }
+        ]
+      },
+      "block": {
+        "median_seconds": 0.0033202999038621783,
+        "samples": [
+          {
+            "wall_seconds": 0.003355299821123481,
+            "process_cpu_seconds": 0.0,
+            "wall_minus_cpu_seconds": 0.003355299821123481,
+            "cuda_synchronized": false
+          },
+          {
+            "wall_seconds": 0.003285299986600876,
+            "process_cpu_seconds": 0.0,
+            "wall_minus_cpu_seconds": 0.003285299986600876,
+            "cuda_synchronized": false
+          }
+        ]
+      }
+    },
+    "timing_scope": "one-layer assembly; no backward, geometry-input preparation or eig"
+  },
+  "runs": {
+    "reference": [
+      {
+        "seconds": 1.066922500031069,
+        "spectrum": [
+          [
+            400.0,
+            0.011897767720966086,
+            0.9881022322790339
+          ],
+          [
+            550.0,
+            0.013346428366037204,
+            0.9866535716339637
+          ],
+          [
+            700.0,
+            0.014386738267007962,
+            0.9856132617329914
+          ]
+        ],
+        "gradient": [
+          0.026628971286372632,
+          -0.05632731884631523,
+          0.023692680215958443,
+          0.07499597683678962,
+          -0.292269696100915
+        ]
+      }
+    ],
+    "block": [
+      {
+        "seconds": 0.35580199980176985,
+        "spectrum": [
+          [
+            400.0,
+            0.011897767720965829,
+            0.9881022322790355
+          ],
+          [
+            550.0,
+            0.013346428366037447,
+            0.9866535716339602
+          ],
+          [
+            700.0,
+            0.014386738267008039,
+            0.9856132617329925
+          ]
+        ],
+        "gradient": [
+          0.026628971286372816,
+          -0.056327318846314735,
+          0.023692680215955903,
+          0.0749959768367926,
+          -0.29226969610091563
+        ]
+      }
+    ],
+    "shared": [
+      {
+        "spectrum": [
+          [
+            400.0,
+            0.011897767720965475,
+            0.9881022322790344
+          ],
+          [
+            550.0,
+            0.013346428366037501,
+            0.9866535716339616
+          ],
+          [
+            700.0,
+            0.014386738267008333,
+            0.985613261732993
+          ]
+        ],
+        "gradient": [
+          0.026628971286372153,
+          -0.056327318846314055,
+          0.023692680215954613,
+          0.07499597683679504,
+          -0.292269696100918
+        ],
+        "geometry_builds": 5,
+        "spectral_graphs_retained_at_once": 1,
+        "material_inverse_or_PQ_shared_across_wavelengths": true,
+        "seconds": 0.1460280001629144,
+        "timing": {
+          "wall_seconds": 0.1460280001629144,
+          "process_cpu_seconds": 0.15625,
+          "wall_minus_cpu_seconds": -0.010221999837085605,
+          "cuda_synchronized": false
+        }
+      }
+    ]
+  },
+  "comparisons": [
+    {
+      "repeat": 1,
+      "variant": "block",
+      "passed": true,
+      "power_max_abs": 3.552713678800501e-15,
+      "gradient_max_abs": 2.9837243786801082e-15,
+      "energy_max_abs": 2.3314683517128287e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "variant": "shared",
+      "passed": true,
+      "power_max_abs": 2.1094237467877974e-15,
+      "gradient_max_abs": 5.4262150328554526e-15,
+      "energy_max_abs": 1.3322676295501878e-15,
+      "finite": true,
+      "lossless_bounds": true
+    }
+  ],
+  "per_wavelength_block_comparisons": [
+    {
+      "repeat": 1,
+      "wavelength_nm": 400.0,
+      "passed": true,
+      "power_max_abs": 1.5543122344752192e-15,
+      "gradient_max_abs": 3.2751579226442118e-15,
+      "energy_max_abs": 1.3322676295501878e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 550.0,
+      "passed": true,
+      "power_max_abs": 3.552713678800501e-15,
+      "gradient_max_abs": 4.440892098500626e-15,
+      "energy_max_abs": 2.3314683517128287e-15,
+      "finite": true,
+      "lossless_bounds": true
+    },
+    {
+      "repeat": 1,
+      "wavelength_nm": 700.0,
+      "passed": true,
+      "power_max_abs": 1.1102230246251565e-15,
+      "gradient_max_abs": 5.023759186428833e-15,
+      "energy_max_abs": 6.661338147750939e-16,
+      "finite": true,
+      "lossless_bounds": true
+    }
+  ],
+  "finite_difference": {
+    "step": 1e-05,
+    "finite_difference": -0.1750980743162912,
+    "autodiff": -0.17509807854391757,
+    "abs_error": 4.227626360098213e-09,
+    "passed": true
+  },
+  "cpu_reference_comparisons": null,
+  "dispersion_negative_control": null,
+  "port_preparation_timing": {
+    "wall_seconds": 0.013081800192594528,
+    "process_cpu_seconds": 0.0,
+    "wall_minus_cpu_seconds": 0.013081800192594528,
+    "cuda_synchronized": false
+  },
+  "timing": {
+    "seconds": {
+      "reference": 1.066922500031069,
+      "block": 0.35580199980176985,
+      "shared": 0.1460280001629144
+    },
+    "mean_seconds_per_wavelength": {
+      "reference": 0.3556408333436896,
+      "block": 0.11860066660058995,
+      "shared": 0.0486760000543048
+    },
+    "shared_with_port_preparation_seconds": 0.15910980035550892,
+    "shared_with_port_preparation_seconds_per_wavelength": 0.053036600118502975,
+    "block_speedup": 2.9986410998968247,
+    "shared_speedup_with_port_preparation": 6.705573746225422
+  }
+}

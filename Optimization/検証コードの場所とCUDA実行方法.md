@@ -5,6 +5,7 @@
 | フォルダ | 内容 |
 |---|---|
 | [square_spectral_cuda_validation](square_spectral_cuda_validation/README_CUDA_ja.md) | 正方格子のCUDA対応ドライバー。一定屈折率1.5/2.0/2.5とPMMA分散の波長共有を検証。 |
+| [hex_spectral_cuda_validation](hex_spectral_cuda_validation/README_CUDA_ja.md) | 六方格子のCUDA対応ドライバー。従来版・D6専用版・波長共有版を比較。 |
 | [square_spectral_validation](square_spectral_validation/README_ja.md) | 正方格子のCPU検証コードと、次数8・15層の実測結果。 |
 | [spectral_reuse_validation](spectral_reuse_validation/README_ja.md) | 六方格子の波長共有・PMMA分散のCPU検証コードと結果。 |
 | [d6_optimized](d6_optimized/README_ja.md) | 先に配置済みのD6専用の行列構築・検証コード。 |
@@ -44,10 +45,14 @@ python benchmark_device.py --device cuda:0 --order 8 --grid 512 --layers 15 --ma
 反映したのは、検証コード・既存の検証結果・データCSV・実行手順・配布用ZIPの配置です。
 検証済みコードとCSVのSHA256、ZIPのCRCを確認しています。実行場所に関係するMarkdown内のパスだけを20260806側へ変更しました。
 
-CUDA実機での検証とCr専用の複素誘電率・吸収・勾配の検証は未完了です。
+正方格子のCUDAはユーザー提供ログで次数8・15層のn2.5/PMMAの合格を確認しました。六方格子CUDAとCr専用の複素誘電率・吸収・勾配の検証は未完了です。
 このため本番RCWAの計算経路や、進行中のdielectric_motheye_n25・cr_motheyeの最適化コードと設定は切り替えていません。
 正方格子の合格を六方格子・Crの合格とみなすことはできません。
 共通RCWAへの組込みは適用条件を判定する高速経路として行い、対象外は従来経路を維持する方針です。
 
 CUDA対応版に付属するverified_cpu_smokeはCPU上での動作確認結果です。CUDA実機の合格結果ではありません。
 
+
+## 六方格子のCUDA検証
+
+[hex_spectral_cuda_validation/README_CUDA_ja.md](hex_spectral_cuda_validation/README_CUDA_ja.md)に、小規模CPU照合・有限差分、次数8・15層・31波長、550 nm単独測定のコマンドを追加しました。
