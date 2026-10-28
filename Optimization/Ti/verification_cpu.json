@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "device": "cpu",
+  "cuda_execution_performed": false,
+  "material": "Ti",
+  "material_provenance": {
+    "model": "metal_csv",
+    "material": "Ti",
+    "csv": "data/Ti.csv",
+    "csv_sha256_lf": "79b0424131b515f7620e09ff0e51aa53963585fce21603e4f8293d081d9c276e",
+    "interpolation": "linear complex epsilon=(n+ik)^2 in wavelength_nm",
+    "extrapolation": "forbidden",
+    "time_convention": "exp(-i omega t)",
+    "tabulated_range_nm": [
+      188.0,
+      1937.0
+    ],
+    "substrate": "semi-infinite same metal",
+    "oxide_or_coating": "none"
+  },
+  "checks": [
+    {
+      "name": "four_independent_cases_and_csv",
+      "passed": true
+    },
+    {
+      "name": "31_wavelengths_passive_dispersive_material",
+      "passed": true
+    },
+    {
+      "name": "M2_Q48_Nz5_reference_shared_loss_gradient",
+      "passed": true,
+      "power_max_abs_error": 6.245004513516506e-16,
+      "gradient_max_abs_error": 4.497270611469872e-16
+    },
+    {
+      "name": "independent_finite_difference_in_logits",
+      "passed": true,
+      "finite_difference": 0.007813976648715637,
+      "autodiff": 0.007813970740065169,
+      "abs_error": 5.908650468205989e-09
+    },
+    {
+      "name": "production_M8_Q512_Nz15_initial_31_wavelengths",
+      "passed": true,
+      "objective": 0.012946556889293338,
+      "forward_gradient_power_max_abs_error": 0.0,
+      "gradient_norm": 0.023554458644084002,
+      "forward_seconds": 49.38342690002173,
+      "gradient_seconds": 122.43126589991152,
+      "minimum_motheye_absorptance": 0.8140445041451742,
+      "reflectance_range": [
+        0.0038088197294703545,
+        0.026041663380267803
+      ]
+    }
+  ]
+}

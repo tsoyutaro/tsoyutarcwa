@@ -1,0 +1,56 @@
+{
+  "material": "Ti",
+  "source": "Existing user-supplied Ti.csv",
+  "original_path_relative_to_research_root": "studies/shared/transition_metals_data/Ti.csv",
+  "sha256": "1b13b2ee9306617d9dd5a1a0e2746d7c6bd880324c7a607f50853b8e6e819216",
+  "wavelength_unit": "micrometre (wl column)",
+  "interpolation": "linear complex epsilon=(n+ik)^2 in wavelength_nm",
+  "extrapolation": "forbidden",
+  "substrate": "semi-infinite same Ti",
+  "cases": [
+    {
+      "case": "ti_motheye_P200_H500_Nz5",
+      "layers": 5,
+      "default_trials": 30,
+      "lattices": [
+        "square",
+        "hexagonal"
+      ],
+      "test_config": "config_hex_trial1_M8_Q512.json",
+      "python_files_identical_to_al": 33
+    },
+    {
+      "case": "ti_motheye_P200_H500_Nz10",
+      "layers": 10,
+      "default_trials": 30,
+      "lattices": [
+        "square",
+        "hexagonal"
+      ],
+      "test_config": "config_hex_trial1_M8_Q512.json",
+      "python_files_identical_to_al": 33
+    },
+    {
+      "case": "ti_motheye_P200_H500_Nz15",
+      "layers": 15,
+      "default_trials": 30,
+      "lattices": [
+        "square",
+        "hexagonal"
+      ],
+      "test_config": "config_hex_trial1_M8_Q512.json",
+      "python_files_identical_to_al": 33
+    },
+    {
+      "case": "ti_motheye_P200_H500_Nz20",
+      "layers": 20,
+      "default_trials": 30,
+      "lattices": [
+        "square",
+        "hexagonal"
+      ],
+      "test_config": "config_hex_trial1_M8_Q512.json",
+      "python_files_identical_to_al": 33
+    }
+  ]
+}
