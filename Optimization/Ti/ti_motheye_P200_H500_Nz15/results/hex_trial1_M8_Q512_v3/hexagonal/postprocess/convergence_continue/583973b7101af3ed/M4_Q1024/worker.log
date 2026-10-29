@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py", line 112, in child_main
+    result=prepare_child(request) if request['mode']=='prepare' else worker_child(request)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py", line 101, in worker_child
+    result=physics.objective(x,c,context['lattice'],context['waves'],request['order'],request['grid'],device,gradient=False)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ti/ti_motheye_P200_H500_Nz15/optimizer/physics.py", line 235, in objective
+    from rcwa_ext.acceleration.spectral import SharedEvaluator
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ti/ti_motheye_P200_H500_Nz15/rcwa_ext/__init__.py", line 3, in <module>
+    from .asr import CustomRCWA_ASR_FR
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ti/ti_motheye_P200_H500_Nz15/rcwa_ext/asr.py", line 10, in <module>
+    from torch.utils.checkpoint import checkpoint as _activation_checkpoint
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/utils/checkpoint.py", line 15, in <module>
+    from torch._functorch._aot_autograd.functional_utils import is_fun
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/_functorch/_aot_autograd/functional_utils.py", line 20, in <module>
+    from torch.fx.experimental.symbolic_shapes import (
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/fx/experimental/symbolic_shapes.py", line 74, in <module>
+    from torch.utils._sympy.functions import (
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/utils/_sympy/functions.py", line 18, in <module>
+    import sympy
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/sympy/__init__.py", line 74, in <module>
+    from .polys import (Poly, PurePoly, poly_from_expr, parallel_poly_from_expr,
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/sympy/polys/__init__.py", line 79, in <module>
+    from .polyfuncs import (symmetrize, horner, interpolate,
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/sympy/polys/polyfuncs.py", line 10, in <module>
+    from sympy.polys.specialpolys import (
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/sympy/polys/specialpolys.py", line 298, in <module>
+    from sympy.polys.rings import ring
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/sympy/polys/rings.py", line 20, in <module>
+    from sympy.polys.heuristicgcd import heugcd
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 982, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 925, in _find_spec
+  File "<frozen importlib._bootstrap_external>", line 1424, in find_spec
+  File "<frozen importlib._bootstrap_external>", line 1396, in _get_spec
+  File "<frozen importlib._bootstrap_external>", line 1523, in find_spec
+  File "<frozen importlib._bootstrap_external>", line 142, in _path_stat
+KeyboardInterrupt
+
