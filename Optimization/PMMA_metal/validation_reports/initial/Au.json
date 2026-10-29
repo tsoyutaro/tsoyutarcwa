@@ -1,0 +1,256 @@
+{
+  "status": "passed",
+  "suite": "initial",
+  "device": "cpu",
+  "cuda_execution_performed": false,
+  "checks": [
+    {
+      "name": "initial_full_band_physical",
+      "passed": true
+    }
+  ],
+  "material": "Au",
+  "material_provenance": {
+    "model": "pmma_metal_csv",
+    "metal": {
+      "material": "Au",
+      "csv": "data/metal.csv",
+      "sha256_lf": "f289204262f350e16b3e3e9c18e3a5ac199e8303a1ff703ba879a5c9c246de99",
+      "tabulated_range_nm": [
+        187.9,
+        1937.0
+      ],
+      "interpolation": "linear complex epsilon=(n+ik)^2 in wavelength_nm",
+      "extrapolation": "forbidden"
+    },
+    "pmma": {
+      "csv": "data/PMMA.csv",
+      "sha256_lf": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+      "tabulated_range_nm": [
+        404.7,
+        1083.0
+      ],
+      "interpolation": "linear n in wavelength_nm",
+      "k": 0.0,
+      "k_policy": "lossless assumption; not measured k",
+      "shortwave_policy": "linear-to-400",
+      "extrapolated_wavelengths_nm": [
+        400.0,
+        403.0
+      ]
+    },
+    "structure": "15 variable PMMA-core metal-shell slices; air background; lossless semi-infinite PMMA substrate",
+    "fixed_top_cap": false,
+    "fixed_valley_metal_film": false,
+    "time_convention": "exp(-i omega t)"
+  },
+  "order": 8,
+  "grid": 512,
+  "layers": 15,
+  "wavelengths_nm": [
+    400.0,
+    410.0,
+    420.0,
+    430.0,
+    440.0,
+    450.0,
+    460.0,
+    470.0,
+    480.0,
+    490.0,
+    500.0,
+    510.0,
+    520.0,
+    530.0,
+    540.0,
+    550.0,
+    560.0,
+    570.0,
+    580.0,
+    590.0,
+    600.0,
+    610.0,
+    620.0,
+    630.0,
+    640.0,
+    650.0,
+    660.0,
+    670.0,
+    680.0,
+    690.0,
+    700.0
+  ],
+  "mean_reflectance": 0.11185861550168524,
+  "mean_transmittance": 0.031014595853109426,
+  "mean_absorptance": 0.8571267886452053,
+  "seconds": 54.67487570014782,
+  "initial_profiles": [
+    {
+      "layer": 1,
+      "top_depth_nm": 0.0,
+      "bottom_depth_nm": 33.333333333333336,
+      "pmma_radius_nm": 4.999999999999999,
+      "metal_radius_nm": 34.99999999999999,
+      "metal_shell_thickness_nm": 29.999999999999993,
+      "pmma_diameter_nm": 9.999999999999998,
+      "metal_outer_diameter_nm": 69.99999999999999,
+      "nearest_neighbor_gap_nm": 130.0
+    },
+    {
+      "layer": 2,
+      "top_depth_nm": 33.333333333333336,
+      "bottom_depth_nm": 66.66666666666667,
+      "pmma_radius_nm": 9.285714285714283,
+      "metal_radius_nm": 39.28571428571428,
+      "metal_shell_thickness_nm": 29.999999999999993,
+      "pmma_diameter_nm": 18.571428571428566,
+      "metal_outer_diameter_nm": 78.57142857142856,
+      "nearest_neighbor_gap_nm": 121.42857142857144
+    },
+    {
+      "layer": 3,
+      "top_depth_nm": 66.66666666666667,
+      "bottom_depth_nm": 100.0,
+      "pmma_radius_nm": 13.57142857142857,
+      "metal_radius_nm": 43.57142857142856,
+      "metal_shell_thickness_nm": 29.999999999999993,
+      "pmma_diameter_nm": 27.14285714285714,
+      "metal_outer_diameter_nm": 87.14285714285712,
+      "nearest_neighbor_gap_nm": 112.85714285714288
+    },
+    {
+      "layer": 4,
+      "top_depth_nm": 100.0,
+      "bottom_depth_nm": 133.33333333333334,
+      "pmma_radius_nm": 17.85714285714286,
+      "metal_radius_nm": 47.857142857142854,
+      "metal_shell_thickness_nm": 29.999999999999993,
+      "pmma_diameter_nm": 35.71428571428572,
+      "metal_outer_diameter_nm": 95.71428571428571,
+      "nearest_neighbor_gap_nm": 104.28571428571429
+    },
+    {
+      "layer": 5,
+      "top_depth_nm": 133.33333333333334,
+      "bottom_depth_nm": 166.66666666666669,
+      "pmma_radius_nm": 22.142857142857142,
+      "metal_radius_nm": 52.14285714285713,
+      "metal_shell_thickness_nm": 29.99999999999999,
+      "pmma_diameter_nm": 44.285714285714285,
+      "metal_outer_diameter_nm": 104.28571428571426,
+      "nearest_neighbor_gap_nm": 95.71428571428574
+    },
+    {
+      "layer": 6,
+      "top_depth_nm": 166.66666666666669,
+      "bottom_depth_nm": 200.0,
+      "pmma_radius_nm": 26.428571428571427,
+      "metal_radius_nm": 56.42857142857142,
+      "metal_shell_thickness_nm": 29.999999999999996,
+      "pmma_diameter_nm": 52.857142857142854,
+      "metal_outer_diameter_nm": 112.85714285714285,
+      "nearest_neighbor_gap_nm": 87.14285714285715
+    },
+    {
+      "layer": 7,
+      "top_depth_nm": 200.0,
+      "bottom_depth_nm": 233.33333333333334,
+      "pmma_radius_nm": 30.714285714285715,
+      "metal_radius_nm": 60.7142857142857,
+      "metal_shell_thickness_nm": 29.999999999999986,
+      "pmma_diameter_nm": 61.42857142857143,
+      "metal_outer_diameter_nm": 121.4285714285714,
+      "nearest_neighbor_gap_nm": 78.5714285714286
+    },
+    {
+      "layer": 8,
+      "top_depth_nm": 233.33333333333334,
+      "bottom_depth_nm": 266.6666666666667,
+      "pmma_radius_nm": 35.0,
+      "metal_radius_nm": 65.0,
+      "metal_shell_thickness_nm": 30.0,
+      "pmma_diameter_nm": 70.0,
+      "metal_outer_diameter_nm": 130.0,
+      "nearest_neighbor_gap_nm": 70.0
+    },
+    {
+      "layer": 9,
+      "top_depth_nm": 266.6666666666667,
+      "bottom_depth_nm": 300.0,
+      "pmma_radius_nm": 39.285714285714285,
+      "metal_radius_nm": 69.28571428571428,
+      "metal_shell_thickness_nm": 29.999999999999993,
+      "pmma_diameter_nm": 78.57142857142857,
+      "metal_outer_diameter_nm": 138.57142857142856,
+      "nearest_neighbor_gap_nm": 61.428571428571445
+    },
+    {
+      "layer": 10,
+      "top_depth_nm": 300.0,
+      "bottom_depth_nm": 333.33333333333337,
+      "pmma_radius_nm": 43.57142857142857,
+      "metal_radius_nm": 73.57142857142857,
+      "metal_shell_thickness_nm": 30.0,
+      "pmma_diameter_nm": 87.14285714285714,
+      "metal_outer_diameter_nm": 147.14285714285714,
+      "nearest_neighbor_gap_nm": 52.85714285714286
+    },
+    {
+      "layer": 11,
+      "top_depth_nm": 333.33333333333337,
+      "bottom_depth_nm": 366.6666666666667,
+      "pmma_radius_nm": 47.857142857142854,
+      "metal_radius_nm": 77.85714285714286,
+      "metal_shell_thickness_nm": 30.000000000000007,
+      "pmma_diameter_nm": 95.71428571428571,
+      "metal_outer_diameter_nm": 155.71428571428572,
+      "nearest_neighbor_gap_nm": 44.28571428571428
+    },
+    {
+      "layer": 12,
+      "top_depth_nm": 366.6666666666667,
+      "bottom_depth_nm": 400.0,
+      "pmma_radius_nm": 52.14285714285715,
+      "metal_radius_nm": 82.14285714285714,
+      "metal_shell_thickness_nm": 29.999999999999986,
+      "pmma_diameter_nm": 104.2857142857143,
+      "metal_outer_diameter_nm": 164.28571428571428,
+      "nearest_neighbor_gap_nm": 35.71428571428572
+    },
+    {
+      "layer": 13,
+      "top_depth_nm": 400.0,
+      "bottom_depth_nm": 433.33333333333337,
+      "pmma_radius_nm": 56.42857142857143,
+      "metal_radius_nm": 86.42857142857143,
+      "metal_shell_thickness_nm": 30.0,
+      "pmma_diameter_nm": 112.85714285714286,
+      "metal_outer_diameter_nm": 172.85714285714286,
+      "nearest_neighbor_gap_nm": 27.14285714285714
+    },
+    {
+      "layer": 14,
+      "top_depth_nm": 433.33333333333337,
+      "bottom_depth_nm": 466.6666666666667,
+      "pmma_radius_nm": 60.714285714285715,
+      "metal_radius_nm": 90.71428571428572,
+      "metal_shell_thickness_nm": 30.000000000000007,
+      "pmma_diameter_nm": 121.42857142857143,
+      "metal_outer_diameter_nm": 181.42857142857144,
+      "nearest_neighbor_gap_nm": 18.571428571428555
+    },
+    {
+      "layer": 15,
+      "top_depth_nm": 466.6666666666667,
+      "bottom_depth_nm": 500.00000000000006,
+      "pmma_radius_nm": 65.0,
+      "metal_radius_nm": 95.0,
+      "metal_shell_thickness_nm": 30.0,
+      "pmma_diameter_nm": 130.0,
+      "metal_outer_diameter_nm": 190.0,
+      "nearest_neighbor_gap_nm": 10.0
+    }
+  ],
+  "gradient_checked": false,
+  "gradient_norm": null
+}
