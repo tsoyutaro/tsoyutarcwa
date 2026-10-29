@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "normal_field_definition": "nearest-radial-center-and-tie-mean-v1",
+  "cpu_all_logit_test": {
+    "layers": 15,
+    "order": 2,
+    "grid": 48,
+    "wavelengths_nm": [
+      400,
+      550,
+      700
+    ],
+    "component_count": 16,
+    "fd_backend": "reference",
+    "max_fd_abs_error": 9.8769876416549e-08,
+    "reference_gradient_max_abs_error": 3.5388358909926865e-15,
+    "checkpoint_parity_passed": true
+  },
+  "cpu_M8_test": {
+    "layers": 15,
+    "order": 8,
+    "grid": 1024,
+    "wavelengths_nm": [
+      400,
+      550,
+      700
+    ],
+    "direction_count": 1,
+    "fd_backend": "auto",
+    "reference_gradient_checked": false,
+    "max_fd_abs_error": 2.7828819477992983e-08,
+    "checkpoint_parity_passed": true
+  },
+  "diagnostic_v2_power_max_abs_difference": 0.0,
+  "cpu_optuna_smoke": {
+    "trials": 1,
+    "adam_updates": 2,
+    "order": 2,
+    "grid": 48,
+    "layers": 15,
+    "wavelengths_nm": [
+      400,
+      550,
+      700
+    ],
+    "state": "COMPLETE",
+    "completed_run_repeat_checkpoint_unchanged": true
+  },
+  "cpu_old_new_comparison": {
+    "status": "completed",
+    "old_mean_R": 0.054901021736523906,
+    "new_mean_R": 0.040761204093258764,
+    "optimization_records_unchanged": true,
+    "scope": "Small CPU workflow test; not a production optimization result."
+  },
+  "original_al_protected_files_unchanged": true,
+  "original_al_protected_file_count": 37,
+  "cuda_execution_performed": false,
+  "production_500_step_trial_performed": false,
+  "production_M30_comparison_performed": false
+}
