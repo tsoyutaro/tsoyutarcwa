@@ -1,0 +1,48 @@
+{
+  "normal_field_mode": "off",
+  "normal_field_definition": "nearest-radial-center-and-tie-mean-v1",
+  "grid": 1024,
+  "layers": 15,
+  "lattice": "hexagonal",
+  "training_wavelengths_nm": "400:700:10",
+  "trials": 1,
+  "adam_steps_maximum": 500,
+  "existing_files_unchanged": true,
+  "protected_existing_file_count": 186,
+  "cuda_execution_performed": false,
+  "production_optimization_performed": false,
+  "validation_scope": "CPU at each requested order, Q1024, one initial shape, three wavelengths, one directional finite difference with the shared backend and two step sizes, layer checkpoint parity. Full-component/reference/CUDA validation not performed.",
+  "cases": [
+    {
+      "material": "Ag",
+      "optimization_order": 12,
+      "grid": 1024,
+      "case": "ag_motheye_P200_H500_Nz15_normal_off_v1",
+      "initial_profile_provenance": {
+        "source_case": "Ag/ag_motheye_P200_H500_Nz15",
+        "source_run": null,
+        "source_trial": null,
+        "initialization": "original unoptimized baseline; no completed Ag best geometry",
+        "baseline_tip_nm": 5.0,
+        "baseline_base_nm": 95.0
+      },
+      "material_csv_sha256": "8f14996d26f1ef9efcfd94f2e2d573b622eb5b782d5297b8751daa1c0b8c6662",
+      "solver_and_optimizer_identical_to_al_off": true,
+      "cpu_check": {
+        "status": "passed",
+        "max_fd_abs_error": 0.0024890099868315474,
+        "objective": 0.40305344030060586,
+        "checkpoint_parity": {
+          "loss_abs": 0.0,
+          "power_max_abs": 0.0,
+          "gradient_max_abs": 0.0,
+          "passed": true
+        },
+        "all_three_initial_wavelengths_passive": true,
+        "full_component_fd": false,
+        "reference_gradient_checked": false,
+        "cuda_execution_performed": false
+      }
+    }
+  ]
+}
