@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py", line 112, in child_main
+    result=prepare_child(request) if request['mode']=='prepare' else worker_child(request)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py", line 101, in worker_child
+    result=physics.objective(x,c,context['lattice'],context['waves'],request['order'],request['grid'],device,gradient=False)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/optimizer/physics.py", line 240, in objective
+    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 175, in __call__
+    cache = self.cache(config, lattice, waves, order, grid, device)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 59, in cache
+    plan = backend.assembly.plan_for(template)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/matrix.py", line 14, in plan_for
+    return d6.get_plan(sim)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/d6.py", line 90, in get_plan
+    _PLANS[key] = D6Plan(sim)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/d6.py", line 33, in __init__
+    embedding,group = sim._triangular_star_group_operators()
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/symmetry.py", line 665, in _triangular_star_group_operators
+    "electric": self._component_transform(component, scalar),
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/symmetry.py", line 480, in _component_transform
+    return torch.cat(
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 976.00 MiB. GPU 0 has a total capacity of 46.38 GiB of which 454.12 MiB is free. Process 4009506 has 1.17 GiB memory in use. Including non-PyTorch memory, this process has 45.88 GiB memory in use. Of the allocated memory 44.26 GiB is allocated by PyTorch, and 1.27 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+
