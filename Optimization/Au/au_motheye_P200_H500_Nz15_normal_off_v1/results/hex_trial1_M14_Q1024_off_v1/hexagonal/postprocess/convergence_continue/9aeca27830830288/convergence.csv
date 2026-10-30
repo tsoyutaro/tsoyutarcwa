@@ -1,0 +1,9 @@
+material,order,grid,status,mean_R,max_power_abs_difference_from_reference,within_tolerance,worker_seconds,rcwa_seconds,cache_hit,reason,error
+Au,32,512,completed,0.12854056591065655,0.004617197518582472,False,139.7286733807996,132.98369443416595,False,,
+Au,32,1024,completed,0.12853711245313343,0.004607055374971636,False,151.188432328403,146.010502721183,False,,
+Au,34,512,completed,0.12692299813185443,5.441787100213258e-06,True,221.00436229631305,186.89980580471456,False,,
+Au,34,1024,completed,0.12692475003742487,0.0,,186.25711752008647,180.96260427031666,False,,
+Au,36,512,cuda_oom,,,,9.658567328937352,,False,,"CUDA out of memory. Tried to allocate 976.00 MiB. GPU 0 has a total capacity of 46.38 GiB of which 454.12 MiB is free. Including non-PyTorch memory, this process has 45.88 GiB memory in use. Of the allocated memory 44.26 GiB is allocated by PyTorch, and 1.27 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+Au,36,1024,skipped,,,,,,,remaining_material_conditions_skipped_after_oom,
+Au,38,512,skipped,,,,,,,remaining_material_conditions_skipped_after_oom,
+Au,38,1024,skipped,,,,,,,remaining_material_conditions_skipped_after_oom,
