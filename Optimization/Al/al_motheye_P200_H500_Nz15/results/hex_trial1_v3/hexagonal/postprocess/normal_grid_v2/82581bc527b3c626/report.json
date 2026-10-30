@@ -1,0 +1,168 @@
+{
+  "tool": "rcwa-normal-grid-isolation-v2",
+  "status": "completed",
+  "material": "Al",
+  "order": 20,
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "sample_grids": [
+    1024,
+    2048
+  ],
+  "normal_mode": "off",
+  "normal_definition": {
+    "mode": "off",
+    "projector": "nearest-center radial n n^T",
+    "center_sample": "I/2 angular mean at machine-precision center",
+    "nearest_center_ties": "mean of ALL equally nearest projectors",
+    "squared_distance_tie_tolerance": "64 * float64_epsilon * max(Lx,Ly)^2",
+    "finite_width_blending": false,
+    "center_taper": false,
+    "boundary_taper": false
+  },
+  "normal_reference_grids": [],
+  "counts": {
+    "completed": 2
+  },
+  "records": [
+    {
+      "grid": 1024,
+      "normal_reference_grid": null,
+      "normal_mode": "off",
+      "smoothing_parameter_nm": null,
+      "equivalent_to_legacy_tapers": false,
+      "status": "completed",
+      "rows": [
+        {
+          "wavelength_nm": 400.0,
+          "reflectance": 0.3433883459150814,
+          "power_into_substrate": 0.035238452025364755,
+          "absorptance_total": 0.6566116540849186,
+          "motheye_absorptance": 0.6213732020595538,
+          "passive": true
+        },
+        {
+          "wavelength_nm": 550.0,
+          "reflectance": 0.25170251065657107,
+          "power_into_substrate": 0.08852388637058616,
+          "absorptance_total": 0.7482974893434289,
+          "motheye_absorptance": 0.6597736029728427,
+          "passive": true
+        },
+        {
+          "wavelength_nm": 700.0,
+          "reflectance": 0.03222371488789016,
+          "power_into_substrate": 0.1626079567955598,
+          "absorptance_total": 0.9677762851121099,
+          "motheye_absorptance": 0.80516832831655,
+          "passive": true
+        }
+      ],
+      "mean_R": 0.20910485715318083,
+      "rcwa_seconds": 18.181460143998265,
+      "peak_cuda_allocated_bytes": 5921202176,
+      "worker_seconds": 27.66527460888028,
+      "cache_hit": false
+    },
+    {
+      "grid": 2048,
+      "normal_reference_grid": null,
+      "normal_mode": "off",
+      "smoothing_parameter_nm": null,
+      "equivalent_to_legacy_tapers": false,
+      "status": "completed",
+      "rows": [
+        {
+          "wavelength_nm": 400.0,
+          "reflectance": 0.3433905508495868,
+          "power_into_substrate": 0.0352381744447308,
+          "absorptance_total": 0.6566094491504132,
+          "motheye_absorptance": 0.6213712747056824,
+          "passive": true
+        },
+        {
+          "wavelength_nm": 550.0,
+          "reflectance": 0.2517074331704226,
+          "power_into_substrate": 0.08852358430946508,
+          "absorptance_total": 0.7482925668295775,
+          "motheye_absorptance": 0.6597689825201124,
+          "passive": true
+        },
+        {
+          "wavelength_nm": 700.0,
+          "reflectance": 0.032227661009528626,
+          "power_into_substrate": 0.16261029445020825,
+          "absorptance_total": 0.9677723389904713,
+          "motheye_absorptance": 0.8051620445402631,
+          "passive": true
+        }
+      ],
+      "mean_R": 0.20910854834317938,
+      "rcwa_seconds": 20.06536043714732,
+      "peak_cuda_allocated_bytes": 9115474944,
+      "worker_seconds": 29.496841279789805,
+      "cache_hit": false
+    }
+  ],
+  "smoothing_parameter_nm": {},
+  "production_file_hashes_before": {
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/baseline_profile.csv": "765194badbe71493fdf0b4b082c0af9eb1b63447b0f3d1cfac1c32dfc5e10284",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/manifest.json": "5b9cebcbb9246128e3d69679e7c14d1f084a3baca24dbf35c5243d818a98db7b",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/workflow.json": "98a9abda3fd71182aa5ebe4d12e752f6b430f49f15d88c590c7bcac5e9a28528",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/manifest.backup.20261027T231532265989Z.6454a04e.json": "a42cae248c394bc6582985d76c7f173c1a1f0e3c294f1b029954967cf79ec190",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/resolved_config.json": "1e90d009a4899ac81dff8801fd65f5e5d4ebe0fd7851cd282fb38baebc25b930",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/analysis_workflow_convergence.json": "cb1dbf5181162e750d09860757aaae557439303b173c809f3471216502a29ee8",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/report.json": "2acdce5f924b9a3cd678d1cb3b2053f570c36ac028c65afd3d36f666378423ab",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/optuna_journal.log": "e9634dba09b0448c5b1019bfd846edf95f37187aefdbf80ed1518a6f033b04a7",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/latest_convergence_continue.json": "135147f45a00e47ea922d2b600d14a5988d0eae23b5ee76f2bc02dfde6612378",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/latest_normal_grid.json": "12508a9f76115b89fa6c10f9384d3cfad0d0d87c59bf14bfa2f34e296f9b72f4",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/sampler.pkl": "9d238db85814bf5005600f329fd17b5e997b1655f82dba7abcefe2e8ccfc1738",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/trials.csv": "6733fe5f06c9ac95cfb79e807a4deacaa16e45c1817f78fed48221ba18243bb5",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/optimized_profile.csv": "c324ed7385d2b761c459177a9334d4dfb27f64415842f09f58101ecf1d801349",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/latest_convergence.json": "ec2ca161cee907a180acd4e98a1378cc07a6f61cea93f7bc07863fb0be3446cb",
+    "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/trials/trial_0000/adam_checkpoint.pt": "c09000e6a1908ecfe96f9f6c2e92f1986dc984d23e06394218e20b7a4973934e"
+  },
+  "production_files_unchanged": true,
+  "tolerance": 0.00025,
+  "cuda_execution_performed": true,
+  "sampling_comparisons": [
+    {
+      "fixed_normal_reference_grid": null,
+      "coarse": [
+        1024,
+        null
+      ],
+      "fine": [
+        2048,
+        null
+      ],
+      "details": {
+        "reflectance": {
+          "max_abs_difference": 4.922513851535193e-06,
+          "wavelength_nm": 550.0,
+          "coarse": 0.25170251065657107,
+          "fine": 0.2517074331704226
+        },
+        "power_into_substrate": {
+          "max_abs_difference": 2.3376546484377148e-06,
+          "wavelength_nm": 700.0,
+          "coarse": 0.1626079567955598,
+          "fine": 0.16261029445020825
+        },
+        "motheye_absorptance": {
+          "max_abs_difference": 6.2837762869749625e-06,
+          "wavelength_nm": 700.0,
+          "coarse": 0.80516832831655,
+          "fine": 0.8051620445402631
+        }
+      },
+      "max_power_abs_difference": 4.922513851535193e-06,
+      "passed": true
+    }
+  ],
+  "smoothing_comparisons": [],
+  "scope": "Finite comparisons at fixed diffraction order; no claim of a converged physical solution."
+}

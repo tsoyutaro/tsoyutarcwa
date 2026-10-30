@@ -1,0 +1,20 @@
+{
+  "status": "error",
+  "error_type": "NonphysicalResult",
+  "error": "Invalid shared power flux.",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/optimizer/driver.py\", line 69, in worker\n    outcome = train(request, device, trial)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/optimizer/engine.py\", line 62, in train\n    result = evaluator(logits, c, lattice, c[\"optimization_wavelengths_nm\"], c[\"optimization_order\"],\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/optimizer/physics.py\", line 240, in objective\n    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/acceleration/spectral.py\", line 179, in __call__\n    value, radius_gradient, rows = self.spectrum(radii, config, waves, weights, cache, gradient)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/acceleration/spectral.py\", line 143, in spectrum\n    raise self.model.physics.NonphysicalResult('Invalid shared power flux.')\noptimizer.physics.NonphysicalResult: Invalid shared power flux.\n",
+  "request_signature": "6153c74a842e8507bca46f9754ffb616e104323d4f1a8603ca3911fc8cae3fdb",
+  "runtime_environment": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "torcwa": "0.1.4.2",
+    "cuda": "12.4",
+    "device": "cuda:0",
+    "gpu": "NVIDIA H100",
+    "gpu_total_bytes": 99949805568,
+    "optuna": "4.6.0"
+  },
+  "process_wall_seconds": 156.54607033450156,
+  "peak_cuda_allocated_bytes": 3366886400,
+  "peak_cuda_reserved_bytes": 4267704320
+}

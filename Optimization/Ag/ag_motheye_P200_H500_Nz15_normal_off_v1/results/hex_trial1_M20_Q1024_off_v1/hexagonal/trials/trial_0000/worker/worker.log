@@ -1,0 +1,16 @@
+trial 0 step 0: mean R=0.737807616; best=0.737807616
+trial 0 step 10: mean R=0.737862605; best=0.731991065
+trial 0 step 20: mean R=0.71154283; best=0.710108011
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/optimizer/driver.py", line 69, in worker
+    outcome = train(request, device, trial)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/optimizer/engine.py", line 62, in train
+    result = evaluator(logits, c, lattice, c["optimization_wavelengths_nm"], c["optimization_order"],
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/optimizer/physics.py", line 240, in objective
+    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/acceleration/spectral.py", line 179, in __call__
+    value, radius_gradient, rows = self.spectrum(radii, config, waves, weights, cache, gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/acceleration/spectral.py", line 143, in spectrum
+    raise self.model.physics.NonphysicalResult('Invalid shared power flux.')
+optimizer.physics.NonphysicalResult: Invalid shared power flux.
+

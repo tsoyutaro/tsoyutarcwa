@@ -1,0 +1,99 @@
+{
+  "status": "diagnostic_complete",
+  "material": "Ag",
+  "lattice": "hexagonal",
+  "device": "cuda:0",
+  "cuda_execution_performed": true,
+  "torch": "2.6.0+cu124",
+  "gpu": "NVIDIA H100 MIG 3g.47gb",
+  "checkpoint": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ag/ag_motheye_P200_H500_Nz15/results/hex_trial1_M16_Q512_v3/hexagonal/trials/trial_0000/adam_checkpoint.pt",
+  "checkpoint_sha256": "431f7213f8bafc277c290c4a6a5a3e35ca4a2d8df2fcd6d6f986d90bf10de449",
+  "state": "current",
+  "next_step": 0,
+  "successful_gradient_evaluations": 0,
+  "last_history": null,
+  "original_order": 16,
+  "evaluation_order": 20,
+  "grid": 1024,
+  "wavelengths_nm": [
+    650.0
+  ],
+  "logits": [
+    0.2516160760050363,
+    -0.035945153715006395,
+    -0.035945153715006395,
+    -0.035945153715006395,
+    -0.03594515371500595,
+    -0.03594515371500684,
+    -0.03594515371500595,
+    -0.03594515371500684,
+    -0.03594515371500595,
+    -0.03594515371500595,
+    -0.03594515371500684,
+    -0.03594515371500595,
+    -0.03594515371500595,
+    -0.03594515371500595,
+    -0.03594515371500817,
+    0.25161607600504077
+  ],
+  "radii_nm": [
+    8.000000000000004,
+    14.0,
+    20.0,
+    25.999999999999996,
+    31.999999999999996,
+    37.99999999999999,
+    43.99999999999999,
+    49.999999999999986,
+    55.999999999999986,
+    61.999999999999986,
+    67.99999999999999,
+    73.99999999999999,
+    79.99999999999999,
+    85.99999999999997,
+    91.99999999999996
+  ],
+  "passivity_tolerance": 1e-06,
+  "rows": [
+    {
+      "wavelength_nm": 650.0,
+      "epsilon_real": -19.458648309133487,
+      "epsilon_imag": 0.45941077283372367,
+      "methods": {
+        "shared": {
+          "reflectance": 0.867425547753581,
+          "power_into_substrate": 0.021382975519045156,
+          "absorptance_total": 0.13257445224641895,
+          "motheye_absorptance": 0.1111914767273738,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 4.2935571344569325
+        },
+        "reference": {
+          "reflectance": 0.8674255477509311,
+          "power_into_substrate": 0.0213829755190384,
+          "absorptance_total": 0.13257445224906894,
+          "motheye_absorptance": 0.11119147673003055,
+          "finite": true,
+          "passive": true,
+          "violations": {},
+          "seconds": 23.651865827850997
+        }
+      },
+      "comparisons": {
+        "shared": {
+          "comparable": true,
+          "passed": true,
+          "max_power_abs_error": 2.649991337477786e-12
+        }
+      }
+    }
+  ],
+  "checkpoint_unchanged": true,
+  "nonpassive_wavelengths_by_method": {
+    "shared": [],
+    "reference": []
+  },
+  "reference_comparisons_passed": true
+}
