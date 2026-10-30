@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_normal_off_v1/optimizer/driver.py", line 72, in worker
+    outcome = (timing_worker if request["mode"] == "analyze_timing" else spectrum_worker)(request, device)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_normal_off_v1/optimizer/postprocess.py", line 14, in spectrum_worker
+    result=objective(x,request['config'],request['lattice'],request['waves'],request['order'],request['grid'],device,gradient=False)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_normal_off_v1/optimizer/physics.py", line 240, in objective
+    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/acceleration/spectral.py", line 176, in __call__
+    cache = self.cache(config, lattice, waves, order, grid, device)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/acceleration/spectral.py", line 58, in cache
+    template = backend.make_sim(args, waves[0], indices[0])
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/acceleration/spectral.py", line 30, in make_sim
+    sim.set_incident_angle(0.,0.)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/scattering.py", line 239, in set_incident_angle
+    return _ORIGINAL_TORCWA_RCWA.set_incident_angle(
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torcwa/rcwa.py", line 144, in set_incident_angle
+    self._kvectors()
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/nvm.py", line 189, in _kvectors
+    self.Vo = self._cartesian_e_to_h(kz_output, mu=self.mu_out)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_normal_off_v1/rcwa_ext/nvm.py", line 218, in _cartesian_e_to_h
+    return torch.cat((left, right), dim=1) / mu_t
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 846.00 MiB. GPU 0 has a total capacity of 46.38 GiB of which 753.50 MiB is free. Process 3498198 has 16.28 GiB memory in use. Process 3518153 has 4.31 GiB memory in use. Process 4153420 has 18.48 GiB memory in use. Process 4153421 has 18.65 GiB memory in use. Including non-PyTorch memory, this process has 8.43 GiB memory in use. Of the allocated memory 7.47 GiB is allocated by PyTorch, and 606.51 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+
