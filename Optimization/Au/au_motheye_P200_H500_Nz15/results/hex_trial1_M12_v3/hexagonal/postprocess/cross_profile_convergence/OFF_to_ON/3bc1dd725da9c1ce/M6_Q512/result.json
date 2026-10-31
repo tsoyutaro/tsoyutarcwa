@@ -1,0 +1,7 @@
+{
+  "status": "nonphysical",
+  "error_type": "NonphysicalResult",
+  "error": "Invalid shared power flux.",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_cross_profile_convergence.py\", line 89, in child_main\n    result=prepare_child(request) if request['mode']=='prepare' else worker_child(request)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_cross_profile_convergence.py\", line 283, in worker_child\n    result=physics.objective(x,{**context['config'],'rcwa_acceleration':context['backend']},\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/optimizer/physics.py\", line 240, in objective\n    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py\", line 178, in __call__\n    value, radius_gradient, rows = self.spectrum(radii, config, waves, weights, cache, gradient)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py\", line 142, in spectrum\n    raise self.model.physics.NonphysicalResult('Invalid shared power flux.')\noptimizer.physics.NonphysicalResult: Invalid shared power flux.\n",
+  "worker_seconds": 7.015086368657649
+}
