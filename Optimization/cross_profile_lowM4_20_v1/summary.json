@@ -1,0 +1,127 @@
+{
+  "status": "completed_with_skips",
+  "plan_only": false,
+  "directions": [
+    "ON_to_OFF",
+    "OFF_to_ON"
+  ],
+  "orders": [
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20
+  ],
+  "grids": [
+    512,
+    1024
+  ],
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "cases": {
+    "ON_to_OFF/Al": {
+      "status": "completed",
+      "counts": {
+        "completed": 18
+      },
+      "reused_completed_conditions": 2,
+      "reused_wavelength_points": 6,
+      "computed_wavelength_points": 48,
+      "order_convergence_passed": false,
+      "grid_convergence_passed": true,
+      "numerical_convergence_passed": false,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15_normal_off_v1/results/hex_trial1_M8_Q1024_off_v1/hexagonal/postprocess/cross_profile_convergence/ON_to_OFF/06b1c309ebd47f4e/report.json"
+    },
+    "ON_to_OFF/Ti": {
+      "status": "completed",
+      "counts": {
+        "completed": 18
+      },
+      "reused_completed_conditions": 2,
+      "reused_wavelength_points": 6,
+      "computed_wavelength_points": 48,
+      "order_convergence_passed": true,
+      "grid_convergence_passed": true,
+      "numerical_convergence_passed": true,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ti/ti_motheye_P200_H500_Nz15_normal_off_v1/results/hex_trial1_M8_Q1024_off_v1/hexagonal/postprocess/cross_profile_convergence/ON_to_OFF/f31dca04c9bc79d6/report.json"
+    },
+    "ON_to_OFF/Cu": {
+      "status": "completed",
+      "counts": {
+        "completed": 18
+      },
+      "reused_completed_conditions": 2,
+      "reused_wavelength_points": 6,
+      "computed_wavelength_points": 48,
+      "order_convergence_passed": false,
+      "grid_convergence_passed": true,
+      "numerical_convergence_passed": false,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15_normal_off_v1/results/hex_trial1_M12_Q1024_off_v1/hexagonal/postprocess/cross_profile_convergence/ON_to_OFF/b0a8fa47ae3e326f/report.json"
+    },
+    "ON_to_OFF/Au": {
+      "status": "busy",
+      "error": "Controller lock exists; not removed."
+    },
+    "OFF_to_ON/Al": {
+      "status": "completed",
+      "counts": {
+        "completed": 18
+      },
+      "reused_completed_conditions": 1,
+      "reused_wavelength_points": 3,
+      "computed_wavelength_points": 51,
+      "order_convergence_passed": false,
+      "grid_convergence_passed": false,
+      "numerical_convergence_passed": false,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/results/hex_trial1_v3/hexagonal/postprocess/cross_profile_convergence/OFF_to_ON/f88dd2488c666549/report.json"
+    },
+    "OFF_to_ON/Ti": {
+      "status": "completed",
+      "counts": {
+        "completed": 18
+      },
+      "reused_completed_conditions": 1,
+      "reused_wavelength_points": 3,
+      "computed_wavelength_points": 51,
+      "order_convergence_passed": true,
+      "grid_convergence_passed": false,
+      "numerical_convergence_passed": false,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Ti/ti_motheye_P200_H500_Nz15/results/hex_trial1_M8_Q512_v3/hexagonal/postprocess/cross_profile_convergence/OFF_to_ON/225d5a78707c15c3/report.json"
+    },
+    "OFF_to_ON/Cu": {
+      "status": "completed",
+      "counts": {
+        "completed": 18
+      },
+      "reused_completed_conditions": 1,
+      "reused_wavelength_points": 3,
+      "computed_wavelength_points": 51,
+      "order_convergence_passed": false,
+      "grid_convergence_passed": false,
+      "numerical_convergence_passed": false,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/results/hex_trial1_M12_v3/hexagonal/postprocess/cross_profile_convergence/OFF_to_ON/586ba7ec6a596b78/report.json"
+    },
+    "OFF_to_ON/Au": {
+      "status": "completed_with_skips",
+      "counts": {
+        "completed": 16,
+        "nonphysical": 1,
+        "skipped": 1
+      },
+      "reused_completed_conditions": 1,
+      "reused_wavelength_points": 3,
+      "computed_wavelength_points": 45,
+      "order_convergence_passed": false,
+      "grid_convergence_passed": false,
+      "numerical_convergence_passed": false,
+      "report": "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/results/hex_trial1_M12_v3/hexagonal/postprocess/cross_profile_convergence/OFF_to_ON/3bc1dd725da9c1ce/report.json"
+    }
+  }
+}
