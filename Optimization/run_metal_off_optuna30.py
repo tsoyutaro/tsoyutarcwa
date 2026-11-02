@@ -13,6 +13,9 @@ from pathlib import Path
 import shlex
 import subprocess
 import sys
+import uuid
+
+from off_order_controller import POLICY,RETRY_EXIT_CODE
 
 ROOT=Path(__file__).resolve().parent
 CASES={
@@ -23,14 +26,20 @@ CASES={
     'Au': ('Au/au_motheye_P200_H500_Nz15',14),
 }
 
-def prepare(material, *, grid=512, trials=30, adam_steps=500, run_tag='hex_OFF_optuna30_v1'):
-    relative,order=CASES[material]
+def prepare(material, *, grid=512, trials=30, adam_steps=500, run_tag='hex_OFF_optuna30_v1', order=None):
+    relative,default_order=CASES[material]
+    order=default_order if order is None else order
+    if order<=0 or grid<max(32,4*order+4):
+        raise ValueError('A positive order and a sufficient grid are required.')
     case=ROOT/relative
     c=json.loads((case/'config.json').read_text(encoding='utf-8-sig'))
     c.update(normal_mode='off',layers=15,lattices=['hexagonal'],
              period_nm=200.,height_nm=500.,optimization_order=order,
              optimization_grid=grid,trials=trials,adam_steps=adam_steps,
              optimization_wavelengths_nm='400:700:10',objective_weighting='arithmetic')
+    if c.get('verification_orders') and order>max(c['verification_orders']):
+        c['verification_orders']=sorted({*c['verification_orders'],order})
+        c['verification_grid']=max(c['verification_grid'],32,4*order+4)
     # Initial profiles come from each Optuna trial, never a previous optimum.
     c.pop('initial_logits',None)
     c.pop('initial_profile_provenance',None)
@@ -50,15 +59,22 @@ def main(argv=None):
     p.add_argument('--grid',type=int,default=512)
     p.add_argument('--trials',type=int,default=30)
     p.add_argument('--adam-steps',type=int,default=500)
-    p.add_argument('--run-tag',default='hex_OFF_optuna30_v1')
+    p.add_argument('--run-tag',help='Default: hex_OFF_optuna30_auto_v1 with --auto-order, otherwise hex_OFF_optuna30_v1')
+    p.add_argument('--auto-order',action='store_true',help='Restart a new study at M+2 after confirmed nonphysical training powers')
+    p.add_argument('--start-order',type=int,help='Override the initial order for the selected materials')
+    p.add_argument('--max-order',type=int,default=40,help='Inclusive automatic retry ceiling (default: 40)')
     p.add_argument('--prepare-only',action='store_true',help='Write configs and print commands without running optimization')
     p.add_argument('--recover-lock',action='store_true',help='Only after confirming that the previous job has stopped')
     a=p.parse_args(argv)
     materials=a.materials.split(',')
     if not materials or len(set(materials))!=len(materials) or any(m not in CASES for m in materials):
         p.error('Select distinct materials from Al,Ti,Cr,Cu,Au')
-    if min(a.grid,a.trials,a.adam_steps)<=0 or a.grid<4*max(CASES[m][1] for m in materials)+4:
+    initial_orders=[a.start_order if a.start_order is not None else CASES[m][1] for m in materials]
+    if min(a.grid,a.trials,a.adam_steps,*initial_orders)<=0 or a.grid<max(32,4*max(initial_orders)+4):
         p.error('Positive steps/trials and a sufficient grid are required')
+    if a.auto_order and a.max_order<max(initial_orders):
+        p.error('max-order must be at least the initial order')
+    a.run_tag=a.run_tag or ('hex_OFF_optuna30_auto_v1' if a.auto_order else 'hex_OFF_optuna30_v1')
     if not a.run_tag or Path(a.run_tag).name!=a.run_tag or any(x in a.run_tag for x in '/\\'):
         p.error('run-tag must be one directory name')
     # Children use their original independent packages and source manifests.
@@ -69,19 +85,45 @@ def main(argv=None):
     failures=[]
     try:
         for m in materials:
-            case,cfg,output=prepare(m,grid=a.grid,trials=a.trials,adam_steps=a.adam_steps,run_tag=a.run_tag)
-            command=[sys.executable,str(case/'run.py'),'--config',str(cfg),'--device',a.device,
-                     '--mode','optimize','--lattices','hexagonal','--timeout-hours','0','--output-root',str(output)]
-            if a.recover_lock:command.append('--recover-lock')
-            print(f'\n{m}: OFF M={CASES[m][1]} Q={a.grid}, {a.trials} trials',flush=True)
-            print(shlex.join(command),flush=True)
-            if a.prepare_only:continue
-            completed=subprocess.run(command,cwd=str(case),env=env)
-            code=completed.returncode
-            if code<0 or code>=128:return code if code>=128 else 128-code
-            if code:
-                failures.append({'material':m,'exit_code':code})
-                print(f'{m}: stopped (exit {code}); proceeding to the next material.',flush=True)
+            order=a.start_order if a.start_order is not None else CASES[m][1]
+            while True:
+                if a.grid<max(32,4*order+4):
+                    failures.append({'material':m,'order':order,'reason':'insufficient_grid'})
+                    print(f'{m}: grid {a.grid} is insufficient for M={order}; stopping this material.',flush=True)
+                    break
+                case,cfg,output=prepare(m,grid=a.grid,trials=a.trials,adam_steps=a.adam_steps,run_tag=a.run_tag,order=order)
+                arguments=['--config',str(cfg),'--device',a.device,'--mode','optimize',
+                           '--lattices','hexagonal','--timeout-hours','0','--output-root',str(output)]
+                if a.recover_lock:arguments.append('--recover-lock')
+                attempt=uuid.uuid4().hex
+                if a.auto_order:
+                    command=[sys.executable,str(ROOT/'off_order_controller.py'),'--case-dir',str(case),
+                             '--attempt-id',attempt,'--',*arguments]
+                else:command=[sys.executable,str(case/'run.py'),*arguments]
+                print(f'\n{m}: OFF M={order} Q={a.grid}, {a.trials} trials',flush=True)
+                print(shlex.join(command),flush=True)
+                if a.prepare_only:break
+                completed=subprocess.run(command,cwd=str(case),env=env)
+                code=completed.returncode
+                if code<0 or code>=128:return code if code>=128 else 128-code
+                marker_path=output/'order_retry.json'
+                marker={}
+                if a.auto_order and code==RETRY_EXIT_CODE and marker_path.exists():
+                    try:marker=json.loads(marker_path.read_text(encoding='utf-8-sig'))
+                    except (OSError,ValueError):pass  # An unconfirmed result never raises M.
+                retry=(a.auto_order and code==RETRY_EXIT_CODE and marker.get('policy')==POLICY
+                       and marker.get('status')=='retry_higher_order' and marker.get('attempt_id')==attempt
+                       and marker.get('order')==order and marker.get('grid')==a.grid
+                       and marker.get('normal_mode')=='off')
+                if retry and order+2<=a.max_order:
+                    print(f'{m}: confirmed nonphysical power at M={order}; restarting at M={order+2} from trial 0 in a separate study.',flush=True)
+                    order+=2
+                    continue
+                if code:
+                    reason='maximum_order_reached' if retry else 'controller_stopped'
+                    failures.append({'material':m,'order':order,'exit_code':code,'reason':reason})
+                    print(f'{m}: stopped at M={order} ({reason}, exit {code}); proceeding to the next material.',flush=True)
+                break
     except KeyboardInterrupt:
         return 130
     if failures:print(json.dumps({'status':'some_materials_stopped','materials':failures},indent=2),flush=True)

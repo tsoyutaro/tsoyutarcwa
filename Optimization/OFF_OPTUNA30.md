@@ -54,8 +54,10 @@ trial 0は従来の既定円錐台（層中央の半径8,14,…,92 nm、lr=0.03�
 ## 停止・再開と検証
 
 `--mode optimize`で各材料の最適化完了時に終了し、検証やスペクトルを自動実行しません。
-非物理値はそのtrialをFAILとして次のtrialへ進みます。OOMではその材料を停止し、
-バッチは次の材料へ進みます。回折次数の自動変更は行いません。
+通常実行では、非物理値はそのtrialをFAILとして次のtrialへ進みます。
+`--auto-order`を追加すると、確認済みの非物理的なpower fluxが出たtrialをFAILとして保存し、
+その次数のstudyを停止します。次のtrialには進まず、M+2の別studyをtrial 0から開始します。
+OOMではその材料を停止し、バッチは次の材料へ進みます。OOMによる次数の増加は行いません。
 
 途中で停止した場合は同じコマンド・config・保存先で再開できます。
 ロックが残っている場合のみ、前のプロセスが終了したことを確認して `--recover-lock` を追加してください。
@@ -69,3 +71,26 @@ python run_metal_off_optuna30.py --device cuda:0 --grid 512 --materials Cu
 
 完了後のconvergence・timing・spectrumは、各ケースの従来のrun.pyに同じconfigとoutput-rootを指定して別に実行します。
 従来の固定スナップショット検証、既存のOFF専用版、実験的guarded版は再現用として変更していません。
+
+## 非物理値で次数を自動的に上げる
+
+AuのM=14で既に非物理値を確認した場合、現在のAuプロセスをCtrl+Cで終了し、
+終了を確認してから、次のコマンドでM=16を新しく開始できます。他材料を停止する必要はありません。
+
+```sh
+python run_metal_off_optuna30.py --device cuda:0 --grid 512 --materials Au --auto-order --start-order 16 --max-order 40
+```
+
+- M=16で30 trialを開始し、非物理値を検知したら18、20…と2ずつ増加します。
+- 各次数は新しいjournal・Adam初期状態・trial 0から開始し、下位次数の最適形状を引き継ぎません。
+- OOM・手動中断・上限次数40での非物理値では、それ以上の次数を実行しません。
+- `--start-order`省略時は材料別の既定次数から開始し、`--max-order`省略時の上限は40です。
+- `--auto-order`の保存先は `results/hex_OFF_optuna30_auto_v1_M{M}_Q512` です。
+  通常実行の `hex_OFF_optuna30_v1_M14_Q512` は保持します。
+- 再実行時は中断した同一次数のstudyを再開します。既に非物理値で棄却した次数は、
+  元のmanifest確認を行ってから、保存済みの `order_retry.json` に従って次の次数へ進みます。
+- 発生trial・エラー・要求次数は `order_retry.json` と `order_retry_history/` に記録します。
+- 最適化次数が従来のverification_orders上限を超えた場合、新しいconfigの検証次数にその次数を追加します。
+
+次数切り替えは別プロセスの起動制御で行います。数値ソルバ・Adam・従来driver・runtime_policyを変更しないため、
+他材料の実行中ジョブや元のsource manifestへの影響を避けられます。更新は起動済みのAuプロセスには適用されません。
