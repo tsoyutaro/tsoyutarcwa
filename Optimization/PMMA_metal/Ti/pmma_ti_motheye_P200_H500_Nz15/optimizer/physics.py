@@ -45,7 +45,7 @@ def make_sim(config,lattice,wavelength,order,grid,device,release=True):
     eps=complex(pmma_epsilon_at(config,wavelength))
     if eps.real<=0 or abs(eps.imag)>1e-12:raise ValueError('PMMA substrate must be lossless with positive epsilon.')
     sim=AutoRCWA(freq=config['period_nm']/wavelength,order=[order]*2,
-        lattice=Lattice.triangular(1.),nvm=NVMOptions(grid=(grid,grid),use_lanczos=False),
+        lattice=Lattice.triangular(1.),nvm=NVMOptions(grid=(grid,grid),use_lanczos=False,normal_mode=config.get("normal_mode","off")),
         outputs=OutputSpec(smatrix_size='half',fields='none'),cascade='redheffer',
         group_theory=GroupTheoryOptions(enabled=True,symmetry='d6',polarization='x',strict=True),
         dtype=torch.complex128,device=device,verify_cascade=False,acceleration='reference')
@@ -150,7 +150,7 @@ class CoreShellEvaluator:
     def cache(self,c,lattice,waves,order,grid,device):
         core=[complex(pmma_epsilon_at(c,w)) for w in waves]
         shell=[complex(metal_epsilon_at(c,w)) for w in waves]
-        key=(lattice,order,grid,c['period_nm'],c['height_nm'],c['layers'],tuple(waves),tuple(core),tuple(shell),str(device))
+        key=(c.get('normal_mode','off'),lattice,order,grid,c['period_nm'],c['height_nm'],c['layers'],tuple(waves),tuple(core),tuple(shell),str(device))
         if key not in self._cache:
             with torch.no_grad():
                 template=make_sim(c,lattice,waves[0],order,grid,device)
@@ -209,20 +209,21 @@ class CoreShellEvaluator:
         for pair in values:
             build=lambda x:self.geometry_pair(x,cache)
             originals.extend(checkpoint(build,pair,use_reentrant=False,preserve_rng_state=False) if checkpointed else build(pair))
-        leaves=tuple(v.detach().requires_grad_(gradient) for v in originals)
-        covectors=[torch.zeros_like(v) for v in leaves] if gradient else None
+        active=[i for i,v in enumerate(originals) if v.requires_grad] if gradient else []
+        leaves=tuple(v.detach().requires_grad_(gradient and i in active) for i,v in enumerate(originals))
+        covectors=[torch.zeros_like(leaves[i]) for i in active] if gradient else None
         rows=[];total=0.
         for index,(wave,weight) in enumerate(zip(waves,weights(waves,c['objective_weighting']))):
             R,T=self.response(cache,leaves,index,checkpointed)
             row=power_row(R,T,c,wave)
-            if gradient:
-                derivatives=torch.autograd.grad(weight*(R+T),leaves)
+            if gradient and active:
+                derivatives=torch.autograd.grad(weight*(R+T),tuple(leaves[i] for i in active))
                 for a,d in zip(covectors,derivatives):a.add_(d)
             total+=weight*(row['reflectance']+row['transmittance'])
             row.update(storage=self.backend_name,eigen_dimension=cache['plan'].reduced_dimension,
                 checkpoint_layers=checkpointed,retained_scalar_harmonics=cache['plan'].scalar_dimension)
             rows.append(row)
-        radius_gradient=torch.autograd.grad(tuple(originals),values,grad_outputs=tuple(covectors))[0].detach()/c['period_nm'] if gradient else None
+        radius_gradient=(torch.autograd.grad(tuple(originals[i] for i in active),values,grad_outputs=tuple(covectors))[0].detach()/c['period_nm'] if active else torch.zeros_like(values)) if gradient else None
         return total,radius_gradient,rows
     def __call__(self,logits,c,lattice,waves,order,grid,device,*,gradient):
         sync(device);started=time.perf_counter()

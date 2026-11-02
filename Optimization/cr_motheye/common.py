@@ -31,6 +31,9 @@ def wavelengths(text):
 
 def load_config(path, smoke=False, material_csv=None):
     c = json.loads(path.read_text(encoding="utf-8-sig"))
+    c.setdefault("normal_mode", "off")
+    if c["normal_mode"] not in ("off", "on"):
+        raise ValueError("normal_mode must be off or on.")
     if smoke:
         c.update(optimization_order=1, optimization_grid=32, verification_orders=[1, 2], verification_grid=48,
                  optimization_wavelengths_nm="550", verification_wavelengths_nm="550,600",

@@ -15,6 +15,7 @@ from .config import (
 from .reduced import _ReducedScatteringMixin
 from .scattering import _StableLinearAlgebraMixin
 from .symmetry import _SymmetryReductionMixin
+from .normal_fields import unsmoothed_projection
 
 class _Jinc(torch.autograd.Function):
     """Autograd-safe ``2 J_1(x) / x`` used by analytic disk coefficients.
@@ -77,6 +78,9 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
     """
 
     def __init__(self, freq, order, L, **kwargs):
+        self.normal_mode = kwargs.pop("normal_mode", "off")
+        if self.normal_mode not in ("off", "on"):
+            raise ValueError("NVM normal_mode must be 'off' or 'on'.")
         self.zeta_deg = float(kwargs.pop("zeta_deg", 90.0))
         self.use_group_theory = bool(kwargs.pop("use_group_theory", False))
         self.polarization_reduction = _normalize_polarization(
@@ -301,6 +305,10 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
                 f"got ({nx}, {ny}), require at least "
                 f"({minimum_x}, {minimum_y})."
             )
+        key = (nx, ny, tuple((float(x), float(y)) for x, y in centers))
+        normal_cache = getattr(self, '_off_normal_cache', {})
+        if self.normal_mode == "off" and key in normal_cache:
+            return normal_cache[key]
         lx, ly = _as_float(self.L[0]), _as_float(self.L[1])
         xi = (
             torch.arange(nx, dtype=torch.float64, device=self._device) / nx
@@ -348,19 +356,23 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
         nx_field = dx / safe_radius
         ny_field = dy / safe_radius
 
-        resolution = max(lx / nx, ly / ny)
-        taper_radius = torch.maximum(
-            radius / 2.0,
-            radius.new_tensor(resolution),
-        )
-        center_weight = _smoothstep(radius_nearest, 0.0, taper_radius)
-        boundary_weight = _smoothstep(
-            radius_second - radius_nearest, 0.0, 3.0 * resolution
-        )
-        weight = center_weight * boundary_weight
-        pxx_real = 0.5 + (nx_field**2 - 0.5) * weight
-        pyy_real = 0.5 + (ny_field**2 - 0.5) * weight
-        pxy_real = nx_field * ny_field * weight
+        if self.normal_mode == "off":
+            pxx_real, pxy_real, pyy_real = unsmoothed_projection(
+                nx_field, ny_field, dx_all, dy_all, two_smallest, lx, ly)
+        else:
+            resolution = max(lx / nx, ly / ny)
+            taper_radius = torch.maximum(
+                radius / 2.0,
+                radius.new_tensor(resolution),
+            )
+            center_weight = _smoothstep(radius_nearest, 0.0, taper_radius)
+            boundary_weight = _smoothstep(
+                radius_second - radius_nearest, 0.0, 3.0 * resolution
+            )
+            weight = center_weight * boundary_weight
+            pxx_real = 0.5 + (nx_field**2 - 0.5) * weight
+            pyy_real = 0.5 + (ny_field**2 - 0.5) * weight
+            pxy_real = nx_field * ny_field * weight
 
         def convolution(real_field: torch.Tensor) -> torch.Tensor:
             fft = torch.fft.fft2(real_field.to(self._dtype)) / (nx * ny)
@@ -384,13 +396,20 @@ class CustomRCWA_NVM(_ReducedScatteringMixin, _SymmetryReductionMixin, _StableLi
         pyy = convolution(pyy_real)
         pxy = convolution(pxy_real)
         pyx = pxy.mH
-        return torch.cat(
+        projection = torch.cat(
             (
                 torch.cat((pxx, pxy), dim=1),
                 torch.cat((pyx, pyy), dim=1),
             ),
             dim=0,
         )
+        if self.normal_mode == "off":
+            if projection.requires_grad:
+                raise RuntimeError("OFF normal projector depends on a design variable.")
+            normal_cache[key] = projection.detach()
+            self._off_normal_cache = normal_cache
+            return normal_cache[key]
+        return projection
 
     @staticmethod
     def _symmetric_nvm_tensor(eps_zz, delta, projection):

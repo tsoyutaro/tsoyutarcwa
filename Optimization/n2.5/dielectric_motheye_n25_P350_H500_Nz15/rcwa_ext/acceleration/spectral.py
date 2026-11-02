@@ -21,7 +21,8 @@ def sync(device):
 def make_sim(args,wave,index):
     sim=AutoRCWA(freq=args.period/wave,order=[args.order]*2,
         lattice=Lattice.square(1.) if args.lattice=='square' else Lattice.triangular(1.),
-        nvm=NVMOptions(grid=(args.grid,args.grid),use_lanczos=False),
+        nvm=NVMOptions(grid=(args.grid,args.grid),use_lanczos=False,
+                       normal_mode=getattr(args,'normal_mode','off')),
         outputs=OutputSpec(smatrix_size='half',fields='none'),cascade='redheffer',
         group_theory=GroupTheoryOptions(enabled=True,symmetry='c2v' if args.lattice=='square' else 'd6',polarization='x',strict=True),
         dtype=torch.complex128,device=args.device,verify_cascade=False,acceleration='reference')
@@ -47,13 +48,15 @@ class SharedEvaluator:
         if lattice not in ('square', 'hexagonal'):
             raise ValueError('Only square and hexagonal normal-incidence circle cases are supported.')
         indices = self.indices(c, waves)
-        key = (lattice, order, grid, c['period_nm'], c['height_nm'], c['layers'],
+        normal_mode = c.get('normal_mode','off')
+        key = (normal_mode, lattice, order, grid, c['period_nm'], c['height_nm'], c['layers'],
                tuple(waves), tuple(indices), str(device))
         if key not in self._cache:
             backend = _BACKEND
             args = SimpleNamespace(order=order, grid=grid, layers=c['layers'],
                                    period=c['period_nm'], height=c['height_nm'],
-                                   device=str(device), material=self.model.material,lattice=lattice)
+                                   device=str(device), material=self.model.material,lattice=lattice,
+                                   normal_mode=normal_mode)
             with torch.no_grad():
                 template = backend.make_sim(args, waves[0], indices[0])
                 plan = backend.assembly.plan_for(template)
@@ -122,14 +125,15 @@ class SharedEvaluator:
         for radius in values:
             pair = checkpoint(build, radius, use_reentrant=False, preserve_rng_state=False) if checkpointed else build(radius)
             originals.extend(pair)
-        leaves = tuple(x.detach().requires_grad_(gradient) for x in originals)
-        covectors = [torch.zeros_like(x) for x in leaves] if gradient else None
+        active = [i for i,x in enumerate(originals) if x.requires_grad] if gradient else []
+        leaves = tuple(x.detach().requires_grad_(gradient and i in active) for i,x in enumerate(originals))
+        covectors = [torch.zeros_like(leaves[i]) for i in active] if gradient else None
         rows = []
         total = 0.
         for wave, weight, index, port in zip(waves, weights, cache['indices'], cache['ports']):
             R, T = self.response(cache, leaves, wave, index, port, checkpointed)
-            if gradient:
-                derivatives = torch.autograd.grad(weight*R, leaves)
+            if gradient and active:
+                derivatives = torch.autograd.grad(weight*R, tuple(leaves[i] for i in active))
                 for accumulator, derivative in zip(covectors, derivatives):
                     accumulator.add_(derivative)
                 del derivatives
@@ -140,7 +144,7 @@ class SharedEvaluator:
             if (not all(math.isfinite(v) and -tol<=v<=1+tol for v in powers)
                     or not metal and abs(rv+tv-1)>tol):
                 raise self.model.physics.NonphysicalResult('Invalid shared power flux.')
-            row = dict(wavelength_nm=wave, reflectance=rv,
+            row = dict(wavelength_nm=wave, reflectance=rv, normal_mode=cache['args'].normal_mode,
                 retained_scalar_harmonics=cache['plan'].scalar_dimension,
                 eigen_dimension=cache['plan'].reduced_dimension,
                 storage=self.backend_name, checkpoint_layers=checkpointed)
@@ -158,8 +162,8 @@ class SharedEvaluator:
             rows.append(row)
             total += weight*rv
             del R,T
-        derivative = torch.autograd.grad(tuple(originals), values,
-            grad_outputs=tuple(covectors))[0].detach() if gradient else None
+        derivative = (torch.autograd.grad(tuple(originals[i] for i in active), values,
+            grad_outputs=tuple(covectors))[0].detach() if active else torch.zeros_like(values)) if gradient else None
         return total, derivative, rows
 
     def __call__(self, logits, config, lattice, wavelengths, order, grid, device, *, gradient):

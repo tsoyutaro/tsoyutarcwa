@@ -46,7 +46,8 @@ def make_sim(config, lattice, wavelength, order, grid, device, release=True):
             return selected
     sim = FastNV(freq=config["period_nm"]/wavelength, order=[order]*2,
                  lattice=Lattice.square(1.) if lattice == "square" else Lattice.triangular(1.),
-                 nvm=NVMOptions(grid=(grid, grid), use_lanczos=False),
+                 nvm=NVMOptions(grid=(grid, grid), use_lanczos=False,
+                                normal_mode=config.get("normal_mode", "off")),
                  outputs=OutputSpec(smatrix_size="half", fields="none"), cascade="redheffer",
                  group_theory=GroupTheoryOptions(enabled=True, symmetry="c2v" if lattice == "square" else "d6",
                                                  polarization="x", strict=True),

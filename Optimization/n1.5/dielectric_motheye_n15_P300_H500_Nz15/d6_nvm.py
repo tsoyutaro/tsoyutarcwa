@@ -12,6 +12,7 @@ import torch
 from rcwa_solver_auto import AutoRCWA
 from rcwa_ext.config import LayerRecord, _real_parameter_tensor
 from rcwa_ext.nvm import _jinc, _smoothstep
+from rcwa_ext.normal_fields import unsmoothed_projection
 
 _PLANS = OrderedDict()
 VERSION = 'd6-native-e1-pair-v1'
@@ -136,6 +137,9 @@ def native_inputs(sim,radius,index,grid,plan):
     minimum = max(32,4*int(sim.order[0])+4,4*int(sim.order[1])+4)
     if grid<minimum:
         raise ValueError(f'Grid {grid} must be at least {minimum}.')
+    normal_cache = getattr(plan, '_off_normal_cache', {})
+    if sim.normal_mode == 'off' and grid in normal_cache:
+        return eps, inverse_rule, normal_cache[grid]
     xi = torch.arange(grid,dtype=torch.float64,device=sim._device)/grid*lx
     eta = torch.arange(grid,dtype=torch.float64,device=sim._device)/grid*ly
     u,v = torch.meshgrid(xi,eta,indexing='ij')
@@ -157,10 +161,13 @@ def native_inputs(sim,radius,index,grid,plan):
     r1,r2 = torch.sqrt(torch.clamp(distance[0],min=0.)),torch.sqrt(torch.clamp(distance[1],min=0.))
     safe = torch.clamp(r1,min=1e-14)
     nx,ny = dx/safe,dy/safe
-    resolution = max(lx/grid,ly/grid)
-    taper = torch.maximum(radius/2,radius.new_tensor(resolution))
-    weight = _smoothstep(r1,0.,taper)*_smoothstep(r2-r1,0.,3*resolution)
-    normal_fields = (.5+(nx**2-.5)*weight,nx*ny*weight,.5+(ny**2-.5)*weight)
+    if sim.normal_mode == 'off':
+        normal_fields = unsmoothed_projection(nx,ny,dxs,dys,distance,lx,ly)
+    else:
+        resolution = max(lx/grid,ly/grid)
+        taper = torch.maximum(radius/2,radius.new_tensor(resolution))
+        weight = _smoothstep(r1,0.,taper)*_smoothstep(r2-r1,0.,3*resolution)
+        normal_fields = (.5+(nx**2-.5)*weight,nx*ny*weight,.5+(ny**2-.5)*weight)
     dm = plan.m[:,None]-plan.m[None,:]
     dn = plan.n[:,None]-plan.n[None,:]
     blocks = []
@@ -170,6 +177,12 @@ def native_inputs(sim,radius,index,grid,plan):
         blocks.append(.5*(block+block.mH))
     xx,xy,yy = blocks
     projection = torch.cat((torch.cat((xx,xy),dim=1),torch.cat((xy.mH,yy),dim=1)),dim=0)
+    if sim.normal_mode == 'off':
+        if projection.requires_grad:
+            raise RuntimeError('OFF normal projector depends on a design variable.')
+        normal_cache[grid] = projection.detach()
+        plan._off_normal_cache = normal_cache
+        return eps,inverse_rule,normal_cache[grid]
     return eps,inverse_rule,projection
 
 

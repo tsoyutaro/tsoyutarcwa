@@ -390,9 +390,20 @@ class ASROptions:
 
 @dataclass(frozen=True)
 class NVMOptions:
+    """Normal-vector factorization options.
+
+    ``normal_mode='off'`` retains the radial normal field but removes the
+    finite-width smoothstep blending. Use ``'on'`` to replay the former field.
+    Lanczos filtering is a separate option.
+    """
     grid: tuple[int, int] = (256, 256)
     use_lanczos: bool = False
     lanczos_power: int = 2
+    normal_mode: str = "off"
+
+    def __post_init__(self) -> None:
+        if self.normal_mode not in ("off", "on"):
+            raise ValueError("NVM normal_mode must be 'off' or 'on'.")
 
 
 @dataclass(frozen=True)

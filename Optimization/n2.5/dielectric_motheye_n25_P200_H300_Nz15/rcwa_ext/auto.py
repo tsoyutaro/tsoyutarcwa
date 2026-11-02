@@ -254,6 +254,9 @@ class AutoRCWA(CustomRCWA_NVM):
                         f"{name} disagrees with the group_theory options object."
                     )
                 kwargs[name] = value
+        if "normal_mode" in kwargs and kwargs["normal_mode"] != self.nvm_options.normal_mode:
+            raise ValueError("normal_mode disagrees with NVMOptions.normal_mode.")
+        kwargs["normal_mode"] = self.nvm_options.normal_mode
         kwargs["zeta_deg"] = lattice.angle_deg
         kwargs["cascade"] = cascade
         kwargs["smatrix_size"] = requested_size
