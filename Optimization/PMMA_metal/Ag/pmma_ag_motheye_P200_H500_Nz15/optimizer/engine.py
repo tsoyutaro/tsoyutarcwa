@@ -29,6 +29,9 @@ def cpu_tree(value):
 def train(request, device, trial=None, evaluator=objective):
     import torch
     c, lattice, params = request['config'], request['lattice'], request['params']
+    action = c.get('nonphysical_action', 'backtrack')
+    if action not in ('backtrack', 'restart-higher-order'):
+        raise ValueError('Unknown nonphysical_action.')
     factor = c.get('physical_backtracking_factor', .5)
     retries = c.get('physical_backtracking_max_retries', 12)
     min_lr = c.get('physical_backtracking_min_lr', 1e-6)
@@ -167,6 +170,12 @@ def train(request, device, trial=None, evaluator=objective):
                              error=str(error), candidate_logits=candidate_logits)
                 rejections.append(event)
                 print(f"REJECT update {next_step+1} attempt {attempt+1}: lr={attempt_lr:.9g}; {error}", flush=True)
+                if action == 'restart-higher-order':
+                    save()  # Preserve the accepted state only, for inspection.
+                    result = finish('nonphysical', 'restart_from_baseline_at_higher_order', str(error))
+                    result['error_type'] = 'NonphysicalResult'
+                    write_json(folder/'best.json', result)
+                    return result
                 smaller = max(min_lr, attempt_lr*factor)
                 exhausted = attempt >= retries or smaller >= attempt_lr
                 for group in optimizer.param_groups:

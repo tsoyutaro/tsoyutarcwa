@@ -1,0 +1,95 @@
+{
+  "status": "passed",
+  "suite": "small",
+  "device": "cpu",
+  "cuda_execution_performed": false,
+  "checks": [
+    {
+      "name": "native_reference_RTA_and_all_logits_gradient",
+      "passed": true,
+      "max_power_abs_error": 1.9984014443252818e-15,
+      "max_gradient_abs_error": 5.455705331947058e-16
+    },
+    {
+      "name": "checkpoint_OFF_ON_reference_and_shared",
+      "passed": true
+    },
+    {
+      "name": "independent_reference_FD_PMMA_core",
+      "passed": true,
+      "finite_difference": -0.027508572956330687,
+      "autodiff": -0.02750857429013165,
+      "abs_error": 1.3338009620389446e-09
+    },
+    {
+      "name": "independent_reference_FD_metal_outer",
+      "passed": true,
+      "finite_difference": 0.007384226244355751,
+      "autodiff": 0.007384230441208362,
+      "abs_error": 4.196852611097757e-09
+    },
+    {
+      "name": "physical_radius_FD_core_radius_nm",
+      "passed": true,
+      "abs_error": 6.034310876500137e-11
+    },
+    {
+      "name": "physical_radius_FD_outer_radius_nm",
+      "passed": true,
+      "abs_error": 2.631188105936544e-11
+    },
+    {
+      "name": "lossless_control_R_plus_T_equals_1_and_zero_total_gradient",
+      "passed": true
+    },
+    {
+      "name": "uniform_metal_film_on_PMMA_vs_Fresnel",
+      "passed": true,
+      "max_power_abs_error": 1.6653345369377348e-16
+    }
+  ],
+  "material": "Cr",
+  "material_provenance": {
+    "model": "pmma_metal_csv",
+    "metal": {
+      "material": "Cr",
+      "csv": "data/metal.csv",
+      "sha256_lf": "89bacaea7215df57beb80093f069436bb47b944e5bf19671047233f5a3c3e42a",
+      "tabulated_range_nm": [
+        188.0,
+        1937.0
+      ],
+      "interpolation": "linear complex epsilon=(n+ik)^2 in wavelength_nm",
+      "extrapolation": "forbidden"
+    },
+    "pmma": {
+      "csv": "data/PMMA.csv",
+      "sha256_lf": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+      "tabulated_range_nm": [
+        404.7,
+        1083.0
+      ],
+      "interpolation": "linear n in wavelength_nm",
+      "k": 0.0,
+      "k_policy": "lossless assumption; not measured k",
+      "shortwave_policy": "linear-to-400",
+      "extrapolated_wavelengths_nm": [
+        400.0,
+        403.0
+      ]
+    },
+    "structure": "15 variable PMMA-core metal-shell slices; air background; lossless semi-infinite PMMA substrate",
+    "fixed_top_cap": false,
+    "fixed_valley_metal_film": false,
+    "time_convention": "exp(-i omega t)"
+  },
+  "order": 2,
+  "grid": 48,
+  "layers": 3,
+  "wavelengths_nm": [
+    400.0,
+    550.0,
+    700.0
+  ],
+  "mean_absorptance": 0.9487153517180649
+}

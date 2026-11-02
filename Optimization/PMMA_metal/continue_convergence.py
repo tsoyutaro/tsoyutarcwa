@@ -242,7 +242,7 @@ def persist(folder,context,records,state='running'):
 
 def defaults(root):
     specs=[]
-    for material in ('Al','Ti','Cu','Au','Ag'):
+    for material in ('Al','Ti','Cr','Cu','Au','Ag'):
         case=root/material/f'pmma_{material.lower()}_motheye_P200_H500_Nz15'
         specs.append(dict(material=material,case_dir=str(case),config=str(case/'config_hex_trial1_M8_Q512.json'),
             run_root=str(case/'results/hex_trial1_M8_Q512_v1')))

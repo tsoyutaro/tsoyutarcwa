@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "CPU_only": true,
+  "CUDA_production_execution_performed": false,
+  "prepared_start_orders": {
+    "Al": {
+      "start_order": 8,
+      "trials": 1,
+      "normal_mode": "off",
+      "nonphysical_action": "restart-higher-order"
+    },
+    "Ti": {
+      "start_order": 8,
+      "trials": 1,
+      "normal_mode": "off",
+      "nonphysical_action": "restart-higher-order"
+    },
+    "Cr": {
+      "start_order": 8,
+      "trials": 1,
+      "normal_mode": "off",
+      "nonphysical_action": "restart-higher-order"
+    },
+    "Cu": {
+      "start_order": 12,
+      "trials": 1,
+      "normal_mode": "off",
+      "nonphysical_action": "restart-higher-order"
+    },
+    "Au": {
+      "start_order": 16,
+      "trials": 1,
+      "normal_mode": "off",
+      "nonphysical_action": "restart-higher-order"
+    }
+  },
+  "integration": {
+    "orders": [
+      1,
+      3
+    ],
+    "failure_injection": "Test-copy physics.py raises NonphysicalResult on the second M1 evaluation; M3 uses actual RCWA. Production physics.py has no injection.",
+    "M1_initial_validation_passed": true,
+    "M1_accepted_updates": 0,
+    "M3_accepted_updates": 1,
+    "nominal_profiles_identical_across_orders": true,
+    "new_Adam_step": 1,
+    "final_status": "completed"
+  }
+}

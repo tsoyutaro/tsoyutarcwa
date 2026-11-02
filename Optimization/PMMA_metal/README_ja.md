@@ -1,6 +1,8 @@
 # PMMA芯＋金属被覆：両半径を最適化する独立ケース
 
-対象はAl、Ti、Cu、Au、Agです。PMMA芯を同心円状の金属被覆が囲み、その下に半無限PMMA基板を置きます。各ケースは単独で別PCへコピーして実行できます。
+対象はAl、Ti、Cr、Cu、Au、Agです。PMMA芯を同心円状の金属被覆が囲み、その下に半無限PMMA基板を置きます。各ケースは単独で別PCへコピーして実行できます。
+
+2026-11-02追加：非物理値で次数を+2し、初期形状から再最適化する場合は [自動次数変更の説明](README_ADAPTIVE_ORDER_ja.md) を参照してください。開始次数はAl=8、Ti=8、Cr=8、Cu=12、Au=16、上限32です。以下にある従来のrun.pyコマンドは、自動次数変更を行いません。
 
 ## フォルダ
 
@@ -8,6 +10,7 @@
 Optimization/PMMA_metal/
   Al/pmma_al_motheye_P200_H500_Nz15/
   Ti/pmma_ti_motheye_P200_H500_Nz15/
+  Cr/pmma_cr_motheye_P200_H500_Nz15/
   Cu/pmma_cu_motheye_P200_H500_Nz15/
   Au/pmma_au_motheye_P200_H500_Nz15/
   Ag/pmma_ag_motheye_P200_H500_Nz15/
@@ -55,6 +58,7 @@ delta=min_shell_thickness_nmは既定0.001 nm、radius_min_nmも0.001 nm、radiu
 
 - Al：AlケースのRakic (Al).csv
 - Ti：TiケースのTi.csv
+- Cr：既存cr_motheyeケースのJohnson.csv
 - Cu：CuケースのCu.csv
 - Au：Auケースのau_measured_nk.csv
 - Ag：AgケースのAg.csv

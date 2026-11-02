@@ -196,8 +196,8 @@ def optimize_lattice(folder, request_base, deadline):
             print(f"trial {trial.number} failed: {outcome.get('error')}; retained in journal.", flush=True)
         save_sampler(sampler_path, study.sampler, optuna.__version__)
         export_trials(folder, study)
-        if status == "error" and outcome.get("error_type") == "NonphysicalResult":
-            print("Initial dual-radius profile failed validation; remaining lr-only trials are not started.",flush=True)
+        if status == "nonphysical" or status == "error" and outcome.get("error_type") == "NonphysicalResult":
+            print("Nonphysical dual-radius result; optimization stops at this order.",flush=True)
             return study,"error"
 
 

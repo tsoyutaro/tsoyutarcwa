@@ -32,6 +32,8 @@ def wavelengths(text):
 def load_config(path, smoke=False):
     c = json.loads(path.read_text(encoding="utf-8-sig"))
     c.setdefault("normal_mode", "off")
+    if c.get("nonphysical_action", "backtrack") not in ("backtrack", "restart-higher-order"):
+        raise ValueError("Unknown nonphysical_action.")
     if c["normal_mode"] not in ("off", "on"):
         raise ValueError("normal_mode must be off or on.")
     if smoke:

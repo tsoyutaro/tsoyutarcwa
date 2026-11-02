@@ -17,7 +17,7 @@ def main():
     a=p.parse_args()
     reports=[]
     for material in a.materials.split(','):
-        if material not in ('Al','Ti','Cu','Au','Ag'):p.error('Unknown material: '+material)
+        if material not in ('Al','Ti','Cr','Cu','Au','Ag'):p.error('Unknown material: '+material)
         case=ROOT/material/f'pmma_{material.lower()}_motheye_P200_H500_Nz15'
         folder=a.output_root/a.suite;folder.mkdir(parents=True,exist_ok=True)
         output=folder/(material+'.json')
