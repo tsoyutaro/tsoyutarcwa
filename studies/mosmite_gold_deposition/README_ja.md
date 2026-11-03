@@ -1,5 +1,7 @@
 # MOSMITEの金被覆：真空蒸着とスパッタの2モデル
 
+2026-11-03更新：厚層の既定計算は、位相サンプリングを使わない解析的インコヒーレント法です。[理論式・文献・新しいコマンド](../README_MOSMITE_ANALYTIC_ja.md) を参照してください。旧`--coherence phase-average`と`--phase-points`は廃止しました。
+
 20260806の共有`rcwa_ext`を利用する。既存ソルバーや未被覆モデルは変更しない。
 `studies/mosmite_gold_deposition/`をプロジェクト直下へ追加する。
 単独の2実行ファイルは、このフォルダ内の共通モジュールとdataを使用する。
@@ -63,14 +65,15 @@ python studies/mosmite_gold_deposition/run_sputter.py --device cuda --wavelength
 1層ずつ生成してRedheffer接続する。全矩形基底では、追加時に層Sを接続して消費する。
 真空蒸着・スパッタの両方に対応し、共有`rcwa_ext`の変更はない。
 既定値は`--layer-storage full`で従来の保持方法。材料・形状・次数・分割数・NVM・
-complex128・厚層の位相平均は変更しない。有限試料に必要なTf/Rf/Rb/Tbをすべて保持する。
+complex128は維持する。厚層処理は2026-11-03に解析的非干渉法へ更新した。有限試料に必要なTf/Rf/Rb/Tbをすべて保持する。
 内部電磁場の復元や勾配計算には、この省メモリ設定を使わない。
 
-最初に、すでに完了したM=18、Nz=150、grid=512を再計算し、元のCSVと照合する。
-過去の設定ファイル・生のCSVを使うので、画面に丸めて表示された数値との比較ではない。
+省メモリ照合は、同じ新しい解析的光学モードで計算したfull実行を参照にします。旧位相平均方式のCSVは、この同等性検証の参照には使用しません。まず次のfull実行を完了し、その後reducedを実行します。
 
 ```bash
-python studies/mosmite_gold_deposition/run_evaporation.py --device cuda --wavelengths "400,600,800" --slices 150 --order 18 --grid 512 --layer-storage reduced --reference-dir studies/mosmite_gold_deposition/results/evaporation/M18_Nz150_G512 --output-dir studies/mosmite_gold_deposition/results/evaporation/M18_Nz150_G512_reduced
+python studies/mosmite_gold_deposition/run_evaporation.py --device cuda --wavelengths "400,600,800" --slices 150 --order 18 --grid 512 --layer-storage full --coherence incoherent --output-dir studies/mosmite_gold_deposition/results/evaporation/analytic_M18_full
+
+python studies/mosmite_gold_deposition/run_evaporation.py --device cuda --wavelengths "400,600,800" --slices 150 --order 18 --grid 512 --layer-storage reduced --coherence incoherent --reference-dir studies/mosmite_gold_deposition/results/evaporation/analytic_M18_full --output-dir studies/mosmite_gold_deposition/results/evaporation/analytic_M18_reduced
 ```
 
 材料データ・共有ソルバー・形状・厚層計算のソース、および数値条件の一致を先に確認する。
@@ -159,9 +162,9 @@ D6縮約の場合は、正入射・等方材料のx=yの対称性を用いる。
 - 粘着層：20 um、n=1.50,k=0。分散は未測定の仮定。
 - 溶融石英ガラス：1 mm、Malitson分散、k=0。
 - Au：両モデル・全領域とも、まずJohnson--Christyの同梱参照n,kを使用。
-- 厚いPET・粘着層・ガラスは位相平均。界面の多重反射、金とPETの吸収、ガラス裏面反射を含む。
+- PET・粘着層・ガラスは解析的インコヒーレント法。界面の無限回の多重反射、金とPETの吸収、ガラス裏面反射を含む。
 - 非零回折次数は厚層内でエバネッセントになる条件を検査し、厚層を零次Jones振幅で接続する。
-- 位相平均は16点/層と32点/層を各波長で比較する。`--coherence coherent`で固定位相へ変更可能。
+- 位相の数値走査は行わない。`--coherence coherent`で全層の干渉を保持し、`--coherent-layers PET,adhesive`で混合指定も可能。
 
 金は連続した等方媒質として扱う。3--4 nm程度の膜が島状になる影響は、この基準モデルに含まない。
 実物への一致を判断するときは、成膜条件・連続性・粗さに対応する光学データで検討する。
@@ -179,7 +182,7 @@ python studies/mosmite_gold_deposition/run_evaporation.py --device cuda --gold-c
 
 ## 出力と検証
 
-- `spectra.csv`：無偏光のR,T,A（0--1）、x/yそれぞれのR,T、交差偏光成分、位相平均差、基底、層数、計算時間。
+- `spectra.csv`：無偏光のR,T,A（0--1）、x/yそれぞれのR,T、交差偏光成分、coherenceモード、基底、層数、計算時間。
 - `spectra.png`：R,T,Aの3段グラフ（%）。
 - `geometry.png`、`geometry_layers.csv`：実際の分割形状。
 - `materials.csv`：各波長の全材料・全Au領域のn,k。

@@ -1,9 +1,9 @@
 """Uncoated MOSMITE: local RCWA plus finite PET/adhesive/silica/air stack.
 
 Normal incidence, isotropic materials and a D6 triangular lattice only.
-The thick-layer tail is connected as electric-field scattering amplitudes,
-then intensities are averaged over independent round-trip phases. This avoids
-assigning an isolated incident/reflected power to an absorbing internal port.
+The patterned surface is coherent RCWA. Uniform thick layers use analytic
+intensity balance (mixed coherent/incoherent optics), without phase sampling
+or wavelength smoothing. Absorbing internal ports use Re(n) flux normalization.
 """
 from __future__ import annotations
 
@@ -19,6 +19,8 @@ import time
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+from mosmite_optics import finite_sample as analytic_sample, THEORY
 PET_SOURCE = ("https://raw.githubusercontent.com/polyanskiy/"
     "refractiveindex.info-database/main/database/data/organic/"
     "%28C10H8O4%29n%20-%20polyethylene%20terephthalate/nk/Zhang.yml")
@@ -92,13 +94,14 @@ def prepend(left, right_r, right_t):
 
 
 def bulk_layers(args, wl, pet, adhesive):
-    """Only existing layers enter both the amplitude stack and phase average."""
+    """Only existing layers enter the optical stack; flags select incoherent layers."""
     pet_nm = args.film_total_um*1000-args.height_nm-args.residual_um*1000
-    layers = [(pet(wl), pet_nm, True)]
+    coherent = {name.strip().lower() for name in args.coherent_layers.split(",") if name.strip()}
+    layers = [(pet(wl), pet_nm, "pet" not in coherent)]
     if args.adhesive_um > 0:
-        layers.append((adhesive(wl), args.adhesive_um*1000, True))
+        layers.append((adhesive(wl), args.adhesive_um*1000, "adhesive" not in coherent))
     if args.glass_um > 0:
-        layers.append((silica_n(wl), args.glass_um*1000, True))
+        layers.append((silica_n(wl), args.glass_um*1000, "glass" not in coherent))
     return layers
 
 
@@ -111,39 +114,10 @@ def stack_description(args):
     return ' / '.join(parts+['air'])
 
 
-def finite_sample(surface, port_index, layers, wl, phase_points):
-    """layers: (complex n, thickness_nm, phase_average_bool), from top down.
-
-    A phase point is an extra SINGLE-pass phase in [0, pi). Thus there are
-    exactly phase_points distinct ROUND-trip phases for each averaged layer.
-    Phase variation preserves nominal attenuation and averages interference.
-    Final and incident external media are both air: R=|r|^2, T=|t|^2.
-    """
-    count = sum(bool(layer[2]) for layer in layers) if phase_points > 1 else 0
-    if count:
-        axes = np.meshgrid(*([np.arange(phase_points)*np.pi/phase_points]*count),
-                           indexing='ij')
-        phases = [axis.ravel() for axis in axes]
-    else:
-        phases = []
-    size = phase_points**count
-    r = np.zeros(size, dtype=np.complex128)
-    t = np.ones(size, dtype=np.complex128)
-    n_right = 1.+0j
-    phase_slot = count - 1
-    for index, thickness_nm, average in reversed(layers):
-        r, t = prepend(interface(index, n_right), r, t)
-        extra_phase = phases[phase_slot] if average and count else 0.
-        if average and count:
-            phase_slot -= 1
-        propagation = np.exp(2j*np.pi*index*thickness_nm/wl + 1j*extra_phase)
-        r, t = r*propagation**2, t*propagation
-        n_right = index
-    r, t = prepend(interface(port_index, n_right), r, t)
-    r, t = prepend(surface, r, t)
-    reflectance = float(np.mean(np.abs(r)**2))
-    transmittance = float(np.mean(np.abs(t)**2))
-    return reflectance, transmittance, 1-reflectance-transmittance
+def finite_sample(surface, port_index, layers, wl, *, coherence='incoherent'):
+    """Analytic intensity balance, or a fully coherent amplitude calculation."""
+    result = analytic_sample(surface, port_index, layers, wl, coherence=coherence)
+    return result['R'], result['T'], result['A']
 
 
 def surface_rcwa(args, wl, n_resin, *, n_substrate=None, order=None, slices=None, grid=None):
@@ -243,8 +217,10 @@ def parser():
     p.add_argument('--method', choices=['nvm', 'matched-asr'], default='nvm')
     p.add_argument('--polarization', choices=['x', 'y'], default='x',
                    help='D6 and normal incidence imply identical x/y intensity spectra.')
-    p.add_argument('--coherence', choices=['phase-average', 'coherent'], default='phase-average')
-    p.add_argument('--phase-points', type=int, default=16)
+    p.add_argument('--coherence', choices=['incoherent', 'coherent'], default='incoherent',
+                   help='Analytic intensity balance, or retain phase in all layers.')
+    p.add_argument('--coherent-layers', default='',
+                   help='In incoherent mode, retain phase in selected uniform layers: PET,adhesive,glass.')
     p.add_argument('--check-convergence', action='store_true',
                    help='Compare M+2, then Nz*2, then grid*2 at 400,600,800 nm in range.')
     p.add_argument('--check-wavelengths', default='400,600,800',
@@ -257,10 +233,12 @@ def parser():
 
 def main():
     args = parser().parse_args()
+    if {v.strip().lower() for v in args.coherent_layers.split(',') if v.strip()} - {'pet', 'adhesive', 'glass'}:
+        raise ValueError('Unknown --coherent-layers entry; use PET,adhesive,glass.')
     for name, value in vars(args).items():
         if isinstance(value, float) and not math.isfinite(value):
             raise ValueError(f'{name} must be finite.')
-    if min(args.order, args.slices, args.grid, args.threads, args.phase_points) <= 0:
+    if min(args.order, args.slices, args.grid, args.threads) <= 0:
         raise ValueError('Numerical sizes must be positive.')
     if (not 0 <= args.tip_diameter_nm <= args.base_diameter_nm < args.period_nm
             or args.period_nm <= 0 or args.height_nm < 0 or args.profile_power <= 0):
@@ -299,7 +277,6 @@ def main():
         raise ValueError('A higher order may propagate: the scalar thick-layer tail is ineligible.')
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    phase_points = args.phase_points if args.coherence == 'phase-average' else 1
     metadata = {'arguments': {key: str(value) if isinstance(value, Path) else value
                              for key, value in vars(args).items()},
         'stack_description': stack_description(args),
@@ -315,10 +292,10 @@ def main():
              '55 um includes the 0.2 um relief: default uniform optical thickness is 54.8 um.',
              'No independently known residual thickness; default resin and PET are optically merged.',
              'Only the front surface is patterned; the last existing uniform layer borders air.',
-             'Only positive-thickness layers are included in the interfaces and phase average.',
-             'Existing PET/adhesive/glass layers are phase averaged unless coherent; residual stays coherent.',
+             'Only positive-thickness layers enter the interfaces and propagation.',
+             'PET/adhesive/glass use analytic incoherent intensity balance unless selected coherent; residual stays coherent.',
              'D6 triangular lattice, normal incidence, scalar isotropic n,k; x=y=unpolarized.',
-             'Pattern is coherent; absorbing internal ports are connected as amplitudes.',
+             'Pattern is coherent; internal interface R and T use complex indices and flux normalization.',
              'No diffuse scattering, anisotropy, instrument convolution or parameter fitting.'],
         'torch': torch.__version__, 'solver_root': str(args.solver_root.resolve()),
         'harmonics': 1+3*args.order*(args.order+1),
@@ -326,25 +303,26 @@ def main():
     hashes = {str(path.relative_to(args.solver_root)): hashlib.sha256(path.read_bytes()).hexdigest()
               for path in sorted((args.solver_root/'rcwa_ext').glob('*.py'))}
     metadata['solver_sha256'] = hashes
+    metadata['thick_layer_theory'] = THEORY
+    metadata['optics_sha256'] = hashlib.sha256((HERE.parent/'mosmite_optics.py').read_bytes()).hexdigest()
     metadata['study_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     (output/'settings.json').write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding='utf-8')
-    rows, material_rows, convergence = [], [], []
+    rows, material_rows, convergence, surface_rows = [], [], [], []
     for wl in wls:
         started = time.perf_counter()
         npet, nresin = pet(wl), resin(wl)
         layers = bulk_layers(args, wl, pet, adhesive)
         surface = surface_rcwa(args, wl, nresin, n_substrate=npet)
-        result = finite_sample(surface, npet, layers, wl, phase_points)
-        phase_error = 0.
-        if phase_points > 1:
-            doubled = finite_sample(surface, npet, layers, wl, 2*phase_points)
-            phase_error = max(abs(a-b) for a, b in zip(result, doubled))
-        if phase_error > args.convergence_tol:
-            raise RuntimeError(f'Phase average not converged at {wl}: {phase_error}; increase --phase-points.')
+        surface_row = {'wavelength_nm': float(wl)}
+        for name, value in zip(('tf', 'rf', 'rb', 'tb'), surface):
+            surface_row.update({name+'_real': value.real, name+'_imag': value.imag})
+        surface_rows.append(surface_row)
+        save_csv(output/'surface_scattering.csv', surface_rows)
+        result = finite_sample(surface, npet, layers, wl, coherence=args.coherence)
         if min(result) < -2e-6 or max(result) > 1+2e-6:
             raise RuntimeError(f'Unphysical R,T,A at {wl}: {result}')
         row = {'wavelength_nm': float(wl), 'R': result[0], 'T': result[1], 'A': result[2],
-               'phase_average_error': phase_error, 'seconds': time.perf_counter()-started}
+               'coherence': args.coherence, 'seconds': time.perf_counter()-started}
         rows.append(row)
         matrow = {'wavelength_nm': float(wl)}
         material_indices = [('PET', npet), ('resin', nresin)]
@@ -375,11 +353,7 @@ def main():
                     value = (cached['R'], cached['T'], cached['A'])
                 else:
                     s = surface_rcwa(args, wl, nresin, n_substrate=pet(wl), order=m, slices=nz, grid=grid)
-                    value = finite_sample(s, pet(wl), layers, wl, phase_points)
-                    if phase_points > 1:
-                        doubled = finite_sample(s, pet(wl), layers, wl, 2*phase_points)
-                        if max(abs(a-b) for a,b in zip(value, doubled)) > args.convergence_tol:
-                            raise RuntimeError(f'Phase average not converged at refined case {wl}: increase --phase-points.')
+                    value = finite_sample(s, pet(wl), layers, wl, coherence=args.coherence)
                 if not all(math.isfinite(v) and -2e-6 <= v <= 1+2e-6 for v in value):
                     raise RuntimeError(f'Unphysical refined R,T,A at {wl}: {value}')
                 if baseline is None:

@@ -61,18 +61,18 @@ def main():
     r = (rf-rf*phase*phase)/den
     t = 4*n/(1+n)**2*phase/den
     blocks = [np.eye(2)*s for s in interface(1., n)]
-    actual = finite_sample(blocks, n, [(n, thickness, False)], wl, 1)
+    actual = finite_sample(blocks, n, [(n, thickness, False)], wl, coherence='coherent')
     check('Jones stack agrees with absorbing Airy slab', max(abs(actual['R']-abs(r)**2), abs(actual['T']-abs(t)**2)))
     n = 1.57
     reflection = ((1-n)/(1+n))**2
-    actual = finite_sample([np.eye(2)*s for s in interface(1., n)], n, [(n, 54800., True)], wl, 16)
+    actual = finite_sample([np.eye(2)*s for s in interface(1., n)], n, [(n, 54800., True)], wl)
     check('Incoherent dielectric slab agrees with exact multiple-reflection formula',
           max(abs(actual['R']-2*reflection/(1+reflection)), abs(actual['T']-(1-reflection)/(1+reflection))))
     # An arbitrary unitary polarization rotation must conserve total power.
     angle = .43
     rotation = np.array([[math.cos(angle), -math.sin(angle)], [math.sin(angle), math.cos(angle)]])
     zero = np.zeros((2, 2), dtype=np.complex128)
-    actual = finite_sample([rotation, zero, zero, rotation.T], 1., [(1., 1000., True)], wl, 16)
+    actual = finite_sample([rotation, zero, zero, rotation.T], 1., [(1., 1000., True)], wl)
     check('Jones connection includes cross-polarized transmitted power', abs(actual['T']-1.)+abs(actual['R']))
     assert actual['cross_T'] > .1
     check('Cross-polarized channel remains explicit')
@@ -96,11 +96,9 @@ def main():
             indices = {key: f(600.) for key, f in functions.items()}
             blocks, diagnostic = surface_rcwa(args, 600., indices)
             tail = [(indices['PET'], 54800., True), (1.5+0j, 20000., True), (silica_n(600.), 1e6, True)]
-            actual = finite_sample(blocks, indices['PET'], tail, 600., 16)
+            actual = finite_sample(blocks, indices['PET'], tail, 600.)
             assert all(-1e-8 <= actual[key] <= 1+1e-8 for key in ['R', 'T', 'A']) and actual['A'] > .05
             check(mode+': passive Au shell/valley/cap RCWA and finite stack')
-            refined = finite_sample(blocks, indices['PET'], tail, 600., 32)
-            check(mode+': phase quadrature 16 versus 32', max(abs(actual[k]-refined[k]) for k in ['R', 'T', 'A']))
             if mode == 'sputter':
                 assert diagnostic['coalesced_raster_layers'] > 0 and diagnostic['basis'] == 'full-rectangular'
                 check('Sputter integration exercises the coalesced raster backend')
@@ -112,7 +110,7 @@ def main():
                 lossless[key] = 1.8+0j
             blocks, _ = surface_rcwa(args, 600., lossless)
             tail = [(lossless['PET'], 54800., True), (1.5+0j, 20000., True), (silica_n(600.), 1e6, True)]
-            actual = finite_sample(blocks, lossless['PET'], tail, 600., 16)
+            actual = finite_sample(blocks, lossless['PET'], tail, 600.)
             check(mode+': independent lossless energy balance', abs(actual['A']), 1e-8)
         # Removing all gold must recover an independently assembled bare relief.
         args = parser('evaporation').parse_args([])

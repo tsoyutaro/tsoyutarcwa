@@ -1,5 +1,7 @@
 # 未被覆MOSMITEの反射・透過スペクトル
 
+2026-11-03更新：厚層の既定計算は、位相サンプリングを使わない解析的インコヒーレント法です。[理論式・文献・新しいコマンド](../README_MOSMITE_ANALYTIC_ja.md) を参照してください。旧`--coherence phase-average`と`--phase-points`は廃止しました。
+
 20260806の共有`rcwa_ext`を利用する。表面の微細構造をRCWAで解き、有限厚の
 基材・粘着剤・石英ガラスを電場振幅の散乱行列として接続する。
 空気から入射し、ガラス裏面から空気へ出る試料全体のR、T、Aを計算する。
@@ -31,7 +33,7 @@ python studies/mosmite_uncoated/run_spectrum.py \
   --film-total-um 55 --residual-um 0 --adhesive-um 20 --glass-um 1000 \
   --adhesive-n 1.50 --adhesive-k 0 \
   --method nvm --order 7 --slices 100 --grid 256 \
-  --coherence phase-average --phase-points 16 \
+  --coherence incoherent \
   --output-dir studies/mosmite_uncoated/results/reference
 ```
 
@@ -70,14 +72,14 @@ python studies/mosmite_uncoated/run_spectrum.py \
   --device cuda --wavelengths "400,600,800" \
   --glass-um 0 --adhesive-um 20 \
   --method nvm --order 3 --slices 50 --grid 128 \
-  --coherence phase-average --phase-points 16 \
+  --coherence incoherent \
   --check-convergence --convergence-tol 0.005 \
   --output-dir studies/mosmite_uncoated/results/no_glass/convergence &&
 python studies/mosmite_uncoated/run_spectrum.py \
   --device cuda --wavelengths "400:800:5" \
   --glass-um 0 --adhesive-um 20 \
   --method nvm --order 3 --slices 50 --grid 128 \
-  --coherence phase-average --phase-points 16 \
+  --coherence incoherent \
   --convergence-tol 0.005 \
   --output-dir studies/mosmite_uncoated/results/no_glass/reference
 ```
@@ -160,14 +162,10 @@ PET相当厚は55-0.2-5=49.8 umとなる。55 umに5 umを上乗せしない。
 M=7はnative D6-starの169調和波に対応する。矩形225調和波の計算とは異なる。
 複素倍精度、NVM、Redheffer連結、内部電場保存なし、両方向のSブロックを使う。
 
-表面構造内部はコヒーレントに計算する。55 um基材・20 um粘着層・1 mmガラスの
-厚層干渉は、各層の往復位相を独立に平均する。
-測定で細かい干渉縞が分解されない場合の初期モデルであり、装置分解能との照合が必要。
-干渉縞を計算する場合は`--coherence coherent`に変更し、波長刻みも細かくする。
-400--800 nmの範囲では非零回折次数は厚層中でエバネッセントなので、
-十分離れた基材下面から後方の多層部分を零次の振幅で接続できる。
-複素屈折率の内部ポートを介して強度だけを接続せず、電場振幅を接続後、
-外部空気中のR=|r|^2,T=|t|^2を平均する。吸収と多重反射を含む。
+表面構造内部はコヒーレントRCWAで計算します。PET・粘着層・ガラスは、既定では解析的な強度の連立方程式で接続します。層内吸収と無限回の多重反射を行列の線形解法で扱い、位相点の走査や移動平均は行いません。
+複素屈折率の界面では順方向・逆方向のFresnel係数を独立に電力規格化し、T=1-Rとは置きません。
+干渉を保持する場合は `--coherence coherent` を指定します。一部の層だけ保持する場合は `--coherence incoherent --coherent-layers PET,adhesive` などと指定します。非零回折次数が厚層内でエバネッセントになる条件は従来どおり検査します。
+非干渉を仮定できるかは実測条件に依存します。厚さだけで自動的に非干渉になるとは仮定しません。
 
 ガラス裏面は未加工の空気界面を想定し、その反射も含む。
 したがって全体Rはモスアイ面単独の反射率より大きくなり、数%になりうる。
@@ -176,7 +174,8 @@ R+T<1の差をすべて実物の吸収に帰属させるモデルではない。
 
 ## 出力
 
-- `spectra.csv`：wavelength_nm、R、T、A（0--1）、位相平均の差、計算時間。
+- `spectra.csv`：wavelength_nm、R、T、A（0--1）、coherenceモード、計算時間。
+- `surface_scattering.csv`：各波長の前面RCWA複素係数。
 - `spectra.png`：反射率・透過率の2段グラフ（縦軸%）。
 - `materials.csv`：各計算波長で実際に使用した各材料のn,k。
 - `settings.json`：仮定、厚さ内訳、材料表とソルバーのSHA256、実行引数。
@@ -184,5 +183,5 @@ R+T<1の差をすべて実物の吸収に帰属させるモデルではない。
 
 補助検証`python studies/mosmite_uncoated/validate.py`は、独立なAiry式、
 無吸収膜の多重反射式、有限厚多層の均一RCWA、複素Fresnel振幅、
-位相平均の刻み、x/y対称性、材料範囲外拒否を確認する。
+解析的非干渉法、x/y対称性、材料範囲外拒否を確認する。
 これらの物理整合性チェックと、実形状のFourier次数・高さ分割の収束確認は別である。

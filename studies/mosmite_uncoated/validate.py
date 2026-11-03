@@ -25,7 +25,7 @@ def record(name, error, tolerance):
 
 n = 1.57
 r0 = ((1-n)/(1+n))**2
-value = model.finite_sample(model.interface(1., n), n, [(n, 54800., True)], 600., 16)
+value = model.finite_sample(model.interface(1., n), n, [(n, 54800., True)], 600.)
 record('Lossless incoherent slab versus analytic multiple reflections',
        max(abs(value[0]-2*r0/(1+r0)), abs(value[1]-(1-r0)/(1+r0)), abs(value[2])), 1e-12)
 
@@ -36,14 +36,14 @@ r12 = -r01
 p = cmath.exp(2j*np.pi*n*d/wl)
 denom = 1+r01*r12*p*p
 reference = (abs((r01+r12*p*p)/denom)**2, abs((2/(1+n))*(2*n/(n+1))*p/denom)**2)
-value = model.finite_sample(model.interface(1., n), n, [(n, d, False)], wl, 1)
+value = model.finite_sample(model.interface(1., n), n, [(n, d, False)], wl, coherence='coherent')
 record('Absorbing coherent slab versus independent Airy formula',
        max(abs(value[i]-reference[i]) for i in (0, 1)), 1e-12)
 
 layers = [(1.57333+1.32e-6j, 54800., True), (1.5+0j, 20000., True),
           (model.silica_n(550.), 1e6, True)]
 top = model.interface(1., layers[0][0])
-coherent = model.finite_sample(top, layers[0][0], layers, 550., 1)
+coherent = model.finite_sample(top, layers[0][0], layers, 550., coherence='coherent')
 sim = AutoRCWA(freq=1/550., order=[1,1], lattice=Lattice.square(100.),
     group_theory=False, outputs=OutputSpec(smatrix_size='full', fields='none'),
     dtype=torch.complex128, device='cpu')
@@ -57,10 +57,6 @@ direct = [float(abs(sim.S[k][i,i])**2) for k in [1,0]]
 record('Finite coherent multilayer versus full homogeneous RCWA',
        max(abs(coherent[i]-direct[i]) for i in [0,1]), 1e-9)
 
-avg16 = model.finite_sample(top, layers[0][0], layers, 550., 16)
-avg32 = model.finite_sample(top, layers[0][0], layers, 550., 32)
-record('Three-layer independent phase quadrature 16 versus 32',
-       max(abs(avg16[i]-avg32[i]) for i in [0,1,2]), 1e-12)
 
 pet, _ = model.load_nk(STUDY/'data/PET_Zhang_400_800nm.csv')
 record('Frozen PET dataset at 600 nm', abs(pet(600.)-(1.56811+1.29e-6j)), 1e-12)

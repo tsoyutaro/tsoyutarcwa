@@ -94,7 +94,7 @@ def main():
                 blocks.append(s)
                 tail = [(indices['PET'], 54800.-1000.*residual, True),
                         (1.5+0j, 20000., True), (silica_n(wl), 1e6, True)]
-                powers.append(finite_sample(s, indices['PET'], tail, wl, 16))
+                powers.append(finite_sample(s, indices['PET'], tail, wl))
                 sizes.append(diag['retained_before_solve_bytes'])
             label = f'{mode} {basis} Nz={nz} M={m} {wl:g}nm residual={residual:g}'
             check(label+' Jones amplitudes', max(float(np.max(abs(a-b))) for a, b in zip(*blocks)))

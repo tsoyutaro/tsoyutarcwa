@@ -12,7 +12,7 @@ import numpy as np
 
 from geometry import build_layers, cap_count, material_codes, nearest_radius, side_thickness, write_geometry
 from memory import POLICY, PARITY_TOL, compare_reference, memory_safe_class, tensor_storage_bytes
-from stack import finite_sample, load_nk, save_csv, silica_n, wavelengths
+from stack import finite_sample, load_nk, save_csv, silica_n, wavelengths, THEORY
 
 HERE = Path(__file__).resolve().parent
 
@@ -55,8 +55,8 @@ def parser(mode):
                    help='Optional completed original run at identical conditions; require R/T/A and polarization parity within 1e-8.')
     p.add_argument('--basis', choices=['auto', 'full'], default='auto',
                    help='Auto: D6 source only if all layers are eligible; otherwise full rectangular harmonics.')
-    p.add_argument('--coherence', choices=['phase-average', 'coherent'], default='phase-average')
-    p.add_argument('--phase-points', type=int, default=16)
+    p.add_argument('--coherence', choices=['incoherent', 'coherent'], default='incoherent')
+    p.add_argument('--coherent-layers', default='', help='In incoherent mode retain phase in PET,adhesive,glass as selected.')
     p.add_argument('--convergence-tol', type=float, default=1e-4)
     p.add_argument('--check-convergence', action='store_true')
     p.add_argument('--check-wavelengths', default='400,600,800')
@@ -66,6 +66,8 @@ def parser(mode):
 
 
 def validate_args(args):
+    if {v.strip().lower() for v in args.coherent_layers.split(',') if v.strip()} - {'pet', 'adhesive', 'glass'}:
+        raise ValueError('Unknown --coherent-layers entry; use PET,adhesive,glass.')
     for name, value in vars(args).items():
         if isinstance(value, float) and not math.isfinite(value):
             raise ValueError(f'{name} must be finite.')
@@ -78,7 +80,7 @@ def validate_args(args):
         raise ValueError('Negative thickness or extinction coefficient.')
     if args.valley_gold_nm > args.height_nm or side_thickness(args) < 0:
         raise ValueError('Invalid valley or side thickness.')
-    if min(args.slices, args.order, args.grid, args.phase_points, args.threads) <= 0:
+    if min(args.slices, args.order, args.grid, args.threads) <= 0:
         raise ValueError('Numerical sizes must be positive.')
     if args.cap_slices is not None and args.cap_slices <= 0:
         raise ValueError('--cap-slices must be positive.')
@@ -201,23 +203,17 @@ def evaluate_case(args, functions, wl, m, nz, grid):
     indices = {key: f(wl) for key, f in functions.items()}
     scattering, diagnostic = surface_rcwa(args, wl, indices, order=m, slices=nz, grid=grid)
     pet_thickness = args.film_total_um*1000-args.height_nm-args.residual_um*1000
-    tail = [(indices['PET'], pet_thickness, True),
-            (indices['adhesive'], args.adhesive_um*1000, True),
-            (indices['silica'], args.glass_um*1000, True)]
-    phase_points = args.phase_points if args.coherence == 'phase-average' else 1
-    result = finite_sample(scattering, indices['PET'], tail, wl, phase_points)
-    phase_error = 0.
-    if phase_points > 1:
-        doubled = finite_sample(scattering, indices['PET'], tail, wl, 2*phase_points)
-        phase_error = max(abs(result[key]-doubled[key]) for key in ['R', 'T', 'A', 'R_x', 'R_y', 'T_x', 'T_y'])
-    if phase_error > args.convergence_tol:
-        raise RuntimeError(f'Phase average not converged at {wl} nm: {phase_error}.')
+    coherent = {v.strip().lower() for v in args.coherent_layers.split(',') if v.strip()}
+    tail = [(indices['PET'], pet_thickness, 'pet' not in coherent),
+            (indices['adhesive'], args.adhesive_um*1000, 'adhesive' not in coherent),
+            (indices['silica'], args.glass_um*1000, 'glass' not in coherent)]
+    result = finite_sample(scattering, indices['PET'], tail, wl, coherence=args.coherence)
     if not all(math.isfinite(result[key]) and -2e-6 <= result[key] <= 1+2e-6 for key in ['R', 'T', 'A']):
         raise RuntimeError(f'Nonphysical R/T/A at {wl} nm: {result}')
     if args.device == 'cuda':
         torch.cuda.synchronize()
     return {'wavelength_nm': float(wl), 'order': m, 'slices': nz, 'grid': grid,
-        **result, 'phase_average_error': phase_error,
+        **result, 'coherence': args.coherence,
         'xy_power_difference': max(abs(result['R_x']-result['R_y']), abs(result['T_x']-result['T_y'])),
         **diagnostic, 'seconds': time.perf_counter()-started,
         'peak_cuda_allocated_bytes': int(torch.cuda.max_memory_allocated()) if args.device == 'cuda' else None,
@@ -265,10 +261,12 @@ def main(mode):
             'Evaporation defaults to ideal normal directional deposition with no shadowing.',
             'Sputter defaults to a phenomenological 8 nm RADIAL shell, not a deposition transport calculation.',
             'Periodic union is used when Au shells coalesce; it is not replaced by an isolated or clipped circle.',
-            'Uniform PET/adhesive/glass phases are averaged independently unless coherent is requested.',
+            'Uniform PET/adhesive/glass use analytic incoherent intensity balance unless selected coherent; no phase sampling.',
             'Resin optical constants default to the PET proxy; adhesive n,k default to constants.',
             'Uncoated film remains 55 um; gold is added outside that thickness.',
             'Glass rear-surface reflection is included. No diffuse scattering or instrument convolution.'],
+        'thick_layer_theory': THEORY,
+        'optics_sha256': hashlib.sha256((HERE.parent/'mosmite_optics.py').read_bytes()).hexdigest(),
         'status': 'prepared'}
     for name in ['model.py', 'geometry.py', 'stack.py', 'memory.py', 'run_evaporation.py', 'run_sputter.py']:
         meta.setdefault('study_sha256', {})[name] = hashlib.sha256((HERE/name).read_bytes()).hexdigest()

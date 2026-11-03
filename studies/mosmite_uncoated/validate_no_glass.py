@@ -31,20 +31,20 @@ def main():
     layers = model.bulk_layers(args,600.,pet,adh)
     assert len(layers)==2 and layers[0][1]==54800. and layers[1][1]==20000.
     assert 'silica' not in model.stack_description(args)
-    check('Glass omitted from both stack and phase variables',0.)
+    check('Glass omitted from both stack and propagation',0.)
     n=pet(600.)
     surface=model.interface(1.,n)
-    omitted=model.finite_sample(surface,n,layers,600.,16)
-    zero_coherent=model.finite_sample(surface,n,layers+[(model.silica_n(600.),0.,False)],600.,16)
+    omitted=model.finite_sample(surface,n,layers,600.)
+    zero_coherent=model.finite_sample(surface,n,layers+[(model.silica_n(600.),0.,False)],600.)
     check('Omitting glass equals the independent coherent zero-thickness limit',
           max(abs(a-b) for a,b in zip(omitted,zero_coherent)))
     args.adhesive_um=0.
     layers=model.bulk_layers(args,600.,pet,adh)
     assert len(layers)==1 and 'adhesive' not in model.stack_description(args)
-    check('Bare PET option omits adhesive and its phase variable',0.)
+    check('Bare PET option omits adhesive and its propagation',0.)
     n=1.57
     r=((1-n)/(1+n))**2
-    value=model.finite_sample(model.interface(1.,n),n,[(n,54800.,True)],600.,16)
+    value=model.finite_sample(model.interface(1.,n),n,[(n,54800.,True)],600.)
     expected=(2*r/(1+r),(1-r)/(1+r),0.)
     check('Air/PET/air agrees with exact lossless incoherent slab',
           max(abs(a-b) for a,b in zip(value,expected)))
@@ -57,7 +57,7 @@ def main():
     # No-glass flat stack versus a separately assembled homogeneous RCWA.
     args.glass_um=0.
     layers=model.bulk_layers(args,600.,pet,adh)
-    value=model.finite_sample(model.interface(1.,pet(600.)),pet(600.),layers,600.,1)
+    value=model.finite_sample(model.interface(1.,pet(600.)),pet(600.),layers,600., coherence='coherent')
     sim=AutoRCWA(freq=1/600.,order=[1,1],lattice=Lattice.square(100.),
         group_theory=False,outputs=OutputSpec(smatrix_size='full',fields='none'),
         dtype=torch.complex128,device='cpu')
@@ -76,12 +76,10 @@ def main():
         args.adhesive_um=adhesive_um
         s=model.surface_rcwa(args,600.,pet(600.),n_substrate=pet(600.))
         layers=model.bulk_layers(args,600.,pet,adh)
-        v=model.finite_sample(s,pet(600.),layers,600.,16)
+        v=model.finite_sample(s,pet(600.),layers,600.)
         assert all(-1e-8<=a<=1+1e-8 for a in v)
         check(f'Patterned no-glass sample passive, adhesive={adhesive_um:g}um',0.)
-        doubled=model.finite_sample(s,pet(600.),layers,600.,32)
-        check(f'No-glass phase average 16 versus 32, adhesive={adhesive_um:g}um',
-              max(abs(a-b) for a,b in zip(v,doubled)))
+
 
     if opts.legacy_script:
         spec=importlib.util.spec_from_file_location('legacy_uncoated',opts.legacy_script)
@@ -94,10 +92,10 @@ def main():
             check(f'Unchanged surface complex amplitudes versus legacy at {wl:g}nm',
                   max(abs(a-b) for a,b in zip(s1,s2)),1e-9)
             original=[(pet(wl),54800.,True),(adh(wl),20000.,True),(old.silica_n(wl),1e6,True)]
-            v1=model.finite_sample(s1,pet(wl),model.bulk_layers(args,wl,pet,adh),wl,16)
+            v1=model.finite_sample(s1,pet(wl),model.bulk_layers(args,wl,pet,adh),wl)
             v2=old.finite_sample(s2,pet(wl),original,wl,16)
-            check(f'Unchanged glass-mounted R/T/A versus legacy at {wl:g}nm',
-                  max(abs(a-b) for a,b in zip(v1,v2)),1e-9)
+            checks.append({'name': f'Legacy phase-average difference at {wl:g}nm',
+                           'max_delta_RTA': max(abs(a-b) for a,b in zip(v1,v2)), 'diagnostic_only': True})
     opts.output_dir.mkdir(parents=True,exist_ok=True)
     (opts.output_dir/'checks.json').write_text(json.dumps(checks,indent=2),encoding='utf-8')
     print(f'All {len(checks)} checks passed.',flush=True)

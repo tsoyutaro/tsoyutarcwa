@@ -6,6 +6,11 @@ import math
 import numpy as np
 
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from mosmite_optics import finite_sample as analytic_sample, THEORY
+
+
 def load_nk(path):
     path = Path(path).resolve()
     with path.open(encoding='utf-8-sig', newline='') as handle:
@@ -58,43 +63,9 @@ def interface(nl, nr):
     return 2*nl/(nl+nr), r, -r, 2*nr/(nl+nr)
 
 
-def tail_amplitudes(port_index, layers, wl, phase_points):
-    count = sum(bool(x[2]) for x in layers) if phase_points > 1 else 0
-    phases = [x.ravel() for x in np.meshgrid(
-        *([np.arange(phase_points)*np.pi/phase_points]*count), indexing='ij')] if count else []
-    r = np.zeros(phase_points**count, dtype=np.complex128)
-    t = np.ones_like(r)
-    nr, slot = 1.+0j, count-1
-    for index, thickness, average in reversed(layers):
-        tf, rf, rb, tb = interface(index, nr)
-        den = 1-rb*r
-        r, t = rf+tb*r*tf/den, t*tf/den
-        phase = phases[slot] if average and count else 0.
-        if average and count:
-            slot -= 1
-        p = np.exp(2j*np.pi*index*thickness/wl+1j*phase)
-        r, t, nr = r*p*p, t*p, index
-    tf, rf, rb, tb = interface(port_index, nr)
-    den = 1-rb*r
-    return rf+tb*r*tf/den, t*tf/den
-
-
-def finite_sample(surface, port_index, layers, wl, phase_points):
-    """Four Jones S blocks, (tf,rf,rb,tb); unpolarized power in external air."""
-    tf, rf, rb, tb = [np.asarray(s, dtype=np.complex128) for s in surface]
-    r_tail, t_tail = tail_amplitudes(port_index, layers, wl, phase_points)
-    den = np.eye(2)[None, :, :] - r_tail[:, None, None]*rb[None, :, :]
-    forward = np.linalg.solve(den, np.broadcast_to(tf, den.shape))
-    r = rf[None, :, :] + r_tail[:, None, None]*(tb[None, :, :]@forward)
-    t = t_tail[:, None, None]*forward
-    rx, ry = np.mean(np.sum(np.abs(r)**2, axis=1), axis=0)
-    tx, ty = np.mean(np.sum(np.abs(t)**2, axis=1), axis=0)
-    result = {'R': float((rx+ry)/2), 'T': float((tx+ty)/2),
-              'R_x': float(rx), 'T_x': float(tx), 'R_y': float(ry), 'T_y': float(ty)}
-    result['A'] = 1-result['R']-result['T']
-    result['cross_R'] = float(np.mean((np.abs(r[:, 0, 1])**2+np.abs(r[:, 1, 0])**2)/2))
-    result['cross_T'] = float(np.mean((np.abs(t[:, 0, 1])**2+np.abs(t[:, 1, 0])**2)/2))
-    return result
+def finite_sample(surface, port_index, layers, wl, *, coherence='incoherent'):
+    """Analytic coherent/incoherent Jones/flux cascade; unpolarized external air."""
+    return analytic_sample(surface, port_index, layers, wl, coherence=coherence)
 
 
 def save_csv(path, rows):

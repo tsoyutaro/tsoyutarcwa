@@ -148,10 +148,12 @@ def compare_reference(args, metadata, rows):
     keys = ('mode', 'period_nm', 'height_nm', 'base_diameter_nm', 'tip_diameter_nm',
             'top_gold_nm', 'valley_gold_nm', 'side_gold_nm', 'slices', 'cap_slices',
             'film_total_um', 'residual_um', 'adhesive_um', 'adhesive_n', 'adhesive_k',
-            'glass_um', 'order', 'grid', 'basis', 'coherence', 'phase_points')
+            'glass_um', 'order', 'grid', 'basis', 'coherence', 'coherent_layers')
     for key in keys:
         if old['arguments'].get(key) != metadata['arguments'].get(key):
             raise ValueError('Reference condition differs: '+key)
+    if old.get('optics_sha256') != metadata.get('optics_sha256'):
+        raise ValueError('Reference analytic-optics source hash differs.')
     if old.get('solver_sha256') != metadata.get('solver_sha256'):
         raise ValueError('Reference shared-solver source hashes differ.')
     for key in ('geometry.py', 'stack.py'):

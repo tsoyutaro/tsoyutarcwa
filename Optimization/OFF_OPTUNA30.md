@@ -94,3 +94,53 @@ python run_metal_off_optuna30.py --device cuda:0 --grid 512 --materials Au --aut
 
 次数切り替えは別プロセスの起動制御で行います。数値ソルバ・Adam・従来driver・runtime_policyを変更しないため、
 他材料の実行中ジョブや元のsource manifestへの影響を避けられます。更新は起動済みのAuプロセスには適用されません。
+
+## 周期・高さごとに独立した最適化
+
+`--period-nm` と `--height-nm` で1条件を指定できます。15層・六方格子・正則化OFF、
+31波長、30 trial、Adam最大500 stepと3変数のOptuna探索を引き継ぎます。
+周期200 nm・高さ500 nm以外では、元の材料ケース内の
+`geometry_cases/P{P}_H{H}_Nz15/` にconfigとresultsを分けて保存します。
+各条件は独立したstudy・checkpoint・lockを持ち、別GPU・別PCで個別に起動できます。
+ソルバと材料CSVは元のケースから使用するため、別PCへはリポジトリ全体を配置してください。
+
+```sh
+python run_metal_off_optuna30.py --device cuda:0 --grid 512 --materials Al --period-nm 200 --height-nm 100 --auto-order --max-order 40
+```
+
+高さ4条件（周期200 nm）を順に起動する例。`materials`を`Al`など1材料に変更できます。
+通常の実行エラーやOOMでは、その条件の材料を止め、残りの材料・条件へ進みます。
+手動中断などexit code 128以上では全体を終了します。
+
+```sh
+( cd /home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization || exit 1
+materials=Al,Ti,Cr,Cu,Au
+failed=0
+for h in 100 200 300 400; do
+  if python run_metal_off_optuna30.py --device cuda:0 --grid 512 --materials "$materials" --period-nm 200 --height-nm "$h" --auto-order --max-order 40; then rc=0; else rc=$?; fi
+  if [ "$rc" -ge 128 ]; then exit "$rc"; fi
+  if [ "$rc" -ne 0 ]; then failed=1; fi
+done
+exit "$failed"
+)
+```
+
+周期5条件（高さ500 nm）は、上記の`for`ループを次のように置き換えます。
+
+```sh
+for p in 100 150 250 300 350; do
+  if python run_metal_off_optuna30.py --device cuda:0 --grid 512 --materials "$materials" --period-nm "$p" --height-nm 500 --auto-order --max-order 40; then rc=0; else rc=$?; fi
+  if [ "$rc" -ge 128 ]; then exit "$rc"; fi
+  if [ "$rc" -ne 0 ]; then failed=1; fi
+done
+```
+
+半径上限は`P/2 - 0.001 nm`です。trial 0の連続円錐台の頂部・底部半径は
+`0.025P`・`0.475P`とし、従来の誘電体の周期別ケースと同じ比率を用います。
+初期最上層半径の探索範囲は`1 nm`から`min(99 nm, P/2 - 0.011 nm)`です。
+これは既存Cr driverの探索範囲にも合わせています。Adamはこの初期値範囲に限定されず、
+全層の半径を`radius_min_nm`から`radius_max_nm`の範囲で更新します。
+開始次数はAl/Ti/Cr=8、Cu=12、Au=14です。Auだけ16から始める場合は
+`--materials Au --start-order 16`を指定します。
+非物理値を検知した場合は、その条件だけM+2の新しいstudyをtrial 0から開始します。
+最適化完了後の検証・スペクトルは従来どおり別コマンドで実行します。

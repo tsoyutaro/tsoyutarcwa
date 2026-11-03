@@ -74,6 +74,54 @@ class RoutingTests(unittest.TestCase):
         code,calls=self.run_batch(lambda m:130)
         self.assertEqual(code,130);self.assertEqual(len(calls),1)
 
+    def test_geometry_survives_automatic_order_increase(self):
+        code,calls=self.run_batch(lambda m:'nonphysical' if m==14 else 0,
+                                  ['--period-nm','100','--height-nm','300'])
+        self.assertEqual(code,0)
+        self.assertEqual([x[0] for x in calls],[14,16])
+        for _,_,_,c in calls:
+            self.assertEqual((c['period_nm'],c['height_nm']),(100.,300.))
+            self.assertEqual(c['radius_max_nm'],49.999)
+
+class GeometryTests(unittest.TestCase):
+    def test_all_45_conditions_are_isolated_and_fit_the_period(self):
+        geometries=[(200.,h) for h in (100.,200.,300.,400.)]
+        geometries += [(p,500.) for p in (100.,150.,250.,300.,350.)]
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);outputs=set();configs=set()
+            for material,(relative,_) in batch.CASES.items():
+                source=json.loads((HERE/relative/'config.json').read_text(encoding='utf-8-sig'))
+                dump(root/relative/'config.json',source)
+            with patch.object(batch,'ROOT',root):
+                for material,(relative,_) in batch.CASES.items():
+                    legacy=batch.prepare(material)
+                    original_bytes=legacy[1].read_bytes()
+                    for period,height in geometries:
+                        case,cfg,output=batch.prepare(material,period_nm=period,height_nm=height)
+                        self.assertEqual(case,root/relative)
+                        self.assertEqual(cfg.parent.parent.name,'geometry_cases')
+                        c=json.loads(cfg.read_text())
+                        self.assertEqual((c['period_nm'],c['height_nm'],c['layers']),(period,height,15))
+                        self.assertLess(c['baseline_base_nm'],c['radius_max_nm'])
+                        self.assertLess(c['radius_max_nm'],period/2)
+                        self.assertLess(c['init_top_max_nm'],c['radius_max_nm'])
+                        self.assertAlmostEqual(c['baseline_tip_nm']/period,.025)
+                        self.assertAlmostEqual(c['baseline_base_nm']/period,.475)
+                        self.assertNotIn('initial_logits',c)
+                        if material=='Cr':
+                            self.assertEqual((cfg.parent/c['material_csv']).resolve(),
+                                             (case/'data/Johnson.csv').resolve())
+                        self.assertEqual(batch.prepare(material,period_nm=period,height_nm=height),
+                                         (case,cfg,output))
+                        configs.add(cfg);outputs.add(output)
+                    self.assertEqual(legacy[1].read_bytes(),original_bytes)
+            self.assertEqual(len(configs),45);self.assertEqual(len(outputs),45)
+
+    def test_invalid_geometry_is_rejected_before_writing(self):
+        for period,height in [(0,500),(200,-1),(float('nan'),500),(200,float('inf')),(2,500)]:
+            with self.assertRaises(ValueError):
+                batch.prepare('Au',period_nm=period,height_nm=height)
+
 class ControllerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
