@@ -51,11 +51,37 @@ def numbers(text,integer=False):
 
 def import_case(case):
     sys.path.insert(0,str(case))
-    if os.environ.get('MOTHEYE_DEPENDENCY_PATH'):
-        sys.path.append(os.environ['MOTHEYE_DEPENDENCY_PATH'])
+    dependency=os.environ.get('MOTHEYE_DEPENDENCY_PATH') or os.environ.get('RCWA_OPT_DEPENDENCY_PATH')
+    if dependency:sys.path.append(dependency)
+    if case.name=='cr_motheye':
+        sys.path.insert(0,str(case.parent.parent))
+        from Optimization.cr_motheye import common,physics
+        # Preserve the original Cr controller's exact identity/runtime checks.
+        # It does not use the independent cases' runtime_policy module.
+        return common,physics,None
     from optimizer import common,physics
     import runtime_policy
     return common,physics,runtime_policy
+
+
+def execution_sources(common,policy):
+    return policy.execution_sources(common.sources()) if policy is not None else common.sources()
+
+
+def check_identity(common,policy,previous,identity):
+    if policy is not None:
+        checked,_=policy.reconcile_manifest(previous,identity)
+        return checked
+    if previous['signature']!=common.signature_for(identity):
+        raise ValueError('Configuration/source/device differs from the saved Cr experiment.')
+    return previous
+
+
+def check_environment(policy,previous,current):
+    if policy is not None:
+        policy.check_runtime(previous,current)
+    elif previous not in (None,current):
+        raise ValueError('Runtime differs from the saved Cr experiment.')
 
 
 def prepare_child(request):
@@ -64,12 +90,12 @@ def prepare_child(request):
     c=common.load_config(Path(request['config']))
     if c.get('material')!=request['material']:raise ValueError('Material label differs from configuration.')
     previous=read(Path(request['run_root'])/'manifest.json')
-    sources=policy.execution_sources(common.sources())
+    sources=execution_sources(common,policy)
     identity=dict(version=1,config=c,source_sha256=sources,requested_device=request['device'])
-    checked,_=policy.reconcile_manifest(previous,identity)
+    checked=check_identity(common,policy,previous,identity)
     device=common.device_setup(request['device'],c['cpu_threads'])
     environment=common.runtime_environment(device)
-    policy.check_runtime(previous.get('runtime_environment'),environment)
+    check_environment(policy,previous.get('runtime_environment'),environment)
     group=read(Path(request['run_root'])/request['lattice']/'report.json')
     logits=group.get('best',{}).get('logits')
     if (not isinstance(logits,list) or len(logits)!=c['layers']+1 or
@@ -89,7 +115,7 @@ def worker_child(request):
     common,physics,policy=import_case(Path(context['case_dir']))
     if context['tool_sha256']!=hashlib.sha256(Path(__file__).read_bytes()).hexdigest():
         raise ValueError('Analysis tool source changed during this run.')
-    if policy.execution_sources(common.sources())!=context['source_sha256']:
+    if execution_sources(common,policy)!=context['source_sha256']:
         raise ValueError('Production sources/material CSV changed during this run.')
     device=common.device_setup(context['device'],context['config']['cpu_threads'])
     environment=common.runtime_environment(device)

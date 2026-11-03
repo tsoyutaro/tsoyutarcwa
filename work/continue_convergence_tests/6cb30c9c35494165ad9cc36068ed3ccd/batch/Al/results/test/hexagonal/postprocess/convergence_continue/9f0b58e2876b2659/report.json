@@ -1,0 +1,52 @@
+{
+  "status": "completed_with_skips",
+  "material": "Al",
+  "requested_device": "cpu",
+  "cuda_execution_performed": false,
+  "training_signature": "fixed",
+  "frozen_logits": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "wavelengths_nm": [
+    550.0
+  ],
+  "counts": {
+    "cuda_oom": 1,
+    "skipped": 3
+  },
+  "records": [
+    {
+      "order": 4,
+      "grid": 512,
+      "status": "cuda_oom",
+      "cache_hit": true
+    },
+    {
+      "order": 4,
+      "grid": 1024,
+      "status": "skipped",
+      "reason": "remaining_material_conditions_skipped_after_oom"
+    },
+    {
+      "order": 6,
+      "grid": 512,
+      "status": "skipped",
+      "reason": "remaining_material_conditions_skipped_after_oom"
+    },
+    {
+      "order": 6,
+      "grid": 1024,
+      "status": "skipped",
+      "reason": "remaining_material_conditions_skipped_after_oom"
+    }
+  ],
+  "comparison_reference": null,
+  "reference_selection": "highest_valid_order_then_grid",
+  "comparison": [],
+  "convergence_checks": [],
+  "numerical_convergence_passed": null,
+  "tolerance": 0.00025,
+  "scope": "Finite comparisons of completed physical conditions only; missing axes give null."
+}

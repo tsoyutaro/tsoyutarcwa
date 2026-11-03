@@ -1,0 +1,150 @@
+{
+  "status": "completed",
+  "material": "Cu",
+  "requested_device": "cpu",
+  "cuda_execution_performed": false,
+  "training_signature": "fixed",
+  "frozen_logits": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "wavelengths_nm": [
+    550.0
+  ],
+  "counts": {
+    "completed": 4
+  },
+  "records": [
+    {
+      "order": 4,
+      "grid": 512,
+      "status": "completed",
+      "mean_R": 0.100040512,
+      "rcwa_seconds": 0.01,
+      "worker_seconds": 0.02,
+      "rows": [
+        {
+          "wavelength_nm": 550.0,
+          "reflectance": 0.100040512,
+          "power_into_substrate": 0.2
+        }
+      ],
+      "cache_hit": true
+    },
+    {
+      "order": 4,
+      "grid": 1024,
+      "status": "completed",
+      "mean_R": 0.100041024,
+      "rcwa_seconds": 0.01,
+      "worker_seconds": 0.02,
+      "rows": [
+        {
+          "wavelength_nm": 550.0,
+          "reflectance": 0.100041024,
+          "power_into_substrate": 0.2
+        }
+      ],
+      "cache_hit": true
+    },
+    {
+      "order": 6,
+      "grid": 512,
+      "status": "completed",
+      "mean_R": 0.100060512,
+      "rcwa_seconds": 0.01,
+      "worker_seconds": 0.02,
+      "rows": [
+        {
+          "wavelength_nm": 550.0,
+          "reflectance": 0.100060512,
+          "power_into_substrate": 0.2
+        }
+      ],
+      "cache_hit": true
+    },
+    {
+      "order": 6,
+      "grid": 1024,
+      "status": "completed",
+      "mean_R": 0.10006102400000001,
+      "rcwa_seconds": 0.01,
+      "worker_seconds": 0.02,
+      "rows": [
+        {
+          "wavelength_nm": 550.0,
+          "reflectance": 0.10006102400000001,
+          "power_into_substrate": 0.2
+        }
+      ],
+      "cache_hit": true
+    }
+  ],
+  "comparison_reference": {
+    "order": 6,
+    "grid": 1024
+  },
+  "reference_selection": "highest_valid_order_then_grid",
+  "comparison": [
+    {
+      "order": 4,
+      "grid": 512,
+      "max_power_abs_difference_from_reference": 2.0512000000014186e-05,
+      "is_reference": false,
+      "within_tolerance": true
+    },
+    {
+      "order": 4,
+      "grid": 1024,
+      "max_power_abs_difference_from_reference": 2.0000000000006124e-05,
+      "is_reference": false,
+      "within_tolerance": true
+    },
+    {
+      "order": 6,
+      "grid": 512,
+      "max_power_abs_difference_from_reference": 5.120000000080616e-07,
+      "is_reference": false,
+      "within_tolerance": true
+    },
+    {
+      "order": 6,
+      "grid": 1024,
+      "max_power_abs_difference_from_reference": 0.0,
+      "is_reference": true,
+      "within_tolerance": null
+    }
+  ],
+  "convergence_checks": [
+    {
+      "axis": "order",
+      "coarse": [
+        4,
+        1024
+      ],
+      "fine": [
+        6,
+        1024
+      ],
+      "max_power_abs_difference": 2.0000000000006124e-05,
+      "passed": true
+    },
+    {
+      "axis": "grid",
+      "coarse": [
+        6,
+        512
+      ],
+      "fine": [
+        6,
+        1024
+      ],
+      "max_power_abs_difference": 5.120000000080616e-07,
+      "passed": true
+    }
+  ],
+  "numerical_convergence_passed": true,
+  "tolerance": 0.00025,
+  "scope": "Finite comparisons of completed physical conditions only; missing axes give null."
+}

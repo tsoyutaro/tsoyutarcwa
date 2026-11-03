@@ -70,6 +70,7 @@ python run_metal_off_optuna30.py --device cuda:0 --grid 512 --materials Cu
 ```
 
 完了後のconvergence・timing・spectrumは、各ケースの従来のrun.pyに同じconfigとoutput-rootを指定して別に実行します。
+Al・Ti・Crの収束確認から101点スペクトルまでの一括実行は [METAL_POSTPROCESS.md](METAL_POSTPROCESS.md) を参照してください。
 従来の固定スナップショット検証、既存のOFF専用版、実験的guarded版は再現用として変更していません。
 
 ## 非物理値で次数を自動的に上げる
