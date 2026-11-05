@@ -6,17 +6,35 @@ Optunaは従来の3変数（初期学習率・初期上端半径・広がり率�
 Adamは単調な全層の半径を更新します。30 trial、各trial最大500回の採用更新です。
 初期学習率の探索範囲は従来の0.01～1.0で、trial 0は従来の基準形状とlr=0.03です。
 
+既存M20のtrial 0～4が完了している場合は、次のコマンドで完了結果を取り込み、
+trial 5からbacktracking付きで実行します。
+
 ```bash
-cd /home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization &&
-python Au/au_motheye_P200_H500_Nz15_backtracking_v1/run.py \
-  --device cuda:0 --mode optimize --lattices hexagonal --timeout-hours 0
+(
+set -e
+cd /home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization
+d="$PWD/Au/au_motheye_P200_H500_Nz15_backtracking_v1"
+source_run="$PWD/Au/au_motheye_P200_H500_Nz15/results/hex_OFF_optuna30_auto_v1_M20_Q512"
+r="$d/results/hex_OFF_optuna30_backtracking_from5_v1_M20_Q512"
+python "$d/import_completed_trials.py" --source-run "$source_run" --output-root "$r" --device cuda:0
+python "$d/run.py" --output-root "$r" --device cuda:0 --mode optimize --lattices hexagonal --timeout-hours 0
+)
 ```
 
-設定はこのフォルダのconfig.json、結果は
-results/hex_OFF_optuna30_backtracking_v1_M20_Q512 に保存します。
-この専用フォルダに新しいstudyを作成し、trial 0から開始します。
-旧M20のcheckpointは未評価の更新後形状を含み、更新前のAdam状態を保存していないため、
-旧checkpointをこの方式の途中再開データとして読み込むことはできません。
+trial 0～4の最良形状・平均反射率・パラメータ・中間評価を新しいstudyのCOMPLETE trialとして保持します。
+探索用samplerの状態もコピーし、元のtrial 5のパラメータをWAITING trial 5として予約します。
+trial 5のAdamは、元の初期形状・初期学習率からstep 0として実行します。
+元のtrial 5のcheckpointは未評価の更新後形状を含み、更新前のAdam状態を保存していないため、
+旧checkpointの途中stepは引き継ぎません。
+
+取り込みは元のM20と同じOptunaバージョンで行います。現在の実データはOptuna 4.6.0です。
+形状条件・波長・材質CSV・数値ソルバの同一性を確認し、取込先の準備が完了した時点で公開します。
+同じ取り込みコマンドを再実行した場合は、準備済みのstudyを再利用します。
+0～4は旧Adam方式、5以降はbacktracking方式であることをtrial属性とimport_completed_trials.jsonに記録します。
+合計trial数は0～29の30 trialです。
+
+設定はこのフォルダのconfig.jsonです。run.pyの出力先を省略して直接起動した場合は、
+results/hex_OFF_optuna30_backtracking_v1_M20_Q512 にtrial 0からの新しいstudyを作成します。
 
 ## 非物理値が出た場合
 
@@ -56,6 +74,7 @@ Adam checkpointは、全波長で評価できた現在の形状と、その形�
 
 ```bash
 python Au/au_motheye_P200_H500_Nz15_backtracking_v1/test_backtracking.py -v
+python Au/au_motheye_P200_H500_Nz15_backtracking_v1/test_import_completed_trials.py -v
 ```
 
 rollback後のAdam状態、4回の半減、最良正常形状の選択、中断・時間制限・OOM後の再開、
