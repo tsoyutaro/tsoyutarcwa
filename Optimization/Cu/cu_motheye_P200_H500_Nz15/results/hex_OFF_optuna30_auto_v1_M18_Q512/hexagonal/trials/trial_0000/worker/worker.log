@@ -1,0 +1,58 @@
+trial 0 step 0: mean R=0.168166164; best=0.168166164
+trial 0 step 10: mean R=0.127734474; best=0.127734474
+trial 0 step 20: mean R=0.107078885; best=0.107078885
+trial 0 step 30: mean R=0.091817466; best=0.091817466
+trial 0 step 40: mean R=0.0940691035; best=0.09031101
+trial 0 step 50: mean R=0.0922296364; best=0.09031101
+trial 0 step 60: mean R=0.0888070324; best=0.0888070324
+trial 0 step 70: mean R=0.0846325842; best=0.0838712219
+trial 0 step 80: mean R=0.0784313694; best=0.0784313694
+trial 0 step 90: mean R=0.0729486266; best=0.0729486266
+trial 0 step 100: mean R=0.0676355023; best=0.0676355023
+trial 0 step 110: mean R=0.0630619113; best=0.0630619113
+trial 0 step 120: mean R=0.0543775563; best=0.0543775563
+trial 0 step 130: mean R=0.052470572; best=0.052470572
+trial 0 step 140: mean R=0.0484510067; best=0.0484510067
+trial 0 step 150: mean R=0.0450398668; best=0.0450398668
+trial 0 step 160: mean R=0.0411664073; best=0.0411664073
+trial 0 step 170: mean R=0.037924531; best=0.037924531
+trial 0 step 180: mean R=0.0360886542; best=0.0360886542
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/driver.py", line 69, in worker
+    outcome = train(request, device, trial)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/engine.py", line 64, in train
+    result = evaluator(logits, c, lattice, c["optimization_wavelengths_nm"], c["optimization_order"],
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/physics.py", line 241, in objective
+    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 182, in __call__
+    value, radius_gradient, rows = self.spectrum(radii, config, waves, weights, cache, gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 134, in spectrum
+    R, T = self.response(cache, leaves, wave, index, port, checkpointed)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 110, in response
+    electric, magnetic, kz = layer_modes(*pair)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 99, in layer_modes
+    squared, electric = port._eig(p@q)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/rcwa_ext/scattering.py", line 362, in _eig
+    values, vectors = torcwa.Eig.apply(matrix)
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torcwa/torch_eig.py", line 14, in forward
+    eigval, eigvec = torch.linalg.eig(x)
+KeyboardInterrupt
+
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/driver.py", line 466, in <module>
+    raise SystemExit(main())
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/driver.py", line 329, in main
+    return worker(args.worker_request, args.worker_result)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/driver.py", line 100, in worker
+    outcome.update(peak_cuda_allocated_bytes=int(torch.cuda.max_memory_allocated(device)),
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/cuda/memory.py", line 460, in max_memory_allocated
+    return memory_stats(device=device).get("allocated_bytes.all.peak", 0)
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/cuda/memory.py", line 319, in memory_stats
+    stats = memory_stats_as_nested_dict(device=device)
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/cuda/memory.py", line 331, in memory_stats_as_nested_dict
+    return torch._C._cuda_memoryStats(device)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/driver.py", line 324, in interrupted
+    raise KeyboardInterrupt()
+KeyboardInterrupt

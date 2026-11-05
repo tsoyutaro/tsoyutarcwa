@@ -1,0 +1,24 @@
+trial 12 step 0: mean R=0.460160211; best=0.460160211
+trial 12 step 10: mean R=0.373177476; best=0.357518041
+trial 12 step 20: mean R=0.280236051; best=0.280236051
+trial 12 step 30: mean R=0.0532536903; best=0.0532536903
+trial 12 step 40: mean R=0.0697254805; best=0.0520686933
+trial 12 step 50: mean R=0.111723118; best=0.0520686933
+trial 12 step 60: mean R=0.0318973547; best=0.0318973547
+trial 12 step 70: mean R=0.0243784701; best=0.0223625614
+trial 12 step 80: mean R=0.00890034905; best=0.00890034905
+trial 12 step 90: mean R=0.00978380673; best=0.0081081438
+trial 12 step 100: mean R=0.00652644977; best=0.00652644977
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/driver.py", line 69, in worker
+    outcome = train(request, device, trial)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/engine.py", line 64, in train
+    result = evaluator(logits, c, lattice, c["optimization_wavelengths_nm"], c["optimization_order"],
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/optimizer/physics.py", line 241, in objective
+    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 182, in __call__
+    value, radius_gradient, rows = self.spectrum(radii, config, waves, weights, cache, gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Cu/cu_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 146, in spectrum
+    raise self.model.physics.NonphysicalResult('Invalid shared power flux.')
+optimizer.physics.NonphysicalResult: Invalid shared power flux.
+
