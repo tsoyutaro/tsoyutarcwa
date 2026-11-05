@@ -1,0 +1,28 @@
+trial 1 step 0: mean R=0.528432567; best=0.528432567
+trial 1 step 10: mean R=0.523245161; best=0.523245161
+trial 1 step 20: mean R=0.429043042; best=0.429043042
+trial 1 step 30: mean R=0.37442665; best=0.37442665
+trial 1 step 40: mean R=0.316702319; best=0.316702319
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/optimizer/driver.py", line 69, in worker
+    outcome = train(request, device, trial)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/optimizer/engine.py", line 64, in train
+    result = evaluator(logits, c, lattice, c["optimization_wavelengths_nm"], c["optimization_order"],
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/optimizer/physics.py", line 241, in objective
+    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 182, in __call__
+    value, radius_gradient, rows = self.spectrum(radii, config, waves, weights, cache, gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 134, in spectrum
+    R, T = self.response(cache, leaves, wave, index, port, checkpointed)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 110, in response
+    electric, magnetic, kz = layer_modes(*pair)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py", line 99, in layer_modes
+    squared, electric = port._eig(p@q)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/scattering.py", line 362, in _eig
+    values, vectors = torcwa.Eig.apply(matrix)
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torcwa/torch_eig.py", line 14, in forward
+    eigval, eigvec = torch.linalg.eig(x)
+KeyboardInterrupt
+

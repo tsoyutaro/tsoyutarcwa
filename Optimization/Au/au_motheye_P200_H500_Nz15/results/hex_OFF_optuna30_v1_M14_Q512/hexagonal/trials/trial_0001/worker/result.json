@@ -1,0 +1,20 @@
+{
+  "status": "interrupted",
+  "error_type": "KeyboardInterrupt",
+  "error": "",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/optimizer/driver.py\", line 69, in worker\n    outcome = train(request, device, trial)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/optimizer/engine.py\", line 64, in train\n    result = evaluator(logits, c, lattice, c[\"optimization_wavelengths_nm\"], c[\"optimization_order\"],\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/optimizer/physics.py\", line 241, in objective\n    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py\", line 182, in __call__\n    value, radius_gradient, rows = self.spectrum(radii, config, waves, weights, cache, gradient)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py\", line 134, in spectrum\n    R, T = self.response(cache, leaves, wave, index, port, checkpointed)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py\", line 110, in response\n    electric, magnetic, kz = layer_modes(*pair)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/acceleration/spectral.py\", line 99, in layer_modes\n    squared, electric = port._eig(p@q)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15/rcwa_ext/scattering.py\", line 362, in _eig\n    values, vectors = torcwa.Eig.apply(matrix)\n  File \"/home/7/uq06557/.local/lib/python3.9/site-packages/torch/autograd/function.py\", line 575, in apply\n    return super().apply(*args, **kwargs)  # type: ignore[misc]\n  File \"/home/7/uq06557/.local/lib/python3.9/site-packages/torcwa/torch_eig.py\", line 14, in forward\n    eigval, eigvec = torch.linalg.eig(x)\nKeyboardInterrupt\n",
+  "request_signature": "426c8d39535b08fc91831222f4051617c5aa5ce118c0fbd56f48fe4b27422733",
+  "runtime_environment": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "torcwa": "0.1.4.2",
+    "cuda": "12.4",
+    "device": "cuda:0",
+    "gpu": "NVIDIA H100 MIG 3g.47gb",
+    "gpu_total_bytes": 49794777088,
+    "optuna": "4.6.0"
+  },
+  "process_wall_seconds": 1359.98109461274,
+  "peak_cuda_allocated_bytes": 3365039616,
+  "peak_cuda_reserved_bytes": 3661627392
+}
