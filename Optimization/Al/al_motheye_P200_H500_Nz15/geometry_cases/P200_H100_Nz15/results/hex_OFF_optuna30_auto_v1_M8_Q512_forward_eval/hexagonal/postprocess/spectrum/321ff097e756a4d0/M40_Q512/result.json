@@ -1,0 +1,20 @@
+{
+  "status": "interrupted",
+  "error_type": "KeyboardInterrupt",
+  "error": "",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/driver.py\", line 72, in worker\n    outcome = (timing_worker if request[\"mode\"] == \"analyze_timing\" else spectrum_worker)(request, device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/postprocess.py\", line 14, in spectrum_worker\n    result=objective(x,request['config'],request['lattice'],request['waves'],request['order'],request['grid'],device,gradient=False)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/physics.py\", line 232, in objective\n    return objective_reference(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/physics.py\", line 179, in objective\n    value, row = solve_train(radii, config, lattice, wavelength, order, grid, device)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/physics.py\", line 111, in solve_train\n    sim.add_structured_layer(layer_spec(radius, config, depth))\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/physics.py\", line 41, in add_structured_layer\n    selected = super().add_structured_layer(spec)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/auto.py\", line 602, in add_structured_layer\n    self.add_layer_circle_nvm(\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/auto.py\", line 503, in add_layer_circle_nvm\n    if try_add_circle_layer(self, thickness, radius, eps_bg, eps_cyl, centers,\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/acceleration/matrix.py\", line 62, in try_add_circle_layer\n    kz = d6.install_layer(sim,p,q,plan,depth)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/acceleration/d6.py\", line 221, in install_layer\n    squared,electric = sim._eig(p@q)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/scattering.py\", line 362, in _eig\n    values, vectors = torcwa.Eig.apply(matrix)\n  File \"/home/7/uq06557/.local/lib/python3.9/site-packages/torch/autograd/function.py\", line 575, in apply\n    return super().apply(*args, **kwargs)  # type: ignore[misc]\n  File \"/home/7/uq06557/.local/lib/python3.9/site-packages/torcwa/torch_eig.py\", line 14, in forward\n    eigval, eigvec = torch.linalg.eig(x)\nKeyboardInterrupt\n",
+  "request_signature": "d505705541e7f4193664c08ddb7bea7964245048db7f1f83697f52a307d928fa",
+  "runtime_environment": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "torcwa": "0.1.4.2",
+    "cuda": "12.4",
+    "device": "cuda:0",
+    "gpu": "NVIDIA H100",
+    "gpu_total_bytes": 99949805568,
+    "optuna": "4.6.0"
+  },
+  "process_wall_seconds": 69.48448817999451,
+  "peak_cuda_allocated_bytes": 83606880256,
+  "peak_cuda_reserved_bytes": 94279565312
+}

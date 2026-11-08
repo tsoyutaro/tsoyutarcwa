@@ -1,0 +1,29 @@
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/driver.py", line 72, in worker
+    outcome = (timing_worker if request["mode"] == "analyze_timing" else spectrum_worker)(request, device)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/postprocess.py", line 14, in spectrum_worker
+    result=objective(x,request['config'],request['lattice'],request['waves'],request['order'],request['grid'],device,gradient=False)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/physics.py", line 232, in objective
+    return objective_reference(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/physics.py", line 179, in objective
+    value, row = solve_train(radii, config, lattice, wavelength, order, grid, device)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/physics.py", line 111, in solve_train
+    sim.add_structured_layer(layer_spec(radius, config, depth))
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/optimizer/physics.py", line 41, in add_structured_layer
+    selected = super().add_structured_layer(spec)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/auto.py", line 602, in add_structured_layer
+    self.add_layer_circle_nvm(
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/auto.py", line 503, in add_layer_circle_nvm
+    if try_add_circle_layer(self, thickness, radius, eps_bg, eps_cyl, centers,
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/acceleration/matrix.py", line 62, in try_add_circle_layer
+    kz = d6.install_layer(sim,p,q,plan,depth)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/acceleration/d6.py", line 221, in install_layer
+    squared,electric = sim._eig(p@q)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Al/al_motheye_P200_H500_Nz15/rcwa_ext/scattering.py", line 362, in _eig
+    values, vectors = torcwa.Eig.apply(matrix)
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torcwa/torch_eig.py", line 14, in forward
+    eigval, eigvec = torch.linalg.eig(x)
+KeyboardInterrupt
+
