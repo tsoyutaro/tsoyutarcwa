@@ -1,0 +1,73 @@
+{
+  "status": "completed",
+  "mean_R": 8.669475614588274e-05,
+  "rows": [
+    {
+      "wavelength_nm": 400.0,
+      "reflectance": 7.731950509415825e-05,
+      "normal_mode": "off",
+      "retained_scalar_harmonics": 469,
+      "eigen_dimension": 157,
+      "storage": "rcwa-shared-v3",
+      "checkpoint_layers": false,
+      "power_into_substrate": 0.04283611840316419,
+      "transmittance_far": 0.0,
+      "absorptance_total": 0.9999226804949058,
+      "motheye_absorptance": 0.9570865620917417,
+      "substrate_absorptance": 0.04283611840316419,
+      "passivity_warning": false,
+      "epsilon_material_real": -4.055700000000001,
+      "epsilon_material_imag": 11.4829,
+      "absorption_evaluation": "inferred from surface power flux; no independent volume-loss audit"
+    },
+    {
+      "wavelength_nm": 550.0,
+      "reflectance": 1.7384154897733032e-05,
+      "normal_mode": "off",
+      "retained_scalar_harmonics": 469,
+      "eigen_dimension": 157,
+      "storage": "rcwa-shared-v3",
+      "checkpoint_layers": false,
+      "power_into_substrate": 0.09450536410114563,
+      "transmittance_far": 0.0,
+      "absorptance_total": 0.9999826158451023,
+      "motheye_absorptance": 0.9054772517439567,
+      "substrate_absorptance": 0.09450536410114563,
+      "passivity_warning": false,
+      "epsilon_material_real": -0.96271515151515,
+      "epsilon_material_imag": 21.181018181818185,
+      "absorption_evaluation": "inferred from surface power flux; no independent volume-loss audit"
+    },
+    {
+      "wavelength_nm": 700.0,
+      "reflectance": 0.00016538060844575696,
+      "normal_mode": "off",
+      "retained_scalar_harmonics": 469,
+      "eigen_dimension": 157,
+      "storage": "rcwa-shared-v3",
+      "checkpoint_layers": false,
+      "power_into_substrate": 0.11820881657715342,
+      "transmittance_far": 0.0,
+      "absorptance_total": 0.9998346193915543,
+      "motheye_absorptance": 0.8816258028144008,
+      "substrate_absorptance": 0.11820881657715342,
+      "passivity_warning": false,
+      "epsilon_material_real": -2.1378577777777803,
+      "epsilon_material_imag": 20.675639999999998,
+      "absorption_evaluation": "inferred from surface power flux; no independent volume-loss audit"
+    }
+  ],
+  "rcwa_seconds": 2.2979472759907367,
+  "runtime_environment": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "torcwa": "0.1.4.2",
+    "cuda": "12.4",
+    "device": "cuda:0",
+    "gpu": "NVIDIA H100",
+    "gpu_total_bytes": 99949805568,
+    "optuna": "4.6.0"
+  },
+  "peak_cuda_allocated_bytes": 1523511808,
+  "worker_seconds": 7.001566680002725
+}

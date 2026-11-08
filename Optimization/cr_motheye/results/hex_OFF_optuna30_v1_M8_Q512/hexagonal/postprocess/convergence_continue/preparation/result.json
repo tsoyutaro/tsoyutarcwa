@@ -1,0 +1,7 @@
+{
+  "status": "setup_error",
+  "error_type": "ValueError",
+  "error": "Runtime differs from the saved Cr experiment.",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py\", line 138, in child_main\n    result=prepare_child(request) if request['mode']=='prepare' else worker_child(request)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py\", line 98, in prepare_child\n    check_environment(policy,previous.get('runtime_environment'),environment)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py\", line 84, in check_environment\n    raise ValueError('Runtime differs from the saved Cr experiment.')\nValueError: Runtime differs from the saved Cr experiment.\n",
+  "worker_seconds": 5.9542672811076045
+}
