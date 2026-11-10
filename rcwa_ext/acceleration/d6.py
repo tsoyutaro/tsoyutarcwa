@@ -30,7 +30,7 @@ def center_of(sim):
 class D6Plan:
     """Geometry-only objects reused across radii, wavelengths and layers."""
     triangular = True
-    def __init__(self,sim):
+    def __init__(self,sim,*,keep_full_basis=True):
         embedding,group = sim._triangular_star_group_operators()
         self.full_count = sim.order_N
         self.scalar_dimension = embedding.shape[1]//2
@@ -64,8 +64,9 @@ class D6Plan:
         if max(relative_error(self.electric_pair.mH@self.electric_pair,identity),
                relative_error(self.magnetic_pair.mH@self.magnetic_pair,identity))>1e-9:
             raise RuntimeError('E1 partner rows are not mutually orthonormal.')
-        self.full_electric = self.full_basis(self.electric)
-        self.full_magnetic = self.full_basis(self.magnetic)
+        if keep_full_basis:
+            self.full_electric = self.full_basis(self.electric)
+            self.full_magnetic = self.full_basis(self.magnetic)
         # Dense group operators are deliberately not retained by the plan.
 
     def scalar(self,matrix):
@@ -133,13 +134,20 @@ def native_inputs(sim,radius,index,grid,plan):
     identity = sim._eye(plan.scalar_dimension)
     eps = identity+(index**2-1)*disk
     inverse_rule = identity+(1/index**2-1)*disk
+    return eps, inverse_rule, native_projection(sim, radius, grid, plan)
 
+
+def native_projection(sim, radius, grid, plan):
+    """Sample the circle's normal projector directly on the native star."""
     minimum = max(32,4*int(sim.order[0])+4,4*int(sim.order[1])+4)
     if grid<minimum:
         raise ValueError(f'Grid {grid} must be at least {minimum}.')
     normal_cache = getattr(plan, '_off_normal_cache', {})
     if sim.normal_mode == 'off' and grid in normal_cache:
-        return eps, inverse_rule, normal_cache[grid]
+        return normal_cache[grid]
+    lx,ly = float(sim.L[0]),float(sim.L[1])
+    s,c = sim.sin_zeta,sim.cos_zeta
+    cx,cy = center_of(sim)
     xi = torch.arange(grid,dtype=torch.float64,device=sim._device)/grid*lx
     eta = torch.arange(grid,dtype=torch.float64,device=sim._device)/grid*ly
     u,v = torch.meshgrid(xi,eta,indexing='ij')
@@ -182,11 +190,18 @@ def native_inputs(sim,radius,index,grid,plan):
             raise RuntimeError('OFF normal projector depends on a design variable.')
         normal_cache[grid] = projection.detach()
         plan._off_normal_cache = normal_cache
-        return eps,inverse_rule,normal_cache[grid]
-    return eps,inverse_rule,projection
+        return normal_cache[grid]
+    return projection
 
 
-def reduced_pq(sim,eps,inverse_rule,projection,plan):
+def projected_electric(projection,plan):
+    n = plan.scalar_dimension
+    e1,e2 = plan.electric_pair[:n],plan.electric_pair[n:]
+    return (projection[:n,:n]@e1+projection[:n,n:]@e2,
+            projection[n:,:n]@e1+projection[n:,n:]@e2)
+
+
+def reduced_pq(sim,eps,inverse_rule,projection,plan,*,normal_image=None):
     """Exact E1 Reynolds average through two partner rows, evaluated in batch."""
     eps_inverse,rule_inverse = D6BlockInverse(sim,eps,plan),D6BlockInverse(sim,inverse_rule,plan)
     n,d = plan.scalar_dimension,plan.reduced_dimension
@@ -200,11 +215,11 @@ def reduced_pq(sim,eps,inverse_rule,projection,plan):
         return rule_inverse.apply(value)-eps@value
 
     e1,e2 = plan.electric_pair[:n],plan.electric_pair[n:]
-    de1,de2 = delta(e1),delta(e2)
-    px = projection[:n,:n]@e1+projection[:n,n:]@e2
-    py = projection[n:,:n]@e1+projection[n:,n:]@e2
-    tx = eps@e1+.5*(delta(px)+projection[:n,:n]@de1+projection[:n,n:]@de2)
-    ty = eps@e2+.5*(delta(py)+projection[n:,:n]@de1+projection[n:,n:]@de2)
+    eps_e1,eps_e2 = eps@e1,eps@e2
+    de1,de2 = rule_inverse.apply(e1)-eps_e1,rule_inverse.apply(e2)-eps_e2
+    px,py = projected_electric(projection,plan) if normal_image is None else normal_image
+    tx = eps_e1+.5*(delta(px)+projection[:n,:n]@de1+projection[:n,n:]@de2)
+    ty = eps_e2+.5*(delta(py)+projection[n:,:n]@de1+projection[n:,n:]@de2)
     q_image = torch.cat((-kx*ky*e1+kx*kx*e2-ty,tx-ky*ky*e1+ky*kx*e2),dim=0)
     p = .5*(plan.electric.mH@p_image[:,:d]+plan.electric_partner.mH@p_image[:,d:])
     q = .5*(plan.magnetic.mH@q_image[:,:d]+plan.magnetic_partner.mH@q_image[:,d:])

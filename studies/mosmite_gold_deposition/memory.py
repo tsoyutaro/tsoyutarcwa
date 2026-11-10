@@ -42,6 +42,19 @@ def tensor_storage_bytes(items):
     return sum(storages.values())
 
 
+def connect_full(sim, left, right):
+    """Full Redheffer cascade in the supplied channel basis."""
+    identity = sim._eye(left[0].shape[0])
+    tf_l, rf_l, rb_l, tb_l = left
+    tf_r, rf_r, rb_r, tb_r = right
+    inverse_lr = sim._solve(identity - rb_l @ rf_r, identity)
+    inverse_rl = sim._solve(identity - rf_r @ rb_l, identity)
+    return [tf_r @ (inverse_lr @ tf_l),
+            rf_l + tb_l @ (inverse_rl @ (rf_r @ tf_l)),
+            rb_r + tf_r @ (inverse_lr @ (rb_l @ tb_r)),
+            tb_l @ (inverse_rl @ tb_r)]
+
+
 def memory_safe_class(original):
     import torch
 
@@ -51,18 +64,6 @@ def memory_safe_class(original):
                     or self.field_regions != 'none' or self._dtype != torch.complex128
                     or self.smatrix_size != 'full' or self.smatrix_algorithm != 'redheffer'):
                 raise RuntimeError('Reduced storage requires no_grad, no fields, complex128 and full Redheffer S.')
-
-        def _connect_full(self, left, right):
-            # Identical ordering and operations to the shared full-S recurrence.
-            identity = self._eye(left[0].shape[0])
-            tf_l, rf_l, rb_l, tb_l = left
-            tf_r, rf_r, rb_r, tb_r = right
-            inverse_lr = self._solve(identity - rb_l @ rf_r, identity)
-            inverse_rl = self._solve(identity - rf_r @ rb_l, identity)
-            return [tf_r @ (inverse_lr @ tf_l),
-                    rf_l + tb_l @ (inverse_rl @ (rf_r @ tf_l)),
-                    rb_r + tf_r @ (inverse_lr @ (rb_l @ tb_r)),
-                    tb_l @ (inverse_rl @ tb_r)]
 
         def release_completed_layer(self):
             """Call once after each successful layer addition, outside its builder."""
@@ -93,7 +94,7 @@ def memory_safe_class(original):
                     raise RuntimeError('Full-S layer is missing or requires gradients.')
                 previous = getattr(self, '_streamed_full_s', None)
                 self._streamed_full_s = (layer_s if previous is None
-                                         else self._connect_full(previous, layer_s))
+                                         else connect_full(self, previous, layer_s))
                 for name in LAYER_S:
                     getattr(self, name)[-1] = None
             for name in LEGACY:
@@ -115,9 +116,9 @@ def memory_safe_class(original):
             for layer, thickness in zip(layers, self.thickness):
                 layer_s = self._reduced_layer_smatrix(layer['electric'], layer['magnetic'],
                     layer['kz'], thickness, self._polarization_reference_v)
-                scattering = self._connect_full(scattering, layer_s)
+                scattering = connect_full(self, scattering, layer_s)
                 del layer_s
-            return self._connect_full(scattering, output_interface)
+            return connect_full(self, scattering, output_interface)
 
         def solve_global_smatrix_s_only(self):
             self._storage_guard()
@@ -129,9 +130,9 @@ def memory_safe_class(original):
                 zero = torch.zeros_like(identity)
                 scattering = [identity, zero, zero, identity]
             if hasattr(self, 'Sin'):
-                scattering = self._connect_full(self.Sin, scattering)
+                scattering = connect_full(self, self.Sin, scattering)
             if hasattr(self, 'Sout'):
-                scattering = self._connect_full(scattering, self.Sout)
+                scattering = connect_full(self, scattering, self.Sout)
             self.S = scattering
             self.C = [[], []]
     return SpectrumOnlyRCWA

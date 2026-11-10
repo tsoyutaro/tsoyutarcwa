@@ -32,8 +32,6 @@ class ShapeCache:
 
     def _prepare_reciprocal_grid(self, sim):
         mx, my = (int(order) for order in sim.order)
-        self.p_index = (sim.order_x[:, None] - sim.order_x[None, :] + 2 * mx)[:, None, :, None]
-        self.q_index = (sim.order_y[:, None] - sim.order_y[None, :] + 2 * my)[None, :, None, :]
         lx, ly = (float(length) for length in sim.L)
         p = torch.arange(-2 * mx, 2 * mx + 1, dtype=torch.float64, device=sim._device)
         q = torch.arange(-2 * my, 2 * my + 1, dtype=torch.float64, device=sim._device)
@@ -43,7 +41,7 @@ class ShapeCache:
         self.area = lx * ly * sim.sin_zeta
         self.lanczos_buffer = min(_TWO_PI / lx, _TWO_PI / ly)
 
-    def circle(self, sim, radius, eps_bg, eps_cyl, centers, *, use_lanczos, lanczos_power):
+    def disk_symbol(self, sim, radius, centers, *, use_lanczos=False, lanczos_power=2):
         # The convolution is Toeplitz: only Fourier-order differences matter.
         # Keep (4*Mx+1)*(4*My+1) entries per disk, not order_N**2 entries.
         key = (float(radius), tuple(centers), use_lanczos, lanczos_power)
@@ -60,6 +58,14 @@ class ShapeCache:
                 z = 3.831705970 * self.norm / (self.norm.max() + self.lanczos_buffer)
                 symbol *= _jinc(z)**lanczos_power
             self.disk_symbols[key] = symbol
+        return symbol
+
+    def circle(self, sim, radius, eps_bg, eps_cyl, centers, *, use_lanczos, lanczos_power):
+        if not hasattr(self, 'p_index'):
+            mx, my = (int(order) for order in sim.order)
+            self.p_index = (sim.order_x[:, None] - sim.order_x[None, :] + 2 * mx)[:, None, :, None]
+            self.q_index = (sim.order_y[:, None] - sim.order_y[None, :] + 2 * my)[None, :, None, :]
+        symbol = self.disk_symbol(sim, radius, centers, use_lanczos=use_lanczos, lanczos_power=lanczos_power)
         matrix = symbol[self.p_index, self.q_index].reshape(sim.order_N, sim.order_N)
         matrix.mul_(eps_cyl - eps_bg)
         matrix.diagonal().add_(eps_bg)

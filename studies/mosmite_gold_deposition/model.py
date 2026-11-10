@@ -59,6 +59,8 @@ def parser(mode):
                    help='Reduced: release unused layer arrays and stream all four S blocks; no change to precision or physics.')
     p.add_argument('--reuse-geometry', action='store_true',
                    help='Reuse fixed Fourier shape coefficients, normal projectors and raster masks across wavelengths.')
+    p.add_argument('--native-d6', action='store_true',
+                   help='Build P/Q directly on D6 E1 and stream the full two-sided S. Includes geometry reuse.')
     p.add_argument('--reference-dir', type=Path,
                    help='Optional completed original run at identical conditions; require R/T/A and polarization parity within 1e-8.')
     p.add_argument('--basis', choices=['auto', 'full'], default='auto',
@@ -102,7 +104,12 @@ def validate_args(args):
         raise ValueError('--grid is too small for this Fourier order.')
     if args.film_total_um*1000-args.height_nm-args.residual_um*1000 <= 0:
         raise ValueError('The uncoated film thickness is smaller than its relief/residual.')
-    build_layers(args)
+    layers = build_layers(args)
+    if args.native_d6:
+        if args.basis != 'auto' or any(layer.kind.startswith('coalesced') for layer in layers):
+            raise ValueError('--native-d6 requires --basis auto and nonoverlapping centered circles.')
+        if args.grid < max(32, 4*args.order+4):
+            raise ValueError('--native-d6 requires grid >= max(32, 4*order+4).')
 
 
 def load_materials(args, wls):
@@ -136,10 +143,16 @@ def load_materials(args, wls):
 
 
 def surface_rcwa(args, wl, indices, *, order=None, slices=None, grid=None, source_pol='x', shapes=None):
+    m, nz, ng = order or args.order, slices or args.slices, grid or args.grid
+    if args.native_d6:
+        from native_d6 import NativeD6Geometry, surface_native_d6
+        if shapes is None:
+            shapes = NativeD6Geometry(args, nz, ng)
+        return surface_native_d6(args, wl, indices, m, nz, shapes)
+
     import torch
     from rcwa_ext import (AutoRCWA, Circle, GroupTheoryOptions, Lattice,
                           LayerSpec, Material, NVMOptions, OutputSpec)
-    m, nz, ng = order or args.order, slices or args.slices, grid or args.grid
     layers = shapes.layers if shapes is not None else build_layers(args, nz)
     coalesced = sum(a.kind.startswith('coalesced') for a in layers)
     reduced = args.basis == 'auto' and coalesced == 0
@@ -271,6 +284,9 @@ def plot_spectra(args, output, rows):
 
 def main(mode):
     args = parser(mode).parse_args()
+    if args.native_d6:
+        args.reuse_geometry = True
+        args.layer_storage = 'reduced'
     args.solver_root = args.solver_root.resolve()
     validate_args(args)
     wls = wavelengths(args.wavelengths)
@@ -314,6 +330,10 @@ def main(mode):
         meta.setdefault('study_sha256', {})[name] = hashlib.sha256((HERE/name).read_bytes()).hexdigest()
     if args.reuse_geometry:
         meta['study_sha256']['shape_cache.py'] = hashlib.sha256((HERE/'shape_cache.py').read_bytes()).hexdigest()
+    if args.native_d6:
+        meta['study_sha256']['native_d6.py'] = hashlib.sha256((HERE/'native_d6.py').read_bytes()).hexdigest()
+        native_source = args.solver_root/'rcwa_ext'/'acceleration'/'d6.py'
+        meta['native_d6_sha256'] = hashlib.sha256(native_source.read_bytes()).hexdigest()
     if args.mirror_nk_csv:
         meta['study_sha256']['normalize_references.py'] = hashlib.sha256(
             (HERE/'normalize_references.py').read_bytes()).hexdigest()
@@ -351,8 +371,10 @@ def main(mode):
         write_meta()
         rows, checks, cache = [], [], {}
         shape_config, shapes = None, None
-        if args.reuse_geometry:
-            from shape_cache import ShapeCache
+        if args.native_d6:
+            from native_d6 import NativeD6Geometry as GeometryCache
+        elif args.reuse_geometry:
+            from shape_cache import ShapeCache as GeometryCache
 
         def calculate(wl, m, nz, ng):
             nonlocal shape_config, shapes
@@ -361,7 +383,7 @@ def main(mode):
                 if args.reuse_geometry and (m, nz, ng) != shape_config:
                     # Only one set of geometry tensors may occupy the GPU.
                     shape_config = (m, nz, ng)
-                    shapes = ShapeCache(args, nz, ng)
+                    shapes = GeometryCache(args, nz, ng)
                 cache[key] = evaluate_case(args, functions, wl, m, nz, ng, shapes=shapes)
             return cache[key]
         for completed, wl in enumerate(wls, start=1):
