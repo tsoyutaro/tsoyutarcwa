@@ -12,6 +12,7 @@ import numpy as np
 
 from geometry import build_layers, cap_count, material_codes, nearest_radius, side_thickness, write_geometry
 from memory import POLICY, PARITY_TOL, compare_reference, memory_safe_class, tensor_storage_bytes
+from normalize_references import bare_mirror_r, bare_quartz_t, write_referenced_spectrum
 from stack import finite_sample, load_nk, save_csv, silica_n, wavelengths, THEORY
 from mosmite_phase_average import PHASE_AVERAGE_THEORY, phase_average
 
@@ -25,6 +26,10 @@ def parser(mode):
     p.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     p.add_argument('--threads', type=int, default=2)
     p.add_argument('--wavelengths', default='400:800:5')
+    p.add_argument('--progress-every', type=int, default=10,
+                   help='Refresh the cumulative spectra plots and print progress every N wavelengths.')
+    p.add_argument('--mirror-nk-csv', type=Path,
+                   help='Also save mirror- and quartz-referenced results at each progress update.')
     p.add_argument('--period-nm', type=float, default=100.)
     p.add_argument('--height-nm', type=float, default=200.)
     p.add_argument('--base-diameter-nm', type=float, default=98.)
@@ -52,6 +57,8 @@ def parser(mode):
     p.add_argument('--grid', type=int, default=512)
     p.add_argument('--layer-storage', choices=['full', 'reduced'], default='full',
                    help='Reduced: release unused layer arrays and stream all four S blocks; no change to precision or physics.')
+    p.add_argument('--reuse-geometry', action='store_true',
+                   help='Reuse fixed Fourier shape coefficients, normal projectors and raster masks across wavelengths.')
     p.add_argument('--reference-dir', type=Path,
                    help='Optional completed original run at identical conditions; require R/T/A and polarization parity within 1e-8.')
     p.add_argument('--basis', choices=['auto', 'full'], default='auto',
@@ -71,6 +78,8 @@ def parser(mode):
 
 
 def validate_args(args):
+    if args.progress_every <= 0:
+        raise ValueError('--progress-every must be positive.')
     if {v.strip().lower() for v in args.coherent_layers.split(',') if v.strip()} - {'pet', 'adhesive', 'glass'}:
         raise ValueError('Unknown --coherent-layers entry; use PET,adhesive,glass.')
     for name, value in vars(args).items():
@@ -126,16 +135,19 @@ def load_materials(args, wls):
     return functions, provenance
 
 
-def surface_rcwa(args, wl, indices, *, order=None, slices=None, grid=None, source_pol='x'):
+def surface_rcwa(args, wl, indices, *, order=None, slices=None, grid=None, source_pol='x', shapes=None):
     import torch
     from rcwa_ext import (AutoRCWA, Circle, GroupTheoryOptions, Lattice,
                           LayerSpec, Material, NVMOptions, OutputSpec)
     m, nz, ng = order or args.order, slices or args.slices, grid or args.grid
-    layers = build_layers(args, nz)
+    layers = shapes.layers if shapes is not None else build_layers(args, nz)
     coalesced = sum(a.kind.startswith('coalesced') for a in layers)
     reduced = args.basis == 'auto' and coalesced == 0
     storage = getattr(args, 'layer_storage', 'full')
     solver_class = memory_safe_class(AutoRCWA) if storage == 'reduced' else AutoRCWA
+    if shapes is not None:
+        solver_class = shapes.solver_class(solver_class)
+        initial_shape_counts = shapes.counts()
     sim = solver_class(freq=args.period_nm/wl, order=[m, m], lattice=Lattice.triangular(1.),
         cascade='redheffer', outputs=OutputSpec(smatrix_size='full', fields='none'),
         nvm=NVMOptions(grid=(ng, ng)),
@@ -146,14 +158,14 @@ def surface_rcwa(args, wl, indices, *, order=None, slices=None, grid=None, sourc
     sim.add_output_layer(eps=indices['PET']**2)
     sim.set_incident_angle(0., 0.)
     center = ((.75, math.sqrt(3)/4),)
-    distances = nearest_radius(ng)*args.period_nm if coalesced else None
+    distances = nearest_radius(ng)*args.period_nm if coalesced and shapes is None else None
     with torch.no_grad():
         for layer in layers:
             thickness = layer.thickness_nm/args.period_nm
             eps_resin = indices['resin']**2
             eps_gold = indices['Au_'+layer.gold_role]**2
             if layer.kind.startswith('coalesced'):
-                code = material_codes(layer, distances)
+                code = shapes.raster(layer) if shapes is not None else material_codes(layer, distances)
                 values = np.where(code == 1, eps_resin, np.where(code == 2, eps_gold, 1.+0j))
                 sim.add_layer(thickness, eps=torch.as_tensor(values, dtype=torch.complex128, device=args.device))
             elif layer.kind == 'shell':
@@ -197,10 +209,14 @@ def surface_rcwa(args, wl, indices, *, order=None, slices=None, grid=None, sourc
         'retained_before_solve_bytes': retained_before_solve,
         'post_layer_retained_tensor_peak_bytes': getattr(sim, 'post_layer_retained_tensor_peak_bytes', None),
         'unpolarized': 'D6 x=y equality' if reduced else 'Jones x/y average including cross polarization'}
+    if shapes is not None:
+        keys = ('geometry_disk_builds', 'geometry_normal_builds', 'geometry_raster_builds')
+        diagnostics.update({key: after-before for key, before, after in
+                            zip(keys, initial_shape_counts, shapes.counts())})
     return scattering, diagnostics
 
 
-def evaluate_case(args, functions, wl, m, nz, grid):
+def evaluate_case(args, functions, wl, m, nz, grid, *, shapes=None):
     import torch
     gc.collect()
     if args.device == 'cuda':
@@ -209,7 +225,7 @@ def evaluate_case(args, functions, wl, m, nz, grid):
         torch.cuda.reset_peak_memory_stats()
     started = time.perf_counter()
     indices = {key: f(wl) for key, f in functions.items()}
-    scattering, diagnostic = surface_rcwa(args, wl, indices, order=m, slices=nz, grid=grid)
+    scattering, diagnostic = surface_rcwa(args, wl, indices, order=m, slices=nz, grid=grid, shapes=shapes)
     pet_thickness = args.film_total_um*1000-args.height_nm-args.residual_um*1000
     coherent = {v.strip().lower() for v in args.coherent_layers.split(',') if v.strip()}
     tail = [(indices['PET'], pet_thickness, 'pet' not in coherent)]
@@ -247,8 +263,10 @@ def plot_spectra(args, output, rows):
     axes[-1].set_xlabel('Wavelength (nm)')
     fig.suptitle('Au-coated MOSMITE / adhesive / silica / air: '+args.mode)
     fig.tight_layout()
-    fig.savefig(output/'spectra.png', dpi=180)
+    pending = output/'spectra.png.tmp'
+    fig.savefig(pending, format='png', dpi=180)
     plt.close(fig)
+    pending.replace(output/'spectra.png')
 
 
 def main(mode):
@@ -257,6 +275,11 @@ def main(mode):
     validate_args(args)
     wls = wavelengths(args.wavelengths)
     functions, provenance = load_materials(args, wls)
+    mirror, quartz = None, None
+    if args.mirror_nk_csv:
+        args.mirror_nk_csv = args.mirror_nk_csv.resolve()
+        mirror = bare_mirror_r(args.mirror_nk_csv, wls)
+        quartz = bare_quartz_t(wls)
     output = (args.output_dir or HERE/'results'/mode/('convergence' if args.check_convergence else 'reference')).resolve()
     if args.reference_dir and args.reference_dir.resolve() == output:
         raise ValueError('--reference-dir and --output-dir must differ; preserve the original results.')
@@ -282,12 +305,18 @@ def main(mode):
             'Glass rear-surface reflection is included. No diffuse scattering or instrument convolution.'],
         'thick_layer_theory': THEORY,
         'optics_sha256': hashlib.sha256((HERE.parent/'mosmite_optics.py').read_bytes()).hexdigest(),
+        'total_points': len(wls), 'completed_points': 0,
         'status': 'prepared'}
     if args.coherence == 'phase-average':
         meta['thick_layer_theory'] = PHASE_AVERAGE_THEORY
         meta['phase_average_sha256'] = hashlib.sha256((HERE.parent/'mosmite_phase_average.py').read_bytes()).hexdigest()
     for name in ['model.py', 'geometry.py', 'stack.py', 'memory.py', 'run_evaporation.py', 'run_sputter.py']:
         meta.setdefault('study_sha256', {})[name] = hashlib.sha256((HERE/name).read_bytes()).hexdigest()
+    if args.reuse_geometry:
+        meta['study_sha256']['shape_cache.py'] = hashlib.sha256((HERE/'shape_cache.py').read_bytes()).hexdigest()
+    if args.mirror_nk_csv:
+        meta['study_sha256']['normalize_references.py'] = hashlib.sha256(
+            (HERE/'normalize_references.py').read_bytes()).hexdigest()
     if (args.solver_root/'rcwa_ext').is_dir():
         meta['solver_sha256'] = {str(p.relative_to(args.solver_root)): hashlib.sha256(p.read_bytes()).hexdigest()
                                 for p in sorted((args.solver_root/'rcwa_ext').glob('*.py'))}
@@ -300,7 +329,9 @@ def main(mode):
         materials.append(row)
     save_csv(output/'materials.csv', materials)
     def write_meta():
-        (output/'settings.json').write_text(json.dumps(meta, ensure_ascii=False, indent=2, allow_nan=False), encoding='utf-8')
+        pending = output/'settings.json.tmp'
+        pending.write_text(json.dumps(meta, ensure_ascii=False, indent=2, allow_nan=False), encoding='utf-8')
+        pending.replace(output/'settings.json')
     if args.reference_dir:
         # Reject incompatible saved conditions before expensive RCWA solves.
         compare_reference(args, meta, [])
@@ -319,22 +350,45 @@ def main(mode):
         meta.update({'status': 'running', 'torch': torch.__version__})
         write_meta()
         rows, checks, cache = [], [], {}
+        shape_config, shapes = None, None
+        if args.reuse_geometry:
+            from shape_cache import ShapeCache
+
         def calculate(wl, m, nz, ng):
+            nonlocal shape_config, shapes
             key = (float(wl), m, nz, ng)
             if key not in cache:
-                cache[key] = evaluate_case(args, functions, wl, m, nz, ng)
+                if args.reuse_geometry and (m, nz, ng) != shape_config:
+                    # Only one set of geometry tensors may occupy the GPU.
+                    shape_config = (m, nz, ng)
+                    shapes = ShapeCache(args, nz, ng)
+                cache[key] = evaluate_case(args, functions, wl, m, nz, ng, shapes=shapes)
             return cache[key]
-        for wl in wls:
+        for completed, wl in enumerate(wls, start=1):
             row = calculate(wl, args.order, args.slices, args.grid)
             rows.append(row)
-            save_csv(output/'spectra.csv', rows)
+            pending = output/'spectra.csv.tmp'
+            save_csv(pending, rows)
+            pending.replace(output/'spectra.csv')
             print(f'{mode} {wl:g} nm R={row["R"]:.8f} T={row["T"]:.8f} A={row["A"]:.8f} '
                   f'{row["basis"]} raster={row["coalesced_raster_layers"]}', flush=True)
+            if args.reuse_geometry:
+                print(f'  geometry builds: disks={row["geometry_disk_builds"]}, '
+                      f'normal={row["geometry_normal_builds"]}, raster={row["geometry_raster_builds"]}; '
+                      f'{row["seconds"]:.2f} s', flush=True)
             if row['peak_cuda_allocated_bytes'] is not None:
                 print(f'  peak CUDA allocated={row["peak_cuda_allocated_bytes"]/2**30:.3f} GiB; '
                       f'storage={row["layer_storage"]}', flush=True)
-            meta['completed_points'] = len(rows)
+            meta['completed_points'] = completed
             write_meta()
+            if completed % args.progress_every == 0 or completed == len(wls):
+                plot_spectra(args, output, rows)
+                if mirror is not None:
+                    powers = np.array([(row['R'], row['T']) for row in rows])
+                    write_referenced_spectrum(output, wls[:completed], powers,
+                                              quartz[:completed], mirror[:completed])
+                print(f'Progress: {completed}/{len(wls)} ({completed / len(wls):.1%}) '
+                      f'through {wl:g} nm. Updated spectra in {output}', flush=True)
         if args.reference_dir:
             parity = compare_reference(args, meta, rows)
             save_csv(output/'storage_parity.csv', parity)
@@ -378,7 +432,6 @@ def main(mode):
             meta['convergence_passed'] = (all(c['passed'] for c in checks)
                 and all(c['baseline_delta'] <= args.convergence_tol for c in final_checks)
                 and all(c['xy_power_difference'] <= args.convergence_tol for c in final_checks))
-        plot_spectra(args, output, rows)
         meta.update({'status': 'completed', 'completed_points': len(rows)})
         if args.check_convergence and not meta['convergence_passed']:
             raise RuntimeError('Convergence criteria not met: inspect convergence.csv; increase order/slices/grid.')

@@ -47,9 +47,15 @@ def main():
     parser.add_argument('--slice-levels', type=positive_int, nargs='+', default=[150, 300, 600])
     parser.add_argument('--grid', type=positive_int, default=512)
     parser.add_argument('--wavelengths', help='Scan default: 400,550,700. Spectrum default: 400:700:5.')
+    parser.add_argument('--progress-every', type=positive_int, default=10,
+                        help='Refresh cumulative spectra and print progress every N wavelengths.')
+    parser.add_argument('--mirror-nk-csv', type=Path,
+                        help='Save mirror- and quartz-referenced spectra at each progress update.')
     parser.add_argument('--tolerance', type=float, default=.005,
                         help='Absolute fraction for comparing R/T/A (default: 0.5 percentage point).')
     parser.add_argument('--device', choices=('cpu', 'cuda'), default='cuda')
+    parser.add_argument('--reuse-geometry', action='store_true',
+                        help='Share fixed RCWA geometry across wavelengths for each scan case.')
     parser.add_argument('--output-root', type=Path, default=HERE / 'results' / 'Au30_PET5_glass1mm')
     args = parser.parse_args()
 
@@ -82,6 +88,7 @@ def main():
     command = [
         sys.executable, '-u', str(HERE / f'run_{args.mode}.py'),
         '--device', args.device, '--wavelengths', wavelengths,
+        '--progress-every', str(args.progress_every),
         '--pet-nk-csv', str(ROOT / 'studies/mosmite_uncoated/data/PET_Zhang_400_1000nm.csv'),
         '--period-nm', '100', '--height-nm', '200',
         '--base-diameter-nm', '98', '--tip-diameter-nm', '50',
@@ -89,6 +96,10 @@ def main():
         '--film-total-um', '5.2', '--residual-um', '0', '--adhesive-um', '0',
         '--glass-um', '1000', '--layer-storage', 'reduced', '--coherence', 'incoherent',
     ]
+    if args.reuse_geometry:
+        command.append('--reuse-geometry')
+    if args.mirror_nk_csv:
+        command.extend(['--mirror-nk-csv', str(args.mirror_nk_csv.resolve())])
     previous = None
     for order, nz, grid in cases:
         output = destination / f'M{order}_Nz{nz}_G{grid}'

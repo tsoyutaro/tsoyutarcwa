@@ -74,40 +74,21 @@ def plot(wavelengths, absolute, referenced, path):
         ax.grid(alpha=.25)
         ax.legend(frameon=False)
     axes[-1].set_xlabel('Wavelength (nm)')
-    fig.savefig(path, dpi=160)
+    pending = path.with_suffix('.png.tmp')
+    fig.savefig(pending, format='png', dpi=160)
     plt.close(fig)
+    pending.replace(path)
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('spectrum', type=Path, help='RCWA spectra.csv with wavelength_nm,R,T in fractions.')
-    mirror_options = parser.add_mutually_exclusive_group()
-    mirror_options.add_argument('--mirror-r-csv', type=Path, help='Calibration data with wavelength_nm,R_percent.')
-    mirror_options.add_argument('--mirror-nk-csv', type=Path,
-                                help='Material n,k table for a bare, optically thick mirror at normal incidence.')
-    parser.add_argument('--quartz-t-csv', type=Path,
-                        help='Measured 1 mm quartz blank with wavelength_nm,T_percent. Default: lossless Malitson silica.')
-    parser.add_argument('--output-dir', type=Path, help='Default: the directory containing spectra.csv.')
-    args = parser.parse_args()
-
-    wavelengths, powers = load_table(args.spectrum, 'R', 'T')
+def write_referenced_spectrum(output, wavelengths, powers, quartz, mirror):
     r, t = powers.T
     a = 1 - r - t
     if not all(np.all((-2e-6 <= values) & (values <= 1 + 2e-6)) for values in (r, t, a)):
         raise ValueError('Input R and T must be absolute fractions with physical R, T, A.')
-    quartz = (reference_at(args.quartz_t_csv, 'T_percent', wavelengths)
-              if args.quartz_t_csv else bare_quartz_t(wavelengths))
-    mirror = None
-    if args.mirror_r_csv:
-        mirror = reference_at(args.mirror_r_csv, 'R_percent', wavelengths)
-    elif args.mirror_nk_csv:
-        mirror = bare_mirror_r(args.mirror_nk_csv, wavelengths)
-
     t_rel = t / quartz
     r_rel = r / mirror if mirror is not None else None
     a_compare = 1 - r_rel - t_rel if r_rel is not None else None
 
-    output = args.output_dir or args.spectrum.parent
     output.mkdir(parents=True, exist_ok=True)
     rows = [
         {
@@ -123,9 +104,35 @@ def main():
         }
         for i, wl in enumerate(wavelengths)
     ]
-    save_csv(output / 'spectra_referenced.csv', rows)
+    pending = output / 'spectra_referenced.csv.tmp'
+    save_csv(pending, rows)
+    pending.replace(output / 'spectra_referenced.csv')
     plot(wavelengths, (r, t, a), (r_rel, t_rel, a_compare), output / 'spectra_referenced.png')
-    print(f'Saved {len(rows)} wavelengths: {output.resolve()}')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('spectrum', type=Path, help='RCWA spectra.csv with wavelength_nm,R,T in fractions.')
+    mirror_options = parser.add_mutually_exclusive_group()
+    mirror_options.add_argument('--mirror-r-csv', type=Path, help='Calibration data with wavelength_nm,R_percent.')
+    mirror_options.add_argument('--mirror-nk-csv', type=Path,
+                                help='Material n,k table for a bare, optically thick mirror at normal incidence.')
+    parser.add_argument('--quartz-t-csv', type=Path,
+                        help='Measured 1 mm quartz blank with wavelength_nm,T_percent. Default: lossless Malitson silica.')
+    parser.add_argument('--output-dir', type=Path, help='Default: the directory containing spectra.csv.')
+    args = parser.parse_args()
+
+    wavelengths, powers = load_table(args.spectrum, 'R', 'T')
+    quartz = (reference_at(args.quartz_t_csv, 'T_percent', wavelengths)
+              if args.quartz_t_csv else bare_quartz_t(wavelengths))
+    mirror = None
+    if args.mirror_r_csv:
+        mirror = reference_at(args.mirror_r_csv, 'R_percent', wavelengths)
+    elif args.mirror_nk_csv:
+        mirror = bare_mirror_r(args.mirror_nk_csv, wavelengths)
+    output = args.output_dir or args.spectrum.parent
+    write_referenced_spectrum(output, wavelengths, powers, quartz, mirror)
+    print(f'Saved {len(wavelengths)} wavelengths: {output.resolve()}')
     if mirror is None:
         print('Mirror-reference and comparison A columns are blank until a mirror CSV is supplied.')
     elif args.mirror_nk_csv:
