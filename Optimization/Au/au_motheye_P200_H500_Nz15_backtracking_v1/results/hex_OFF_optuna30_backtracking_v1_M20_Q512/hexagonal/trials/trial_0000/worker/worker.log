@@ -1,0 +1,60 @@
+trial 0 initial state validated: mean R=0.230977767
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/optimizer/driver.py", line 69, in worker
+    outcome = train(request, device, trial)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/optimizer/engine.py", line 186, in train
+    candidate = evaluate()
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/optimizer/engine.py", line 80, in evaluate
+    result = evaluator(
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/optimizer/physics.py", line 241, in objective
+    return _spectral_evaluator(logits,config,lattice,wavelengths,order,grid,device,gradient=gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/rcwa_ext/acceleration/spectral.py", line 182, in __call__
+    value, radius_gradient, rows = self.spectrum(radii, config, waves, weights, cache, gradient)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/rcwa_ext/acceleration/spectral.py", line 134, in spectrum
+    R, T = self.response(cache, leaves, wave, index, port, checkpointed)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/rcwa_ext/acceleration/spectral.py", line 110, in response
+    electric, magnetic, kz = layer_modes(*pair)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/rcwa_ext/acceleration/spectral.py", line 99, in layer_modes
+    squared, electric = port._eig(p@q)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/rcwa_ext/scattering.py", line 362, in _eig
+    values, vectors = torcwa.Eig.apply(matrix)
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+  File "/home/7/uq06557/.local/lib/python3.9/site-packages/torcwa/torch_eig.py", line 14, in forward
+    eigval, eigvec = torch.linalg.eig(x)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/optimizer/driver.py", line 472, in <module>
+    raise SystemExit(main())
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/optimizer/driver.py", line 335, in main
+    return worker(args.worker_request, args.worker_result)
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/optimizer/driver.py", line 93, in worker
+    "traceback": traceback.format_exc()}
+  File "/usr/lib64/python3.9/traceback.py", line 167, in format_exc
+    return "".join(format_exception(*sys.exc_info(), limit=limit, chain=chain))
+  File "/usr/lib64/python3.9/traceback.py", line 120, in format_exception
+    return list(TracebackException(
+  File "/usr/lib64/python3.9/traceback.py", line 517, in __init__
+    self.stack = StackSummary.extract(
+  File "/usr/lib64/python3.9/traceback.py", line 366, in extract
+    f.line
+  File "/usr/lib64/python3.9/traceback.py", line 288, in line
+    self._line = linecache.getline(self.filename, self.lineno).strip()
+  File "/usr/lib64/python3.9/linecache.py", line 30, in getline
+    lines = getlines(filename, module_globals)
+  File "/usr/lib64/python3.9/linecache.py", line 46, in getlines
+    return updatecache(filename, module_globals)
+  File "/usr/lib64/python3.9/linecache.py", line 136, in updatecache
+    with tokenize.open(fullname) as fp:
+  File "/usr/lib64/python3.9/tokenize.py", line 394, in open
+    encoding, lines = detect_encoding(buffer.readline)
+  File "/usr/lib64/python3.9/tokenize.py", line 363, in detect_encoding
+    first = read_or_stop()
+  File "/usr/lib64/python3.9/tokenize.py", line 321, in read_or_stop
+    return readline()
+  File "/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/Au/au_motheye_P200_H500_Nz15_backtracking_v1/optimizer/driver.py", line 330, in interrupted
+    raise KeyboardInterrupt()
+KeyboardInterrupt
