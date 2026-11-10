@@ -1,6 +1,6 @@
 # 未被覆MOSMITEの反射・透過スペクトル
 
-2026-11-03更新：厚層の既定計算は、位相サンプリングを使わない解析的インコヒーレント法です。[理論式・文献・新しいコマンド](../README_MOSMITE_ANALYTIC_ja.md) を参照してください。旧`--coherence phase-average`と`--phase-points`は廃止しました。
+2026-11-09更新。厚層の既定計算は解析的インコヒーレント法です。`--coherence phase-average --phase-points 16` で従来の位相平均を選択できます。[理論式・文献・実行方法](../README_MOSMITE_ANALYTIC_ja.md)
 
 20260806の共有`rcwa_ext`を利用する。表面の微細構造をRCWAで解き、有限厚の
 基材・粘着剤・石英ガラスを電場振幅の散乱行列として接続する。

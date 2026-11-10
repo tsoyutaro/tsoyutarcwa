@@ -1,4 +1,4 @@
-"""Import Cu M14 trials 0-14, preserving pruning, and retry legacy trial 15."""
+"""Import finished trials with their original states and queue a failed trial."""
 from __future__ import annotations
 
 import argparse
@@ -89,9 +89,9 @@ def read_best_payload(source, trial, config, manifest, checksums):
     return payload
 
 
-def read_source(source, config):
+def read_source(source, config, restart_trial=RESTART_TRIAL):
     if (source / "controller.lock").exists():
-        raise ValueError("The source M14 experiment is locked; finish that job before importing.")
+        raise ValueError("The source experiment is locked. Finish that job before importing.")
     manifest_path = source / "manifest.json"
     manifest = read_json(manifest_path)
     identity = {key: manifest[key] for key in ("version", "config", "source_sha256", "requested_device")}
@@ -120,25 +120,25 @@ def read_source(source, config):
     storage, pruner = storage_and_pruner(source / "hexagonal", old_config)
     study = optuna.load_study(study_name=STUDY, storage=storage, pruner=pruner)
     trials = study.get_trials(deepcopy=True)
-    if len(trials) <= RESTART_TRIAL or any(
+    if len(trials) <= restart_trial or any(
             trials[number].number != number or trials[number].state.name not in ("COMPLETE", "PRUNED")
-            for number in range(RESTART_TRIAL)):
-        raise ValueError("Source trials 0 through 14 must be COMPLETE or PRUNED.")
-    failed = trials[RESTART_TRIAL]
-    if (failed.number != RESTART_TRIAL or failed.state.name != "FAIL"
+            for number in range(restart_trial)):
+        raise ValueError(f"Source trials 0 through {restart_trial - 1} must be COMPLETE or PRUNED.")
+    failed = trials[restart_trial]
+    if (failed.number != restart_trial or failed.state.name != "FAIL"
             or failed.user_attrs.get("error") != "Invalid shared power flux."):
-        raise ValueError("Source trial 15 must be the recorded nonphysical-power failure.")
+        raise ValueError(f"Source trial {restart_trial} must be the recorded nonphysical-power failure.")
     expected_distributions = {
         "lr": optuna.distributions.FloatDistribution(config["learning_rate_min"], config["learning_rate_max"], log=True),
         "init_top": optuna.distributions.FloatDistribution(config["init_top_min_nm"], config["init_top_max_nm"]),
         "delta_ratio": optuna.distributions.FloatDistribution(0., 1.),
     }
-    for trial in trials[:RESTART_TRIAL + 1]:
+    for trial in trials[:restart_trial + 1]:
         if trial.distributions != expected_distributions:
             raise ValueError(f"Source trial {trial.number} uses different parameter distributions.")
 
     best_payloads = [read_best_payload(source, trial, config, manifest, checksums)
-                     for trial in trials[:RESTART_TRIAL]]
+                     for trial in trials[:restart_trial]]
 
     # The sampler is an existing, trusted checkpoint from the user's own run.
     with sampler_path.open("rb") as handle:
@@ -153,25 +153,28 @@ def read_source(source, config):
     for relative, expected in checksums.items():
         if checksum(source / relative) != expected:
             raise ValueError("The source changed during import preparation; retry after its job has stopped.")
-    return manifest, trials[:RESTART_TRIAL], failed, best_payloads, checksums
+    return manifest, trials[:restart_trial], failed, best_payloads, checksums
 
 
-def prepare_import(source, output, device):
+def prepare_import(source, output, device, restart_trial=RESTART_TRIAL):
     source = source.resolve()
     output = output.resolve()
     if source == output:
         raise ValueError("Choose a separate target directory for the recovery study.")
     config = load_config(HERE / "config.json")
-    manifest, imported, failed, payloads, source_checksums = read_source(source, config)
+    if not 0 < restart_trial < config["trials"]:
+        raise ValueError("The restart trial must be inside the configured trial budget.")
+    manifest, imported, failed, payloads, source_checksums = read_source(source, config, restart_trial)
     identity = dict(version=1, config=config, source_sha256=execution_sources(sources()), requested_device=device)
     target_manifest, _ = reconcile_manifest(None, identity)
-    import_identity = dict(policy=POLICY, source_run=str(source), source_checksums=source_checksums,
-                           target_signature=target_manifest["signature"], imported_trials=list(range(RESTART_TRIAL)),
-                           source_states=[trial.state.name for trial in imported], retry_trial=RESTART_TRIAL)
+    policy = POLICY if restart_trial == RESTART_TRIAL else "import-finished-trials-and-retry-v1"
+    import_identity = dict(policy=policy, source_run=str(source), source_checksums=source_checksums,
+                           target_signature=target_manifest["signature"], imported_trials=list(range(restart_trial)),
+                           source_states=[trial.state.name for trial in imported], retry_trial=restart_trial)
     marker = output / "import_completed_trials.json"
     if output.exists():
         if marker.is_file() and read_json(marker).get("identity") == import_identity:
-            print(f"Trials 0-14 have already been imported into {output}.")
+            print(f"Trials 0-{restart_trial - 1} have already been imported into {output}.")
             return output
         raise ValueError("The target already exists with different data; choose a new --output-root.")
 
@@ -207,11 +210,11 @@ def prepare_import(source, output, device):
             write_csv(destination / "best_profile.csv", profile_rows(payload["best_logits"], config))
 
         study.enqueue_trial(failed.params, user_attrs=dict(
-            origin_run_root=str(source), origin_trial_number=RESTART_TRIAL,
+            origin_run_root=str(source), origin_trial_number=restart_trial,
             restart_reason="retry_legacy_nonphysical_trial_with_backtracking"))
-        queued = study.get_trials(deepcopy=True)[RESTART_TRIAL]
-        if queued.number != RESTART_TRIAL or queued.state.name != "WAITING":
-            raise RuntimeError("The original trial 15 was not queued at the expected trial number.")
+        queued = study.get_trials(deepcopy=True)[restart_trial]
+        if queued.number != restart_trial or queued.state.name != "WAITING":
+            raise RuntimeError(f"The original trial {restart_trial} was not queued at the expected trial number.")
         shutil.copyfile(source / "hexagonal/sampler.pkl", folder / "sampler.pkl")
         export_trials(folder, study)
         best = study.best_trial
@@ -225,9 +228,9 @@ def prepare_import(source, output, device):
             requested_lattices=["hexagonal"], reports=dict(hexagonal=str(output / "hexagonal/report.json"))))
         write_json(stage / "import_completed_trials.json", dict(
             identity=import_identity, utc=datetime.now(timezone.utc).isoformat(),
-            imported_best_objective=best.value, queued_trial15_params=failed.params,
-            trial15_adam_start="step 0 from the original initial shape",
-            target_policy="validated-adam-backtracking-v1"))
+            imported_best_objective=best.value, target_policy="validated-adam-backtracking-v1",
+            **{f"queued_trial{restart_trial}_params": failed.params,
+               f"trial{restart_trial}_adam_start": "step 0 from the original initial shape"}))
         for relative, expected in source_checksums.items():
             if checksum(source / relative) != expected:
                 raise ValueError("The source changed while preparing the imported study.")
@@ -236,7 +239,8 @@ def prepare_import(source, output, device):
         stage.rename(output)
     finally:
         lock.rmdir()
-    print(f"Imported trials 0-14 with their original COMPLETE/PRUNED states. Queued trial 15 with params {failed.params}.")
+    print(f"Imported trials 0-{restart_trial - 1} with their original COMPLETE/PRUNED states. "
+          f"Queued trial {restart_trial} with params {failed.params}.")
     print(f"Best imported mean R={best.value:.12g}; target={output}")
     return output
 
@@ -248,9 +252,10 @@ def main(argv=None):
     parser.add_argument("--output-root", type=Path, default=(
         HERE / "results/hex_OFF_optuna30_backtracking_from15_v1_M14_Q512"))
     parser.add_argument("--device", default="cuda:0")
+    parser.add_argument("--restart-trial", type=int, default=RESTART_TRIAL)
     args = parser.parse_args(argv)
     try:
-        prepare_import(args.source_run, args.output_root, args.device)
+        prepare_import(args.source_run, args.output_root, args.device, args.restart_trial)
     except (OSError, ValueError, RuntimeError) as error:
         parser.error(str(error))
     return 0

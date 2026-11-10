@@ -152,6 +152,11 @@ def compare_reference(args, metadata, rows):
     for key in keys:
         if old['arguments'].get(key) != metadata['arguments'].get(key):
             raise ValueError('Reference condition differs: '+key)
+    if metadata['arguments'].get('coherence') == 'phase-average':
+        if old['arguments'].get('phase_points') != metadata['arguments'].get('phase_points'):
+            raise ValueError('Reference condition differs: phase_points')
+        if old.get('phase_average_sha256') != metadata.get('phase_average_sha256'):
+            raise ValueError('Reference phase-average source hash differs.')
     if old.get('optics_sha256') != metadata.get('optics_sha256'):
         raise ValueError('Reference analytic-optics source hash differs.')
     if old.get('solver_sha256') != metadata.get('solver_sha256'):

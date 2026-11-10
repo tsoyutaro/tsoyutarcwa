@@ -1,15 +1,15 @@
 # MOSMITE：解析的な混合コヒーレント／インコヒーレント計算
 
-2026-11-03。対象は未蒸着MOSMITE、および金の真空蒸着・スパッタ成膜モデルのPET・粘着層・ガラスです。PMMA芯＋金属被覆の最適化は、従来どおり半無限PMMAへ接続したRCWAであり、本変更の対象ではありません。
+2026-11-09更新。対象は未蒸着MOSMITE、および金の真空蒸着・スパッタ成膜モデルのPET・粘着層・ガラスです。PMMA芯＋金属被覆の最適化は、従来どおり半無限PMMAへ接続したRCWAであり、本変更の対象ではありません。
 
 ## 方法とコード
 
-共有実装は `studies/mosmite_optics.py` です。`run_spectrum.py` と金モデルの `stack.py` から同じ関数を呼びます。
+解析的な強度計算の共有実装は `studies/mosmite_optics.py` です。未蒸着・真空蒸着・スパッタの位相平均は `studies/mosmite_phase_average.py` を共用します。
 
 - モスアイ・金被覆の局所構造：従来と同じコヒーレントRCWA。
 - PET・粘着層・ガラス：Fresnelの電力係数と単一通過吸収を使う解析的な強度伝達。
 - 無限回の往復反射：強度の連立方程式を解いて合算。
-- 位相点数、乱数による試行平均、移動窓によるスペクトル平滑化：不使用。
+- 既定の解析計算は各波長で強度収支を直接解く。位相平均を選んだ場合は各波長で等間隔の位相点を使う。
 - 実測比較：`compare_pointwise.py`で各計算波長の実測値を直接使用。移動窓・補間・正規化倍率は加えない。
 
 ## スカラーの場合の理論式
@@ -59,6 +59,10 @@ T_{ij}=\frac{\operatorname{Re}n_j}{\operatorname{Re}n_i}|t_{ij}|^2,\qquad R_{ij}
 - `--coherence incoherent`：各一様層を非干渉とする。既定。
 - `--coherence incoherent --coherent-layers PET,adhesive`：PETと粘着層は固定位相のコヒーレント計算、ガラスを非干渉とする。
 - `--coherence coherent`：すべての層を固定位相で計算。
+- `--coherence phase-average --phase-points 16`：各一様層の往復位相を16点ずつ等間隔に取り、全組合せの反射率・透過率を平均。`--phase-points` の既定値は16。1点では公称厚さの固定位相を使う。
+- `--coherence phase-average --coherent-layers PET,adhesive`：PETと粘着層は固定位相とし、存在するガラス層の位相を平均。
+
+位相平均で2点以上を使う場合、位相点数を各層で倍にして再計算し、差の最大値を `spectra.csv` の `phase_average_error`（0〜1の分率）に記録します。差が `--convergence-tol` を超えると計算を停止します。
 
 この方法も非干渉の仮定の下での理論計算です。厚いという理由だけで非干渉性が確定するわけではありません。PET5 µmや粘着層20 µmの干渉縞を再現する場合は、その層をコヒーレントに指定してください。装置の1 nmバンド幅との畳み込みは今回の処理に含めていません。
 
@@ -86,7 +90,7 @@ python studies/mosmite_uncoated/run_spectrum.py \
 
 ## 金蒸着・スパッタ
 
-既存コマンドの`--coherence phase-average --phase-points 16`を`--coherence incoherent`へ置き換えます。`--phase-points`は廃止しました。成膜形状・金属データ・層数・次数・メモリ削減設定はそのまま指定できます。
+以下は解析的強度計算の実行例です。従来の位相平均で計算する場合は `--coherence phase-average --phase-points 16` に切り替えます。手法を比較する場合はそれぞれ別の出力先を指定します。
 
 ```bash
 python studies/mosmite_gold_deposition/run_evaporation.py \

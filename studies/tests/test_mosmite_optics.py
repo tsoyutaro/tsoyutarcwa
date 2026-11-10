@@ -1,10 +1,11 @@
-"""Independent analytic/flux checks; no phase sampling is used by the implementation."""
-import argparse,contextlib,importlib.util,io,math,sys,unittest
+"""Checks of analytic flux balance and optional phase quadrature."""
+import argparse,importlib.util,math,sys,unittest
 from pathlib import Path
 from unittest.mock import patch
 import numpy as np
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 import mosmite_optics as m
+from mosmite_phase_average import phase_average
 
 def transfer_reference(indices,depths,wl):
     # Independent2x2 intensity transfer implementation of Byrnes Eqs25--30.
@@ -99,7 +100,33 @@ class OpticsTests(unittest.TestCase):
         out=u.finite_sample(u.interface(1,1.5),1.5,[(1.5,5000,True)],550)
         ref=m.finite_sample(m.interface(1,1.5),1.5,[(1.5,5000,True)],550)
         np.testing.assert_allclose(out,[ref['R'],ref['T'],ref['A']],atol=1e-14)
-        with contextlib.redirect_stderr(io.StringIO()),self.assertRaises(SystemExit):u.parser().parse_args(['--phase-points','16'])
+        phase_args = u.parser().parse_args(['--coherence', 'phase-average', '--phase-points', '8'])
+        self.assertEqual(phase_args.phase_points, 8)
+        actual, diagnostic = u.evaluate_tail(phase_args, u.interface(1, 1.5), 1.5, [(1.5, 5000, True)], 550)
+        np.testing.assert_allclose(actual, out, rtol=0, atol=1e-10)
+        self.assertIn('phase_average_error', diagnostic)
+
+    def test_phase_average_matches_independent_coherent_grid_with_mixed_layers(self):
+        surface = m.interface(1, 1.5)
+        surface[0][0, 1] = .06j
+        wl, points = 550, 3
+        layers = [(1.5, 5000, True), (1.38, 110, False), (1.46, 1000, True)]
+        coherent = []
+        for pet in range(points):
+            for glass in range(points):
+                shifts = [pet, 0, glass]
+                shifted = [(n, d + wl * step / (2 * n * points), False)
+                           for (n, d, _), step in zip(layers, shifts)]
+                coherent.append(m.finite_sample(surface, 1.5, shifted, wl, coherence='coherent'))
+        actual, _ = phase_average(surface, 1.5, layers, wl, points=points, tolerance=1.)
+        for key in actual:
+            self.assertAlmostEqual(actual[key], np.mean([row[key] for row in coherent]), places=13)
+
+    def test_phase_average_reports_unresolved_phase_grid(self):
+        surface = m.interface(1, 3)
+        with self.assertRaisesRegex(RuntimeError, 'increase --phase-points'):
+            phase_average(surface, 3, [(3, 550, True)], 550, points=2, tolerance=1e-6)
+
     def test_nonfinite_surface_is_rejected(self):
         with self.assertRaises(ValueError):m.finite_sample((float('nan'),0,0,1),1,[],550)
     def test_pointwise_comparison_keeps_measurement_oscillations(self):

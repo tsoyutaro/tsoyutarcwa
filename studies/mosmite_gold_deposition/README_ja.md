@@ -1,6 +1,22 @@
 # MOSMITEの金被覆：真空蒸着とスパッタの2モデル
 
-2026-11-03更新：厚層の既定計算は、位相サンプリングを使わない解析的インコヒーレント法です。[理論式・文献・新しいコマンド](../README_MOSMITE_ANALYTIC_ja.md) を参照してください。旧`--coherence phase-average`と`--phase-points`は廃止しました。
+2026-11-09更新。厚層の既定計算は解析的インコヒーレント法です。`--coherence phase-average --phase-points 16` で従来の位相平均を選択できます。[理論式・文献・実行方法](../README_MOSMITE_ANALYTIC_ja.md)
+
+## 粘着層なし・PET 5 µm・石英1 mm・金30 nm
+
+`--adhesive-um 0` でPETと石英を直接接続します。金30 nmモデルの収束確認と本計算は `run_au30_glass1mm.py` で実行できます。CUDAが既定です。
+
+```bash
+S=studies/mosmite_gold_deposition/run_au30_glass1mm.py
+python "$S" evaporation --scan order --order 14
+python "$S" sputter --scan order --order 6
+```
+
+次数走査は400、550、700 nmで、150分割・grid512を固定して次数を2ずつ上げます。`--max-order` で上限を指定できます。各波長で連続する設定間のR・T・Aの最大絶対差をパーセントポイントで表示します。既定の比較目安は0.5ポイント（`--tolerance 0.005`）です。
+
+次数を選んだ後に `--scan slices --order M` で150、300、600分割を比較します。頂部キャップは自動的に23、45、90分割となり、谷部30 nmは本体200 nmの内数です。`--scan grid --order M --slices Nz --grid 512` は512→1024を比較します。層数や格子を変えた場合は、採用値で次数差も再確認します。
+
+本計算は `python "$S" evaporation --order M --slices Nz --grid G --wavelengths "400:700:5"` のように実行し、スパッタでは `sputter` に切り替えます。M、Nz、Gは各モデルの収束結果から指定します。結果は `results/Au30_PET5_glass1mm` 以下の `spectra.csv` と `spectra.png` に保存します。
 
 20260806の共有`rcwa_ext`を利用する。既存ソルバーや未被覆モデルは変更しない。
 `studies/mosmite_gold_deposition/`をプロジェクト直下へ追加する。
@@ -162,9 +178,9 @@ D6縮約の場合は、正入射・等方材料のx=yの対称性を用いる。
 - 粘着層：20 um、n=1.50,k=0。分散は未測定の仮定。
 - 溶融石英ガラス：1 mm、Malitson分散、k=0。
 - Au：両モデル・全領域とも、まずJohnson--Christyの同梱参照n,kを使用。
-- PET・粘着層・ガラスは解析的インコヒーレント法。界面の無限回の多重反射、金とPETの吸収、ガラス裏面反射を含む。
+- PET・粘着層・ガラスは既定で解析的インコヒーレント法。界面の無限回の多重反射、金とPETの吸収、ガラス裏面反射を含む。
 - 非零回折次数は厚層内でエバネッセントになる条件を検査し、厚層を零次Jones振幅で接続する。
-- 位相の数値走査は行わない。`--coherence coherent`で全層の干渉を保持し、`--coherent-layers PET,adhesive`で混合指定も可能。
+- `--coherence coherent` で全層の干渉を保持する。`--coherent-layers PET,adhesive` は指定層の位相を固定し、他の層を選択した方法で扱う。位相平均を選ぶと `spectra.csv` に `phase_average_error` も記録する。
 
 金は連続した等方媒質として扱う。3--4 nm程度の膜が島状になる影響は、この基準モデルに含まない。
 実物への一致を判断するときは、成膜条件・連続性・粗さに対応する光学データで検討する。

@@ -1,9 +1,8 @@
 """Uncoated MOSMITE: local RCWA plus finite PET/adhesive/silica/air stack.
 
 Normal incidence, isotropic materials and a D6 triangular lattice only.
-The patterned surface is coherent RCWA. Uniform thick layers use analytic
-intensity balance (mixed coherent/incoherent optics), without phase sampling
-or wavelength smoothing. Absorbing internal ports use Re(n) flux normalization.
+The patterned surface is coherent RCWA. Uniform thick layers default to
+analytic intensity balance. Legacy phase averaging is selectable.
 """
 from __future__ import annotations
 
@@ -21,6 +20,7 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 from mosmite_optics import finite_sample as analytic_sample, THEORY
+from mosmite_phase_average import PHASE_AVERAGE_THEORY, phase_average
 PET_SOURCE = ("https://raw.githubusercontent.com/polyanskiy/"
     "refractiveindex.info-database/main/database/data/organic/"
     "%28C10H8O4%29n%20-%20polyethylene%20terephthalate/nk/Zhang.yml")
@@ -94,7 +94,7 @@ def prepend(left, right_r, right_t):
 
 
 def bulk_layers(args, wl, pet, adhesive):
-    """Only existing layers enter the optical stack; flags select incoherent layers."""
+    """Only existing layers enter the optical stack; flags select layers for incoherent treatment or phase averaging."""
     pet_nm = args.film_total_um*1000-args.height_nm-args.residual_um*1000
     coherent = {name.strip().lower() for name in args.coherent_layers.split(",") if name.strip()}
     layers = [(pet(wl), pet_nm, "pet" not in coherent)]
@@ -118,6 +118,14 @@ def finite_sample(surface, port_index, layers, wl, *, coherence='incoherent'):
     """Analytic intensity balance, or a fully coherent amplitude calculation."""
     result = analytic_sample(surface, port_index, layers, wl, coherence=coherence)
     return result['R'], result['T'], result['A']
+
+
+def evaluate_tail(args, surface, port_index, layers, wl):
+    if args.coherence == 'phase-average':
+        result, error = phase_average(surface, port_index, layers, wl,
+                                      points=args.phase_points, tolerance=args.convergence_tol)
+        return (result['R'], result['T'], result['A']), {'phase_average_error': error}
+    return finite_sample(surface, port_index, layers, wl, coherence=args.coherence), {}
 
 
 def surface_rcwa(args, wl, n_resin, *, n_substrate=None, order=None, slices=None, grid=None):
@@ -217,10 +225,12 @@ def parser():
     p.add_argument('--method', choices=['nvm', 'matched-asr'], default='nvm')
     p.add_argument('--polarization', choices=['x', 'y'], default='x',
                    help='D6 and normal incidence imply identical x/y intensity spectra.')
-    p.add_argument('--coherence', choices=['incoherent', 'coherent'], default='incoherent',
-                   help='Analytic intensity balance, or retain phase in all layers.')
+    p.add_argument('--coherence', choices=['incoherent', 'coherent', 'phase-average'], default='incoherent',
+                   help='Analytic intensity balance, fixed coherent phase, or legacy phase quadrature.')
     p.add_argument('--coherent-layers', default='',
-                   help='In incoherent mode, retain phase in selected uniform layers: PET,adhesive,glass.')
+                   help='Keep fixed phase in selected uniform layers: PET,adhesive,glass.')
+    p.add_argument('--phase-points', type=int, default=16,
+                   help='Phase samples per selected layer in phase-average mode (default: 16).')
     p.add_argument('--check-convergence', action='store_true',
                    help='Compare M+2, then Nz*2, then grid*2 at 400,600,800 nm in range.')
     p.add_argument('--check-wavelengths', default='400,600,800',
@@ -238,8 +248,8 @@ def main():
     for name, value in vars(args).items():
         if isinstance(value, float) and not math.isfinite(value):
             raise ValueError(f'{name} must be finite.')
-    if min(args.order, args.slices, args.grid, args.threads) <= 0:
-        raise ValueError('Numerical sizes must be positive.')
+    if min(args.order, args.slices, args.grid, args.threads, args.phase_points) <= 0:
+        raise ValueError('Numerical sizes and phase points must be positive.')
     if (not 0 <= args.tip_diameter_nm <= args.base_diameter_nm < args.period_nm
             or args.period_nm <= 0 or args.height_nm < 0 or args.profile_power <= 0):
         raise ValueError('Require 0 <= tip <= base < period and nonnegative height.')
@@ -293,7 +303,7 @@ def main():
              'No independently known residual thickness; default resin and PET are optically merged.',
              'Only the front surface is patterned; the last existing uniform layer borders air.',
              'Only positive-thickness layers enter the interfaces and propagation.',
-             'PET/adhesive/glass use analytic incoherent intensity balance unless selected coherent; residual stays coherent.',
+             'PET/adhesive/glass use the selected coherence model; residual stays coherent.',
              'D6 triangular lattice, normal incidence, scalar isotropic n,k; x=y=unpolarized.',
              'Pattern is coherent; internal interface R and T use complex indices and flux normalization.',
              'No diffuse scattering, anisotropy, instrument convolution or parameter fitting.'],
@@ -305,6 +315,9 @@ def main():
     metadata['solver_sha256'] = hashes
     metadata['thick_layer_theory'] = THEORY
     metadata['optics_sha256'] = hashlib.sha256((HERE.parent/'mosmite_optics.py').read_bytes()).hexdigest()
+    if args.coherence == 'phase-average':
+        metadata['thick_layer_theory'] = PHASE_AVERAGE_THEORY
+        metadata['phase_average_sha256'] = hashlib.sha256((HERE.parent/'mosmite_phase_average.py').read_bytes()).hexdigest()
     metadata['study_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     (output/'settings.json').write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding='utf-8')
     rows, material_rows, convergence, surface_rows = [], [], [], []
@@ -318,11 +331,11 @@ def main():
             surface_row.update({name+'_real': value.real, name+'_imag': value.imag})
         surface_rows.append(surface_row)
         save_csv(output/'surface_scattering.csv', surface_rows)
-        result = finite_sample(surface, npet, layers, wl, coherence=args.coherence)
-        if min(result) < -2e-6 or max(result) > 1+2e-6:
+        result, phase = evaluate_tail(args, surface, npet, layers, wl)
+        if not all(math.isfinite(v) and -2e-6 <= v <= 1+2e-6 for v in result):
             raise RuntimeError(f'Unphysical R,T,A at {wl}: {result}')
         row = {'wavelength_nm': float(wl), 'R': result[0], 'T': result[1], 'A': result[2],
-               'coherence': args.coherence, 'seconds': time.perf_counter()-started}
+               'coherence': args.coherence, **phase, 'seconds': time.perf_counter()-started}
         rows.append(row)
         matrow = {'wavelength_nm': float(wl)}
         material_indices = [('PET', npet), ('resin', nresin)]
@@ -351,9 +364,10 @@ def main():
                 cached = next((row for row in rows if row['wavelength_nm'] == wl), None)
                 if previous is None and cached is not None:
                     value = (cached['R'], cached['T'], cached['A'])
+                    phase = {'phase_average_error': cached['phase_average_error']} if args.coherence == 'phase-average' else {}
                 else:
                     s = surface_rcwa(args, wl, nresin, n_substrate=pet(wl), order=m, slices=nz, grid=grid)
-                    value = finite_sample(s, pet(wl), layers, wl, coherence=args.coherence)
+                    value, phase = evaluate_tail(args, s, pet(wl), layers, wl)
                 if not all(math.isfinite(v) and -2e-6 <= v <= 1+2e-6 for v in value):
                     raise RuntimeError(f'Unphysical refined R,T,A at {wl}: {value}')
                 if baseline is None:
@@ -365,7 +379,7 @@ def main():
                     'R': value[0], 'T': value[1], 'A': value[2], 'max_delta_RT': delta_rt,
                     'max_delta_RTA': delta, 'baseline_delta_RTA': baseline_delta,
                     'passed': delta <= args.convergence_tol,
-                    'baseline_passed': baseline_delta <= args.convergence_tol})
+                    'baseline_passed': baseline_delta <= args.convergence_tol, **phase})
                 save_csv(output/'convergence.csv', convergence)
                 print(f'check {wl:g} M={m} Nz={nz} grid={grid} delta={delta:.3g}', flush=True)
                 previous = value

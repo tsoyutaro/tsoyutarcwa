@@ -13,6 +13,7 @@ import numpy as np
 from geometry import build_layers, cap_count, material_codes, nearest_radius, side_thickness, write_geometry
 from memory import POLICY, PARITY_TOL, compare_reference, memory_safe_class, tensor_storage_bytes
 from stack import finite_sample, load_nk, save_csv, silica_n, wavelengths, THEORY
+from mosmite_phase_average import PHASE_AVERAGE_THEORY, phase_average
 
 HERE = Path(__file__).resolve().parent
 
@@ -37,7 +38,7 @@ def parser(mode):
                    help='Additional cap layers; default ceil(slices*top_gold_nm/height_nm).')
     p.add_argument('--film-total-um', type=float, default=55., help='Uncoated film thickness; gold is additional.')
     p.add_argument('--residual-um', type=float, default=0.)
-    p.add_argument('--adhesive-um', type=float, default=20.)
+    p.add_argument('--adhesive-um', type=float, default=20., help='Set 0 for direct PET-glass contact.')
     p.add_argument('--adhesive-n', type=float, default=1.50)
     p.add_argument('--adhesive-k', type=float, default=0.)
     p.add_argument('--glass-um', type=float, default=1000.)
@@ -55,8 +56,12 @@ def parser(mode):
                    help='Optional completed original run at identical conditions; require R/T/A and polarization parity within 1e-8.')
     p.add_argument('--basis', choices=['auto', 'full'], default='auto',
                    help='Auto: D6 source only if all layers are eligible; otherwise full rectangular harmonics.')
-    p.add_argument('--coherence', choices=['incoherent', 'coherent'], default='incoherent')
-    p.add_argument('--coherent-layers', default='', help='In incoherent mode retain phase in PET,adhesive,glass as selected.')
+    p.add_argument('--coherence', choices=['incoherent', 'coherent', 'phase-average'], default='incoherent',
+                   help='Analytic intensity balance, fixed coherent phase, or legacy phase quadrature.')
+    p.add_argument('--coherent-layers', default='',
+                   help='Keep fixed phase in selected uniform layers: PET,adhesive,glass.')
+    p.add_argument('--phase-points', type=int, default=16,
+                   help='Phase samples per selected layer in phase-average mode (default: 16).')
     p.add_argument('--convergence-tol', type=float, default=1e-4)
     p.add_argument('--check-convergence', action='store_true')
     p.add_argument('--check-wavelengths', default='400,600,800')
@@ -71,16 +76,16 @@ def validate_args(args):
     for name, value in vars(args).items():
         if isinstance(value, float) and not math.isfinite(value):
             raise ValueError(f'{name} must be finite.')
-    if min(args.height_nm, args.period_nm, args.adhesive_um, args.glass_um,
+    if min(args.height_nm, args.period_nm, args.glass_um,
            args.film_total_um, args.adhesive_n, args.convergence_tol) <= 0:
         raise ValueError('Lengths, adhesive n and tolerance must be positive.')
     if not 0 < args.tip_diameter_nm <= args.base_diameter_nm < args.period_nm:
         raise ValueError('Require 0 < tip <= base < period.')
-    if min(args.top_gold_nm, args.valley_gold_nm, args.residual_um, args.adhesive_k) < 0:
+    if min(args.top_gold_nm, args.valley_gold_nm, args.residual_um, args.adhesive_um, args.adhesive_k) < 0:
         raise ValueError('Negative thickness or extinction coefficient.')
     if args.valley_gold_nm > args.height_nm or side_thickness(args) < 0:
         raise ValueError('Invalid valley or side thickness.')
-    if min(args.slices, args.order, args.grid, args.threads) <= 0:
+    if min(args.slices, args.order, args.grid, args.threads, args.phase_points) <= 0:
         raise ValueError('Numerical sizes must be positive.')
     if args.cap_slices is not None and args.cap_slices <= 0:
         raise ValueError('--cap-slices must be positive.')
@@ -99,7 +104,9 @@ def load_materials(args, wls):
     else:
         functions['resin'] = functions['PET']
         provenance['resin'] = {'assumption': 'PET n,k proxy for unknown surface resin'}
-    if args.adhesive_nk_csv:
+    if args.adhesive_um == 0:
+        provenance['adhesive'] = {'assumption': 'omitted: direct PET-glass contact'}
+    elif args.adhesive_nk_csv:
         functions['adhesive'], provenance['adhesive'] = load_nk(args.adhesive_nk_csv)
     else:
         functions['adhesive'] = lambda wl: complex(args.adhesive_n, args.adhesive_k)
@@ -112,7 +119,8 @@ def load_materials(args, wls):
     for wl in wls:
         for evaluate in functions.values():
             evaluate(wl)
-    max_n = max(functions[key](wl).real for key in ['PET', 'resin', 'adhesive', 'silica'] for wl in wls)
+    max_n = max(functions[key](wl).real for key in ('PET', 'resin', 'adhesive', 'silica')
+                if key in functions for wl in wls)
     if min(wls) <= math.sqrt(3)/2*args.period_nm*max_n:
         raise ValueError('A nonzero diffraction order may propagate in the thick layers.')
     return functions, provenance
@@ -204,16 +212,23 @@ def evaluate_case(args, functions, wl, m, nz, grid):
     scattering, diagnostic = surface_rcwa(args, wl, indices, order=m, slices=nz, grid=grid)
     pet_thickness = args.film_total_um*1000-args.height_nm-args.residual_um*1000
     coherent = {v.strip().lower() for v in args.coherent_layers.split(',') if v.strip()}
-    tail = [(indices['PET'], pet_thickness, 'pet' not in coherent),
-            (indices['adhesive'], args.adhesive_um*1000, 'adhesive' not in coherent),
-            (indices['silica'], args.glass_um*1000, 'glass' not in coherent)]
-    result = finite_sample(scattering, indices['PET'], tail, wl, coherence=args.coherence)
+    tail = [(indices['PET'], pet_thickness, 'pet' not in coherent)]
+    if args.adhesive_um > 0:
+        tail.append((indices['adhesive'], args.adhesive_um*1000, 'adhesive' not in coherent))
+    tail.append((indices['silica'], args.glass_um*1000, 'glass' not in coherent))
+    phase = {}
+    if args.coherence == 'phase-average':
+        result, error = phase_average(scattering, indices['PET'], tail, wl,
+                                      points=args.phase_points, tolerance=args.convergence_tol)
+        phase['phase_average_error'] = error
+    else:
+        result = finite_sample(scattering, indices['PET'], tail, wl, coherence=args.coherence)
     if not all(math.isfinite(result[key]) and -2e-6 <= result[key] <= 1+2e-6 for key in ['R', 'T', 'A']):
         raise RuntimeError(f'Nonphysical R/T/A at {wl} nm: {result}')
     if args.device == 'cuda':
         torch.cuda.synchronize()
     return {'wavelength_nm': float(wl), 'order': m, 'slices': nz, 'grid': grid,
-        **result, 'coherence': args.coherence,
+        **result, 'coherence': args.coherence, **phase,
         'xy_power_difference': max(abs(result['R_x']-result['R_y']), abs(result['T_x']-result['T_y'])),
         **diagnostic, 'seconds': time.perf_counter()-started,
         'peak_cuda_allocated_bytes': int(torch.cuda.max_memory_allocated()) if args.device == 'cuda' else None,
@@ -261,13 +276,16 @@ def main(mode):
             'Evaporation defaults to ideal normal directional deposition with no shadowing.',
             'Sputter defaults to a phenomenological 8 nm RADIAL shell, not a deposition transport calculation.',
             'Periodic union is used when Au shells coalesce; it is not replaced by an isolated or clipped circle.',
-            'Uniform PET/adhesive/glass use analytic incoherent intensity balance unless selected coherent; no phase sampling.',
+            'Uniform PET/adhesive/glass use the selected coherence model.',
             'Resin optical constants default to the PET proxy; adhesive n,k default to constants.',
             'Uncoated film remains 55 um; gold is added outside that thickness.',
             'Glass rear-surface reflection is included. No diffuse scattering or instrument convolution.'],
         'thick_layer_theory': THEORY,
         'optics_sha256': hashlib.sha256((HERE.parent/'mosmite_optics.py').read_bytes()).hexdigest(),
         'status': 'prepared'}
+    if args.coherence == 'phase-average':
+        meta['thick_layer_theory'] = PHASE_AVERAGE_THEORY
+        meta['phase_average_sha256'] = hashlib.sha256((HERE.parent/'mosmite_phase_average.py').read_bytes()).hexdigest()
     for name in ['model.py', 'geometry.py', 'stack.py', 'memory.py', 'run_evaporation.py', 'run_sputter.py']:
         meta.setdefault('study_sha256', {})[name] = hashlib.sha256((HERE/name).read_bytes()).hexdigest()
     if (args.solver_root/'rcwa_ext').is_dir():
