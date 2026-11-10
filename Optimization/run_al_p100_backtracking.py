@@ -37,16 +37,21 @@ def prepare_case(root):
     differences = [key for key, value in EXPECTED_TRAINING.items() if config.get(key) != value]
     if differences:
         raise ValueError("Unexpected source training conditions: " + ", ".join(differences))
+    return prepare_recovery_case(root, RECOVERY_CASE, config)
+
+
+def prepare_recovery_case(root, relative_case, config):
+    config = dict(config)
     config.pop("_metal_csv_path", None)
     config.pop("material_provenance", None)
-    config.update(case_id=RECOVERY_CASE.name,
+    config.update(case_id=relative_case.name,
                   adam_recovery_policy="validated-adam-backtracking-v1",
                   nonphysical_max_retries=4,
                   nonphysical_lr_factor=0.5)
-    destination = root / RECOVERY_CASE
+    destination = root / relative_case
     if not destination.exists():
         source_case = root / SOURCE_CASE
-        with tempfile.TemporaryDirectory(prefix=".al-p100-", dir=destination.parent) as temporary:
+        with tempfile.TemporaryDirectory(prefix=".al-backtracking-", dir=destination.parent) as temporary:
             stage = Path(temporary) / "case"
             stage.mkdir()
             for name in ("data", "optimizer", "rcwa_ext"):
@@ -68,6 +73,17 @@ def prepare_case(root):
     return destination
 
 
+def run_optimization(case, output, args):
+    command = [sys.executable, str(case / "run.py"), "--output-root", str(output),
+               "--device", args.device, "--mode", "optimize", "--lattices", "hexagonal",
+               "--timeout-hours", "0"]
+    if args.recover_lock:
+        command.append("--recover-lock")
+    if args.prepare_only:
+        command.append("--prepare-only")
+    return subprocess.run(command, cwd=case).returncode
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--device", default="cuda")
@@ -85,12 +101,7 @@ def main(argv=None):
             cwd=case)
         if imported.returncode or args.prepare_only:
             return imported.returncode
-        command = [sys.executable, str(case / "run.py"), "--output-root", str(output),
-                   "--device", args.device, "--mode", "optimize", "--lattices", "hexagonal",
-                   "--timeout-hours", "0"]
-        if args.recover_lock:
-            command.append("--recover-lock")
-        return subprocess.run(command, cwd=case).returncode
+        return run_optimization(case, output, args)
     except (OSError, ValueError, KeyError) as error:
         parser.error(str(error))
     except KeyboardInterrupt:
