@@ -1,0 +1,150 @@
+{
+  "arguments": {
+    "solver_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa",
+    "device": "cuda",
+    "threads": 2,
+    "wavelengths": "400,550,700",
+    "period_nm": 100.0,
+    "height_nm": 200.0,
+    "base_diameter_nm": 98.0,
+    "tip_diameter_nm": 50.0,
+    "top_gold_nm": 30.0,
+    "valley_gold_nm": 30.0,
+    "side_gold_nm": null,
+    "slices": 150,
+    "cap_slices": null,
+    "film_total_um": 5.2,
+    "residual_um": 0.0,
+    "adhesive_um": 0.0,
+    "adhesive_n": 1.5,
+    "adhesive_k": 0.0,
+    "glass_um": 1000.0,
+    "pet_nk_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_uncoated/data/PET_Zhang_400_1000nm.csv",
+    "resin_nk_csv": null,
+    "adhesive_nk_csv": null,
+    "gold_csv": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/Au_Johnson_1972.csv",
+    "top_gold_csv": null,
+    "side_gold_csv": null,
+    "valley_gold_csv": null,
+    "order": 24,
+    "grid": 512,
+    "layer_storage": "reduced",
+    "reference_dir": null,
+    "basis": "auto",
+    "coherence": "incoherent",
+    "coherent_layers": "",
+    "phase_points": 16,
+    "convergence_tol": 0.0001,
+    "check_convergence": false,
+    "check_wavelengths": "400,600,800",
+    "preview_only": false,
+    "output_dir": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/results/Au30_PET5_glass1mm/evaporation/order/M24_Nz150_G512",
+    "mode": "evaporation"
+  },
+  "geometry": {
+    "mode": "evaporation",
+    "side_radial_nm": 3.6,
+    "core_layers": 150,
+    "cap_layers": 23,
+    "total_pattern_layers": 173,
+    "coalesced_raster_layers": 0,
+    "height_including_gold_nm": 230.0,
+    "uniform_PET_equivalent_nm": 5000.0,
+    "top_cap_profile": "linear taper to original tip radius"
+  },
+  "material_provenance": {
+    "PET": {
+      "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_uncoated/data/PET_Zhang_400_1000nm.csv",
+      "sha256": "eb7bf2d9383f62e2dd3381eab541900f24caa9c4a12cc947d9901fbbcb20b38e",
+      "range_nm": [
+        400.0,
+        1000.0
+      ],
+      "interpolation": "linear n,k separately; no extrapolation"
+    },
+    "resin": {
+      "assumption": "PET n,k proxy for unknown surface resin"
+    },
+    "adhesive": {
+      "assumption": "omitted: direct PET-glass contact"
+    },
+    "silica": {
+      "source": "https://doi.org/10.1364/JOSA.55.001205",
+      "k": 0.0
+    },
+    "Au_top": {
+      "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/Au_Johnson_1972.csv",
+      "sha256": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb",
+      "range_nm": [
+        187.9,
+        1937.0
+      ],
+      "interpolation": "linear n,k separately; no extrapolation"
+    },
+    "Au_side": {
+      "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/Au_Johnson_1972.csv",
+      "sha256": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb",
+      "range_nm": [
+        187.9,
+        1937.0
+      ],
+      "interpolation": "linear n,k separately; no extrapolation"
+    },
+    "Au_valley": {
+      "path": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/mosmite_gold_deposition/data/Au_Johnson_1972.csv",
+      "sha256": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb",
+      "range_nm": [
+        187.9,
+        1937.0
+      ],
+      "interpolation": "linear n,k separately; no extrapolation"
+    }
+  },
+  "assumptions": [
+    "Normal incidence; isotropic substrate/resin; unpolarized input.",
+    "Core+valley is 150 layers by default; top cap is additional (default 23).",
+    "Gold is a continuous local isotropic material; side island formation is not represented.",
+    "Evaporation defaults to ideal normal directional deposition with no shadowing.",
+    "Sputter defaults to a phenomenological 8 nm RADIAL shell, not a deposition transport calculation.",
+    "Periodic union is used when Au shells coalesce; it is not replaced by an isolated or clipped circle.",
+    "Uniform PET/adhesive/glass use the selected coherence model.",
+    "Resin optical constants default to the PET proxy; adhesive n,k default to constants.",
+    "Uncoated film remains 55 um; gold is added outside that thickness.",
+    "Glass rear-surface reflection is included. No diffuse scattering or instrument convolution."
+  ],
+  "thick_layer_theory": {
+    "method": "analytic-intensity-scattering-cascade",
+    "implementation": "Jones coherent blocks and coherency-space intensity balance; no phase samples or wavelength smoothing",
+    "references": [
+      "https://arxiv.org/html/1603.02720v5#S6.SS2",
+      "https://doi.org/10.1364/AO.44.007532",
+      "https://doi.org/10.1364/AO.41.003978"
+    ],
+    "assumption": "Each designated incoherent layer loses path phase information. This is not inferred from its thickness alone."
+  },
+  "optics_sha256": "efc464629478e982b7b26f6729965b211f8c2e908eea535440caea9e01f9b50c",
+  "status": "completed",
+  "study_sha256": {
+    "model.py": "96d4b15fa21ab6d0f477a0b9cf5a800f7d8bbdf99fb2ef7768589de1642c167e",
+    "geometry.py": "92a6c3b554a410e23864e54276b0e0b31f04e79a274767a043e707c1b58af907",
+    "stack.py": "d9734a45c28b03dbd55701d52d4c45c531df1bbf5b7f66d04be524cb4785b426",
+    "memory.py": "8dae1ce49ff54b37f1b1e9d33a67fcded80ae291912fa8facffde122316256d8",
+    "run_evaporation.py": "45d5209d1aeafd9d81d39da8ae3a90dcdd9595f545eba8858b59f7af17718bb4",
+    "run_sputter.py": "b534a57cdb5a8bec7f71046baa302edfd344870a0886c7053202d61ea7a0135c"
+  },
+  "solver_sha256": {
+    "rcwa_ext/__init__.py": "b007a3f119fdf2e516a449e8b1c3d12aa4aacd6c6590c1993ee8238f512a4417",
+    "rcwa_ext/asr.py": "76e572744f66349c5e87739bf0fe48dd82d44be4457d76bee61b1b48ee84f33e",
+    "rcwa_ext/asr_maps.py": "5b43da74117391caba355a7a757c1be5f3545f355a6405e9c8efcf571383db0b",
+    "rcwa_ext/auto.py": "d8559d8ec87d507cfd0a25c42aacc1260280ecb9e3c7fbc2050b4af8db8367d5",
+    "rcwa_ext/config.py": "07aa0046d55721d4e8b6ba40faa09aab347cfcc304a607416458dd057016fe14",
+    "rcwa_ext/fields.py": "858f84cbd9412b8c21b9261401b8147d9fa3c0ef2861a97139606076f5a7fcb5",
+    "rcwa_ext/normal_fields.py": "64c5188e832c975145ff4072dd6e8b86ba47652aaaf8f5c6c23110f10f367554",
+    "rcwa_ext/nvm.py": "8451f3c176f064aaa65b51d7a06d6e403b2e73116997ea3da65304441efcbfd9",
+    "rcwa_ext/reduced.py": "ade2ec511a5cbf3417957efa9507fe35dbc1c90d5165899840ffacc139e9a942",
+    "rcwa_ext/scattering.py": "3fc874ee81662584a1a6a13686f5c64d8d477fe4a558f40d29a10447fcf05414",
+    "rcwa_ext/symmetry.py": "1ccfa7ebfc8366bc2513e570eb41700a3e553d1c4b6a29d6242593867f8aa956"
+  },
+  "torch": "2.6.0+cu124",
+  "completed_points": 3
+}
