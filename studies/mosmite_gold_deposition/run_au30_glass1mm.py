@@ -58,6 +58,8 @@ def main():
                         help='Share fixed RCWA geometry across wavelengths for each scan case.')
     parser.add_argument('--native-d6', action='store_true',
                         help='Build P/Q directly on D6 E1 for nonoverlapping circular layers.')
+    parser.add_argument('--resume', action='store_true',
+                        help='Reuse saved wavelengths in each case output directory and calculate the missing wavelengths.')
     parser.add_argument('--output-root', type=Path, default=HERE / 'results' / 'Au30_PET5_glass1mm')
     args = parser.parse_args()
 
@@ -102,6 +104,8 @@ def main():
         command.append('--reuse-geometry')
     if args.native_d6:
         command.append('--native-d6')
+    if args.resume:
+        command.append('--resume')
     if args.mirror_nk_csv:
         command.extend(['--mirror-nk-csv', str(args.mirror_nk_csv.resolve())])
     previous = None

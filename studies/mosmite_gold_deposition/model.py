@@ -61,6 +61,8 @@ def parser(mode):
                    help='Reuse fixed Fourier shape coefficients, normal projectors and raster masks across wavelengths.')
     p.add_argument('--native-d6', action='store_true',
                    help='Build P/Q directly on D6 E1 and stream the full two-sided S. Includes geometry reuse.')
+    p.add_argument('--resume', action='store_true',
+                   help='Reuse completed wavelengths from the same output directory after checking settings and sources.')
     p.add_argument('--reference-dir', type=Path,
                    help='Optional completed original run at identical conditions; require R/T/A and polarization parity within 1e-8.')
     p.add_argument('--basis', choices=['auto', 'full'], default='auto',
@@ -82,6 +84,8 @@ def parser(mode):
 def validate_args(args):
     if args.progress_every <= 0:
         raise ValueError('--progress-every must be positive.')
+    if args.resume and args.preview_only:
+        raise ValueError('--resume cannot be combined with --preview-only.')
     if {v.strip().lower() for v in args.coherent_layers.split(',') if v.strip()} - {'pet', 'adhesive', 'glass'}:
         raise ValueError('Unknown --coherent-layers entry; use PET,adhesive,glass.')
     for name, value in vars(args).items():
@@ -299,8 +303,7 @@ def main(mode):
     output = (args.output_dir or HERE/'results'/mode/('convergence' if args.check_convergence else 'reference')).resolve()
     if args.reference_dir and args.reference_dir.resolve() == output:
         raise ValueError('--reference-dir and --output-dir must differ; preserve the original results.')
-    output.mkdir(parents=True, exist_ok=True)
-    layers = write_geometry(args, output)
+    layers = build_layers(args)
     meta = {'arguments': {key: str(value) if isinstance(value, Path) else value for key, value in vars(args).items()},
         'geometry': {'mode': mode, 'side_radial_nm': side_thickness(args), 'core_layers': args.slices,
             'cap_layers': cap_count(args), 'total_pattern_layers': len(layers),
@@ -340,6 +343,14 @@ def main(mode):
     if (args.solver_root/'rcwa_ext').is_dir():
         meta['solver_sha256'] = {str(p.relative_to(args.solver_root)): hashlib.sha256(p.read_bytes()).hexdigest()
                                 for p in sorted((args.solver_root/'rcwa_ext').glob('*.py'))}
+    restored = []
+    if args.resume:
+        from resume import load_resume
+        restored = load_resume(output, meta, wls)
+        meta.update(completed_points=len(restored), resumed_points=len(restored))
+        meta['study_sha256']['resume.py'] = hashlib.sha256((HERE/'resume.py').read_bytes()).hexdigest()
+    output.mkdir(parents=True, exist_ok=True)
+    write_geometry(args, output)
     materials = []
     for wl in wls:
         row = {'wavelength_nm': float(wl)}
@@ -352,6 +363,16 @@ def main(mode):
         pending = output/'settings.json.tmp'
         pending.write_text(json.dumps(meta, ensure_ascii=False, indent=2, allow_nan=False), encoding='utf-8')
         pending.replace(output/'settings.json')
+
+    def write_progress(rows):
+        plot_spectra(args, output, rows)
+        if mirror is not None:
+            current_wls = np.array([row['wavelength_nm'] for row in rows])
+            positions = np.searchsorted(wls, current_wls)
+            powers = np.array([(row['R'], row['T']) for row in rows])
+            write_referenced_spectrum(output, current_wls, powers, quartz[positions], mirror[positions])
+        print(f'Progress: {len(rows)}/{len(wls)} ({len(rows) / len(wls):.1%}) '
+              f'through {rows[-1]["wavelength_nm"]:g} nm. Updated spectra in {output}', flush=True)
     if args.reference_dir:
         # Reject incompatible saved conditions before expensive RCWA solves.
         compare_reference(args, meta, [])
@@ -369,7 +390,16 @@ def main(mode):
             raise RuntimeError('CUDA is unavailable in this Python environment.')
         meta.update({'status': 'running', 'torch': torch.__version__})
         write_meta()
-        rows, checks, cache = [], [], {}
+        rows, checks = restored, []
+        completed_rows = {row['wavelength_nm']: row for row in restored}
+        cache = {(row['wavelength_nm'], args.order, args.slices, args.grid): row for row in restored}
+        if args.resume:
+            remaining = [float(wl) for wl in wls if float(wl) not in completed_rows]
+            print(f'Resume: {len(rows)}/{len(wls)} wavelengths restored; '
+                  + (f'next wavelength {remaining[0]:g} nm.' if remaining else 'all wavelengths are saved.'),
+                  flush=True)
+            if rows:
+                write_progress(rows)
         shape_config, shapes = None, None
         if args.native_d6:
             from native_d6 import NativeD6Geometry as GeometryCache
@@ -386,9 +416,13 @@ def main(mode):
                     shapes = GeometryCache(args, nz, ng)
                 cache[key] = evaluate_case(args, functions, wl, m, nz, ng, shapes=shapes)
             return cache[key]
-        for completed, wl in enumerate(wls, start=1):
+        for wl in wls:
+            if float(wl) in completed_rows:
+                continue
             row = calculate(wl, args.order, args.slices, args.grid)
-            rows.append(row)
+            completed_rows[float(wl)] = row
+            rows = [completed_rows[float(value)] for value in wls if float(value) in completed_rows]
+            completed = len(rows)
             pending = output/'spectra.csv.tmp'
             save_csv(pending, rows)
             pending.replace(output/'spectra.csv')
@@ -404,13 +438,7 @@ def main(mode):
             meta['completed_points'] = completed
             write_meta()
             if completed % args.progress_every == 0 or completed == len(wls):
-                plot_spectra(args, output, rows)
-                if mirror is not None:
-                    powers = np.array([(row['R'], row['T']) for row in rows])
-                    write_referenced_spectrum(output, wls[:completed], powers,
-                                              quartz[:completed], mirror[:completed])
-                print(f'Progress: {completed}/{len(wls)} ({completed / len(wls):.1%}) '
-                      f'through {wl:g} nm. Updated spectra in {output}', flush=True)
+                write_progress(rows)
         if args.reference_dir:
             parity = compare_reference(args, meta, rows)
             save_csv(output/'storage_parity.csv', parity)
