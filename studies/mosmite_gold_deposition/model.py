@@ -38,6 +38,8 @@ def parser(mode):
     p.add_argument('--valley-gold-nm', type=float, default=30.)
     p.add_argument('--side-gold-nm', type=float,
                    help='RADIAL thickness; default directional 3.6 nm / phenomenological sputter 8 nm.')
+    p.add_argument('--cap-profile', choices=['current', 'side-continuation'], default='current',
+                   help='Current cap or continuation of the outer sidewall slope through the top Au cap.')
     p.add_argument('--slices', type=int, default=150, help='Layers in the 200 nm polymer relief, INCLUDING the valley region.')
     p.add_argument('--cap-slices', type=int,
                    help='Additional cap layers; default ceil(slices*top_gold_nm/height_nm).')
@@ -110,8 +112,10 @@ def validate_args(args):
         raise ValueError('The uncoated film thickness is smaller than its relief/residual.')
     layers = build_layers(args)
     if args.native_d6:
-        if args.basis != 'auto' or any(layer.kind.startswith('coalesced') for layer in layers):
-            raise ValueError('--native-d6 requires --basis auto and nonoverlapping centered circles.')
+        if args.basis != 'auto':
+            raise ValueError('--native-d6 requires --basis auto.')
+        if args.grid % 2 and any(layer.kind.startswith('coalesced') for layer in layers):
+            raise ValueError('D6 union layers require an even --grid.')
         if args.grid < max(32, 4*args.order+4):
             raise ValueError('--native-d6 requires grid >= max(32, 4*order+4).')
 
@@ -149,10 +153,10 @@ def load_materials(args, wls):
 def surface_rcwa(args, wl, indices, *, order=None, slices=None, grid=None, source_pol='x', shapes=None):
     m, nz, ng = order or args.order, slices or args.slices, grid or args.grid
     if args.native_d6:
-        from native_d6 import NativeD6Geometry, surface_native_d6
+        from native_d6_union import make_geometry, surface
         if shapes is None:
-            shapes = NativeD6Geometry(args, nz, ng)
-        return surface_native_d6(args, wl, indices, m, nz, shapes)
+            shapes = make_geometry(args, nz, ng)
+        return surface(args, wl, indices, m, nz, shapes)
 
     import torch
     from rcwa_ext import (AutoRCWA, Circle, GroupTheoryOptions, Lattice,
@@ -310,7 +314,9 @@ def main(mode):
             'coalesced_raster_layers': sum(a.kind.startswith('coalesced') for a in layers),
             'height_including_gold_nm': args.height_nm+args.top_gold_nm,
             'uniform_PET_equivalent_nm': args.film_total_um*1000-args.height_nm-args.residual_um*1000,
-            'top_cap_profile': 'linear taper to original tip radius' if mode == 'evaporation' else 'flat disk, radius=tip_radius+side_radial'},
+            'top_cap_profile': ('outer sidewall slope continued through cap' if args.cap_profile == 'side-continuation'
+                                else 'linear taper to original tip radius' if mode == 'evaporation'
+                                else 'flat disk, radius=tip_radius+side_radial')},
         'material_provenance': provenance,
         'assumptions': ['Normal incidence; isotropic substrate/resin; unpolarized input.',
             'Core+valley is 150 layers by default; top cap is additional (default 23).',
@@ -337,6 +343,10 @@ def main(mode):
         meta['study_sha256']['native_d6.py'] = hashlib.sha256((HERE/'native_d6.py').read_bytes()).hexdigest()
         native_source = args.solver_root/'rcwa_ext'/'acceleration'/'d6.py'
         meta['native_d6_sha256'] = hashlib.sha256(native_source.read_bytes()).hexdigest()
+        if any(layer.kind.startswith('coalesced') for layer in layers):
+            meta['native_union_sha256'] = hashlib.sha256((HERE/'native_d6_union.py').read_bytes()).hexdigest()
+            meta['native_union_formulation'] = ('Scalar Fourier Maxwell operators for merged layers; '
+                                                 'analytic NVM for isolated circular layers; D6-E1 throughout.')
     if args.mirror_nk_csv:
         meta['study_sha256']['normalize_references.py'] = hashlib.sha256(
             (HERE/'normalize_references.py').read_bytes()).hexdigest()
@@ -402,7 +412,7 @@ def main(mode):
                 write_progress(rows)
         shape_config, shapes = None, None
         if args.native_d6:
-            from native_d6 import NativeD6Geometry as GeometryCache
+            from native_d6_union import make_geometry as GeometryCache
         elif args.reuse_geometry:
             from shape_cache import ShapeCache as GeometryCache
 

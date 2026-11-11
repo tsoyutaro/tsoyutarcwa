@@ -31,6 +31,15 @@ def core_radius(args, z):
     return args.base_diameter_nm/2-(args.base_diameter_nm-args.tip_diameter_nm)*z/(2*args.height_nm)
 
 
+def cap_outer_radius(args, z):
+    side = side_thickness(args)
+    if getattr(args, 'cap_profile', 'current') == 'side-continuation':
+        return core_radius(args, z) + side
+    if args.mode == 'evaporation':
+        return args.tip_diameter_nm/2 + side*(1-(z-args.height_nm)/args.top_gold_nm)
+    return args.tip_diameter_nm/2 + side
+
+
 def _partition(boundaries, total):
     spans = np.diff(boundaries)
     if total < len(spans):
@@ -80,11 +89,10 @@ def build_layers(args, slices=None):
             kind = 'coalesced-shell' if outer >= p/2-1e-10 else 'shell'
         layers.append(Layer(float(low), float(high), core, outer, kind, role))
     if args.top_gold_nm > 0:
+        if cap_outer_radius(args, h+args.top_gold_nm) <= 0:
+            raise ValueError('The continued sidewall reaches zero radius before the cap top.')
         for low, high in _partition([h, h+args.top_gold_nm], cap_count(args, nz)):
-            if args.mode == 'evaporation':
-                outer = args.tip_diameter_nm/2+side*(1-((low+high)/2-h)/args.top_gold_nm)
-            else:
-                outer = args.tip_diameter_nm/2+side
+            outer = cap_outer_radius(args, (low+high)/2)
             kind = 'coalesced-cap' if outer >= p/2-1e-10 else 'cap'
             layers.append(Layer(float(low), float(high), 0., outer, kind, 'top'))
     return list(reversed(layers))

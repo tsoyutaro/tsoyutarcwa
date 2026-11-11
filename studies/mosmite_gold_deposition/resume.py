@@ -11,7 +11,7 @@ PHYSICS_KEYS = (
     'top_gold_nm', 'valley_gold_nm', 'side_gold_nm', 'slices', 'cap_slices',
     'film_total_um', 'residual_um', 'adhesive_um', 'adhesive_n', 'adhesive_k',
     'glass_um', 'order', 'grid', 'basis', 'coherence', 'coherent_layers',
-    'phase_points', 'native_d6',
+    'phase_points', 'native_d6', 'cap_profile',
 )
 TEXT_COLUMNS = {
     'coherence', 'basis', 'layer_storage', 'storage_policy', 'unpolarized',
@@ -22,6 +22,14 @@ INTEGER_COLUMNS = {
     'retained_before_solve_bytes', 'post_layer_retained_tensor_peak_bytes',
     'geometry_disk_builds', 'geometry_normal_builds', 'geometry_raster_builds',
     'peak_cuda_allocated_bytes', 'peak_cuda_reserved_bytes',
+}
+LEGACY_GEOMETRY_HASHES = {
+    '92a6c3b554a410e23864e54276b0e0b31f04e79a274767a043e707c1b58af907',
+    'e0fcf6b5a053f41f12ca42092887fdf1b0866d5ca893213364a4868eb3743381',
+}
+CAP_OPTION_GEOMETRY_HASHES = {
+    '8b0e7e7e105fcf1de5c5aa905aac00d392a6bd309ac638c98cb05f17f2d761b1',
+    'b6737f6871be8590ad93a0220d38cbe2ce5e4c8e5feeced3360c3eae37ef9bea',
 }
 
 
@@ -43,7 +51,7 @@ def load_resume(output, metadata, wavelengths):
         raise ValueError('--resume requires existing settings.json and spectra.csv in the output directory.')
     old = json.loads(settings_path.read_text(encoding='utf-8-sig'))
     for key in PHYSICS_KEYS:
-        default = False if key == 'native_d6' else None
+        default = {'native_d6': False, 'cap_profile': 'current'}.get(key)
         if old['arguments'].get(key, default) != metadata['arguments'].get(key, default):
             raise ValueError('Resume condition differs: ' + key)
     study = Path(__file__).resolve().parent
@@ -52,6 +60,7 @@ def load_resume(output, metadata, wavelengths):
         'optics_sha256': study.parent / 'mosmite_optics.py',
         'phase_average_sha256': study.parent / 'mosmite_phase_average.py',
         'native_d6_sha256': solver / 'rcwa_ext/acceleration/d6.py',
+        'native_union_sha256': study / 'native_d6_union.py',
     }
     for key, path in sources.items():
         if not same_source(old.get(key), metadata.get(key), path):
@@ -67,8 +76,15 @@ def load_resume(output, metadata, wavelengths):
             for name, digest in saved_solver.items()):
         raise ValueError('Resume shared-solver source hashes differ.')
     for key in ('geometry.py', 'stack.py', 'memory.py', 'shape_cache.py', 'native_d6.py'):
-        if not same_source(old.get('study_sha256', {}).get(key),
-                           metadata.get('study_sha256', {}).get(key), study / key):
+        previous = old.get('study_sha256', {}).get(key)
+        current = metadata.get('study_sha256', {}).get(key)
+        # This reviewed geometry revision adds a cap option. Its default
+        # reproduces every original layer, so existing spectra may resume.
+        compatible_geometry = (key == 'geometry.py'
+                               and metadata['arguments'].get('cap_profile', 'current') == 'current'
+                               and previous in LEGACY_GEOMETRY_HASHES
+                               and current in CAP_OPTION_GEOMETRY_HASHES)
+        if not compatible_geometry and not same_source(previous, current, study / key):
             raise ValueError('Resume study source differs: ' + key)
 
     previous_materials, current_materials = old['material_provenance'], metadata['material_provenance']

@@ -44,6 +44,10 @@ def main():
     parser.add_argument('--order', type=positive_int, help='Fixed order or start of the order scan.')
     parser.add_argument('--max-order', type=positive_int, help='Optional upper limit for the order scan.')
     parser.add_argument('--slices', type=positive_int, default=150)
+    parser.add_argument('--side-gold-nm', type=float,
+                        help='Override radial Au thickness on the sidewall, in nm.')
+    parser.add_argument('--cap-profile', choices=('current', 'side-continuation'), default='current',
+                        help='Continue the outer sidewall slope through the top cap when side-continuation is selected.')
     parser.add_argument('--slice-levels', type=positive_int, nargs='+', default=[150, 300, 600])
     parser.add_argument('--grid', type=positive_int, default=512)
     parser.add_argument('--wavelengths', help='Scan default: 400,550,700. Spectrum default: 400:700:5.')
@@ -57,7 +61,7 @@ def main():
     parser.add_argument('--reuse-geometry', action='store_true',
                         help='Share fixed RCWA geometry across wavelengths for each scan case.')
     parser.add_argument('--native-d6', action='store_true',
-                        help='Build P/Q directly on D6 E1 for nonoverlapping circular layers.')
+                        help='Build P/Q directly on D6 E1, including periodic unions of Au shells.')
     parser.add_argument('--resume', action='store_true',
                         help='Reuse saved wavelengths in each case output directory and calculate the missing wavelengths.')
     parser.add_argument('--output-root', type=Path, default=HERE / 'results' / 'Au30_PET5_glass1mm')
@@ -93,6 +97,7 @@ def main():
         sys.executable, '-u', str(HERE / f'run_{args.mode}.py'),
         '--device', args.device, '--wavelengths', wavelengths,
         '--progress-every', str(args.progress_every),
+        '--cap-profile', args.cap_profile,
         '--pet-nk-csv', str(ROOT / 'studies/mosmite_uncoated/data/PET_Zhang_400_1000nm.csv'),
         '--period-nm', '100', '--height-nm', '200',
         '--base-diameter-nm', '98', '--tip-diameter-nm', '50',
@@ -104,6 +109,8 @@ def main():
         command.append('--reuse-geometry')
     if args.native_d6:
         command.append('--native-d6')
+    if args.side_gold_nm is not None:
+        command.extend(['--side-gold-nm', str(args.side_gold_nm)])
     if args.resume:
         command.append('--resume')
     if args.mirror_nk_csv:
