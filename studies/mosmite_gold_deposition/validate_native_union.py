@@ -43,6 +43,9 @@ def main():
     cli.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     cli.add_argument('--order', type=int, default=3)
     cli.add_argument('--grid', type=int, default=96)
+    cli.add_argument('--side-levels', type=float, nargs='+', default=[8., 12.],
+                     help='Radial sidewall thicknesses to validate, in nm.')
+    cli.add_argument('--cap-profile', choices=['current', 'side-continuation'], default='current')
     opts = cli.parse_args()
     torch.set_num_threads(2)
     errors = []
@@ -54,10 +57,11 @@ def main():
         print(f'PASS {name}: {error:.3g}', flush=True)
 
     with torch.no_grad():
-        for side in (8, 12):
+        for side in opts.side_levels:
             args = parser('evaporation').parse_args([
                 '--native-d6', '--side-gold-nm', str(side), '--order', str(opts.order),
-                '--grid', str(opts.grid), '--slices', '20', '--device', opts.device])
+                '--grid', str(opts.grid), '--slices', '20', '--device', opts.device,
+                '--cap-profile', opts.cap_profile])
             shapes = make_geometry(args, args.slices, args.grid)
             shapes.prepare(args, opts.order)
             port = NativeUnionPort(shapes, 100/550)

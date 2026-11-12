@@ -4,6 +4,35 @@
 
 ## 粘着層なし・PET 5 µm・石英1 mm・金30 nm
 
+### 斜面10・6・4 nmの一括計算（2026-11-12追加）
+
+`run_au30_side_sweep.py` は、頂部・谷部30 nmのまま斜面の**半径方向厚さ**を走査します。
+既定は10、6、4 nm、次数36、本体150層＋頂部23層、grid512、400–700 nmの3 nm間隔です。
+既存の8 nmケースと同じ `side-continuation` 形状で、頂部も外側斜面の傾きに沿って続きます。
+全ケースでnative D6、形状再利用、reduced storage、解析的インコヒーレント接続を使います。
+
+```bash
+python studies/mosmite_gold_deposition/run_au30_side_sweep.py --side-levels 10 6 4 --device cuda --order 36 --slices 150 --grid 512 --wavelengths "400:700:3" --resume
+```
+
+`--resume` は保存済みのケースを再開し、未計算のケースは新規に開始します。
+各ケースは `results/Au30_PET5_glass1mm_side_sweep/side10nm/`、`side6nm/`、`side4nm/` に分けて保存し、GPUでは順番に実行します。
+石英板基準T、RakicのAl基準R、比較用 `1-Rrel-Trel` も1波長ごとに更新します。
+絶対吸収率は `1-Rabs-Tabs` です。金には従来と同じJohnsonの分散データを使用します。
+新しい斜面厚さにおける次数・層数の収束性は別途確認してください。
+
+形状だけを確認する場合は、上のコマンドの `--resume` を `--preview-only` に替えます。
+プレビューは独立した `evaporation/preview/` に保存され、本計算のスペクトルは変更しません。
+
+| 斜面の半径方向厚さ | z=200 nmの金外径 | z=230 nmの金上面直径 | 隣接する金膜の接続上端（中心を結ぶ断面） |
+| --- | --- | --- | --- |
+| 10 nm | 70 nm | 62.8 nm | 75 nm |
+| 6 nm | 62 nm | 54.8 nm | 41.667 nm |
+| 4 nm | 58 nm | 50.8 nm | 30 nm（谷部の金膜上端） |
+
+谷部では樹脂の外側だけを金で埋め、樹脂底部98 nm・頂部50 nmの形状を維持します。
+接続上端は断面で金が隣の突起につながる高さであり、単位胞全体が金と樹脂だけで埋まる高さではありません。
+
 `--adhesive-um 0` でPETと石英を直接接続します。金30 nmモデルの収束確認と本計算は `run_au30_glass1mm.py` で実行できます。CUDAが既定です。
 
 ```bash

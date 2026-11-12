@@ -64,6 +64,8 @@ def main():
                         help='Build P/Q directly on D6 E1, including periodic unions of Au shells.')
     parser.add_argument('--resume', action='store_true',
                         help='Reuse saved wavelengths in each case output directory and calculate the missing wavelengths.')
+    parser.add_argument('--preview-only', action='store_true',
+                        help='Write the selected geometry and settings without running RCWA.')
     parser.add_argument('--output-root', type=Path, default=HERE / 'results' / 'Au30_PET5_glass1mm')
     args = parser.parse_args()
 
@@ -73,6 +75,8 @@ def main():
         parser.error('Specify the selected --order.')
     if args.max_order is not None and args.scan != 'order':
         parser.error('--max-order requires --scan order.')
+    if args.preview_only and (args.scan or args.resume):
+        parser.error('--preview-only requires a single case without --scan or --resume.')
 
     m = args.order or (14 if args.mode == 'evaporation' else 6)
     nz, grid = args.slices, args.grid
@@ -92,7 +96,8 @@ def main():
         parser.error('Each grid must satisfy grid >= 4*order+2.')
 
     wavelengths = args.wavelengths or ('400,550,700' if args.scan else '400:700:5')
-    destination = (args.output_root / args.mode / (args.scan or 'spectrum')).resolve()
+    destination = (args.output_root / args.mode /
+                   ('preview' if args.preview_only else args.scan or 'spectrum')).resolve()
     command = [
         sys.executable, '-u', str(HERE / f'run_{args.mode}.py'),
         '--device', args.device, '--wavelengths', wavelengths,
@@ -113,6 +118,8 @@ def main():
         command.extend(['--side-gold-nm', str(args.side_gold_nm)])
     if args.resume:
         command.append('--resume')
+    if args.preview_only:
+        command.append('--preview-only')
     if args.mirror_nk_csv:
         command.extend(['--mirror-nk-csv', str(args.mirror_nk_csv.resolve())])
     previous = None
