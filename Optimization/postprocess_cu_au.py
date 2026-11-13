@@ -61,6 +61,12 @@ def prepare(spec, args):
     profile = output / "hexagonal/report.json"
     if profile.exists() and cc.read(profile).get("best", {}).get("logits") != spec["profile"]["best"]["logits"]:
         raise ValueError(f"Saved evaluation uses a different shape: {output}")
+    lock = output / "controller.lock"
+    if lock.exists():
+        if not args.recover_lock:
+            raise RuntimeError(f"Another analysis holds {lock}. After it stops, use --recover-lock.")
+        (lock / "owner.json").unlink(missing_ok=True)
+        lock.rmdir()
     arguments = [sys.executable, Path(spec["case_dir"]) / "run.py",
                  "--config", spec["config"], "--output-root", output,
                  "--device", args.device, "--mode", "convergence", "--prepare-only"]
@@ -88,7 +94,7 @@ def convergence(spec, args):
                  for r in report["records"])
     if any(r["status"] in cc.OOM for r in report["records"]) or not target:
         raise RuntimeError("The M40/Q512 convergence check did not complete; spectra were stopped.")
-    print(f"Au convergence check: {report['numerical_convergence_passed']}", flush=True)
+    print(f"{spec['material']} convergence check: {report['numerical_convergence_passed']}", flush=True)
 
 
 @contextmanager
