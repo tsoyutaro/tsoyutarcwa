@@ -1,0 +1,41 @@
+{
+  "solver_root": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs",
+  "coating": "uncoated",
+  "voids": "both",
+  "wavelengths": "400:700:5",
+  "periods": "3720,3920",
+  "base_width": 3720.0,
+  "tip_width": 1500.0,
+  "height": 1500.0,
+  "gold_nm": 50.0,
+  "order": 24,
+  "slices": 120,
+  "phase_points": 512,
+  "phase_max": 131072,
+  "phase_tol": 0.0002,
+  "device": "cpu",
+  "threads": 2,
+  "output_dir": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_sheet_relief_1d\\results\\uncoated",
+  "allow_unconverged_phase": false,
+  "preview_only": false,
+  "no_plot": false,
+  "no_preview": true,
+  "material": {
+    "pmma": {
+      "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_sheet_relief_1d\\data\\Szczurowski.csv",
+      "sha256": "13b75b257c1499df18339829ef0d7bc95e48c1af478ad00f33aff7a9fc5b83f0"
+    },
+    "gold": {
+      "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_sheet_relief_1d\\data\\Au_Johnson_1972.csv",
+      "sha256": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb"
+    }
+  },
+  "source_sha256": "49eac2c50633026e8f3795afcd396f51f5aa457d087576b1968aa62f4ed3d3c2",
+  "torch": "2.8.0+cpu",
+  "method": "1D Li, analytic intervals; separate TE/TM streaming Redheffer; degenerate-aware Sobol phase average",
+  "output_index": 1.333,
+  "incident_index": 1.0,
+  "incidence_deg": 0.0,
+  "phase_assumption": "independent uniform one-way phases for each |m|; +/-m share the same phase",
+  "absorption": "total absorption only; outgoing-order absorption is not uniquely defined"
+}

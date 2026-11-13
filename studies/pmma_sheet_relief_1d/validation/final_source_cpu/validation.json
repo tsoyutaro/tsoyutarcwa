@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "cases": 60,
+  "polarization_cases": 120,
+  "device": "cpu",
+  "torch": "2.8.0+cpu",
+  "cuda_execution_performed": false,
+  "checks": [
+    {
+      "name": "all even-sector local amplitudes",
+      "error": 6.790079425899364e-13,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "all fixed-phase R_m/T_m and R/T totals",
+      "error": 6.517009154549669e-14,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "local single-pass R_m/T_m",
+      "error": 4.655756647276572e-14,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "old vs new adaptive phase average",
+      "error": 3.7969627442180354e-14,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "scaled ratio and no root gap",
+      "error": 5.551115123125783e-17,
+      "tolerance": 1e-12,
+      "passed": true
+    },
+    {
+      "name": "reference period retains exactly 3720/1500/1500 nm",
+      "error": 0.0,
+      "tolerance": 0.0,
+      "passed": true
+    },
+    {
+      "name": "shared geometry plan reused across three wavelengths",
+      "error": 0.0,
+      "tolerance": 0.0,
+      "passed": true
+    }
+  ],
+  "case_csv": "comparison_cases.csv",
+  "timings": {},
+  "geometry_plan_cache": {
+    "hits": 2,
+    "misses": 1,
+    "plans": 1,
+    "bytes": 122016,
+    "limit_bytes": 134217728
+  },
+  "source_sha256": {
+    "converge.py": "5d969ef96d95c276c049f89c7cb34204b0ae1fe7ae0b8b021389f266638c8d2b",
+    "fast_solver.py": "f1cfd9028f28c33133eb89c379c33a2120fe3cc382ee956311f9380d61df3eb2",
+    "kinematics.py": "4fa2ead390bdd0dd2c49be0b5283e7bb45e710668a87183c66aa06b2284e140f",
+    "model.py": "d7fb4c5a6a24b60774c3cf538226d81b70cb07a7b671077320781127f643ca4a",
+    "optics.py": "9217fc0e68d2e24d9364987d6ab5e41e5f25de65614a52bfe938bb885933bfaf",
+    "preview.py": "777597621ab5bd59738b10b2e64fd4251f9958f4bd36bcaa16b64e241ccecb8f",
+    "reference_optics.py": "6f5cc5441e85d6e4e63fcaf6e63879e4bb5f0181890bcc06692b74e369141f93",
+    "reference_solver.py": "5caba89cadcf7134da19ac2e0141ed9c49489336b3a7e598a02bef79c7c6f4f3",
+    "run.py": "eaa5b2b94cf234068ab0bf94769e6e90ad247de83c2679690048ee3a50680e9e",
+    "solver.py": "1cdfe4a6cd91b2861dff8bfe4b2ad3d8f9c2d67ad7d3ada632e3addee25bad0d",
+    "validate.py": "f63669c3d13282533cdae9176b07a3de0aad68744f2cf943f1fa30fe6893cad2",
+    "validate_acceleration.py": "87ebf1ee7f061294e0d2e486044b23ae2f43ea2685724e7efae469a01299eedf"
+  },
+  "limitation": "Floating-point equality within stated tolerances, for tested cases. GPU equivalence/timing only if this report says cuda_execution_performed=true."
+}
