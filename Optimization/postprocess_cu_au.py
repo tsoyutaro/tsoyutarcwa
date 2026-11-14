@@ -159,22 +159,37 @@ def previous_rows(spec, current):
     return rows
 
 
-def save_spectrum(folder, label, current, waves, rows, method):
+def save_spectrum(folder, label, current, waves, rows, method, skipped=None):
     folder.mkdir(parents=True, exist_ok=True)
-    values = dict(status="completed", label=label, order=ORDER, grid=GRID, method=method,
+    skipped = skipped or []
+    values = dict(status="completed_with_skips" if skipped else "completed",
+                  label=label, order=ORDER, grid=GRID, method=method,
                   wavelengths_nm=waves, source_context=current, rows=rows,
-                  mean_R=sum(r["reflectance"] for r in rows) / len(rows),
-                  mean_absorptance_total=sum(r["absorptance_total"] for r in rows) / len(rows),
+                  valid_wavelengths_nm=[r["wavelength_nm"] for r in rows],
+                  skipped_points=skipped, mean_scope="valid wavelengths only",
+                  mean_R=sum(r["reflectance"] for r in rows) / len(rows) if rows else None,
+                  mean_absorptance_total=sum(r["absorptance_total"] for r in rows) / len(rows) if rows else None,
                   spectrum_csv=str(folder / "spectrum.csv"))
+    fields = list(rows[0]) if rows else ["wavelength_nm", "reflectance", "absorptance_total"]
+    csv_rows = rows
+    if skipped:
+        fields += ["status", "error"]
+        by_wave = {r["wavelength_nm"]: {**r, "status": "completed", "error": ""} for r in rows}
+        by_wave.update({r["wavelength_nm"]: r for r in skipped})
+        csv_rows = [by_wave[w] for w in waves]
     with (folder / "spectrum.csv").open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
-        writer.writerows(rows)
+        writer.writerows(csv_rows)
     cc.write(folder / "report.json", values)
-    print(f"{label}: mean R = {100 * values['mean_R']:.8g}%; {values['spectrum_csv']}", flush=True)
+    if rows:
+        print(f"{label}: mean R = {100 * values['mean_R']:.8g}% "
+              f"(valid {len(rows)}/{len(waves)} wavelengths); {values['spectrum_csv']}", flush=True)
+    else:
+        print(f"{label}: no valid wavelengths; {values['spectrum_csv']}", flush=True)
 
 
-def spectrum(spec, current, label, waves, flat=False):
+def spectrum(spec, current, label, waves, flat=False, *, skip_nonphysical=False):
     identity = dict(context={**current, "waves": []}, order=ORDER, grid=GRID, flat=flat)
     folder = Path(spec["run_root"]) / "hexagonal/postprocess/resumable_spectrum" / cc.digest(identity)[:16]
     folder.mkdir(parents=True, exist_ok=True)
@@ -183,11 +198,15 @@ def spectrum(spec, current, label, waves, flat=False):
     if flat:
         loader = module(Path(spec["case_dir"]) / "optimizer/tabulated_nk.py", "_analysis_tabulated_nk")
         model = loader.load_tabulated_nk(current["config"]["_metal_csv_path"])
-    rows = []
+    rows, skipped = [], []
     for i, wave in enumerate(waves, 1):
         point = folder / f"wavelength_{wave:.12g}nm"
         result_path = point / "result.json"
         cached = cc.read(result_path) if result_path.is_file() else {}
+        if cached.get("status") == "nonphysical" and skip_nonphysical:
+            skipped.append(dict(wavelength_nm=wave, status="nonphysical", error=cached.get("error", "")))
+            print(f"{label} {i}/{len(waves)}: {wave:g} nm skipped (cached nonphysical)", flush=True)
+            continue
         if cached.get("status") == "completed":
             row = cached["rows"][0]
             action = "cached"
@@ -208,6 +227,10 @@ def spectrum(spec, current, label, waves, flat=False):
             cc.write(point_context, {**current, "waves": [wave]})
             result = cc.launch(point, dict(mode="evaluate", context=str(point_context),
                                           order=ORDER, grid=GRID, device=current["device"]))
+            if result["status"] == "nonphysical" and skip_nonphysical:
+                skipped.append(dict(wavelength_nm=wave, status="nonphysical", error=result.get("error", "")))
+                print(f"{label} {i}/{len(waves)}: {wave:g} nm skipped (nonphysical)", flush=True)
+                continue
             if result["status"] != "completed":
                 raise RuntimeError(f"{label} at {wave:g} nm: {result.get('error', result['status'])}")
             row = result["rows"][0]
@@ -223,30 +246,40 @@ def spectrum(spec, current, label, waves, flat=False):
     else:
         band = f"{waves[0]:.12g}-{waves[-1]:.12g}nm_{len(waves)}points"
     save_spectrum(folder / band,
-                  label, current, waves, rows, "Fresnel, order-independent" if flat else "RCWA matrix")
+                  label, current, waves, rows, "Fresnel, order-independent" if flat else "RCWA matrix",
+                  skipped)
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--device", default="cuda")
+    parser.add_argument("--au-nir-only", action="store_true",
+                        help="Resume only the Au optimized 700-1000 nm spectrum")
+    parser.add_argument("--skip-nonphysical", action="store_true",
+                        help="Record nonphysical wavelengths and continue the Au near-infrared spectrum")
     parser.add_argument("--recover-lock", action="store_true",
                         help="Recover evaluation locks after all their previous processes have stopped")
     parser.add_argument("--prepare-only", action="store_true",
                         help="Validate saved shapes and initialize evaluation directories without RCWA")
     args = parser.parse_args(argv)
     try:
-        specs = [specification(material) for material in ("Cu", "Au")]
+        materials = ("Au",) if args.au_nir_only else ("Cu", "Au")
+        specs = [specification(material) for material in materials]
         for spec in specs:
             output = prepare(spec, args)
             if args.prepare_only:
                 continue
-            if spec["material"] == "Au":
+            if spec["material"] == "Au" and not args.au_nir_only:
                 convergence(spec, args)
             with locked(output):
                 current = context(spec, args)
-                spectrum(spec, current, spec["material"] + " optimized 400-700", VISIBLE)
+                if not args.au_nir_only:
+                    spectrum(spec, current, spec["material"] + " optimized 400-700", VISIBLE)
                 if spec["material"] == "Au":
-                    spectrum(spec, current, "Au optimized 700-1000", NEAR_INFRARED)
+                    spectrum(spec, current, "Au optimized 700-1000", NEAR_INFRARED,
+                             skip_nonphysical=args.skip_nonphysical)
+                    if args.au_nir_only:
+                        continue
                     spectrum(spec, current, "Au flat 400-700", VISIBLE, flat=True)
                     geometry = module(Path(spec["case_dir"]) / "optimizer/geometry.py", "_analysis_geometry")
                     cone = {**current, "logits": geometry.baseline_logits(
