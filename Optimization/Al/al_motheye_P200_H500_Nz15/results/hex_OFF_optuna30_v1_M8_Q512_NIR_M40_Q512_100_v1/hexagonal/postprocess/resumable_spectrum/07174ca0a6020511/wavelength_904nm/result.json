@@ -1,0 +1,36 @@
+{
+  "status": "completed",
+  "mean_R": 0.03320427088905381,
+  "rows": [
+    {
+      "wavelength_nm": 904.0,
+      "reflectance": 0.03320427088905381,
+      "power_into_substrate": 0.02466981774693202,
+      "transmittance_far": 0.0,
+      "absorptance_total": 0.9667957291109461,
+      "motheye_absorptance": 0.9421259113640141,
+      "substrate_absorptance": 0.02466981774693202,
+      "passivity_warning": false,
+      "epsilon_material_real": -63.77795679043763,
+      "epsilon_material_imag": 34.02779673478695,
+      "absorption_evaluation": "inferred from surface power flux; no independent volume-loss audit",
+      "retained_scalar_harmonics": 4921,
+      "eigen_dimension": 1641,
+      "storage": "reduced-modes-response-vectors",
+      "checkpoint_layers": false
+    }
+  ],
+  "rcwa_seconds": 201.71368222602177,
+  "runtime_environment": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "torcwa": "0.1.4.2",
+    "cuda": "12.4",
+    "device": "cuda:0",
+    "gpu": "NVIDIA H100",
+    "gpu_total_bytes": 99949805568,
+    "optuna": "4.6.0"
+  },
+  "peak_cuda_allocated_bytes": 83606880256,
+  "worker_seconds": 208.08102224202594
+}
