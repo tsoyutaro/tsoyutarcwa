@@ -1,4 +1,4 @@
-"""Evaluate completed Ti/Cr H500 optimizations at P100, P150, P250 and P300."""
+"""Evaluate completed Ti/Cr H500 optimizations at selected periods."""
 from __future__ import annotations
 
 import argparse
@@ -50,15 +50,23 @@ def specification(material, period):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--material", choices=sorted(CASES), required=True)
+    parser.add_argument("--periods", default=",".join(map(str, PERIODS)),
+                        help="Periods in nm, from 100,150,250,300,350 (default: 100,150,250,300)")
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--prepare-only", action="store_true",
                         help="Check saved results and initialize evaluation directories without RCWA")
     parser.add_argument("--recover-lock", action="store_true",
                         help="Recover evaluation locks after all their previous processes have stopped")
     args = parser.parse_args(argv)
+    try:
+        periods = cc.numbers(args.periods, integer=True)
+    except ValueError as error:
+        parser.error(str(error))
+    if any(period not in (*PERIODS, 350) for period in periods):
+        parser.error("Select periods from 100,150,250,300,350.")
     failed = False
     try:
-        for period in PERIODS:
+        for period in periods:
             print(f"\n{args.material} P={period} H=500 nm", flush=True)
             try:
                 spec = specification(args.material, period)
