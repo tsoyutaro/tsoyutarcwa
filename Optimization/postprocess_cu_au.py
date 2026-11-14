@@ -216,7 +216,13 @@ def spectrum(spec, current, label, waves, flat=False):
             raise ValueError(f"Invalid saved spectral point: {result_path}")
         rows.append(row)
         print(f"{label} {i}/{len(waves)}: {wave:g} nm {action}", flush=True)
-    save_spectrum(folder / ("near_infrared" if waves == NEAR_INFRARED else "visible"),
+    if waves == VISIBLE:
+        band = "visible"
+    elif waves == NEAR_INFRARED:
+        band = "near_infrared"
+    else:
+        band = f"{waves[0]:.12g}-{waves[-1]:.12g}nm_{len(waves)}points"
+    save_spectrum(folder / band,
                   label, current, waves, rows, "Fresnel, order-independent" if flat else "RCWA matrix")
 
 
