@@ -1,0 +1,46 @@
+{
+  "status": "completed_with_skips",
+  "materials": {
+    "Cr": {
+      "status": "setup_error",
+      "preparation": {
+        "status": "setup_error",
+        "error_type": "ValueError",
+        "error": "Runtime differs from the saved Cr experiment.",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py\", line 138, in child_main\n    result=prepare_child(request) if request['mode']=='prepare' else worker_child(request)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py\", line 98, in prepare_child\n    check_environment(policy,previous.get('runtime_environment'),environment)\n  File \"/home/7/uq06557/common2/20260813/tsoyutarcwa/Optimization/continue_convergence.py\", line 84, in check_environment\n    raise ValueError('Runtime differs from the saved Cr experiment.')\nValueError: Runtime differs from the saved Cr experiment.\n",
+        "worker_seconds": 5.9542672811076045
+      }
+    }
+  },
+  "oom_policy": "stop-material",
+  "orders": [
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30,
+    32,
+    34,
+    36,
+    38,
+    40
+  ],
+  "grids": [
+    512,
+    1024
+  ],
+  "waves": [
+    400.0,
+    550.0,
+    700.0
+  ]
+}
