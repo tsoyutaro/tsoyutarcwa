@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "date": "2026-11-13",
+  "date": "2026-11-15",
   "installed_study": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs\\studies\\pmma_sheet_relief_1d",
   "geometry": "base=period, tip=height=period*25/62, root gap=0; Au vertical thickness=50nm fixed",
   "default_solver": "exact mirror-even, complex128, streaming Li RCWA",
@@ -15,6 +15,8 @@
     "studies/gold_grating_1d/solver.py"
   ],
   "files": {
+    "automation/converge_until.py": "597fee64c61e1ccea2539e20bc25acad2cbe06fa950f3aee42dae4e4d2577a2b",
+    "automation/README_ja.md": "8121e25ee6ee177382195ba7cf028168f9d6eca0ef6b35a63f0accc14d0d2206",
     "converge.py": "5d969ef96d95c276c049f89c7cb34204b0ae1fe7ae0b8b021389f266638c8d2b",
     "data/Au_Johnson_1972.csv": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb",
     "data/Szczurowski.csv": "13b75b257c1499df18339829ef0d7bc95e48c1af478ad00f33aff7a9fc5b83f0",
@@ -44,7 +46,7 @@
     "model.py": "d7fb4c5a6a24b60774c3cf538226d81b70cb07a7b671077320781127f643ca4a",
     "optics.py": "9217fc0e68d2e24d9364987d6ab5e41e5f25de65614a52bfe938bb885933bfaf",
     "preview.py": "777597621ab5bd59738b10b2e64fd4251f9958f4bd36bcaa16b64e241ccecb8f",
-    "README_ja.md": "c460d7aeef9eaffc6077f80454bcbc10a439318e5c9672b143b514989a9426d6",
+    "README_ja.md": "23016ccc78a3767c598882954a01dfe4cf6d6a3872e81ea44c20bec34718372e",
     "reference_optics.py": "6f5cc5441e85d6e4e63fcaf6e63879e4bb5f0181890bcc06692b74e369141f93",
     "reference_solver.py": "5caba89cadcf7134da19ac2e0141ed9c49489336b3a7e598a02bef79c7c6f4f3",
     "requirements.txt": "47edfa884f12c7ea8953e29f4e840c3a4dcb3ddef47af31070929de26d1b7a1c",
@@ -57,6 +59,14 @@
     "validate_acceleration.py": "87ebf1ee7f061294e0d2e486044b23ae2f43ea2685724e7efae469a01299eedf",
     "validation/acceleration_cpu/comparison_cases.csv": "5511a7640a3565b1d0d7b313e5108ac34ebbdbbbd9d0587c9dafae286924b08c",
     "validation/acceleration_cpu/validation.json": "52246f61a39a3571fa37446c724dbc3cfe404fe59cc9b33b9df8a33043333de3",
+    "validation/auto_convergence_20261115/installation_checks.json": "63da4e3617d43d15b261749e6f69cc0930775671794794d0904b9e0ff827943d",
+    "validation/auto_convergence_20261115/integration_checks.json": "acea0b4493b49215369833350ac1b1c20d919e99fc7b25a07ff355754baf30bc",
+    "validation/auto_convergence_20261115/order_auto_adjacent_changes.csv": "5b096bd2320d12b05998fe2671775e408a1273b806ba89bc165e2f025c703104",
+    "validation/auto_convergence_20261115/order_manual_adjacent_changes.csv": "5b096bd2320d12b05998fe2671775e408a1273b806ba89bc165e2f025c703104",
+    "validation/auto_convergence_20261115/README_ja.md": "ef1559341a6889290791b6ae61251a2cf729b460bcab81693f00970939bb4e85",
+    "validation/auto_convergence_20261115/slices_auto_adjacent_changes.csv": "21114e378c610e4900f89b023a2f32605a6de7f0de81222a9ef4983d9863e045",
+    "validation/auto_convergence_20261115/slices_manual_adjacent_changes.csv": "21114e378c610e4900f89b023a2f32605a6de7f0de81222a9ef4983d9863e045",
+    "validation/auto_convergence_20261115/unit_tests.json": "c4c23042d2cc8e40c4590a1e2b8bf2b67878ee331d1dbc15a0c4271d25e12fc1",
     "validation/final_source_cpu/comparison_cases.csv": "5511a7640a3565b1d0d7b313e5108ac34ebbdbbbd9d0587c9dafae286924b08c",
     "validation/final_source_cpu/validation.json": "511d327bc5f30c364c66cc65cecea5d8e216ef81dbd504ac6db73b7b4ffb098c",
     "validation/installation_checks.json": "d11fab84ace9bc37ac398d4a35ec801ddaa73fd69e48a0bb30f525fe178324da",
@@ -64,5 +74,13 @@
     "validation/integration_checks.json": "eac9af2af9c62bf280c19c95a9a477afa08e21ca8bc43ee6ddb10f201017ecdd",
     "validation/physical_checks.json": "75e12b70308d86387f477bda80ae856d6effa9eb01af2023637b70ed88e82578"
   },
-  "timestamp_utc": "2026-11-13T11:09:28.345007+00:00"
+  "timestamp_utc": "2026-11-15T06:52:26.652222+00:00",
+  "automatic_convergence": {
+    "controller_version": 1,
+    "entry_point": "automation/converge_until.py",
+    "default_upper_limit": null,
+    "stopping": "two adjacent comparisons pass, or explicit allocation failure; other errors stop separately",
+    "validation": "validation/auto_convergence_20261115/",
+    "physics_source_and_point_cache_signature_unchanged": true
+  }
 }
