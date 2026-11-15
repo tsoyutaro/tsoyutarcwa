@@ -1,0 +1,39 @@
+{
+  "cases": [
+    {
+      "gil_nm": 0.0,
+      "gil_interfaces": "none",
+      "max_order": 32,
+      "last_completed_order": 32,
+      "converged": false,
+      "status": "limit_reached",
+      "exit_code": 2,
+      "output_dir": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-11-13\\20260806-rcwa-studies-sheet-sheet-3\\outputs\\pmma_sheet_relief_1d_v2\\validation\\fff1d\\gil_pilot_Nz960\\gil_0.0nm_sharp",
+      "stop_reason": "Explicit --max-value reached without convergence."
+    },
+    {
+      "gil_nm": 1.0,
+      "gil_interfaces": "both",
+      "max_order": 32,
+      "last_completed_order": 32,
+      "converged": false,
+      "status": "limit_reached",
+      "exit_code": 2,
+      "output_dir": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-11-13\\20260806-rcwa-studies-sheet-sheet-3\\outputs\\pmma_sheet_relief_1d_v2\\validation\\fff1d\\gil_pilot_Nz960\\gil_1.0nm_both",
+      "stop_reason": "Explicit --max-value reached without convergence."
+    }
+  ],
+  "all_converged": false,
+  "requested_gil_nm": [
+    0.0,
+    1.0
+  ],
+  "requested_interfaces": [
+    "both"
+  ],
+  "max_orders": [
+    32,
+    32
+  ],
+  "note": "Each GIL changes the material profile; convergence is separate for each GIL and interface selection."
+}

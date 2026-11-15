@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "axis": "order",
+  "mode": "until_converged_or_oom",
+  "converged": false,
+  "checked_values": [
+    16,
+    24,
+    32
+  ],
+  "tolerance": 0.001,
+  "consecutive_passes_required": 2,
+  "criterion": "last two adjacent changes <= tolerance, all outgoing R_m/T_m and R/T/A/cones; phase error <= tolerance/4",
+  "note": "Only tested wavelengths/cases and this axis; independently verify the other axis.",
+  "status": "limit_reached",
+  "attempted_value": 32,
+  "last_completed_value": 32,
+  "consecutive_passes": 0,
+  "updated_utc": "2026-11-15T10:39:36.977147+00:00",
+  "log": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-11-13\\20260806-rcwa-studies-sheet-sheet-3\\outputs\\pmma_sheet_relief_1d_v2\\validation\\fff1d\\gil_pilot_Nz120\\gil_0.5nm_outer\\logs\\order_32.log",
+  "next_value": 40,
+  "last_comparison": {
+    "axis": "order",
+    "previous_resolution": 24,
+    "resolution": 32,
+    "maximum_change_all_orders_and_totals": 0.019607945141313338,
+    "phase_error_bound_observed": 4.9390745958383456e-05,
+    "phase_converged": true,
+    "tolerance": 0.001,
+    "passed": false,
+    "passivity_valid": true
+  },
+  "stop_reason": "Explicit --max-value reached without convergence."
+}

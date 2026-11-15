@@ -120,10 +120,10 @@ def summary_key(row):
             row['polarization'], float(row['wavelength_nm']))
 
 
-def context(args, extra):
+def context(args, extra, parser_override=None, signature_override=None):
     import numpy as np
     import torch
-    child = calculation_parser().parse_args([
+    child = (parser_override or calculation_parser)().parse_args([
         *extra, '--coating', args.coating, '--geometry-mode', args.geometry_mode])
     if any(v == '--' + args.axis or v.startswith('--' + args.axis + '=') for v in extra):
         raise ValueError(f'--{args.axis} is controlled by --start/--step/--factor; remove it.')
@@ -160,7 +160,7 @@ def context(args, extra):
             parameters[k] = str(v.resolve())
     identity = dict(version=1, axis=args.axis, start=args.start, step=args.step,
                     factor=args.factor, tolerance=args.tolerance, consecutive_passes_required=2,
-                    calculation=parameters, physics_source_sha256=source_signature(root, child.polarization),
+                    calculation=parameters, physics_source_sha256=(signature_override or source_signature)(root, child.polarization),
                     materials={k: v['sha256'] for k, v in Materials().metadata().items()},
                     torch=str(torch.__version__), numpy=str(np.__version__))
     identity_hash = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
@@ -241,12 +241,13 @@ def automatic(args, extra, ctx, output):
             if not row['passed']:
                 break
             trailing_passes += 1
-        state.update(status=name, converged=name == 'converged', attempted_value=value,
+        attempted=checked[-1] if name=='limit_reached' and checked else value
+        state.update(status=name, converged=name == 'converged', attempted_value=attempted,
                      last_completed_value=checked[-1] if checked else None,
                      consecutive_passes=trailing_passes,
                      updated_utc=datetime.now(timezone.utc).isoformat(), **fields)
         save_json(output / 'convergence.json', state)
-        print(f'Automatic convergence: {name}; completed={checked[-1] if checked else None}; attempted={value}', flush=True)
+        print(f'Automatic convergence: {name}; completed={checked[-1] if checked else None}; attempted={attempted}', flush=True)
 
     try:
         while True:
@@ -265,6 +266,7 @@ def automatic(args, extra, ctx, output):
                 status('running', log=str(log), next_value=value)
                 selected = ctx['child'].polarization != 'both' or any(v == '--polarization' or v.startswith('--polarization=') for v in extra)
                 runner = STUDY/'polarized/run_selected.py' if selected else STUDY/'run.py'
+                runner = ctx.get('runner_path', runner)
                 command = [sys.executable, str(runner), *extra,
                     '--coating', args.coating, '--geometry-mode', args.geometry_mode,
                     '--' + args.axis, str(value), '--output-dir', str(dest), '--no-plot', '--no-preview']
@@ -300,6 +302,11 @@ def automatic(args, extra, ctx, output):
                     maximum_change_all_orders_and_totals=change, phase_error_bound_observed=phase_error,
                     phase_converged=phase_ok, tolerance=args.tolerance,
                     passed=bool(change <= args.tolerance and phase_ok and phase_error <= args.tolerance / 4))
+                if ctx.get('passivity_column'):
+                    column=ctx['passivity_column']
+                    valid=all(r.get(column)=='True' for directory in (previous,dest) for r in read(directory/'spectra.csv'))
+                    row['passivity_valid']=valid
+                    row['passed']=row['passed'] and valid
                 comparisons.append(row)
                 save_csv(output / 'adjacent_changes.csv', comparisons)
                 state['last_comparison'] = row
@@ -309,6 +316,8 @@ def automatic(args, extra, ctx, output):
                     return 0
             previous = dest
             following = next_resolution(value, args)
+            if ctx.get('include_max') and args.max_value is not None and value < args.max_value < following:
+                following=args.max_value
             status('continuing', next_value=following)
             value = following
     except KeyboardInterrupt:

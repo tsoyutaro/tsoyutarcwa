@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "theta=90, GIL=0 vs original even RCWA all amplitudes",
+      "error": 5.828935212103653e-14,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "theta=90 all per-order R/T and R/T totals",
+      "error": 9.547918011776346e-15,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "profile normals and GIL: even vs full Fourier response",
+      "error": 6.750854051061059e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "GIL DC epsilon integral vs exact linear-complex-index formula",
+      "error": 5.1021591209575234e-17,
+      "tolerance": 1e-12,
+      "passed": true
+    },
+    {
+      "name": "GIL DC inverse-epsilon integral vs exact formula",
+      "error": 3.606347593604188e-18,
+      "tolerance": 1e-12,
+      "passed": true
+    },
+    {
+      "name": "GIL quadrature 16 vs 32: all coefficients through harmonic 128",
+      "error": 7.882865603341412e-17,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "uniform Au 50nm independent Airy amplitudes at all angles",
+      "error": 7.108895957933346e-16,
+      "tolerance": 1e-09,
+      "passed": true
+    }
+  ],
+  "reduction_cases": 28,
+  "device": "cpu",
+  "torch": "2.8.0+cpu",
+  "cuda_execution_performed": false,
+  "method": "paper-left ordered FFF, local exponentials and Redheffer",
+  "limitation": "Finite-discretization implementation tests, not convergence certification for Au sheet relief."
+}

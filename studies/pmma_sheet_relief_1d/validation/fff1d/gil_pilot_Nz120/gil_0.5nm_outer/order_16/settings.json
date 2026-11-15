@@ -1,0 +1,79 @@
+{
+  "solver_root": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-08-06\\files-mentioned-by-the-user-extensions\\outputs",
+  "coating": "gold",
+  "voids": "both",
+  "wavelengths": "700",
+  "periods": "3720",
+  "geometry_mode": "scaled",
+  "base_width": null,
+  "tip_width": null,
+  "height": null,
+  "gold_nm": 50.0,
+  "order": 16,
+  "slices": 120,
+  "phase_points": 512,
+  "phase_max": 262144,
+  "phase_tol": 5e-05,
+  "device": "cpu",
+  "acceleration": "fast",
+  "phase_acceleration": "auto",
+  "geometry_cache": "on",
+  "cache_dir": "work\\rcwa_fff_1d\\pilot_cache",
+  "threads": 2,
+  "output_dir": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-11-13\\20260806-rcwa-studies-sheet-sheet-3\\outputs\\pmma_sheet_relief_1d_v2\\validation\\fff1d\\gil_pilot_Nz120\\gil_0.5nm_outer\\order_16",
+  "allow_unconverged_phase": false,
+  "preview_only": false,
+  "no_plot": true,
+  "no_preview": true,
+  "polarization": "p",
+  "theta_deg": null,
+  "gil_nm": 0.5,
+  "gil_interfaces": "outer",
+  "gil_quadrature": 16,
+  "transfer_norm": 4.0,
+  "symmetry": "even",
+  "section_sampling": "midpoint",
+  "passivity_tolerance": 1e-07,
+  "material": {
+    "pmma": {
+      "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-11-13\\20260806-rcwa-studies-sheet-sheet-3\\outputs\\pmma_sheet_relief_1d_v2\\data\\Szczurowski.csv",
+      "sha256": "13b75b257c1499df18339829ef0d7bc95e48c1af478ad00f33aff7a9fc5b83f0"
+    },
+    "gold": {
+      "path": "C:\\Users\\tsoyu\\Documents\\Codex\\2026-11-13\\20260806-rcwa-studies-sheet-sheet-3\\outputs\\pmma_sheet_relief_1d_v2\\data\\Au_Johnson_1972.csv",
+      "sha256": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb"
+    }
+  },
+  "source_sha256": "35a54e0fbdc717bbdc2a9bea4150b5ad204d5d70d006d8a9193e11a6a3da86ba",
+  "version": 3,
+  "pmma_ratio": [
+    37.2,
+    15,
+    15
+  ],
+  "base_tracks_period": true,
+  "gold_thickness_scales_with_period": false,
+  "geometries": {
+    "gold/P3720": {
+      "period_nm": 3720.0,
+      "base_width_nm": 3720.0,
+      "tip_width_nm": 1500.0,
+      "height_nm": 1500.0,
+      "gold_vertical_nm": 50.0,
+      "gap_nm": 0.0,
+      "slope_deg": 53.49855887949368,
+      "gold_normal_nm": 29.74215027051473,
+      "gold_horizontal_side_offset_nm": 37.0
+    }
+  },
+  "torch": "2.8.0+cpu",
+  "method": "RCWA-FFF paper-left; frozen-section exponential; Redheffer cascade",
+  "reference_legacy_source_sha256": "6597efe7fab2f6c1e6330ba1f2cb41861b42b80f62578d9dbd312d8deecce3b5",
+  "normal_field": "constant c^2; signed cs on the two sides of the periodic trapezoid",
+  "gil_definition": "linear complex index; centered total horizontal width; transverse metal interfaces only",
+  "output_index": 1.333,
+  "incident_index": 1.0,
+  "incidence_deg": 0.0,
+  "phase_assumption": "independent uniform one-way phases for each |m|; +/-m share the same phase",
+  "absorption": "total absorption only; outgoing-order absorption is not uniquely defined"
+}

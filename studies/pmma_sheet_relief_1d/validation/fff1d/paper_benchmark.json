@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "method": "lamellar",
+      "order": 32,
+      "slices": 200,
+      "grid": 4096,
+      "R_minus_1": 0.7818277976706436,
+      "R_total": 0.7833020104303563,
+      "reference_R_minus_1": 0.8785309971543,
+      "relative_error": 0.11007374787787036,
+      "seconds": 20.550037099979818
+    },
+    {
+      "method": "rcwa-fff",
+      "order": 16,
+      "slices": 200,
+      "grid": 4096,
+      "R_minus_1": 0.87843376044913,
+      "R_total": 0.8806986633359427,
+      "reference_R_minus_1": 0.8785309971543,
+      "relative_error": 0.0001106810180687978,
+      "seconds": 2.006537400011439
+    },
+    {
+      "method": "rcwa-fff",
+      "order": 32,
+      "slices": 200,
+      "grid": 4096,
+      "R_minus_1": 0.8742352670957946,
+      "R_total": 0.8764793307497615,
+      "reference_R_minus_1": 0.8785309971543,
+      "relative_error": 0.00488967386742189,
+      "seconds": 19.900082000007387
+    },
+    {
+      "method": "rcwa-fff",
+      "order": 48,
+      "slices": 200,
+      "grid": 4096,
+      "R_minus_1": 0.875102171500105,
+      "R_total": 0.8773145218418009,
+      "reference_R_minus_1": 0.8785309971543,
+      "relative_error": 0.003902907996759938,
+      "seconds": 38.91074889997253
+    }
+  ],
+  "reference": "Mohamad et al. 2020 Fig. 4/5; midpoint sections"
+}
