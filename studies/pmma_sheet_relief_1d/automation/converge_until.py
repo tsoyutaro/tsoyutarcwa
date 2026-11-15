@@ -21,7 +21,7 @@ STUDY = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(STUDY))
 from converge import compare, read
 from model import Materials, geometry_for_args, parse_wavelengths, save_csv, save_json, solver_root
-from run import parser as calculation_parser, source_signature
+from polarized.run_selected import parser as calculation_parser, source_signature, selected_polarizations
 
 FILES = ('settings.json', 'completion.json', 'spectra.csv',
          'diffraction_orders.csv', 'local_single_pass_orders.csv')
@@ -146,10 +146,12 @@ def context(args, extra):
         for period in periods:
             geometry_for_args(child, period, coating)
     keys = {(c, v, p, pol, w) for c in coatings for v in voids
-            for p in periods for pol in ['s', 'p'] for w in waves}
+            for p in periods for pol in selected_polarizations(child.polarization) for w in waves}
     if len(periods) != len(child.periods.split(',')) or len(waves) != len(set(waves)):
         raise ValueError('Duplicate periods/wavelengths are not supported.')
     parameters = dict(vars(child))
+    if child.polarization == 'both':
+        parameters.pop('polarization')  # Keep existing both-polarization campaigns resumable.
     for k in ('output_dir', 'preview_only', 'no_preview', 'no_plot', args.axis):
         parameters.pop(k, None)
     parameters['solver_root'] = str(root)
@@ -158,7 +160,7 @@ def context(args, extra):
             parameters[k] = str(v.resolve())
     identity = dict(version=1, axis=args.axis, start=args.start, step=args.step,
                     factor=args.factor, tolerance=args.tolerance, consecutive_passes_required=2,
-                    calculation=parameters, physics_source_sha256=source_signature(root),
+                    calculation=parameters, physics_source_sha256=source_signature(root, child.polarization),
                     materials={k: v['sha256'] for k, v in Materials().metadata().items()},
                     torch=str(torch.__version__), numpy=str(np.__version__))
     identity_hash = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
@@ -261,7 +263,9 @@ def automatic(args, extra, ctx, output):
                 if marker.exists():
                     marker.unlink()
                 status('running', log=str(log), next_value=value)
-                command = [sys.executable, str(STUDY / 'run.py'), *extra,
+                selected = ctx['child'].polarization != 'both' or any(v == '--polarization' or v.startswith('--polarization=') for v in extra)
+                runner = STUDY/'polarized/run_selected.py' if selected else STUDY/'run.py'
+                command = [sys.executable, str(runner), *extra,
                     '--coating', args.coating, '--geometry-mode', args.geometry_mode,
                     '--' + args.axis, str(value), '--output-dir', str(dest), '--no-plot', '--no-preview']
                 print(f'Running {args.axis} {value}', flush=True)
@@ -351,7 +355,8 @@ def main(argv=None):
         sys.stdout.reconfigure(errors='replace')
     try:
         ctx = context(args, extra)
-        output = (args.output_dir or STUDY / 'results/v2' / args.geometry_mode / args.coating / f'auto_{args.axis}').resolve()
+        suffix = '' if ctx['child'].polarization == 'both' else '_'+ctx['child'].polarization
+        output = (args.output_dir or STUDY / 'results/v2' / args.geometry_mode / args.coating / f'auto_{args.axis}{suffix}').resolve()
         output.mkdir(parents=True, exist_ok=True)
         with campaign_lock(output):
             return automatic(args, extra, ctx, output)

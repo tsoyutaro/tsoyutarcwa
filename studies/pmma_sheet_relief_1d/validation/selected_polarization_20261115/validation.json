@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "cases": 27,
+  "polarization_cases": 54,
+  "maximum_amplitude_difference": 0.0,
+  "maximum_all_order_R_T_and_totals_difference": 1.1102230246251565e-16,
+  "each_selected_eigensolve_batch_size": 1,
+  "total_eigensolve_calls_verified": 6426,
+  "adaptive_phase_sample_counts_identical": true,
+  "device": "cpu",
+  "torch": "2.8.0+cpu",
+  "cuda_execution_performed": false,
+  "physics_root_source_unchanged": true,
+  "source_sha256": {
+    "run_selected.py": "38cda06b028f8cf407f013d24901419429def8276f5208c64ea8a885e2a0714b",
+    "solver_selected.py": "011bec07b00ebcb1da0be94294fa0423b27210f9bc5cb99b67ab0035bdedc87a"
+  },
+  "limitation": "Compared selected and existing both-polarization paths at identical discretization; not M/Nz convergence certification or GPU timing. M240 diagnostic uses identical SciPy CPU linear solves for both paths after original Torch/MKL batched solve failed; production code unchanged."
+}

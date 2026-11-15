@@ -15,8 +15,8 @@
     "studies/gold_grating_1d/solver.py"
   ],
   "files": {
-    "automation/converge_until.py": "597fee64c61e1ccea2539e20bc25acad2cbe06fa950f3aee42dae4e4d2577a2b",
-    "automation/README_ja.md": "8121e25ee6ee177382195ba7cf028168f9d6eca0ef6b35a63f0accc14d0d2206",
+    "automation/converge_until.py": "7562c512c4cacdb1c5a08edaa37ae43fec64d026107de1b9dede70cbc5a10bfc",
+    "automation/README_ja.md": "2f4b6a1518f7972ea3e509d752d27f2d8bd5283ba894d1dffec295b9be72a914",
     "converge.py": "5d969ef96d95c276c049f89c7cb34204b0ae1fe7ae0b8b021389f266638c8d2b",
     "data/Au_Johnson_1972.csv": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb",
     "data/Szczurowski.csv": "13b75b257c1499df18339829ef0d7bc95e48c1af478ad00f33aff7a9fc5b83f0",
@@ -45,8 +45,11 @@
     "kinematics.py": "4fa2ead390bdd0dd2c49be0b5283e7bb45e710668a87183c66aa06b2284e140f",
     "model.py": "d7fb4c5a6a24b60774c3cf538226d81b70cb07a7b671077320781127f643ca4a",
     "optics.py": "9217fc0e68d2e24d9364987d6ab5e41e5f25de65614a52bfe938bb885933bfaf",
+    "polarized/README_ja.md": "b3214a8c5e433b45a5e29f036d9ac28ad20e70198915168d204fd6b4283d53c2",
+    "polarized/run_selected.py": "38cda06b028f8cf407f013d24901419429def8276f5208c64ea8a885e2a0714b",
+    "polarized/solver_selected.py": "011bec07b00ebcb1da0be94294fa0423b27210f9bc5cb99b67ab0035bdedc87a",
     "preview.py": "777597621ab5bd59738b10b2e64fd4251f9958f4bd36bcaa16b64e241ccecb8f",
-    "README_ja.md": "23016ccc78a3767c598882954a01dfe4cf6d6a3872e81ea44c20bec34718372e",
+    "README_ja.md": "fd45b0c7236a0cace1e8a85339d8c5bca3d986b1e1073ba0d299ead89f56d71c",
     "reference_optics.py": "6f5cc5441e85d6e4e63fcaf6e63879e4bb5f0181890bcc06692b74e369141f93",
     "reference_solver.py": "5caba89cadcf7134da19ac2e0141ed9c49489336b3a7e598a02bef79c7c6f4f3",
     "requirements.txt": "47edfa884f12c7ea8953e29f4e840c3a4dcb3ddef47af31070929de26d1b7a1c",
@@ -72,9 +75,15 @@
     "validation/installation_checks.json": "d11fab84ace9bc37ac398d4a35ec801ddaa73fd69e48a0bb30f525fe178324da",
     "validation/installed_smoke.json": "2aa0cda1d68039f1218a3accce4f5743ee29e77f02a0db77ef67514721cb47cb",
     "validation/integration_checks.json": "eac9af2af9c62bf280c19c95a9a477afa08e21ca8bc43ee6ddb10f201017ecdd",
-    "validation/physical_checks.json": "75e12b70308d86387f477bda80ae856d6effa9eb01af2023637b70ed88e82578"
+    "validation/physical_checks.json": "75e12b70308d86387f477bda80ae856d6effa9eb01af2023637b70ed88e82578",
+    "validation/selected_polarization_20261115/cases.json": "f4bba075580d734f6080b4ac2f86c457ea8538180c9e3495b91b6de9a0c30eef",
+    "validation/selected_polarization_20261115/control_tests.json": "d11f2389e98c3cdafc5cb7fe3360743ce115dd55f9402fbc410f5c8761d5b31e",
+    "validation/selected_polarization_20261115/installation_checks.json": "fcae1bc5eed3c47f1aaa84463067a8f73b6db25cdb1a46d2e011f9ea3fa33dc8",
+    "validation/selected_polarization_20261115/integration_checks.json": "7548823e5069c182a91e6d18d82eebebf2594f861d8e8d798d9999666276aecd",
+    "validation/selected_polarization_20261115/README_ja.md": "fa31170f72a9d4191b2826cdd243e060a42f5e88ee5fdb1644221acb97099932",
+    "validation/selected_polarization_20261115/validation.json": "da1ad2204fe753057341a4606252117248b50ed9fbe938060becb10b3970518a"
   },
-  "timestamp_utc": "2026-11-15T06:52:26.652222+00:00",
+  "timestamp_utc": "2026-11-15T08:11:07.960851+00:00",
   "automatic_convergence": {
     "controller_version": 1,
     "entry_point": "automation/converge_until.py",
@@ -82,5 +91,14 @@
     "stopping": "two adjacent comparisons pass, or explicit allocation failure; other errors stop separately",
     "validation": "validation/auto_convergence_20261115/",
     "physics_source_and_point_cache_signature_unchanged": true
+  },
+  "selected_polarization": {
+    "version": 1,
+    "command": "automation/converge_until.py --polarization p",
+    "entry_point": "polarized/run_selected.py",
+    "new_fast_calculations_skip_other_polarization": true,
+    "legacy_both_cache_reuse": true,
+    "validation": "validation/selected_polarization_20261115/",
+    "cuda_execution_performed": false
   }
 }
