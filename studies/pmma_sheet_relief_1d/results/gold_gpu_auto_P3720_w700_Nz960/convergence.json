@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "axis": "order",
+  "mode": "until_converged_or_oom",
+  "converged": false,
+  "checked_values": [
+    160,
+    176,
+    192,
+    208,
+    224,
+    240,
+    256,
+    272,
+    288,
+    304
+  ],
+  "tolerance": 0.001,
+  "consecutive_passes_required": 2,
+  "criterion": "last two adjacent changes <= tolerance, all outgoing R_m/T_m and R/T/A/cones; phase error <= tolerance/4",
+  "note": "Only tested wavelengths/cases and this axis; independently verify the other axis.",
+  "status": "interrupted",
+  "attempted_value": 320,
+  "last_completed_value": 304,
+  "consecutive_passes": 0,
+  "updated_utc": "2026-11-15T08:16:58.843062+00:00",
+  "log": "/home/7/uq06557/common2/20260813/tsoyutarcwa/studies/pmma_sheet_relief_1d/results/gold_gpu_auto_P3720_w700_Nz960/logs/order_320.log",
+  "next_value": 320,
+  "last_comparison": {
+    "axis": "order",
+    "previous_resolution": 288,
+    "resolution": 304,
+    "maximum_change_all_orders_and_totals": 0.08373014992912864,
+    "phase_error_bound_observed": 4.179384747926562e-05,
+    "phase_converged": true,
+    "tolerance": 0.001,
+    "passed": false
+  },
+  "stop_reason": "Interrupted; rerun the same command to resume."
+}

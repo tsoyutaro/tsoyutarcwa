@@ -1,0 +1,43 @@
+{
+  "identity": {
+    "version": 1,
+    "axis": "order",
+    "start": 304,
+    "step": 16,
+    "factor": null,
+    "tolerance": 0.001,
+    "consecutive_passes_required": 2,
+    "calculation": {
+      "solver_root": "/home/7/uq06557/common2/20260813/tsoyutarcwa",
+      "coating": "gold",
+      "voids": "both",
+      "wavelengths": "700",
+      "periods": "3720",
+      "geometry_mode": "scaled",
+      "base_width": null,
+      "tip_width": null,
+      "height": null,
+      "gold_nm": 50.0,
+      "slices": 960,
+      "phase_points": 512,
+      "phase_max": 262144,
+      "phase_tol": 5e-05,
+      "device": "cuda",
+      "acceleration": "fast",
+      "phase_acceleration": "auto",
+      "geometry_cache": "on",
+      "cache_dir": null,
+      "threads": 2,
+      "allow_unconverged_phase": false,
+      "polarization": "p"
+    },
+    "physics_source_sha256": "e043acc11bbd2c54657711aafe83137e24064e68c714fd76e05b1af3cfecad1d",
+    "materials": {
+      "pmma": "adea44eac5b5fa09873a32e589bd6032ea202ba215d652d221e1576b24827df9",
+      "gold": "8c23f50ec6e4a3fb9b5c3f6fd5f6fe8dd1548efc788ae655cf811d62553239eb"
+    },
+    "torch": "2.6.0+cu124",
+    "numpy": "2.0.2"
+  },
+  "identity_sha256": "71adc908e4c3a940cf4a6836dbcda79f4887499c7df25cc453051acb143f5f34"
+}

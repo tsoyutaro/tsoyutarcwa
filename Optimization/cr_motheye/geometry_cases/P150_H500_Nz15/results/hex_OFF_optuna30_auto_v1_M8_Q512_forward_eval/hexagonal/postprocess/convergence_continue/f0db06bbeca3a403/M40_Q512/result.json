@@ -1,0 +1,70 @@
+{
+  "status": "completed",
+  "mean_R": 1.6497480973539196e-05,
+  "rows": [
+    {
+      "wavelength_nm": 400.0,
+      "reflectance": 2.2383233046392025e-05,
+      "power_into_substrate": 0.006282945666767867,
+      "transmittance_far": 0.0,
+      "absorptance_total": 0.9999776167669536,
+      "motheye_absorptance": 0.9936946711001857,
+      "substrate_absorptance": 0.006282945666767867,
+      "passivity_warning": false,
+      "epsilon_material_real": -4.055700000000001,
+      "epsilon_material_imag": 11.4829,
+      "absorption_evaluation": "inferred from surface power flux; no independent volume-loss audit",
+      "retained_scalar_harmonics": 4921,
+      "eigen_dimension": 1641,
+      "storage": "reduced-modes-response-vectors",
+      "checkpoint_layers": false
+    },
+    {
+      "wavelength_nm": 550.0,
+      "reflectance": 1.7631542415391338e-05,
+      "power_into_substrate": 0.022820620646160174,
+      "transmittance_far": 0.0,
+      "absorptance_total": 0.9999823684575846,
+      "motheye_absorptance": 0.9771617478114244,
+      "substrate_absorptance": 0.022820620646160174,
+      "passivity_warning": false,
+      "epsilon_material_real": -0.9627151515151512,
+      "epsilon_material_imag": 21.181018181818185,
+      "absorption_evaluation": "inferred from surface power flux; no independent volume-loss audit",
+      "retained_scalar_harmonics": 4921,
+      "eigen_dimension": 1641,
+      "storage": "reduced-modes-response-vectors",
+      "checkpoint_layers": false
+    },
+    {
+      "wavelength_nm": 700.0,
+      "reflectance": 9.477667458834224e-06,
+      "power_into_substrate": 0.03784780239209849,
+      "transmittance_far": 0.0,
+      "absorptance_total": 0.9999905223325412,
+      "motheye_absorptance": 0.9621427199404426,
+      "substrate_absorptance": 0.03784780239209849,
+      "passivity_warning": false,
+      "epsilon_material_real": -2.13785777777778,
+      "epsilon_material_imag": 20.675639999999998,
+      "absorption_evaluation": "inferred from surface power flux; no independent volume-loss audit",
+      "retained_scalar_harmonics": 4921,
+      "eigen_dimension": 1641,
+      "storage": "reduced-modes-response-vectors",
+      "checkpoint_layers": false
+    }
+  ],
+  "rcwa_seconds": 422.03774249897106,
+  "runtime_environment": {
+    "python": "3.9.25",
+    "torch": "2.6.0+cu124",
+    "torcwa": "0.1.4.2",
+    "cuda": "12.4",
+    "device": "cuda:0",
+    "gpu": "NVIDIA H100",
+    "gpu_total_bytes": 99949805568,
+    "optuna": "4.6.0"
+  },
+  "peak_cuda_allocated_bytes": 83606880256,
+  "worker_seconds": 426.3529325069976
+}
