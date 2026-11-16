@@ -21,7 +21,9 @@ class LauncherTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.al_base = runner.read(runner.ROOT / runner.AL_SOURCE / "config.json")
         self.cu_base = runner.read(runner.ROOT / runner.CU_CASE / "config.json")
-        for relative, config in ((runner.AL_SOURCE, self.al_base), (runner.CU_CASE, self.cu_base)):
+        self.au_base = runner.read(runner.ROOT / runner.AU_CASE / "config.json")
+        for relative, config in ((runner.AL_SOURCE, self.al_base), (runner.CU_CASE, self.cu_base),
+                                 (runner.AU_CASE, self.au_base)):
             case = self.root / relative
             for folder in ("data", "optimizer", "rcwa_ext"):
                 (case / folder).mkdir(parents=True, exist_ok=True)
@@ -231,6 +233,64 @@ class LauncherTests(unittest.TestCase):
                            "optimization_grid": 1024, "trials": 4, "adam_steps": 20}.items():
             self.assertEqual(p.config[key], value)
         self.assertIn("P250_H400_Nz10", str(p.output))
+
+
+    def test_au_five_heights_use_separate_m20_configs(self):
+        outputs = set()
+        for height in (100, 200, 300, 400, 500):
+            p = self.plan("Au", 200, height_nm=height)
+            self.assertEqual(p.config["material"], "Au")
+            self.assertEqual(p.config["material_csv"], self.au_base["material_csv"])
+            self.assertEqual(p.config["optimization_order"], 20)
+            self.assertEqual(p.config["height_nm"], height)
+            self.assertEqual(p.config["period_nm"], 200)
+            self.assertEqual(p.config["adam_recovery_policy"], runner.POLICY)
+            outputs.add(p.output)
+        self.assertEqual(len(outputs), 5)
+
+    def test_au_height_batch_skips_completed_established_h500_study(self):
+        case = self.root / runner.AU_CASE
+        imported = case / "results/hex_OFF_optuna30_backtracking_from5_v1_M20_Q512"
+        (imported / "hexagonal").mkdir(parents=True)
+        (imported / "manifest.json").write_text("{}")
+        (imported / "workflow.json").write_text(json.dumps({"status": "completed"}))
+        (imported / "hexagonal/report.json").write_text(json.dumps({"status": "completed", "best": {"logits": [0.] * 16}}))
+        older = case / "results/hex_OFF_optuna30_backtracking_v1_M20_Q512"
+        (older / "hexagonal").mkdir(parents=True)
+        (older / "manifest.json").write_text("{}")
+        (older / "workflow.json").write_text(json.dumps({"status": "interrupted"}))
+        journal = older / "hexagonal/optuna_journal.log"
+        journal.write_text("preserve the interrupted study")
+        calls = []
+        def execute(cmd, **kwargs):
+            calls.append(cmd)
+            return SimpleNamespace(returncode=0)
+        self.assertEqual(self.run_main(["--materials", "Au", "--period-nm", "200",
+                                       "--heights", "100,200,300,400,500"], execute), 0)
+        self.assertEqual(len(calls), 4)
+        for cmd, height in zip(calls, (100, 200, 300, 400)):
+            self.assertIn(f"P200_H{height}_Nz15", " ".join(cmd))
+        self.assertEqual(journal.read_text(), "preserve the interrupted study")
+        self.assertEqual(self.plan("Au", 200).output, imported)
+
+    def test_au_existing_height_config_and_state_are_preserved(self):
+        p = self.plan("Au", 200, height_nm=300)
+        trial = p.output / "hexagonal/trials/trial_0007"
+        trial.mkdir(parents=True)
+        checkpoint = trial / "adam_checkpoint.pt"
+        checkpoint.write_bytes(b"Au: step 321, saved moments")
+        config_before = p.config_path.read_bytes()
+        code = self.run_main(["--materials", "Au", "--period-nm", "200", "--height-nm", "300", "--order", "20"],
+                             lambda *a, **k: SimpleNamespace(returncode=0))
+        self.assertEqual(code, 0)
+        self.assertEqual(p.config_path.read_bytes(), config_before)
+        self.assertEqual(checkpoint.read_bytes(), b"Au: step 321, saved moments")
+
+    def test_invalid_height_in_batch_starts_no_condition(self):
+        code = self.run_main(["--materials", "Au", "--period-nm", "200", "--heights", "100,nan"],
+                             lambda *a, **k: self.fail("Invalid batch must not start"))
+        self.assertEqual(code, 2)
+        self.assertFalse((self.root / runner.AU_CASE / "geometry_cases").exists())
 
 
 if __name__ == "__main__":

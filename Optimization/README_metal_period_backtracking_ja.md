@@ -1,8 +1,8 @@
-# Al・Cuの周期別最適化と再開
+# Al・Cu・Auの周期・高さ別最適化と再開
 
 `run_metal_period_backtracking.py` は、既存の復旧版 `run.py` を使い、条件ごとに独立したOptuna studyを実行します。
 既定値は高さ500 nm、15層、六方格子、grid 512、30 trial、Adam最大500更新、正則化OFFです。
-次数の既定値はAlが8、Cuが14です。非物理値に対する復旧は従来と同じで、直前の正常状態に戻し、学習率を半減して最大4回再試行します。
+次数の既定値はAlが8、Cuが14、Auが20です。非物理値に対する復旧は従来と同じで、直前の正常状態に戻し、学習率を半減して最大4回再試行します。
 初期形状自体が非物理値となる場合の扱いを含め、既存の最適化エンジンは変更していません。
 
 ## 実行例
@@ -30,6 +30,17 @@ python run_metal_period_backtracking.py \
 
 `--periods` と `--period-nm` は同時には指定できません。
 必要に応じて `--device cuda:0`、`--layers`、`--trials`、`--adam-steps` も指定できます。
+
+Auの高さ依存性を調べる場合は、次のように指定します。高さごとに独立したstudyを順に実行します。
+
+```bash
+python run_metal_period_backtracking.py \
+  --materials Au --period-nm 200 --heights 100,200,300,400,500 \
+  --order 20 --grid 512
+```
+
+1つの高さだけ実行する場合は、`--heights ...` を `--height-nm 300` などに置き換えます。
+`--heights` と `--height-nm` は同時には指定できません。
 
 ## 再開
 
@@ -59,8 +70,11 @@ python run_metal_period_backtracking.py \
   未作成で旧M8 studyがある場合は、既存のimport処理でtrial 0～9を引き継ぎ、trial 10から復旧版を実行します。
 - Cuの周期・高さ別ケースは `Cu/cu_motheye_P200_H500_Nz15_backtracking_v1/geometry_cases/P..._H..._Nz...` を使います。
 - CuのP200/H500/M14では、既存の `backtracking_from15_v1` があれば再利用します。
+- Auの周期・高さ別ケースは `Au/au_motheye_P200_H500_Nz15_backtracking_v1/geometry_cases/P..._H..._Nz...` を使います。
+  P200/H500/M20では、従来の解析に使用した `backtracking_from5_v1` を優先します。
+  古い中断済みの通常studyも保存したままにします。完了済みのfrom5 studyは再計算しません。
 - 周期に合わせて半径上限・初期形状の探索範囲を設定します。既存のCu高さ別設定も再利用できます。
-- 既存の基準studyとimport済みstudyの両方がある場合は、曖昧な選択を避けて停止します。
+- Al・Cuで既存の基準studyとimport済みstudyの両方がある場合は、曖昧な選択を避けて停止します。
   `--run-tag hex_OFF_optuna30_backtracking_from10_v1` のように出力先の接頭辞を明示できます。
 
 設定と起動コマンドだけ確認し、RCWAを開始しない場合は `--prepare-only` を追加してください。
