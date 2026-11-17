@@ -29,7 +29,8 @@ class PeriodSweepTests(unittest.TestCase):
     def cases(self):
         return json.loads((self.out/'summary.json').read_text())['cases']
 
-    def fake(self, independent=False, ramp=False, interrupt=None, oom=None, spectrum_phase=False, nonpassive_order=None, power_lookup=None):
+    def fake(self, independent=False, ramp=False, interrupt=None, oom=None, spectrum_phase=False,
+             nonpassive_order=None, power_lookup=None, spectrum_interrupt=None, interrupt_case=None):
         def run(command, log):
             def value(flag): return command[command.index(flag)+1]
             order=int(value('--order'));void=value('--voids');period=float(value('--periods'))
@@ -37,6 +38,10 @@ class PeriodSweepTests(unittest.TestCase):
             self.calls.append((period,void,order,spectrum))
             log.write_text('starting\n',encoding='utf-8')
             if not spectrum and (void,order)==interrupt:
+                raise KeyboardInterrupt()
+            if not spectrum and (period,void,order)==interrupt_case:
+                raise KeyboardInterrupt()
+            if spectrum and (period,void)==spectrum_interrupt:
                 raise KeyboardInterrupt()
             if not spectrum and (void,order)==oom:
                 log.write_text('torch.OutOfMemoryError: CUDA out of memory.\n',encoding='utf-8')
@@ -113,6 +118,77 @@ class PeriodSweepTests(unittest.TestCase):
     def test_two_points_cannot_select_a_third_last_order(self):
         self.assertEqual(self.run_sweep(self.fake(),['--start','320','--max-order','336']),2)
         self.assertFalse(any(spectrum for _,_,_,spectrum in self.calls))
+
+    def test_carry_separates_voids_and_inherits_selected_not_final_order(self):
+        self.assertEqual(self.run_sweep(self.fake(independent=True),
+            ['--periods-um','5,10','--start-from-previous']),0)
+        cases=self.cases()
+        self.assertEqual([c['start_order'] for c in cases],[16,16,32,48])
+        self.assertEqual(cases[0]['convergence_final_order'],64)
+        self.assertEqual(cases[2]['checked_orders'][0],32)
+        self.assertEqual(cases[3]['checked_orders'][0],48)
+        self.assertEqual(cases[2]['start_strategy']['source_void'],'air')
+        self.assertEqual(cases[3]['start_strategy']['source_void'],'water')
+
+    def logged_powers(self):
+        pairs={320:(.617079,.118389),336:(.619617,.117422),
+               352:(.619783,.117728),368:(.620420,.117461)}
+        return dict(air={order:(r,t,1-r-t) for order,(r,t) in pairs.items()},
+                    water={order:(.1+order*1e-6,.7-order*1e-6,.2) for order in pairs})
+
+    def test_enable_carry_during_logged_P5_air_spectrum_preserves_M336(self):
+        extra=['--periods-um','5,10','--start','320','--max-order','400']
+        self.assertEqual(self.run_sweep(self.fake(power_lookup=self.logged_powers(),
+            spectrum_interrupt=(5000.,'air')),extra),130)
+        self.assertEqual(self.cases()[0]['selected_order'],336)
+        self.calls.clear()
+        self.assertEqual(self.run_sweep(self.fake(power_lookup=self.logged_powers()),
+            [*extra,'--start-from-previous']),0)
+        cases=self.cases()
+        self.assertEqual([c['start_order'] for c in cases],[320,320,336,320])
+        self.assertEqual(cases[0]['selected_order'],336)
+        self.assertEqual(cases[2]['checked_orders'],[336,352,368])
+        self.assertFalse(any(period==5000 and void=='air' and not spectrum
+                             for period,void,_,spectrum in self.calls))
+
+    def test_case_already_started_with_fixed_policy_keeps_recorded_start(self):
+        extra=['--periods-um','5,10','--start','320','--max-order','400']
+        self.assertEqual(self.run_sweep(self.fake(power_lookup=self.logged_powers(),
+            interrupt_case=(10000.,'air',336)),extra),130)
+        self.calls.clear()
+        self.assertEqual(self.run_sweep(self.fake(power_lookup=self.logged_powers()),
+            [*extra,'--start-from-previous']),0)
+        case=self.cases()[2]
+        self.assertEqual(case['start_order'],320)
+        self.assertEqual(case['start_strategy']['mode'],'existing_case')
+        self.assertNotIn((10000.,'air',320,False),self.calls)
+
+    def test_carry_completed_resume_runs_no_children(self):
+        extra=['--periods-um','5,10','--start-from-previous']
+        self.assertEqual(self.run_sweep(self.fake(independent=True),extra),0)
+        self.calls.clear()
+        self.assertEqual(self.run_sweep(self.fake(independent=True),extra),0)
+        self.assertEqual(self.calls,[])
+
+    def test_failed_void_does_not_borrow_the_other_void_seed(self):
+        self.assertEqual(self.run_sweep(self.fake(independent=True,oom=('air',16)),
+            ['--periods-um','5,10','--start-from-previous']),3)
+        self.assertEqual([c['start_order'] for c in self.cases()],[16,16,16,48])
+        self.assertEqual(self.cases()[2]['start_strategy']['mode'],'initial_fallback')
+
+    def test_700_convergence_can_seed_next_period_despite_spectrum_phase_failure(self):
+        self.assertEqual(self.run_sweep(self.fake(independent=True,spectrum_phase=True),
+            ['--periods-um','5,10','--start-from-previous']),4)
+        self.assertEqual([c['start_order'] for c in self.cases()],[16,16,32,48])
+
+    def test_carry_requires_increasing_periods(self):
+        self.assertEqual(self.run_sweep(self.fake(),
+            ['--periods-um','10,5','--start-from-previous']),4)
+        self.assertEqual(self.calls,[])
+
+    def test_fixed_start_policy_is_still_available(self):
+        self.assertEqual(self.run_sweep(self.fake(independent=True),['--periods-um','5,10']),0)
+        self.assertEqual([c['start_order'] for c in self.cases()],[16,16,16,16])
 
     def test_previous_selection_rule_output_is_rejected(self):
         self.assertEqual(self.run_sweep(self.fake()),0)

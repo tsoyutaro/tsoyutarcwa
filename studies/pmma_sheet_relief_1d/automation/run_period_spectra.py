@@ -23,6 +23,8 @@ def parser():
     p.add_argument('--periods-um', default=DEFAULT_PERIODS, help='comma-separated periods in micrometres')
     p.add_argument('--slices', type=int, default=15000)
     p.add_argument('--start', type=int, default=320)
+    p.add_argument('--start-from-previous', action='store_true',
+                   help='start each new period at the last converged selected M for the same void')
     p.add_argument('--step', type=int, default=16)
     p.add_argument('--max-order', type=int, default=1600)
     p.add_argument('--tolerance', type=float, default=.001, help='absolute power difference; .001 = 0.1 percentage points')
@@ -48,6 +50,8 @@ def plan(args):
     periods = [float(x) for x in args.periods_um.split(',')]
     if not periods or len(set(periods)) != len(periods) or any(not math.isfinite(x) or x <= 0 for x in periods):
         raise ValueError('Use distinct positive finite --periods-um.')
+    if args.start_from_previous and periods != sorted(periods):
+        raise ValueError('--start-from-previous requires periods in increasing order.')
     if args.slices < 1 or args.start < 1 or args.step < 1 or args.max_order < args.start:
         raise ValueError('Require positive slices/start/step and max-order >= start.')
     if (args.max_order-args.start) % args.step:
@@ -190,7 +194,31 @@ def maximum_rta_change(before, after):
     return max(abs(float(after[k])-float(before[k])) for k in METRICS)
 
 
-def run_case(args, case, waves, env, dest):
+def case_start(args, case, dest, seeds):
+    effective = argparse.Namespace(**vars(args))
+    info = dict(mode='fixed', start_order=args.start)
+    if not args.start_from_previous:
+        return effective, info
+    previous = seeds.get(case['void'])
+    manifest = dest/'identity.json'
+    if manifest.exists():
+        # Preserve a case that was started under either policy. run_case still
+        # validates every physical setting, environment and selection rule.
+        recorded = controller.load(manifest)['start']
+        if type(recorded) is not int or recorded < 1 or (args.max_order-recorded) % args.step:
+            raise ValueError(f'Invalid recorded start order in {manifest}.')
+        effective.start = recorded
+        info = dict(mode='existing_case', start_order=recorded)
+    elif previous is not None:
+        effective.start = previous['selected_order']
+        info = dict(mode='previous_period', start_order=effective.start,
+                    source_period_um=previous['period_um'], source_void=case['void'])
+    else:
+        info = dict(mode='initial_fallback', start_order=args.start)
+    return effective, info
+
+
+def run_case(args, case, waves, env, dest, start_info=None):
     dest.mkdir(parents=True, exist_ok=True)
     ident = identity(args, case, waves, env)
     manifest = dest/'identity.json'
@@ -202,6 +230,7 @@ def run_case(args, case, waves, env, dest):
         slices=args.slices, gil_nm=0., status='starting', selected_order=None,
         minimum_700_order=case['minimum_700_order'], minimum_spectrum_order=case['minimum_spectrum_order'],
         criterion=ident['criterion'], selected_order_rule=ident['selection'],
+        start_order=args.start, start_strategy=start_info or dict(mode='fixed', start_order=args.start),
         checked_orders=[], skipped_orders=[], comparisons=[])
 
     def status(value, **extra):
@@ -279,6 +308,7 @@ def save_summary(output, cases):
     if cases:
         save_csv(output/'summary.csv', [dict(period_um=c['period_um'], void=c['void'],
             status=c['status'], selected_order=c.get('selected_order'),
+            start_order=c.get('start_order'),
             convergence_final_order=c.get('convergence_final_order'), output_dir=c['output_dir']) for c in cases])
 
 
@@ -294,25 +324,35 @@ def main(argv=None):
             print(f'Grid M={args.start}:{args.step}:{args.max_order}; wavelengths={args.wavelengths}; '
                   f'{len(cases)} independent cases; {len(waves)} spectral points per case.')
             print('Select third-last M after two passing total-RTA comparisons; no spectrum for unselected cases.')
+            if args.start_from_previous:
+                print('New periods inherit the selected M from the latest converged smaller period, separately for each void; '
+                      'the inherited start is known at runtime. Existing cases keep their recorded start.')
             return 0
         env = environment(args)
         args.device = env['device']
         output = (args.output_dir or STUDY/f'results/fff1d/period_sweep_Nz{args.slices}_GIL0_RTA_start{args.start}_pick3').resolve()
         output.mkdir(parents=True, exist_ok=True)
         results = []
+        seeds = {}
         with controller.campaign_lock(output):
             save_json(output/'requested_plan.json', dict(cases=cases, wavelengths_nm=waves,
-                max_order=args.max_order, plan_cache_mib=args.plan_cache_mib))
+                max_order=args.max_order, plan_cache_mib=args.plan_cache_mib,
+                start_from_previous=args.start_from_previous, initial_start=args.start))
             for case in cases:
                 dest = output/f"P{case['period_nm']:g}"/case['void']
                 try:
-                    state = run_case(args, case, waves, env, dest)
+                    effective, start_info = case_start(args, case, dest, seeds)
+                    print(f"Start P={case['period_um']:g} um / {case['void']}: M={effective.start} "
+                          f"({start_info['mode']})", flush=True)
+                    state = run_case(effective, case, waves, env, dest, start_info)
                 except KeyboardInterrupt:
                     state = controller.load(dest/'case.json')
                     state['output_dir'] = str(dest); results.append(state)
                     save_summary(output, results)
                     return 130
                 state['output_dir'] = str(dest); results.append(state)
+                if state.get('convergence_passed') and state.get('selected_order') is not None:
+                    seeds[case['void']] = dict(period_um=case['period_um'], selected_order=state['selected_order'])
                 save_summary(output, results)
                 print(f"Finished P={case['period_um']:g} um {case['void']}: {state['status']}; "
                       f"selected M={state.get('selected_order')}", flush=True)

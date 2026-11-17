@@ -1,9 +1,17 @@
 {
   "date": "2026-11-17",
   "workflow_version": 2,
-  "unit_tests_passed": 19,
+  "unit_tests_passed": 27,
   "selection_rule": "third-last order after two passing adjacent RTA comparisons",
   "default_start_order": 320,
+  "start_from_previous_supported": true,
+  "carry_tests": {
+    "separate_voids": true,
+    "inherits_selected_not_final": true,
+    "enable_during_P5_air_spectrum_preserves_M336": true,
+    "preserves_existing_case_start": true,
+    "no_cross_void_seed_after_oom": true
+  },
   "real_smoke_test": {
     "device": "cpu",
     "period_nm": 200,
@@ -23,7 +31,7 @@
       "water": "completed"
     },
     "point_cache_reuse_verified": true,
-    "checkpoint_resume_verified_by_unit_tests": true,
+    "legacy_checkpoint_resume_verified": true,
     "spectrum_reused_700nm_point": true
   },
   "numerical_equivalence": {
@@ -58,10 +66,10 @@
   "physical_source_files_unchanged": 16,
   "source_sha256": "35a54e0fbdc717bbdc2a9bea4150b5ad204d5d70d006d8a9193e11a6a3da86ba",
   "installed_files_sha256": {
-    "automation/run_period_spectra.py": "e94bd845b7a01080d499bd8460622324c71e7eb5437fe75414dece98f97b0f13",
+    "automation/run_period_spectra.py": "08d4620d1fd5d2a2c32636fe3ceb6f149a7fe49f5d7f58db0b238f7e9f577a7d",
     "automation/run_fff_cached.py": "2046886957a14659c0bdbeb27f8b875b3046d280848ae64e821f97b3878b45e4",
-    "automation/PERIOD_SPECTRA_ja.md": "199bfaca768da2c0b1a3322983a2d69965b3c67aa93897d480b93220c3568cce",
-    "validation/workflows/test_period_spectra.py": "60a460165e65154b06146497e36d6a6072b305212d06e45a743b0b261002e5c2"
+    "automation/PERIOD_SPECTRA_ja.md": "a10027a0ef747444dedc4d562afd0b1908a90a410141fa34e60641c72e2ec3d2",
+    "validation/workflows/test_period_spectra.py": "f5a2f5c0bba26c2fbdf7fcad1ad709f4ff75d8520804f2ac4f7fcc757231b9e3"
   },
   "production_gpu_run_performed": false
 }
